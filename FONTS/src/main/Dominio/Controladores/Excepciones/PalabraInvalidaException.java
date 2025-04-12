@@ -1,7 +1,7 @@
 package main.Dominio.Controladores.Excepciones;
 
-public class PalabraNoEncontradaException extends Exception {
-    public PalabraNoEncontradaException(String palabra) {
+public class PalabraInvalidaException extends Exception {
+    public PalabraInvalidaException(String palabra) {
         super("La palabra no fue encontrada en el DAWG: " + palabra);
     }
 }
