@@ -43,6 +43,11 @@ runTestFicha:
 runTestBolsa:
 	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.BolsaTest
 
+runTestCelda:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.CeldaTest
+
+runTestTablero:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.TableroTest
 
 # Regla para limpiar el directorio EXE (tanto main como test)
 clean:
