@@ -57,6 +57,15 @@ runTestTipoBonificacion:
 runTestDawg:
 	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.DawgTest
 
+runTestPair:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.PairTest
+
+runTestNodo:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.NodoTest
+
+
+runTestRanking:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.RankingTest
 
 
 # Regla para limpiar el directorio EXE (tanto main como test)
