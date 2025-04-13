@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.*;
 
+import Dominio.Excepciones.*;
+import Dominio.Modelos.*;
+
 public class CtrlDominio {
    
      private CtrlJugador ctrlJugador;

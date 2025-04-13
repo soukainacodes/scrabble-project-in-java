@@ -1,19 +1,18 @@
-MAIN_PATH =	./FONTS/src/main/Dominio/*.java \
-				./FONTS/src/main/Dominio/Controladores/Modelos/Partida/Dawg/*.java \
-				./FONTS/src/main/Dominio/Controladores/Modelos/Partida/Bolsa/*.java \
-				./FONTS/src/main/Dominio/Controladores/Modelos/Partida/Tablero/*.java \
-				./FONTS/src/main/Dominio/Controladores/Modelos/Jugador/*.java \
-				./FONTS/src/main/Dominio/Controladores/Modelos/Partida/*.java \
-				./FONTS/src/main/Dominio/Controladores/Modelos/*.java \
-				./FONTS/src/main/Dominio/Controladores/Modelos/Ranking/*.java \
-				./FONTS/src/main/Dominio/Controladores/*.java \
-				./FONTS/src/main/Dominio/Controladores/Excepciones/*.java \
-				./FONTS/src/main/Presentacion/Drivers/*.java \
-				
-CLASS_OUTPUT =	./EXE/
+MAIN_PATH = \
+    ./FONTS/src/main/Dominio/*.java \
+	./FONTS/src/main/Dominio/Excepciones/*.java \
+	./FONTS/src/main/Dominio/Modelos/*.java \
 
-TEST_PATH = ./FONTS/src/test/*.java 
+# Directorio de salida para los .class
+CLASS_OUTPUT_MAIN = ./EXE/main
+CLASS_OUTPUT_TEST = ./EXE/test
+
+# Objetivo para compilar el código
 code:
-	javac -d $(CLASS_OUTPUT) $(MAIN_PATH)
+	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
 test:
-	javac -d $(CLASS_OUTPUT) $(TEST_PATH)
+	javac -d $(CLASS_OUTPUT_TEST) $(TEST_PATH)
+
+# Regla para limpiar el directorio EXE
+clean main:
+	rm -rf $(CLASS_OUTPUT_MAIN)/*
