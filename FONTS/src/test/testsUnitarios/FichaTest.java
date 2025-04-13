@@ -1,7 +1,7 @@
 package testsUnitarios;
 
 
-import main.Dominio.Controladores.Modelos.Partida.Bolsa.*;
+import Dominio.Modelos.Ficha;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
