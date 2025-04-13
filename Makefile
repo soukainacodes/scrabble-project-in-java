@@ -11,6 +11,9 @@ MAIN_PATH =	./FONTS/src/main/Dominio/*.java \
 				./FONTS/src/main/Presentacion/Drivers/*.java \
 				
 CLASS_OUTPUT =	./EXE/
-	
+
+TEST_PATH = ./FONTS/src/test/*.java 
 code:
 	javac -d $(CLASS_OUTPUT) $(MAIN_PATH)
+test:
+	javac -d $(CLASS_OUTPUT) $(TEST_PATH)

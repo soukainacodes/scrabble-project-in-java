@@ -261,7 +261,7 @@ private int getFichaPuntuacion(Position pos, boolean vacia){
                    
                     if(nodo_actual.getHijos().containsKey(existing_letter)){
                         int p = getFichaPuntuacion(next_pos,true);
-                       // puntos += p;
+                        puntos += p;
                         extend_right(palabraParcial + existing_letter, nodo_actual.getHijos().get(existing_letter), right(next_pos),true);
                         puntos -= p;
                     }
