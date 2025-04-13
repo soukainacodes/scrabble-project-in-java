@@ -15,21 +15,34 @@ TEST_PATH = ./FONTS/src/test/testsUnitarios/*.java
 JUNIT_JAR = ./FONTS/src/test/lib/junit-4.12.jar
 HAMCREST_JAR = ./FONTS/src/test/lib/hamcrest-core-1.3.jar
 
+# Rutas a las librerías de Mockito y sus dependencias
+MOCKITO_JAR = ./FONTS/src/test/lib/mockito-core-4.9.0.jar
+BYTE_BUDDY_JAR = ./FONTS/src/test/lib/byte-buddy-1.12.16.jar
+BYTE_BUDDY_AGENT_JAR = ./FONTS/src/test/lib/byte-buddy-agent-1.12.16.jar
+OBJENESIS_JAR = ./FONTS/src/test/lib/objenesis-3.3.jar
+
+# Agrupar todas las dependencias en una variable (para Unix; en Windows usa ; como separador)
+LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDDY_AGENT_JAR):$(OBJENESIS_JAR)
+
 # Objetivo para compilar el código principal (no se toca)
 code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
 
 # Objetivo para compilar los tests.
 # NOTA: Se compila directamente en $(CLASS_OUTPUT_TEST) para que, al tener 
-# el package "testsUnitarios" en FichaTest.java, se genere la carpeta testsUnitarios automáticamente.
-testFicha:
+# el package "testsUnitarios" en tus tests, se genere la carpeta correspondiente automáticamente.
+test:
 	mkdir -p $(CLASS_OUTPUT_TEST)
-	javac -d $(CLASS_OUTPUT_TEST) -cp $(CLASS_OUTPUT_MAIN):$(JUNIT_JAR):$(HAMCREST_JAR) $(TEST_PATH)
+	javac -d $(CLASS_OUTPUT_TEST) -cp $(CLASS_OUTPUT_MAIN):$(LIBS) $(TEST_PATH)
 
 # Objetivo para ejecutar el test.
-# Se asume que FichaTest.java declara el paquete "testsUnitarios" y tiene un método main o está preparado para ser ejecutado.
+# Se asume que FichaTest.java declara el paquete "testsUnitarios" y está preparado para ser ejecutado.
 runTestFicha:
-	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(JUNIT_JAR):$(HAMCREST_JAR) org.junit.runner.JUnitCore testsUnitarios.FichaTest
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.FichaTest
+
+runTestBolsa:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.BolsaTest
+
 
 # Regla para limpiar el directorio EXE (tanto main como test)
 clean:
