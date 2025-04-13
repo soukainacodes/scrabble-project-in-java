@@ -1,10 +1,8 @@
 package main.Presentacion.Drivers;
 
-import main.Dominio.Controladores.Modelos.Dawg.Dawg;
-import main.Dominio.Controladores.Modelos.Dawg.Nodo;
 // Si tienes alguna excepción específica del DAWG, impórtala
 // import main.Dominio.Controladores.Excepciones.AlgunaExcepcion; 
-
+import main.Dominio.Controladores.Modelos.Partida.Dawg.*;
 /**
  * Clase de prueba para el DAWG.
  * Esta clase permite instanciar y probar la funcionalidad y manejo de excepciones
@@ -12,14 +10,14 @@ import main.Dominio.Controladores.Modelos.Dawg.Nodo;
  */
 public class TestDawg {
     public static void main(String[] args) {
-        try {
+       /*  try {
             // Instancia el DAWG
             Dawg dawg = new Dawg();
             
             // Suponiendo que tu DAWG tiene métodos para agregar o buscar palabras,
             // realiza algunas operaciones de prueba.
             // Por ejemplo, si tienes un método agregarPalabra(String palabra):
-            dawg.agregarPalabra("HOLA");
+          dawg.agregarPalabra("HOLA");
             dawg.agregarPalabra("HOLI");
             dawg.agregarPalabra("HOLO");
             dawg.agregarPalabra("HOLOGRAMA");
@@ -32,7 +30,7 @@ public class TestDawg {
             
         } catch (Exception e) {
             // Captura cualquier excepción y muestra el rastro del error
-            e.printStackTrace();
-        }
+            e.printStackTrace();  
+        }*/
     }
 }

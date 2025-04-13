@@ -8,8 +8,9 @@ MAIN_PATH =	./FONTS/src/main/Dominio/*.java \
 				./FONTS/src/main/Dominio/Controladores/Modelos/Ranking/*.java \
 				./FONTS/src/main/Dominio/Controladores/*.java \
 				./FONTS/src/main/Dominio/Controladores/Excepciones/*.java \
+				./FONTS/src/main/Presentacion/Drivers/*.java \
 				
-CLASS_OUTPUT =	./EXE/output/
+CLASS_OUTPUT =	./EXE/
 	
 code:
 	javac -d $(CLASS_OUTPUT) $(MAIN_PATH)

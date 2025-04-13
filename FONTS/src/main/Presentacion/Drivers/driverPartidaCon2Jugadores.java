@@ -1,14 +1,14 @@
 //package subgrup-prop42.5.drivers;
-
+import main.Dominio.Controladores.Modelos.Partida.Dawg.*;
 import java.util.*;
 import java.io.*;
 public class driverPartidaCon2Jugadores {
     private static Scanner in = null;
-    private ControladorDominio cd;
+    private CtrlDominio cd;
 
     public static void main(String[] args) {
         in = new Scanner(System.in);
-        ControladorDominio cd = new ControladorDominio();
+        CtrlDominio cd = new CtrlDominio();
         System.out.println("Driver de prueba de Partida con 2 Jugadores");
 
         //Crear 2 jugadores

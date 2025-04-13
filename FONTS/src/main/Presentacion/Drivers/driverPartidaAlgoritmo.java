@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
+import main.Dominio.Controladores.Modelos.Partida.Dawg.*;
 public class driverPartidaAlgoritmo {
         private static Scanner in = null;
-    private ControladorDominio cd;
+    private CtrlDominio cd;
 
     public static void main(String[] args) {
         in = new Scanner(System.in);
-        ControladorDominio cd = new ControladorDominio();
+        CtrlDominio cd = new CtrlDominio();
         System.out.println("Driver de prueba de Partida con 2 Jugadores");
 
         //Crear 2 jugadores
@@ -25,8 +25,8 @@ public class driverPartidaAlgoritmo {
         List<String> lineasArchivoBolsa; //Información para la bolsa
         //Leer las fichas y el diccionario.
         try{ 
-             lineasArchivoBolsa = leerArchivo("./resources/letrasCAST.txt"); 
-             lineasArchivo = leerArchivo("./resources/castellano.txt");
+             lineasArchivoBolsa = leerArchivo("../FONTS/src/Recursos/Castellano/letrasCAST.txt"); 
+             lineasArchivo = leerArchivo("../FONTS/src/Recursos/Castellano/castellano.txt");
              cd.iniciarPartida(1, j1.getNombre(),  "", lineasArchivo, lineasArchivoBolsa);
         }
         catch (IOException e) {
