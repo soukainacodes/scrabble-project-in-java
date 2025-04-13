@@ -48,6 +48,16 @@ runTestCelda:
 
 runTestTablero:
 	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.TableroTest
+runTestJugador:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.JugadorTest
+
+runTestTipoBonificacion:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.TipoBonificacionTest
+
+runTestDawg:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.DawgTest
+
+
 
 # Regla para limpiar el directorio EXE (tanto main como test)
 clean:

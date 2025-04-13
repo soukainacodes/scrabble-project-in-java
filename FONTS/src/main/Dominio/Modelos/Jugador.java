@@ -32,14 +32,10 @@ public class Jugador {
         this.puntos = puntos; // Establece o actualiza los puntos del jugador
     }
 
-    // Método ValidarPassword (versión corregida)
+    // Método ValidarPassword 
     public boolean ValidarPassword(String pass) {
         return this.password.equals(pass); // Valida si el parametro es la contraseña del jugadpr
     }
 
-        /*
-    public boolean ValidarPassword(String pass) {
-        return this.password == pass;
-    }
-    */
+    
 }
