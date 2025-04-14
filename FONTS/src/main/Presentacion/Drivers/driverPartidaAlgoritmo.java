@@ -1,4 +1,4 @@
-package Presentacion.Drivers;
+
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -31,8 +31,8 @@ public class driverPartidaAlgoritmo {
         List<String> lineasArchivoBolsa; //Información para la bolsa
         //Leer las fichas y el diccionario.
         try{ 
-             lineasArchivoBolsa = leerArchivo("../FONTS/src/Recursos/Castellano/letrasCAST.txt"); 
-             lineasArchivo = leerArchivo("../FONTS/src/Recursos/Castellano/castellano.txt");
+             lineasArchivoBolsa = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/letrasCAST.txt"); 
+             lineasArchivo = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/castellano.txt");
              cd.iniciarPartida(1, j1.getNombre(),  "", lineasArchivo, lineasArchivoBolsa);
         }
         catch (IOException e) {

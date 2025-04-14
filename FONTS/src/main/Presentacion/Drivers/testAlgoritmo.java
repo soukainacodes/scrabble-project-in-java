@@ -13,7 +13,7 @@ import Dominio.*;
 public class testAlgoritmo {
      public static void main(String[] args) {
  
-        Tablero t = new Tablero();
+   /*     Tablero t = new Tablero();
         
     
         List<Ficha> fichas =  new ArrayList<>();
@@ -56,6 +56,6 @@ public class testAlgoritmo {
             }
         }
         
-        return lineasArchivo;
+        return lineasArchivo;*/
     }
 }

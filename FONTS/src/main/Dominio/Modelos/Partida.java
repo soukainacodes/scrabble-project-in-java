@@ -1,6 +1,4 @@
 package Dominio.Modelos;
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +27,7 @@ public class Partida {
             setFicha(bolsa.sacarFichaAleatoria());
             turnoJugador = !turnoJugador;
         }
+        turnoJugador = true;
     }
        public void mostrarTablero(){
             tablero.mostrarTablero();
@@ -54,7 +53,14 @@ public class Partida {
     }
 
    
-
+    public void recuperarFichas(){
+        for(int i= fichasJugador1.size();  i<=7; i++){
+             fichasJugador1.add(bolsa.sacarFichaAleatoria());
+        }
+        for(int i= fichasJugador2.size();  i<=7; i++){
+            fichasJugador2.add(bolsa.sacarFichaAleatoria());
+        }
+    }
     
 
     // Método cambiarTurnoJugador
