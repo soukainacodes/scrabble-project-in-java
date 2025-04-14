@@ -27,10 +27,11 @@ public class Validador {
         this.puntosLinea = 0;
     }
 
-    public int validarPalabra(List<Pair<Integer,Integer>> coordenadasPalabra, Dawg diccionario, Tablero tablero) {
+    public int validarPalabra(List<Pair<Integer,Integer>> coordenadasPalabra, Dawg diccionario, Tablero tablero, int contadorTurno) {
     // If no new tiles were placed
     this.tablero = tablero;
-   
+       
+ 
     if (coordenadasPalabra.isEmpty()) {
         return 0;
     }
@@ -39,7 +40,9 @@ public class Validador {
     
     // Special case: only one tile placed
     if (coordenadasPalabra.size() == 1) {
+     
         if (contadorTurno == 0) {
+            
             return 0; // First turn must have more than one tile
         }
         

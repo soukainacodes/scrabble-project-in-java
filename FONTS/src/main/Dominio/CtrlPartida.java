@@ -126,12 +126,12 @@ public class CtrlPartida {
 
    
     public void finTurno(){
-          System.out.println("aaaa");
-         System.out.println(coordenadasPalabra.size());
-        int puntos = validador.validarPalabra(coordenadasPalabra, dawg, tablero);
+       
+         
+        int puntos = validador.validarPalabra(coordenadasPalabra, dawg, tablero, contadorTurno);
         if(puntos != 0){
-            coordenadasPalabra.clear();
-            System.out.println(coordenadasPalabra.size());
+            
+            
             System.out.println("Palabra correcta");
             for(Pair<Integer,Integer> k : coordenadasPalabra ){
                  System.out.println(k.getFirst() + k.getSecond());
@@ -159,6 +159,7 @@ public class CtrlPartida {
             partidaActual.recuperarFichas();
             
            coordenadasPalabra.clear();
+            System.out.println(coordenadasPalabra.size());
         }
         else{
             System.out.println("Palabra incorrecta");
