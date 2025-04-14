@@ -2,6 +2,7 @@ package Dominio;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import Dominio.Modelos.*;
 
 public class CtrlPartida {
@@ -31,9 +32,7 @@ public class CtrlPartida {
     public void crearPartida(int modo, List<String> players, List<String> lineasArchivo,  List<String> lineasArchivoBolsa){
         this.dawg = new Dawg();
         dawg.cargarFichasValidas(lineasArchivoBolsa);
-
-     
-            dawg.construirDesdeArchivo(lineasArchivo);
+        dawg.construirDesdeArchivo(lineasArchivo);
       
        this.tablero = new Tablero();
        this.bolsa = new Bolsa(lineasArchivoBolsa);
@@ -41,9 +40,9 @@ public class CtrlPartida {
        this.finTurno = false;
        this.contadorTurno = 0;
        
-       if(players.size() == 1){
+       if(modo == 1){
         this.isAlgoritmo = true;
-      //  this.algoritmo = new CtrlAlgoritmo(tablero, partidaActual.getFichasJugador2() , dawg);
+        this.algoritmo = new Algoritmo();
        }
        else this.isAlgoritmo = false;
       
@@ -85,6 +84,15 @@ public class CtrlPartida {
         int y = Integer.parseInt(parts[2]);
            quitarFicha(x,y);
      }
+     else if(parts[0].contains("reset")){
+
+     }
+     else if(parts[0].contains("pasar")){
+        for( Pair p : coordenadasPalabra){
+           // quitarFicha(p.getFirst(),p.getSecond());
+        }
+        finTurno(); 
+     }
      else if(parts[0].contains("fin")){
         
            finTurno(); 
@@ -94,9 +102,7 @@ public class CtrlPartida {
  
     //Funcion para añadir una ficha
     public void añadirFicha(int ficha, int x, int y){
-        System.out.println(ficha);
-        System.out.println(x);
-        System.out.println(y);
+     
         if(!tablero.getCelda(x, y).estaOcupada()){
             coordenadasPalabra.add(Pair.createPair(x,y));
             tablero.ponerFicha(partidaActual.getFicha(ficha), x, y);
@@ -120,16 +126,39 @@ public class CtrlPartida {
 
    
     public void finTurno(){
+          System.out.println("aaaa");
+         System.out.println(coordenadasPalabra.size());
         int puntos = validador.validarPalabra(coordenadasPalabra, dawg, tablero);
-        if(puntos >= 0){
+        if(puntos != 0){
             coordenadasPalabra.clear();
+            System.out.println(coordenadasPalabra.size());
             System.out.println("Palabra correcta");
-            System.out.println("Puntos: " + puntos );
+            for(Pair<Integer,Integer> k : coordenadasPalabra ){
+                 System.out.println(k.getFirst() + k.getSecond());
+            }
             partidaActual.cambiarTurnoJugador();
             contadorTurno++;
             if(isAlgoritmo) {
-               // List<Pair<String,List<Pair<Integer,Integer>>>> lista = algoritmo.BuscarJugada();
                
+            partidaActual.mostrarFichas();
+            List<Pair<Ficha,Pair<Integer, Integer>>> s = algoritmo.find_all_words(partidaActual.getFichasJugador2() , dawg, tablero);
+           
+            System.out.println(partidaActual.mostrarFichas());
+            for (Pair<Ficha,Pair<Integer, Integer>> aa : s){
+                int i = -1;
+                for(Ficha f : partidaActual.getFichasJugador2()){
+                    i++;
+                    if(f.equals(aa.getFirst())) break;
+                }
+                añadirFicha(i,aa.getSecond().getFirst(), aa.getSecond().getSecond());
+                
+            }
+            partidaActual.cambiarTurnoJugador();
+            }
+
+            partidaActual.recuperarFichas();
+            
+           coordenadasPalabra.clear();
         }
         else{
             System.out.println("Palabra incorrecta");
@@ -139,5 +168,5 @@ public class CtrlPartida {
    
 
   
-}
+
 }
