@@ -1,7 +1,12 @@
-//package subgrup-prop42.5.drivers;
-import main.Dominio.Controladores.Modelos.Partida.Dawg.*;
+package Presentacion.Drivers;
+
 import java.util.*;
 import java.io.*;
+
+import Dominio.Modelos.*;
+import Dominio.*;
+
+
 public class driverPartidaCon2Jugadores {
     private static Scanner in = null;
     private CtrlDominio cd;

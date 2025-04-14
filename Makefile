@@ -2,7 +2,8 @@
 MAIN_PATH = \
     ./FONTS/src/main/Dominio/*.java \
 	./FONTS/src/main/Dominio/Excepciones/*.java \
-	./FONTS/src/main/Dominio/Modelos/*.java
+	./FONTS/src/main/Dominio/Modelos/*.java \
+	./FONTS/src/main/Presentacion/Drivers/*.java \
 
 # Directorios de salida
 CLASS_OUTPUT_MAIN = ./EXE/main
@@ -27,6 +28,10 @@ LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDD
 # Objetivo para compilar el código principal (no se toca)
 code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
+
+runcode:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.driverPartidaAlgoritmo
+
 
 # Objetivo para compilar los tests.
 # NOTA: Se compila directamente en $(CLASS_OUTPUT_TEST) para que, al tener 
@@ -66,6 +71,9 @@ runTestNodo:
 
 runTestRanking:
 	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.RankingTest
+
+runTestCtrlRanking:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.CtrlRankingTest
 
 
 # Regla para limpiar el directorio EXE (tanto main como test)

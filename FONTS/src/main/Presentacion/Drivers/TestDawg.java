@@ -1,8 +1,11 @@
-package main.Presentacion.Drivers;
+package Presentacion.Drivers;
 
 // Si tienes alguna excepción específica del DAWG, impórtala
 // import main.Dominio.Controladores.Excepciones.AlgunaExcepcion; 
-import main.Dominio.Controladores.Modelos.Partida.Dawg.*;
+import Dominio.Modelos.*;
+import Dominio.*;
+
+
 /**
  * Clase de prueba para el DAWG.
  * Esta clase permite instanciar y probar la funcionalidad y manejo de excepciones

@@ -1,4 +1,4 @@
-
+package Dominio;
 
 
 import java.io.*;
@@ -44,15 +44,5 @@ public class CtrlJugador {
         return jugadores.get(nombre);
     }
 
-    // Método para listar todos los jugadores registrados
-    /*public void listarJugadores() {
-        if (conjuntoDeJugadoresRegistrados.isEmpty()) {
-            System.out.println("No hay jugadores registrados.");
-        } else {
-            System.out.println("Jugadores registrados:");
-            for (Jugador jugador : conjuntoDeJugadoresRegistrados.values()) {
-                System.out.println("Nombre: " + jugador.getNombre() + ", Puntos: " + jugador.getPuntos());
-            }
-        }
-    }*/
+   
 }

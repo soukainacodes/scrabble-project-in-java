@@ -3,7 +3,6 @@ package Dominio.Modelos;
 
 import java.util.ArrayList;
 import java.util.List;
-//import main.Dominio.Controladores.Modelos.Partida.Dawg.*;
 
 public class Validador {
     private Partida partida;

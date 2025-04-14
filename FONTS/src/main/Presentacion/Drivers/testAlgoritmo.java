@@ -1,9 +1,13 @@
+package Presentacion.Drivers;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import main.Dominio.Controladores.Modelos.Partida.Dawg.*;
+
+import Dominio.Modelos.*;
+import Dominio.*;
 
 
 public class testAlgoritmo {
