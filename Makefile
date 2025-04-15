@@ -4,6 +4,7 @@ MAIN_PATH = \
 	./FONTS/src/main/Dominio/Excepciones/*.java \
 	./FONTS/src/main/Dominio/Modelos/*.java \
 	./FONTS/src/main/Presentacion/Drivers/*.java \
+	./FONTS/src/main/Persistencia/*.java \
 
 # Directorios de salida
 CLASS_OUTPUT_MAIN = ./EXE/main
@@ -31,6 +32,9 @@ code:
 
 runcode:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.driverPartidaAlgoritmo
+
+runcode_ranking:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverRanking
 
 
 # Objetivo para compilar los tests.
