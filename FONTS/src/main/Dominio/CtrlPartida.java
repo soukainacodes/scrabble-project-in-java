@@ -6,8 +6,8 @@ import java.util.List;
 import Dominio.Modelos.*;
 
 public class CtrlPartida {
-    private Partida partidaActual;
     
+    private Partida partidaActual;
     private Dawg dawg;
     private Validador validador;
     private boolean finTurno;
@@ -17,6 +17,8 @@ public class CtrlPartida {
     private boolean isAlgoritmo;
     private Algoritmo algoritmo;
     private List<Pair<Integer,Integer>> coordenadasPalabra;
+
+
     // Constructor
     public CtrlPartida() {
         this.coordenadasPalabra = new ArrayList<>();
@@ -48,15 +50,9 @@ public class CtrlPartida {
       
    }
 
-    public void mostrarTablero(){
-       
-        partidaActual.mostrarTablero();
-    }
 
     public void mostrarFichas(){
-
-           System.out.println( partidaActual.mostrarFichas());
-        
+        System.out.println( partidaActual.mostrarFichas());
     }
     
 
@@ -166,7 +162,52 @@ public class CtrlPartida {
         }
     }
 
+
+    public void mostrarTablero() {
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                Celda celda = tablero.getCelda(i, j);
+                String display;
+                // Si hay una ficha en la celda, mostrar la letra de la ficha.
+                if (celda.getFicha() != null) {
+                    display = celda.getFicha().getLetra();
+                } else {
+                    // Si no hay ficha, verificar si la bonificación sigue disponible.
+                    if (!celda.bonusDisponible() && celda.getBonificacion() != TipoBonificacion.NINGUNA) {
+                        // Bonificación ya usada; se puede optar por no mostrarla o mostrar otro indicador.
+                        display = "  usadaaaaaa";
+                    } else {
+                        // Mostrar la bonificación según el tipo.
+                        switch (celda.getBonificacion()) {
+                            case DOBLE_LETRA:
+                                display = "DL";
+                                break;
+                            case TRIPLE_LETRA:
+                                display = "TL";
+                                break;
+                            case DOBLE_PALABRA:
+                                display = "DP";
+                                break;
+                            case TRIPLE_PALABRA:
+                                display = "TP";
+                                break;
+                            default:
+                                display = "  ";
+                                break;
+                        }
+                    }
+                }
+                System.out.printf("[%2s]", display);
+            }
+            System.out.println();
+        }
+    }
+
    
+    public Tablero obtenerTablero()
+    {
+        return tablero;
+    }
 
   
 

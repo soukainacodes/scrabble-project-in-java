@@ -105,48 +105,5 @@ public class Tablero {
     public boolean esCentroDelTablero(int fila, int columna) {
         return fila == 7 && columna == 7;
     }
-    
-    
-    // Método para visualizar el tablero con las bonificaciones correspondientes en la terminal.
-    public void mostrarTablero() {
-        for (int i = 0; i < TAMANO; i++) {
-            for (int j = 0; j < TAMANO; j++) {
-                Celda celda = celdas[i][j];
-                String display;
-                // Si hay una ficha en la celda, mostrar la letra de la ficha.
-                if (celda.getFicha() != null) {
-                    display = celda.getFicha().getLetra();
-                } else {
-                    // Si no hay ficha, verificar si la bonificación sigue disponible.
-                    if (!celda.bonusDisponible() && celda.getBonificacion() != TipoBonificacion.NINGUNA) {
-                        // Bonificación ya usada; se puede optar por no mostrarla o mostrar otro indicador.
-                        display = "  usadaaaaaa";
-                    } else {
-                        // Mostrar la bonificación según el tipo.
-                        switch (celda.getBonificacion()) {
-                            case DOBLE_LETRA:
-                                display = "DL";
-                                break;
-                            case TRIPLE_LETRA:
-                                display = "TL";
-                                break;
-                            case DOBLE_PALABRA:
-                                display = "DP";
-                                break;
-                            case TRIPLE_PALABRA:
-                                display = "TP";
-                                break;
-                            default:
-                                display = "  ";
-                                break;
-                        }
-                    }
-                }
-                System.out.printf("[%2s]", display);
-            }
-            System.out.println();
-        }
-    }
-    
-    
+        
 }

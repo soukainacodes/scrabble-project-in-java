@@ -29,10 +29,6 @@ public class Partida {
         }
         turnoJugador = true;
     }
-       public void mostrarTablero(){
-            tablero.mostrarTablero();
-    }
-
     
     // Método setFicha
     public void setFicha(Ficha ficha) {
@@ -124,4 +120,6 @@ public class Partida {
     public List<Ficha> getFichasJugador2(){
         return fichasJugador2;
     }
+
+    
 }
