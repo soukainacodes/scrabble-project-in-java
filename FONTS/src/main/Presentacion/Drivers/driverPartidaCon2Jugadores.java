@@ -6,7 +6,7 @@ import java.io.*;
 import Dominio.Modelos.*;
 import Dominio.*;
 
-public class driverPartidaCon2Jugadores {
+public class DriverPartidaCon2Jugadores {
 
     private static Scanner in = null;
     private static CtrlDominio cd;

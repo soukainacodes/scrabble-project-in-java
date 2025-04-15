@@ -16,7 +16,7 @@ import Dominio.Modelos.Ranking;
 public class CtrlPersistencia {
     
     /** Ruta del fichero donde se persiste el ranking */
-    private static final String FILE_NAME = "ranking.txt";
+    private static final String FILE_NAME = "FONTS/src/main/Persistencia/Datos/ranking.txt";
     
     /**
      * Guarda el ranking en un fichero de texto.
