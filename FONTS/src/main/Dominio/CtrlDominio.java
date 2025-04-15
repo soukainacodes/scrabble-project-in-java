@@ -50,8 +50,8 @@ public class CtrlDominio {
       return ctrlPartida.obtenerTablero();
    }
 
-   public void mostrarFichas() {
-      ctrlPartida.mostrarFichas();
+   public List<String> obtenerFichas() {
+      return ctrlPartida.obtenerFichas();
    }
 
 }

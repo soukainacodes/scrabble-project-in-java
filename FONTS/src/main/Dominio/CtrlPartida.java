@@ -51,9 +51,12 @@ public class CtrlPartida {
    }
 
 
-    public void mostrarFichas(){
-        System.out.println( partidaActual.mostrarFichas());
+    
+    public List<String> obtenerFichas(){
+        return partidaActual.obtenerFichas();
     }
+
+    
     
 
     public void cargarPartida(){
@@ -136,10 +139,10 @@ public class CtrlPartida {
             contadorTurno++;
             if(isAlgoritmo) {
                
-            partidaActual.mostrarFichas();
+            // ALEX partidaActual.mostrarFichas();
             List<Pair<Ficha,Pair<Integer, Integer>>> s = algoritmo.find_all_words(partidaActual.getFichasJugador2() , dawg, tablero);
            
-            System.out.println(partidaActual.mostrarFichas());
+            // ALEX System.out.println(partidaActual.mostrarFichas());
             for (Pair<Ficha,Pair<Integer, Integer>> aa : s){
                 int i = -1;
                 for(Ficha f : partidaActual.getFichasJugador2()){
@@ -159,47 +162,6 @@ public class CtrlPartida {
         }
         else{
             System.out.println("Palabra incorrecta");
-        }
-    }
-
-
-    public void mostrarTablero() {
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
-                Celda celda = tablero.getCelda(i, j);
-                String display;
-                // Si hay una ficha en la celda, mostrar la letra de la ficha.
-                if (celda.getFicha() != null) {
-                    display = celda.getFicha().getLetra();
-                } else {
-                    // Si no hay ficha, verificar si la bonificación sigue disponible.
-                    if (!celda.bonusDisponible() && celda.getBonificacion() != TipoBonificacion.NINGUNA) {
-                        // Bonificación ya usada; se puede optar por no mostrarla o mostrar otro indicador.
-                        display = "  usadaaaaaa";
-                    } else {
-                        // Mostrar la bonificación según el tipo.
-                        switch (celda.getBonificacion()) {
-                            case DOBLE_LETRA:
-                                display = "DL";
-                                break;
-                            case TRIPLE_LETRA:
-                                display = "TL";
-                                break;
-                            case DOBLE_PALABRA:
-                                display = "DP";
-                                break;
-                            case TRIPLE_PALABRA:
-                                display = "TP";
-                                break;
-                            default:
-                                display = "  ";
-                                break;
-                        }
-                    }
-                }
-                System.out.printf("[%2s]", display);
-            }
-            System.out.println();
         }
     }
 

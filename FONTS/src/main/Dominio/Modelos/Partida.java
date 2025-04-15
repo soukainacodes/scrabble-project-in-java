@@ -73,8 +73,8 @@ public class Partida {
         }
     }
 
-    // Método mostrarFichas
-    public List<String> mostrarFichas() {
+    // Método obtenerFichas
+    public List<String> obtenerFichas() {
         List<String> s = new ArrayList<>(); // Lista para almacenar las letras de las fichas
         if (turnoJugador) {
             for (Ficha f : fichasJugador1) {
@@ -121,5 +121,5 @@ public class Partida {
         return fichasJugador2;
     }
 
-    
+
 }

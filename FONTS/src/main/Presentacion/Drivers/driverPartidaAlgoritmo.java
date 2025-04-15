@@ -14,6 +14,11 @@ public class driverPartidaAlgoritmo {
     private static Scanner in = null;
     private static CtrlDominio cd;
 
+    private static void mostrarFichas()
+    {
+        System.out.println(cd.obtenerFichas());
+    }
+
     private static void mostrarTablero() {
         // Mostrar cabecera de columnas (coordenadas X)
         System.out.print("    "); // Espacio inicial para la columna de las coordenadas Y
@@ -88,14 +93,14 @@ public class driverPartidaAlgoritmo {
 
         // Jugar
         mostrarTablero();
-        cd.mostrarFichas();
+        mostrarFichas();
         String input = in.nextLine();
         while (input != "salir") {
 
             cd.jugarScrabble(input);
 
             mostrarTablero();
-            cd.mostrarFichas();
+            mostrarFichas();
 
             input = in.nextLine();
         }

@@ -34,20 +34,7 @@ public class Bolsa {
         Collections.shuffle(conjuntoDeFichas);
     }
 
-    // Método para mostrar todas las fichas con su puntuación
-    public void mostrarFichas() {
-        for (Ficha ficha : conjuntoDeFichas) {
-            System.out.println("Ficha: " + ficha.getLetra() + ", Puntuación: " + ficha.getPuntuacion());
-        }
-    }
-
-    // Método para mostrar solo las primeras 20 fichas
-    public void mostrarPrimeras20Fichas() {
-        for (int i = 0; i < Math.min(20, conjuntoDeFichas.size()); i++) {
-            Ficha ficha = conjuntoDeFichas.get(i);
-            System.out.println("Ficha: " + ficha.getLetra() + ", Puntuación: " + ficha.getPuntuacion());
-        }
-    }
+    
 
     // Métodos auxiliares
     public int getId() {
