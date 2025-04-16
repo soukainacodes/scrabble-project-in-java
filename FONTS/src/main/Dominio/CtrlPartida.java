@@ -128,7 +128,7 @@ public class CtrlPartida {
             partidaActual.addPuntos(puntos);
             partidaActual.bloquearCeldas();
             System.out.println("Palabra correcta");
-
+            partidaActual.coordenadasClear();
             partidaActual.cambiarTurnoJugador();
             partidaActual.aumentarContador();
             if (isAlgoritmo) {
