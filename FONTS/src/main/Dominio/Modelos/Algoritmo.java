@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.Painter;
+import javax.swing.plaf.basic.BasicTreeUI;
+
+import jdk.swing.interop.DragSourceContextWrapper;
 
 public class Algoritmo {
 
@@ -62,8 +65,8 @@ public class Algoritmo {
         int row = pos.getFirst();
         int col = pos.getSecond();
         if (!vertical) {
-            return Pair.createPair(row, col - 1); 
-        }else {
+            return Pair.createPair(row, col - 1);
+        } else {
             return Pair.createPair(row - 1, col);
         }
     }
@@ -72,8 +75,8 @@ public class Algoritmo {
         int row = pos.getFirst();
         int col = pos.getSecond();
         if (!vertical) {
-            return Pair.createPair(row, col + 1); 
-        }else {
+            return Pair.createPair(row, col + 1);
+        } else {
             return Pair.createPair(row + 1, col);
         }
 
@@ -106,23 +109,65 @@ public class Algoritmo {
     private void palabra_parcial(String palabra, Pair<Integer, Integer> last_pos, int puntos) {
 
         Pair<Integer, Integer> play_pos = last_pos;
-        int lenght = palabra.length() - 1;
-        
-        if(palabra.length() == 7) puntos += 50;
 
+        int bonusPalabra = 0;
+        int puntosPalabra = 0;
+        List<String> palabraTokenizada = diccionario.tokenizarPalabra(palabra);
+        int lenght = palabraTokenizada.size() - 1;
+        while (lenght >= 0) {
+
+            puntosPalabra += getFichaPuntuacion(last_pos);
+            if (tablero.getFicha(last_pos.getFirst(), last_pos.getSecond()) != null) {
+
+                //System.out.println(tablero.getFicha(last_pos.getFirst(), last_pos.getSecond()).getLetra()) ;
+            }
+            int p = 0;
+            for (Ficha ficha : f) {
+                if (ficha.getLetra().contains(palabraTokenizada.get(lenght))) {
+                    // System.out.println("Letra:" + ficha.getLetra());
+                    p = ficha.getPuntuacion();
+                    if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTripleLetra()) {
+                        p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+                    }
+                    puntosPalabra += p;
+                    if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTriplePalabra()) {
+                        bonusPalabra += tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+                    }
+
+                    break;
+                }
+
+            }
+
+            last_pos = before(last_pos);
+            lenght--;
+        }
+
+        if (bonusPalabra != 0) {
+            puntosPalabra *= bonusPalabra;
+        }
+        puntos += puntosPalabra;
+
+        if (fichass.size() == 0) {
+            puntos += 50;
+        }
+
+        lenght = palabraTokenizada.size() - 1;
         if (puntos > puntosFinal) {
             puntosFinal = puntos;
-            System.out.println(palabra);
-            resultadoFinal.clear();
-            while (lenght >= 0) {
 
-                ponerFicha(String.valueOf(palabra.charAt(lenght)), play_pos);
+            resultadoFinal.clear();
+
+            System.out.println("Palabra: " + palabra + " Tamaño: " + (fichass.size()));
+            while (lenght >= 0) {
+                ponerFicha(palabraTokenizada.get(lenght), play_pos);
                 lenght--;
+
                 play_pos = before(play_pos);
             }
         }
     }
-    
+
     private int recorrerDireccion(Pair<Integer, Integer> pos, boolean direccion, String s) {
         StringBuilder palabra = new StringBuilder();
         StringBuilder palabra2 = new StringBuilder();
@@ -175,17 +220,32 @@ public class Algoritmo {
             }
         }
 
-        // Combine words and check dictionary
-       
-
-        
         String palabraCompleta = palabra2.toString() + s + palabra.toString();
+        boolean esPalabra = diccionario.buscarPalabra(palabraCompleta);
+        if (esPalabra || palabraCompleta.length() == 1) {
 
-        if (diccionario.buscarPalabra(palabraCompleta) || palabraCompleta.length() == 1) {
+            if (esPalabra) {
+                Pair<Integer, Integer> p = Pair.createPair(xx, yy);
+                int pp = 0;
+                for (Ficha ficha : f) {
+                    if (ficha.getLetra().equals(s)) {
+                        pp = ficha.getPuntuacion();
+                        if (tablero.getCelda(xx, yy).isDobleTripleLetra()) {
+                            pp *= tablero.getCelda(xx, yy).getBonificacion().getMultiplicador();
+                        }
+                        break;
+                    }
+                }
+                puntosRecorrerDireccion += pp;
 
+                if (tablero.getCelda(xx, yy).isDobleTriplePalabra()) {
+                    puntosRecorrerDireccion *= tablero.getCelda(xx, yy).getBonificacion().getMultiplicador();
+                }
+            }
+            // System.out.println("he estado: " + palabraCompleta + " " + puntosRecorrerDireccion );
             return puntosRecorrerDireccion;
         } else {
-            return 0;
+            return -1;
         }
 
     }
@@ -211,7 +271,7 @@ public class Algoritmo {
 
                     if (fichass.contains("#") || fichass.contains(s)) {
                         int b = recorrerDireccion(next_pos, !vertical, s);
-                        if (b != 0) {
+                        if (b != -1) {
                             fichass.remove(s);
 
                             extend_after(palabraParcial + s, nodo_actual.getHijos().get(s), after(next_pos), true, puntos + b);
@@ -223,10 +283,10 @@ public class Algoritmo {
                 }
             } else {
                 String existing_letter = getFicha(next_pos);
-                int p = getFichaPuntuacion(next_pos);
+
                 if (nodo_actual.getHijos().containsKey(existing_letter)) {
 
-                    extend_after(palabraParcial + existing_letter, nodo_actual.getHijos().get(existing_letter), after(next_pos), true, puntos + p);
+                    extend_after(palabraParcial + existing_letter, nodo_actual.getHijos().get(existing_letter), after(next_pos), true, puntos);
 
                 }
             }
@@ -241,32 +301,14 @@ public class Algoritmo {
 
     }
 
-    private void before_part(String partial_word, Nodo nodo_actual, Pair<Integer, Integer> pos, int limit, int puntos, int dist) {
+    private void before_part(String partial_word, Nodo nodo_actual, Pair<Integer, Integer> pos, int limit, int puntos) {
 
         extend_after(partial_word, nodo_actual, pos, false, puntos);
         if (limit > 0) {
             for (String s : nodo_actual.getHijos().keySet()) {
                 if (fichass.contains("#") || fichass.contains(s)) {
                     fichass.remove(s);
-                    int p = 0;
-
-                    Pair<Integer, Integer> pos_actual = pos;
-                    for (Ficha ficha : f) {
-                        if (ficha.getLetra().equals(s)) {
-                            p = ficha.getPuntuacion();
-
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < dist; ++i) {
-                        pos_actual = before(pos_actual);
-                    }
-                    if (tablero.getCelda(pos_actual.getFirst(), pos_actual.getSecond()).isDobleTripleLetra()) {
-                        //  p *= tablero.getCelda(pos_actual.getFirst(), pos_actual.getSecond()).getBonificacion().getMultiplicador();
-                    }
-
-                    before_part(partial_word + s, nodo_actual.getHijos().get(s), pos, limit - 1, puntos + p, dist + 1);
-
+                    before_part(partial_word + s, nodo_actual.getHijos().get(s), pos, limit - 1, puntos);
                     fichass.add(s);
                 }
             }
@@ -290,17 +332,19 @@ public class Algoritmo {
         puntosFinal = 0;
         for (int i = 0; i < 2; ++i) {
             if (i == 0) {
-                vertical = false; 
-            }else {
+                vertical = false;
+            } else {
                 vertical = true;
             }
 
             ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
             anchors = find_anchors();
-
+            if (anchors.size() == 0) {
+                anchors.add(Pair.createPair(7, 7));
+            }
             for (Pair<Integer, Integer> pos : anchors) {
                 int puntos = 0;
-
+                int longitud = 0;
                 if (isFilled(before(pos))) {
 
                     Pair<Integer, Integer> scan_pos = before(pos);
@@ -330,12 +374,13 @@ public class Algoritmo {
                         limit++;
                         scan_pos = before(scan_pos);
                     }
-                    before_part("", diccionario.getRaiz(), pos, limit, puntos, 1);
+                    before_part("", diccionario.getRaiz(), pos, limit, 0);
                 }
             }
 
         }
-        return Pair.createPair(resultadoFinal,puntosFinal);
+
+        return Pair.createPair(resultadoFinal, puntosFinal);
 
     }
 }

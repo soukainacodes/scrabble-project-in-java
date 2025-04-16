@@ -11,6 +11,8 @@ public class Partida {
     private List<Ficha> fichasJugador2;  // Lista de fichas del Jugador 2
     private int puntosJugador1;          // Puntos acumulados por el Jugador 1
     private int puntosJugador2;          // Puntos acumulados por el Jugador 2
+    private String jugador1;
+    private String jugador2;
     private boolean turnoJugador;       // Indica el turno actual (true: Jugador 1, false: Jugador 2)
     private Bolsa bolsa;
     private Tablero tablero;
@@ -21,13 +23,15 @@ public class Partida {
     public Partida(List<String> s, List<String> lineasArchivoBolsa) {
         fichasJugador1 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 1
         fichasJugador2 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 2
-        turnoJugador = false;               // Inicializa el turno (por defecto, Jugador 2 comienza)
+                  // Inicializa el turno (por defecto, Jugador 2 comienza)
         puntosJugador1 = 0;                 // Inicializa los puntos del Jugador 1 en 0
         puntosJugador2 = 0;                 // Inicializa los puntos del Jugador 2 en 0
+        jugador1 = s.get(0);
+        jugador2 = s.get(1);
         this.bolsa = new Bolsa(lineasArchivoBolsa);
         this.tablero = new Tablero();
         this.contadorTurno = 0;
-        this.turnoJugador = false;
+        this.turnoJugador = Math.random() < 0.5; 
         this.coordenadasPalabra = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
             setFicha(bolsa.sacarFichaAleatoria());
@@ -39,7 +43,13 @@ public class Partida {
     public Tablero getTablero(){
         return this.tablero;
     }
-
+    public int getContadorTurno(){
+        return contadorTurno;
+    }
+    
+    public void aumentarContador(){
+        contadorTurno ++;
+    }
     public List<Pair<Integer,Integer>> getCoordenadasPalabras(){
         return coordenadasPalabra;
     }
@@ -108,6 +118,9 @@ public class Partida {
         turnoJugador = !turnoJugador; // Cambia el turno entre Jugador 1 y Jugador 2
     }
 
+    public void setTurnoJugador(boolean turno){
+        turnoJugador = turno;
+    }
     // Método getFicha
     public Ficha getFicha(int n) {
         if (turnoJugador) {
@@ -176,9 +189,10 @@ public class Partida {
         return turnoJugador; // Devuelve el turno actual (true: Jugador 1, false: Jugador 2)
     }
 
-    // Método setTurnoJugador
-    public void setTurnoJugador(boolean turno) {
-        turnoJugador = turno; // Establece el turno del jugador (true: Jugador 1, false: Jugador 2)
+    public void bloquearCeldas(){
+        for(Pair<Integer,Integer> p : coordenadasPalabra){
+            tablero.bloquearCelda(p.getFirst(),p.getSecond());
+        }
     }
 
     // Método setPuntos

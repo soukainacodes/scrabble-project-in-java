@@ -7,42 +7,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.event.CaretListener;
+
 import Dominio.CtrlDominio;
 import Dominio.Modelos.*;
 import Dominio.*;
 
 public class DriverPartidaAlgoritmo {
-    
+
     // Scanner para entrada por teclado
     private static Scanner in = new Scanner(System.in);
     // Controlador de Dominio, que manejará la lógica de la partida
     private static CtrlDominio cd = new CtrlDominio();
 
     /**
-     * Limpia la pantalla usando secuencias ANSI.
-     * Nota: Esta técnica funciona en terminales compatibles (Unix, Linux, macOS y algunas en Windows).
+     * Limpia la pantalla usando secuencias ANSI. Nota: Esta técnica funciona en
+     * terminales compatibles (Unix, Linux, macOS y algunas en Windows).
      */
     private static void clearScreen() {
         // Secuencia ANSI para limpiar pantalla y mover el cursor a la esquina superior izquierda
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
-    
+
     /**
      * Muestra las fichas actuales disponibles.
      */
     private static void mostrarFichas() {
         System.out.println("Fichas actuales: " + cd.obtenerFichas());
     }
-    
+
     /**
-     * Muestra el tablero completo en consola.
-     * Se imprime primero la cabecera (coordenadas X) y luego cada fila con la coordenada Y al inicio.
+     * Muestra el tablero completo en consola. Se imprime primero la cabecera
+     * (coordenadas X) y luego cada fila con la coordenada Y al inicio.
      */
     private static void mostrarTablero() {
         // Se obtiene el tablero solo una vez para no llamar al controlador repetidamente
         Tablero tablero = cd.obtenerTablero();
-        
+
         // Cabecera de columnas (coordenadas X)
         System.out.print("    ");
         for (int j = 0; j < 15; j++) {
@@ -61,11 +63,13 @@ public class DriverPartidaAlgoritmo {
             System.out.println();
         }
     }
-    
+
     /**
      * Determina qué mostrar en una celda dependiendo de su contenido.
+     *
      * @param celda La celda a procesar.
-     * @return String con la letra de la ficha, la abreviatura de la bonificación o "usada".
+     * @return String con la letra de la ficha, la abreviatura de la
+     * bonificación o "usada".
      */
     private static String obtenerDisplayCelda(Celda celda) {
         if (celda.getFicha() != null) {
@@ -89,9 +93,11 @@ public class DriverPartidaAlgoritmo {
             }
         }
     }
-    
+
     /**
-     * Lee un archivo de texto, filtrando las líneas vacías y comentarios (líneas que comienzan con "#").
+     * Lee un archivo de texto, filtrando las líneas vacías y comentarios
+     * (líneas que comienzan con "#").
+     *
      * @param rutaArchivo La ruta del archivo a leer.
      * @return Lista de líneas válidas.
      * @throws IOException Si ocurre algún error en la lectura.
@@ -110,23 +116,24 @@ public class DriverPartidaAlgoritmo {
         }
         return lineasArchivo;
     }
-    
+
     /**
-     * Método principal del driver para probar una partida contra el algoritmo (CtrlDominio).
-     * Se realiza el registro del jugador, la carga de recursos necesarios (diccionario y fichas)
-     * y se inicia el bucle de juego que se ejecuta hasta escribir "salir".
+     * Método principal del driver para probar una partida contra el algoritmo
+     * (CtrlDominio). Se realiza el registro del jugador, la carga de recursos
+     * necesarios (diccionario y fichas) y se inicia el bucle de juego que se
+     * ejecuta hasta escribir "salir".
      */
     public static void main(String[] args) {
         System.out.println("Driver de prueba de Partida contra el Algoritmo (CtrlDominio)");
 
         // Registro del jugador solicitando nombre y contraseña
-      //  System.out.println("\n--- Registro del Jugador ---");
-       // System.out.print("Ingrese el nombre del jugador: ");
-       // String nombreJugador = in.nextLine();
+        //  System.out.println("\n--- Registro del Jugador ---");
+        // System.out.print("Ingrese el nombre del jugador: ");
+        // String nombreJugador = in.nextLine();
         String nombreJugador = "A";
-      //  System.out.print("Ingrese la contraseña: ");
-       // String contrasena = in.nextLine();
-        String contrasena =  "A";
+        //  System.out.print("Ingrese la contraseña: ");
+        // String contrasena = in.nextLine();
+        String contrasena = "A";
         cd.registrarJugador(nombreJugador, contrasena);
         Jugador jugador = cd.obtenerJugador(nombreJugador);
         //System.out.println("Jugador registrado: " + jugador.getNombre());
@@ -148,21 +155,24 @@ public class DriverPartidaAlgoritmo {
         String input;
         do {
             // Limpiar la pantalla para no superponer salidas anteriores
-            //clearScreen();
-            
-           // System.out.println("\n--- Tablero Actual ---");
+              clearScreen();
+
+            System.out.println("\n--- Tablero Actual ---");
+            System.out.println("\n Puntos Jugador 1: " + cd.getPuntosJugador1());
+            System.out.println(" Puntos Jugador 2(IA): " + cd.getPuntosJugador2());
+            System.out.println(" \n");
             mostrarTablero();
-          //  System.out.println("\n--- Fichas Disponibles ---");
+            System.out.println("\n\n--- Fichas Disponibles ---");
             mostrarFichas();
-            
+            System.out.println(" \n\n");
             //System.out.println("\nIngrese una jugada (o escriba 'salir' para terminar):");
             input = in.nextLine();
             if (!input.equalsIgnoreCase("salir") && !input.trim().isEmpty()) {
                 cd.jugarScrabble(input);
             }
-            
+
         } while (!input.equalsIgnoreCase("salir"));
-        
+
         System.out.println("Partida finalizada. ¡Gracias por jugar!");
         in.close();
     }

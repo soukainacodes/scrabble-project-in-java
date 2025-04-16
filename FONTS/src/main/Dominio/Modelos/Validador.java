@@ -102,7 +102,9 @@ public class Validador {
         if (isHorizontalLine) {
             mainWord = recorrerDireccion(coordenadasPalabra.get(0).getFirst(),
                     coordenadasPalabra.get(0).getSecond(), false);
+                System.out.println("MainH: " + mainWord);
             if (!diccionario.buscarPalabra(mainWord)) {
+                System.out.println("No en diccionario");
                 return 0;
             }
             palabras.add(mainWord);
@@ -110,7 +112,9 @@ public class Validador {
         } else { // isVerticalLine
             mainWord = recorrerDireccion(coordenadasPalabra.get(0).getFirst(),
                     coordenadasPalabra.get(0).getSecond(), true);
+                System.out.println("MainV: " + mainWord);
             if (!diccionario.buscarPalabra(mainWord)) {
+                System.out.println("No en diccionario");
                 return 0;
             }
             palabras.add(mainWord);
@@ -119,6 +123,7 @@ public class Validador {
 
         // Validate that at least one tile is connected to an existing word (if not first turn)
         if (!hayBloqueada && contadorTurno > 0) {
+            System.out.println("No hay bloqueada");
             return 0;
         }
 
@@ -134,6 +139,7 @@ public class Validador {
 
             // Only consider words with length > 1 (single letters aren't words)
             if (crossWord.length() > 1 && diccionario.buscarPalabra(crossWord)) {
+                System.out.println("Cross: " + crossWord);
                 palabras.add(crossWord);
                 puntosTotales += puntosLinea;
             }

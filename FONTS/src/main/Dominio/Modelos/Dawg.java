@@ -28,13 +28,7 @@ public class Dawg {
         return raiz;
     }
     
-    public boolean isWord(String word) {
-        Nodo wordNode = buscarUltimoNodo(word);
-        if (wordNode == null) {
-            return false;
-        }
-        return wordNode.esValida();
-    }
+   
     // Carga desde un archivo la lista de fichas válidas (solo se usa la primera columna del archivo)
     public void cargarFichasValidas(List<String> lineasArchivo) {
         
