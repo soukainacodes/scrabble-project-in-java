@@ -1,38 +1,39 @@
 package Dominio;
 
-
 import java.io.*;
 import java.util.*;
 
 import Dominio.Modelos.*;
 
 public class CtrlJugador {
-  
-    private Map<String,Jugador> jugadores;
+
+    private Map<String, Jugador> jugadores;
 
     // Constructor
     public CtrlJugador() {
-        this.jugadores= new HashMap<>(); // Inicializa el mapa vacío
+        this.jugadores = new HashMap<>(); // Inicializa el mapa vacío
     }
 
     // Método para crear un nuevo jugador
     public boolean crearJugador(String nombre, String password) {
-       
-        if (existeJugador(nombre)) return false; // El jugador ya existe
-        Jugador nuevoJugador = new Jugador(nombre, password);
-        jugadores.put(nombre,nuevoJugador);
-        
+
+        if (existeJugador(nombre)) {
+            return false; // El jugador ya existe
+
+                }Jugador nuevoJugador = new Jugador(nombre, password);
+        jugadores.put(nombre, nuevoJugador);
+
         return true;
     }
 
-    
     // Método para iniciar sesión de un jugador
     public boolean iniciarSesion(String nombre, String password) {
         Jugador jugador = getJugador(nombre);
-        if (jugador != null && jugador.getPassword() == password) return true; 
-        return false; 
+        if (jugador != null && jugador.getPassword() == password) {
+            return true;
+        }
+        return false;
     }
-
 
     // Método para verificar si un jugador está registrado
     public boolean existeJugador(String nombre) {
@@ -44,5 +45,4 @@ public class CtrlJugador {
         return jugadores.get(nombre);
     }
 
-   
 }

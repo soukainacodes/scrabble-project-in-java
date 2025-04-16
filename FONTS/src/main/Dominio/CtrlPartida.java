@@ -69,10 +69,10 @@ public class CtrlPartida {
     
     public void jugarScrabble(String input){
         String[] parts = input.split(" ");
-        System.out.println(parts[0]);
+       
         if(parts[0].contains("set") ){
             
-           int ficha = Integer.parseInt(parts[1]);
+           String ficha = parts[1];
            int x = Integer.parseInt(parts[2]);
            int y = Integer.parseInt(parts[3]);
            añadirFicha(ficha,x,y);
@@ -100,11 +100,12 @@ public class CtrlPartida {
     }
  
     //Funcion para añadir una ficha
-    public void añadirFicha(int ficha, int x, int y){
+    public void añadirFicha(String ficha, int x, int y){
      
         if(!tablero.getCelda(x, y).estaOcupada()){
             coordenadasPalabra.add(Pair.createPair(x,y));
-            tablero.ponerFicha(partidaActual.getFicha(ficha), x, y);
+            tablero.ponerFicha(partidaActual.getFichaString(ficha), x, y);
+            partidaActual.quitarFicha(ficha);
         }
         
     }
@@ -132,39 +133,36 @@ public class CtrlPartida {
             
             
             System.out.println("Palabra correcta");
-            for(Pair<Integer,Integer> k : coordenadasPalabra ){
-                 System.out.println(k.getFirst() + k.getSecond());
-            }
+           
             partidaActual.cambiarTurnoJugador();
             contadorTurno++;
             if(isAlgoritmo) {
-               
-            // ALEX partidaActual.mostrarFichas();
-            List<Pair<Ficha,Pair<Integer, Integer>>> s = algoritmo.find_all_words(partidaActual.getFichasJugador2() , dawg, tablero);
-           
-            // ALEX System.out.println(partidaActual.mostrarFichas());
-            for (Pair<Ficha,Pair<Integer, Integer>> aa : s){
-                int i = -1;
-                for(Ficha f : partidaActual.getFichasJugador2()){
-                    i++;
-                    if(f.equals(aa.getFirst())) break;
-                }
-                añadirFicha(i,aa.getSecond().getFirst(), aa.getSecond().getSecond());
-                
-            }
-            partidaActual.cambiarTurnoJugador();
+                jugarAlgoritmo();
             }
 
             partidaActual.recuperarFichas();
             
            coordenadasPalabra.clear();
-            System.out.println(coordenadasPalabra.size());
+            
         }
         else{
             System.out.println("Palabra incorrecta");
         }
     }
 
+    private void jugarAlgoritmo(){
+              
+            // ALEX partidaActual.mostrarFichas();
+            List<Pair<Ficha,Pair<Integer, Integer>>> s = algoritmo.find_all_words(partidaActual.getFichasJugador2() , dawg, tablero);
+           
+            // ALEX System.out.println(partidaActual.mostrarFichas());
+            for (Pair<Ficha,Pair<Integer, Integer>> aa : s){
+                //System.out.println(aa.getFirst().getLetra());
+              //  añadirFicha(aa.getFirst().getLetra(),aa.getSecond().getFirst(), aa.getSecond().getSecond());
+                
+            }
+            partidaActual.cambiarTurnoJugador();
+    }
    
     public Tablero obtenerTablero()
     {

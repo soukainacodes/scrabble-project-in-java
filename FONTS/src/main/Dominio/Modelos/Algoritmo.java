@@ -1,127 +1,123 @@
-    package Dominio.Modelos;
+package Dominio.Modelos;
 
-    import java.io.BufferedReader;
-    import java.io.FileReader;
-    import java.io.IOException;
-    import java.util.ArrayList;
-    import java.util.Arrays;
-    import java.util.HashMap;
-    import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
+public class Algoritmo {
 
-    public class Algoritmo {
-        //int puntos;
-    
-        private int puntosFinal;
-        private List<String> fichass;
-        private List<Ficha> f;
-        private Dawg diccionario;
-        private Tablero tablero;
-        private List<Pair<Ficha,Pair<Integer, Integer>>> resultadoFinal;   
-        private boolean vertical;
-        
-        public Algoritmo( ){
+    private int puntosFinal;
+    private List<String> fichass;
+    private List<Ficha> f;
+    private Dawg diccionario;
+    private Tablero tablero;
+    private List<Pair<Ficha, Pair<Integer, Integer>>> resultadoFinal;
+    private boolean vertical;
 
-        
-        // this.puntos = 0; 
-            //diccionari
-    
-        }
+    public Algoritmo() {
 
-        private boolean isEmpty(Pair<Integer, Integer> pos){
-            int x = pos.getFirst();
-            int y = pos.getSecond();
-            return (tablero.getCelda(x, y) != null && !tablero.getCelda(x, y).estaOcupada());
-        }
+    }
 
-        private boolean isFilled(Pair<Integer, Integer> pos){
+    private boolean isEmpty(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
-            int y = pos.getSecond();
-            return (tablero.getCelda(x, y) != null && tablero.getCelda(x, y).estaOcupada());
-        }
+        int y = pos.getSecond();
+        return (tablero.getCelda(x, y) != null && !tablero.getCelda(x, y).estaOcupada());
+    }
 
-        private boolean isDentroTablero(Pair<Integer, Integer> pos){
-            int x = pos.getFirst();
-            int y = pos.getSecond();
-            return (tablero.getCelda(x, y) != null);
-        }
+    private boolean isFilled(Pair<Integer, Integer> pos) {
+        int x = pos.getFirst();
+        int y = pos.getSecond();
+        return (tablero.getCelda(x, y) != null && tablero.getCelda(x, y).estaOcupada());
+    }
 
+    private boolean isDentroTablero(Pair<Integer, Integer> pos) {
+        int x = pos.getFirst();
+        int y = pos.getSecond();
+        return (tablero.getCelda(x, y) != null);
+    }
 
-
-    
-
-        private ArrayList<Pair<Integer, Integer>> find_anchors(){
+    private ArrayList<Pair<Integer, Integer>> find_anchors() {
         ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
-            for(int i=0;i<15;++i){
-                for(int j=0;j<15;j++){
-                    Pair<Integer, Integer> pos = Pair.createPair(i,j);
-                    boolean empty = isEmpty(pos);
-                    boolean vecinoOcupado = (isFilled(before(pos)) || isFilled(after(pos)) || isFilled(up(pos)) || isFilled(down(pos)));     
-                    
-                    if(empty && vecinoOcupado){
-                        anchors.add(pos);
-                    }
+        for (int i = 0; i < 15; ++i) {
+            for (int j = 0; j < 15; j++) {
+                Pair<Integer, Integer> pos = Pair.createPair(i, j);
+                boolean empty = isEmpty(pos);
+                boolean vecinoOcupado = (isFilled(before(pos)) || isFilled(after(pos)) || isFilled(up(pos)) || isFilled(down(pos)));
+
+                if (empty && vecinoOcupado) {
+                    anchors.add(pos);
                 }
             }
-            return anchors;
         }
+        return anchors;
+    }
 
-
-        private Pair<Integer, Integer> before(Pair<Integer, Integer> pos){
-            int row = pos.getFirst();
-            int col = pos.getSecond();
-            if(!vertical) return Pair.createPair(row, col - 1);
-            else  return Pair.createPair(row -1, col);
+    private Pair<Integer, Integer> before(Pair<Integer, Integer> pos) {
+        int row = pos.getFirst();
+        int col = pos.getSecond();
+        if (!vertical) {
+            return Pair.createPair(row, col - 1); 
+        }else {
+            return Pair.createPair(row - 1, col);
         }
+    }
 
-        private Pair<Integer, Integer> after(Pair<Integer, Integer> pos){
-            int row = pos.getFirst();
-            int col = pos.getSecond();
-            if(!vertical) return Pair.createPair(row, col + 1);
-            else return Pair.createPair(row + 1, col);
-
-        }
-
-        private Pair<Integer, Integer> up(Pair<Integer, Integer> pos){
-            int row = pos.getFirst();
-            int col = pos.getSecond();
-
-            return Pair.createPair(row -1, col);
-        }
-        private Pair<Integer, Integer> down(Pair<Integer, Integer> pos){
-            int row = pos.getFirst();
-            int col = pos.getSecond();
+    private Pair<Integer, Integer> after(Pair<Integer, Integer> pos) {
+        int row = pos.getFirst();
+        int col = pos.getSecond();
+        if (!vertical) {
+            return Pair.createPair(row, col + 1); 
+        }else {
             return Pair.createPair(row + 1, col);
         }
 
-        private void ponerFicha(String s, Pair<Integer, Integer> pos){
-            int row = pos.getFirst();
-            int col = pos.getSecond();
-            for( Ficha ficha : f ){
-                if(ficha.getLetra().contains(s)){
-                    resultadoFinal.add(Pair.createPair(ficha,pos));
-                    break;
-                }
-            }    
-        }
+    }
 
-        private void palabra_parcial(String palabra, Pair<Integer, Integer> last_pos, int puntos){
-            
-        
-            Pair<Integer, Integer> play_pos = last_pos;
-            int lenght = palabra.length()-1;
-            if (puntos > puntosFinal){
-                puntosFinal = puntos;
-                System.out.println(palabra + " " + puntosFinal + " " + vertical);
-                resultadoFinal.clear();
-                while(lenght >= 0){
-                
-                    ponerFicha(String.valueOf(palabra.charAt(lenght)), play_pos);
-                    lenght--;   
-                    play_pos = before(play_pos);
-                }
+    private Pair<Integer, Integer> up(Pair<Integer, Integer> pos) {
+        int row = pos.getFirst();
+        int col = pos.getSecond();
+
+        return Pair.createPair(row - 1, col);
+    }
+
+    private Pair<Integer, Integer> down(Pair<Integer, Integer> pos) {
+        int row = pos.getFirst();
+        int col = pos.getSecond();
+        return Pair.createPair(row + 1, col);
+    }
+
+    private void ponerFicha(String s, Pair<Integer, Integer> pos) {
+        int row = pos.getFirst();
+        int col = pos.getSecond();
+        for (Ficha ficha : f) {
+            if (ficha.getLetra().contains(s)) {
+                resultadoFinal.add(Pair.createPair(ficha, pos));
+                break;
             }
         }
+    }
+
+    private void palabra_parcial(String palabra, Pair<Integer, Integer> last_pos, int puntos) {
+
+        Pair<Integer, Integer> play_pos = last_pos;
+        int lenght = palabra.length() - 1;
+        if (puntos > puntosFinal) {
+            puntosFinal = puntos;
+            System.out.println(palabra);
+            resultadoFinal.clear();
+            while (lenght >= 0) {
+
+                ponerFicha(String.valueOf(palabra.charAt(lenght)), play_pos);
+                lenght--;
+                play_pos = before(play_pos);
+            }
+        }
+    }
+
     private int recorrerDireccion(Pair<Integer, Integer> pos, boolean direccion, String s) {
         StringBuilder palabra = new StringBuilder();
         StringBuilder palabra2 = new StringBuilder();
@@ -131,7 +127,7 @@
         int puntosFicha = 0;
         int dx, dy;
         int puntosRecorrerDireccion = 0;
-    
+
         // Determine direction of traversal
         if (direccion) {
             dx = 1; // horizontal
@@ -153,17 +149,17 @@
                 y += dir * dy;
 
                 // Check if cell is out of bounds or empty
-                if (x < 0 || y < 0 || 
-                    tablero.getCelda(x, y) == null || 
-                    tablero.getFicha(x, y) == null) {
+                if (x < 0 || y < 0
+                        || tablero.getCelda(x, y) == null
+                        || tablero.getFicha(x, y) == null) {
                     break;
                 }
 
                 String letra = tablero.getFicha(x, y).getLetra();
                 Pair<Integer, Integer> p = Pair.createPair(x, y);
 
-            puntosRecorrerDireccion += getFichaPuntuacion(p);
-            
+                puntosRecorrerDireccion += getFichaPuntuacion(p);
+
                 // Append letter to appropriate StringBuilder
                 if (dir == 1) {
                     currentPalabra.append(letra);
@@ -171,183 +167,180 @@
                     currentPalabra.insert(0, letra);
                 }
 
-            
             }
         }
 
         // Combine words and check dictionary
-    
         Pair<Integer, Integer> p = Pair.createPair(xx, yy);
-        int pp =0;
-        for(Ficha ficha : f){
-            if(ficha.getLetra().equals(s)){
+        int pp = 0;
+        for (Ficha ficha : f) {
+            if (ficha.getLetra().equals(s)) {
                 pp = ficha.getPuntuacion();
                 break;
             }
         }
         puntosRecorrerDireccion += pp;
-        
-        if(tablero.getCelda(xx,yy).isDobleTripleLetra()) {
-            puntosRecorrerDireccion *= tablero.getCelda(xx,yy).getBonificacion().getMultiplicador();
+
+        if (tablero.getCelda(xx, yy).isDobleTripleLetra()) {
+            puntosRecorrerDireccion *= tablero.getCelda(xx, yy).getBonificacion().getMultiplicador();
         }
         String palabraCompleta = palabra2.toString() + s + palabra.toString();
-    
-        if(diccionario.buscarPalabra(palabraCompleta) || palabraCompleta.length() == 1){
-            
+
+        if (diccionario.buscarPalabra(palabraCompleta) || palabraCompleta.length() == 1) {
+
             return puntosRecorrerDireccion;
-        }else{
+        } else {
             return 0;
         }
 
     }
 
-    private int getFichaPuntuacion(Pair<Integer, Integer> pos){
-            int x = pos.getFirst();
-            int y = pos.getSecond();
-            if(tablero.getFicha(x,y) != null){
-            
-            int p =  tablero.getFicha(x,y).getPuntuacion();
+    private int getFichaPuntuacion(Pair<Integer, Integer> pos) {
+        int x = pos.getFirst();
+        int y = pos.getSecond();
+        if (tablero.getFicha(x, y) != null) {
+
+            int p = tablero.getFicha(x, y).getPuntuacion();
             return p;
+        }
+        return 0;
+    }
+
+    private void extend_after(String palabraParcial, Nodo nodo_actual, Pair<Integer, Integer> next_pos, boolean anchor_filled, int puntos) {
+        if (!isFilled(next_pos) && nodo_actual.esValida() && anchor_filled) {
+            palabra_parcial(palabraParcial, before(next_pos), puntos);
+        }
+        if (isDentroTablero(next_pos)) {
+            if (isEmpty(next_pos)) {
+                for (String s : nodo_actual.getHijos().keySet()) {
+
+                    if (fichass.contains("#") || fichass.contains(s)) {
+                        int b = recorrerDireccion(next_pos, !vertical, s);
+                        if (b != 0) {
+                            fichass.remove(s);
+
+                            extend_after(palabraParcial + s, nodo_actual.getHijos().get(s), after(next_pos), true, puntos + b);
+
+                            fichass.add(s);
+                        }
+                    }
+
+                }
+            } else {
+                String existing_letter = getFicha(next_pos);
+                int p = getFichaPuntuacion(next_pos);
+                if (nodo_actual.getHijos().containsKey(existing_letter)) {
+
+                    extend_after(palabraParcial + existing_letter, nodo_actual.getHijos().get(existing_letter), after(next_pos), true, puntos + p);
+
+                }
             }
-            return 0;
         }
+    }
 
-        private void extend_after(String palabraParcial,Nodo nodo_actual, Pair<Integer, Integer> next_pos, boolean anchor_filled, int puntos){
-            if(!isFilled(next_pos) && nodo_actual.esValida() && anchor_filled){
-                palabra_parcial(palabraParcial, before(next_pos), puntos);
-            }
-                if(isDentroTablero(next_pos)){
-                    if(isEmpty(next_pos)){
-                        for( String s : nodo_actual.getHijos().keySet()){
-                            
-                            if(fichass.contains(s)){
-                                int b = recorrerDireccion(next_pos, !vertical ,s);
-                                if(b != 0){ 
-                                fichass.remove(s);
-                            
-                                extend_after(palabraParcial + s, nodo_actual.getHijos().get(s), after(next_pos), true, puntos + b);
-                                
-                                fichass.add(s);
-                                }
-                            }
-                        
+    private String getFicha(Pair<Integer, Integer> pos) {
+        int row = pos.getFirst();
+        int col = pos.getSecond();
+
+        return tablero.getFicha(row, col).getLetra();
+
+    }
+
+    private void before_part(String partial_word, Nodo nodo_actual, Pair<Integer, Integer> pos, int limit, int puntos, int dist) {
+
+        extend_after(partial_word, nodo_actual, pos, false, puntos);
+        if (limit > 0) {
+            for (String s : nodo_actual.getHijos().keySet()) {
+                if (fichass.contains("#") || fichass.contains(s)) {
+                    fichass.remove(s);
+                    int p = 0;
+
+                    Pair<Integer, Integer> pos_actual = pos;
+                    for (Ficha ficha : f) {
+                        if (ficha.getLetra().equals(s)) {
+                            p = ficha.getPuntuacion();
+
+                            break;
                         }
                     }
-                    else{
-                        String existing_letter = getFicha(next_pos);
-                        int p = getFichaPuntuacion(next_pos);
-                        if(nodo_actual.getHijos().containsKey(existing_letter)){
-                            
-                        
-                            extend_after(palabraParcial + existing_letter, nodo_actual.getHijos().get(existing_letter), after(next_pos),true, puntos + p);
-                        
-                        }
+                    for (int i = 0; i < dist; ++i) {
+                        pos_actual = before(pos_actual);
                     }
-            }   
-        }
-
-        private String getFicha(Pair<Integer, Integer> pos){
-            int row = pos.getFirst();
-            int col = pos.getSecond();
-
-            return tablero.getFicha(row,col).getLetra();
-            
-        }
-
-        private void before_part(String partial_word, Nodo nodo_actual, Pair<Integer, Integer> pos, int limit, int puntos, int dist ){
-            
-            extend_after(partial_word, nodo_actual, pos, false, puntos);
-            if( limit > 0){
-                for( String s : nodo_actual.getHijos().keySet()){
-                    if(fichass.contains(s)){
-                        fichass.remove(s);
-                        int p = 0;
-                     
-                        Pair<Integer, Integer> pos_actual = pos;
-                        for(Ficha ficha : f){
-                            if(ficha.getLetra().equals(s)){
-                                p = ficha.getPuntuacion();
-                                
-                                break;
-                            } 
-                        }
-                        for(int i=0;i<dist;++i){
-                                    pos_actual = before(pos_actual);
-                                }
-                                if(tablero.getCelda(pos_actual.getFirst(), pos_actual.getSecond()).isDobleTripleLetra()){
-                                  p *= tablero.getCelda(pos_actual.getFirst(), pos_actual.getSecond()).getBonificacion().getMultiplicador();
-                                }
-                        //System.out.println("Dist:" + dist + "C:" + pos_actual.getFirst() + " " + pos_actual.getSecond());
-                        
-                        before_part(partial_word + s, nodo_actual.getHijos().get(s), pos, limit - 1 , puntos + p ,dist + 1);
-                        
-                        fichass.add(s);
+                    if (tablero.getCelda(pos_actual.getFirst(), pos_actual.getSecond()).isDobleTripleLetra()) {
+                        //  p *= tablero.getCelda(pos_actual.getFirst(), pos_actual.getSecond()).getBonificacion().getMultiplicador();
                     }
+
+                    before_part(partial_word + s, nodo_actual.getHijos().get(s), pos, limit - 1, puntos + p, dist + 1);
+
+                    fichass.add(s);
                 }
             }
 
         }
-        public List<Pair<Ficha,Pair<Integer, Integer>>>  find_all_words(List<Ficha> fichas,  Dawg diccionario, Tablero tablero){
 
-            this.resultadoFinal = new ArrayList<>();
-            this.tablero = tablero;
-            this.fichass = new ArrayList<>();
-            this.f = fichas;
-            for(Ficha f: fichas){
+    }
+
+    public List<Pair<Ficha, Pair<Integer, Integer>>> find_all_words(List<Ficha> fichas, Dawg diccionario, Tablero tablero) {
+
+        this.resultadoFinal = new ArrayList<>();
+        this.tablero = tablero;
+        this.fichass = new ArrayList<>();
+        this.f = fichas;
+        for (Ficha f : fichas) {
             this.fichass.add(f.getLetra());
+        }
+
+        this.diccionario = diccionario;
+        //fichas del jugador
+        puntosFinal = 0;
+        for (int i = 0; i < 2; ++i) {
+            if (i == 0) {
+                vertical = false; 
+            }else {
+                vertical = true;
             }
-            
-            this.diccionario = diccionario;
-            //fichas del jugador
-            puntosFinal = 0;
-            for(int i=0;i<2;++i){
-            if(i==0) vertical = false;
-            else vertical = true;
-        
+
             ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
             anchors = find_anchors();
-            
-            int puntos = 0;
-        
-            for(Pair<Integer, Integer> pos : anchors){
-                System.out.println(pos.getFirst() + " " + pos.getSecond());
-                if(isFilled(before(pos))){
+
+            for (Pair<Integer, Integer> pos : anchors) {
+                int puntos = 0;
+
+                if (isFilled(before(pos))) {
 
                     Pair<Integer, Integer> scan_pos = before(pos);
                     puntos = getFichaPuntuacion(scan_pos);
-                
+
                     String partial_word = getFicha(scan_pos);
-                    
-                    while(isFilled(before(scan_pos))){
-                        
+
+                    while (isFilled(before(scan_pos))) {
+
                         scan_pos = before(scan_pos);
                         puntos += getFichaPuntuacion(scan_pos);
                         partial_word = getFicha(scan_pos) + partial_word;
                     }
-                    
+
                     Nodo pw_node = diccionario.buscarUltimoNodo(partial_word);
-                
-                    if(pw_node != null){
-                        
-                    extend_after(partial_word, pw_node, pos, false, puntos);    
-                    
-                        
+
+                    if (pw_node != null) {
+
+                        extend_after(partial_word, pw_node, pos, false, puntos);
+
                     }
-                }
-                else{
+                } else {
                     int limit = 0;
                     Pair<Integer, Integer> scan_pos = pos;
-                
-                    while(isEmpty(before(scan_pos)) && !anchors.contains(before(scan_pos))){
+
+                    while (isEmpty(before(scan_pos)) && !anchors.contains(before(scan_pos))) {
                         limit++;
                         scan_pos = before(scan_pos);
                     }
-                    before_part("",diccionario.getRaiz(), pos, limit, puntos, 1);
+                    before_part("", diccionario.getRaiz(), pos, limit, puntos, 1);
                 }
             }
-            
+
         }
-            return resultadoFinal; 
+        return resultadoFinal;
 
     }
-    }
+}
