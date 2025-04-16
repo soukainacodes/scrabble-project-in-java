@@ -120,14 +120,16 @@ public class DriverPartidaAlgoritmo {
         System.out.println("Driver de prueba de Partida contra el Algoritmo (CtrlDominio)");
 
         // Registro del jugador solicitando nombre y contraseña
-        System.out.println("\n--- Registro del Jugador ---");
-        System.out.print("Ingrese el nombre del jugador: ");
-        String nombreJugador = in.nextLine();
-        System.out.print("Ingrese la contraseña: ");
-        String contrasena = in.nextLine();
+      //  System.out.println("\n--- Registro del Jugador ---");
+       // System.out.print("Ingrese el nombre del jugador: ");
+       // String nombreJugador = in.nextLine();
+        String nombreJugador = "A";
+      //  System.out.print("Ingrese la contraseña: ");
+       // String contrasena = in.nextLine();
+        String contrasena =  "A";
         cd.registrarJugador(nombreJugador, contrasena);
         Jugador jugador = cd.obtenerJugador(nombreJugador);
-        System.out.println("Jugador registrado: " + jugador.getNombre());
+        //System.out.println("Jugador registrado: " + jugador.getNombre());
 
         // Lectura de archivos necesarios para la partida: diccionario y bolsa de fichas
         List<String> lineasArchivoDiccionario;
@@ -146,14 +148,14 @@ public class DriverPartidaAlgoritmo {
         String input;
         do {
             // Limpiar la pantalla para no superponer salidas anteriores
-            clearScreen();
+            //clearScreen();
             
-            System.out.println("\n--- Tablero Actual ---");
+           // System.out.println("\n--- Tablero Actual ---");
             mostrarTablero();
-            System.out.println("\n--- Fichas Disponibles ---");
+          //  System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
             
-            System.out.println("\nIngrese una jugada (o escriba 'salir' para terminar):");
+            //System.out.println("\nIngrese una jugada (o escriba 'salir' para terminar):");
             input = in.nextLine();
             if (!input.equalsIgnoreCase("salir") && !input.trim().isEmpty()) {
                 cd.jugarScrabble(input);

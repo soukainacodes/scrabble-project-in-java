@@ -1,5 +1,6 @@
 package Dominio.Modelos;
 
+import java.awt.image.CropImageFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,16 +14,21 @@ public class Partida {
     private boolean turnoJugador;       // Indica el turno actual (true: Jugador 1, false: Jugador 2)
     private Bolsa bolsa;
     private Tablero tablero;
+    private int contadorTurno;
+    private List<Pair<Integer,Integer>> coordenadasPalabra;
 
     // Constructor
-    public Partida(List<String> s, Tablero tablero, Bolsa bolsa) {
+    public Partida(List<String> s, List<String> lineasArchivoBolsa) {
         fichasJugador1 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 1
         fichasJugador2 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 2
         turnoJugador = false;               // Inicializa el turno (por defecto, Jugador 2 comienza)
         puntosJugador1 = 0;                 // Inicializa los puntos del Jugador 1 en 0
         puntosJugador2 = 0;                 // Inicializa los puntos del Jugador 2 en 0
-        this.bolsa = bolsa;
-        this.tablero = tablero;
+        this.bolsa = new Bolsa(lineasArchivoBolsa);
+        this.tablero = new Tablero();
+        this.contadorTurno = 0;
+        this.turnoJugador = false;
+        this.coordenadasPalabra = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
             setFicha(bolsa.sacarFichaAleatoria());
             turnoJugador = !turnoJugador;
@@ -30,6 +36,46 @@ public class Partida {
         turnoJugador = true;
     }
 
+    public Tablero getTablero(){
+        return this.tablero;
+    }
+
+    public List<Pair<Integer,Integer>> getCoordenadasPalabras(){
+        return coordenadasPalabra;
+    }
+
+    public void coordenadasClear(){
+        coordenadasPalabra.clear();
+    }
+
+    public void añadirFicha(String ficha, int x, int y){
+     
+        if(!tablero.getCelda(x, y).estaOcupada()){
+           coordenadasPalabra.add(Pair.createPair(x,y));
+            tablero.ponerFicha(getFichaString(ficha), x, y);
+            quitarFicha(ficha);
+        }
+        
+    }
+
+    public void addPuntos(int puntos) {
+        if(turnoJugador){
+            puntosJugador1 += puntos;
+        }
+        else{
+            puntosJugador2 += puntos;
+        }
+    }
+     public boolean quitarFichaTablero(int x, int y){
+        Ficha f = tablero.quitarFicha(x,y);
+        if(f != null){
+            coordenadasPalabra.remove(Pair.createPair(x,y));
+            setFicha(f);
+            return true;
+        }
+        return false;
+          
+    }
     // Método setFicha
     public void setFicha(Ficha ficha) {
         if (turnoJugador) {
@@ -76,14 +122,15 @@ public class Partida {
         if (turnoJugador) {
             for (int i = 0; i <  fichasJugador1.size(); ++i) {
                 if (fichasJugador1.get(i).getLetra().equals(s)) {
-                    System.out.println(i);
+                    
                     return fichasJugador1.get(i);
                 }
             }
         } else {
             for (int i = 0; i <  fichasJugador2.size(); ++i) {
+                
                 if (fichasJugador2.get(i).getLetra().equals(s)) {
-                    return fichasJugador1.get(i);
+                    return fichasJugador2.get(i);
                 }
             }
         }
@@ -102,7 +149,7 @@ public class Partida {
         } else {
             for (int i = 0; i < fichasJugador2.size(); ++i) {
                 if (fichasJugador2.get(i).getLetra().equals(s)) {
-                    fichasJugador1.remove(i);
+                    fichasJugador2.remove(i);
                     return;
                 }
             }

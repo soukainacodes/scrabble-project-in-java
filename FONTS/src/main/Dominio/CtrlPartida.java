@@ -16,12 +16,12 @@ public class CtrlPartida {
     private Bolsa bolsa;
     private boolean isAlgoritmo;
     private Algoritmo algoritmo;
-    private List<Pair<Integer,Integer>> coordenadasPalabra;
+  
 
 
     // Constructor
     public CtrlPartida() {
-        this.coordenadasPalabra = new ArrayList<>();
+        
         
         this.validador = new Validador();
         
@@ -35,10 +35,8 @@ public class CtrlPartida {
         this.dawg = new Dawg();
         dawg.cargarFichasValidas(lineasArchivoBolsa);
         dawg.construirDesdeArchivo(lineasArchivo);
-      
-       this.tablero = new Tablero();
-       this.bolsa = new Bolsa(lineasArchivoBolsa);
-       this.partidaActual = new Partida(players, tablero, bolsa);
+    
+       this.partidaActual = new Partida(players, lineasArchivoBolsa);
        this.finTurno = false;
        this.contadorTurno = 0;
        
@@ -75,7 +73,7 @@ public class CtrlPartida {
            String ficha = parts[1];
            int x = Integer.parseInt(parts[2]);
            int y = Integer.parseInt(parts[3]);
-           añadirFicha(ficha,x,y);
+           partidaActual.añadirFicha(ficha, x, y);
            
      }
      else if(parts[0].contains("get")){
@@ -87,10 +85,10 @@ public class CtrlPartida {
 
      }
      else if(parts[0].contains("pasar")){
-        for( Pair p : coordenadasPalabra){
+        //for( Pair p : coordenadasPalabra){
            // quitarFicha(p.getFirst(),p.getSecond());
-        }
-        finTurno(); 
+      //  }
+        //finTurno(); 
      }
      else if(parts[0].contains("fin")){
         
@@ -101,25 +99,12 @@ public class CtrlPartida {
  
     //Funcion para añadir una ficha
     public void añadirFicha(String ficha, int x, int y){
-     
-        if(!tablero.getCelda(x, y).estaOcupada()){
-            coordenadasPalabra.add(Pair.createPair(x,y));
-            tablero.ponerFicha(partidaActual.getFichaString(ficha), x, y);
-            partidaActual.quitarFicha(ficha);
-        }
         
     }
     
     //Funcion para quitar una ficha
     public boolean quitarFicha(int x, int y){
-        Ficha f = tablero.quitarFicha(x,y);
-        if(f != null){
-            coordenadasPalabra.remove(Pair.createPair(x,y));
-            partidaActual.setFicha(f);
-            return true;
-        }
-        return false;
-          
+       return partidaActual.quitarFichaTablero(x,y);
     }
 
  
@@ -127,46 +112,53 @@ public class CtrlPartida {
    
     public void finTurno(){
        
+       System.out.println("aa");
          
-        int puntos = validador.validarPalabra(coordenadasPalabra, dawg, tablero, contadorTurno);
+        int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), contadorTurno);
         if(puntos != 0){
-            
+            partidaActual.addPuntos(puntos);
             
             System.out.println("Palabra correcta");
            
             partidaActual.cambiarTurnoJugador();
             contadorTurno++;
             if(isAlgoritmo) {
-                jugarAlgoritmo();
+                partidaActual.addPuntos(jugarAlgoritmo());
+                partidaActual.cambiarTurnoJugador();
             }
 
             partidaActual.recuperarFichas();
             
-           coordenadasPalabra.clear();
+           
+           partidaActual.coordenadasClear();
             
         }
         else{
             System.out.println("Palabra incorrecta");
         }
+        System.out.println("Jugador 1:" + partidaActual.getPuntosJugador1());
+        System.out.println("Jugador 2:" + partidaActual.getPuntosJugador2());
     }
 
-    private void jugarAlgoritmo(){
+    private int jugarAlgoritmo(){
               
             // ALEX partidaActual.mostrarFichas();
-            List<Pair<Ficha,Pair<Integer, Integer>>> s = algoritmo.find_all_words(partidaActual.getFichasJugador2() , dawg, tablero);
-           
+            Pair<List<Pair<Ficha,Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador2() , dawg, partidaActual.getTablero());
+            List<Pair<Ficha,Pair<Integer, Integer>>> s = ss.getFirst();
             // ALEX System.out.println(partidaActual.mostrarFichas());
             for (Pair<Ficha,Pair<Integer, Integer>> aa : s){
-                //System.out.println(aa.getFirst().getLetra());
-              //  añadirFicha(aa.getFirst().getLetra(),aa.getSecond().getFirst(), aa.getSecond().getSecond());
+                System.out.println(aa.getFirst().getLetra());
+
+                partidaActual.añadirFicha(aa.getFirst().getLetra(),aa.getSecond().getFirst(), aa.getSecond().getSecond());
                 
             }
-            partidaActual.cambiarTurnoJugador();
+            
+    return ss.getSecond();
     }
    
     public Tablero obtenerTablero()
     {
-        return tablero;
+        return partidaActual.getTablero();
     }
 
   

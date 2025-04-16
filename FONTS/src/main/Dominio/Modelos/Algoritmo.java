@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.Painter;
+
 public class Algoritmo {
 
     private int puntosFinal;
@@ -105,6 +107,9 @@ public class Algoritmo {
 
         Pair<Integer, Integer> play_pos = last_pos;
         int lenght = palabra.length() - 1;
+        
+        if(palabra.length() == 7) puntos += 50;
+
         if (puntos > puntosFinal) {
             puntosFinal = puntos;
             System.out.println(palabra);
@@ -117,7 +122,7 @@ public class Algoritmo {
             }
         }
     }
-
+    
     private int recorrerDireccion(Pair<Integer, Integer> pos, boolean direccion, String s) {
         StringBuilder palabra = new StringBuilder();
         StringBuilder palabra2 = new StringBuilder();
@@ -171,19 +176,9 @@ public class Algoritmo {
         }
 
         // Combine words and check dictionary
-        Pair<Integer, Integer> p = Pair.createPair(xx, yy);
-        int pp = 0;
-        for (Ficha ficha : f) {
-            if (ficha.getLetra().equals(s)) {
-                pp = ficha.getPuntuacion();
-                break;
-            }
-        }
-        puntosRecorrerDireccion += pp;
+       
 
-        if (tablero.getCelda(xx, yy).isDobleTripleLetra()) {
-            puntosRecorrerDireccion *= tablero.getCelda(xx, yy).getBonificacion().getMultiplicador();
-        }
+        
         String palabraCompleta = palabra2.toString() + s + palabra.toString();
 
         if (diccionario.buscarPalabra(palabraCompleta) || palabraCompleta.length() == 1) {
@@ -280,7 +275,7 @@ public class Algoritmo {
 
     }
 
-    public List<Pair<Ficha, Pair<Integer, Integer>>> find_all_words(List<Ficha> fichas, Dawg diccionario, Tablero tablero) {
+    public Pair<List<Pair<Ficha, Pair<Integer, Integer>>>, Integer> find_all_words(List<Ficha> fichas, Dawg diccionario, Tablero tablero) {
 
         this.resultadoFinal = new ArrayList<>();
         this.tablero = tablero;
@@ -340,7 +335,7 @@ public class Algoritmo {
             }
 
         }
-        return resultadoFinal;
+        return Pair.createPair(resultadoFinal,puntosFinal);
 
     }
 }
