@@ -36,8 +36,8 @@ runcode_solo:
 runcode_duo:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaConDosJugadores
 
-runcode_ranking:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverRanking
+runcodeapp:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverAplicacion
 
 
 # Objetivo para compilar los tests.

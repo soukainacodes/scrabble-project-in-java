@@ -1,48 +1,77 @@
+// Dominio/CtrlJugador.java
 package Dominio;
 
-import java.io.*;
 import java.util.*;
-
-import Dominio.Modelos.*;
+import Persistencia.CtrlPersistencia;
+import Dominio.Modelos.Jugador;
 
 public class CtrlJugador {
-
     private Map<String, Jugador> jugadores;
+    private CtrlPersistencia persistencia;
 
-    // Constructor
     public CtrlJugador() {
-        this.jugadores = new HashMap<>(); // Inicializa el mapa vacío
+        persistencia = new CtrlPersistencia();
+        jugadores   = persistencia.cargarUsuarios();
     }
 
-    // Método para crear un nuevo jugador
+    /** Crea y persiste un nuevo jugador; false si ya existía */
     public boolean crearJugador(String nombre, String password) {
-
-        if (existeJugador(nombre)) {
-            return false; // El jugador ya existe
-
-                }Jugador nuevoJugador = new Jugador(nombre, password);
-        jugadores.put(nombre, nuevoJugador);
-
+        if (jugadores.containsKey(nombre)) return false;
+        Jugador j = new Jugador(nombre, password);
+        jugadores.put(nombre, j);
+        persistencia.guardarUsuarios(jugadores);
         return true;
     }
 
-    // Método para iniciar sesión de un jugador
-    public boolean iniciarSesion(String nombre, String password) {
-        Jugador jugador = getJugador(nombre);
-        if (jugador != null && jugador.getPassword() == password) {
+    /** Devuelve el Jugador si existe y la password coincide, o null */
+    public Jugador iniciarSesion(String nombre, String password) {
+        Jugador j = jugadores.get(nombre);
+        if (j != null && j.validarPassword(password)) return j;
+        return null;
+    }
+
+    /** Actualiza la puntuación de un jugador (sólo si es mayor que la anterior) */
+    public void actualizarPuntuacion(String nombre, int nuevosPuntos) {
+        Jugador j = jugadores.get(nombre);
+        if (j != null && nuevosPuntos > j.getPuntos()) {
+            j.setPuntos(nuevosPuntos);
+            persistencia.guardarUsuarios(jugadores);
+        }
+    }
+
+
+    public boolean cambiarPassword(String nombre, String antigua, String nueva) {
+        Jugador j = jugadores.get(nombre);
+        if (j != null && j.validarPassword(antigua)) {
+            j.setPassword(nueva);
+            persistencia.guardarUsuarios(jugadores);
             return true;
         }
         return false;
     }
 
-    // Método para verificar si un jugador está registrado
-    public boolean existeJugador(String nombre) {
-        return jugadores.containsKey(nombre);
+    /** Elimina un usuario, si la contraseña coincide devuelve true */
+    public boolean eliminarJugador(String nombre, String password) {
+        Jugador j = jugadores.get(nombre);
+        if (j != null && j.validarPassword(password)) {
+            jugadores.remove(nombre);
+            persistencia.guardarUsuarios(jugadores);
+            return true;
+        }
+        return false;
     }
 
-    // Método para obtener un jugador por su nombre
+        /**
+     * Devuelve el objeto Jugador a
+     * sociado a este nombre,
+     * o null si no existe.
+     */
     public Jugador getJugador(String nombre) {
         return jugadores.get(nombre);
     }
 
+
+    public Map<String, Jugador> getJugadores() {
+        return jugadores;
+    }
 }

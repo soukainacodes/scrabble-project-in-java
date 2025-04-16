@@ -1,41 +1,30 @@
+// Dominio/Modelos/Jugador.java
 package Dominio.Modelos;
 
 public class Jugador {
+    private String nombre;
+    private String password;
+    private int puntos;      // la puntuación máxima alcanzada
 
-    // Atributos de la clase
-    private String nombre;      // Almacena el nombre del jugador
-    private String password;    // Almacena la contraseña del jugador
-    private int puntos;         // Almacena los puntos acumulados por el jugador
-
-    // Constructor
     public Jugador(String nombre, String password) {
-        this.nombre = nombre;    // Inicializa el nombre del jugador
-        this.password = password; // Inicializa la contraseña del jugador
-        this.puntos = 0;          // Inicializa los puntos del jugador en 0
+        this.nombre   = nombre;
+        this.password = password;
+        this.puntos   = 0;
     }
 
-    // Método getNombre
-    public String getNombre() {
-        return this.nombre; // Devuelve el nombre del jugador
-    }
+    public String getNombre()   { return nombre; }
+    public String getPassword() { return password; }
+    public int    getPuntos()   { return puntos; }
 
-    public String getPassword() {
-        return this.password; // Devuelve el nombre del jugador
-    }
-    // Método getPuntos
-    public int getPuntos() {
-        return this.puntos; // Devuelve los puntos actuales del jugador
-    }
-
-    // Método setPuntos
     public void setPuntos(int puntos) {
-        this.puntos = puntos; // Establece o actualiza los puntos del jugador
+        this.puntos = puntos;
     }
 
-    // Método ValidarPassword 
-    public boolean ValidarPassword(String pass) {
-        return this.password.equals(pass); // Valida si el parametro es la contraseña del jugadpr
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    
+    public boolean validarPassword(String pass) {
+        return this.password.equals(pass);
+    }
 }
