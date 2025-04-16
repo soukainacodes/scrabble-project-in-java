@@ -35,6 +35,7 @@ public class DriverPartidaAlgoritmo {
      */
     private static void mostrarFichas() {
         System.out.println("Fichas actuales: " + cd.obtenerFichas());
+        
     }
 
     /**
@@ -51,7 +52,7 @@ public class DriverPartidaAlgoritmo {
             System.out.printf("%4d", j);
         }
         System.out.println();
-
+      
         // Imprimir cada fila con la coordenada Y
         for (int i = 0; i < 15; i++) {
             System.out.printf("%2d: ", i);
@@ -160,6 +161,8 @@ public class DriverPartidaAlgoritmo {
             System.out.println("\n--- Tablero Actual ---");
             System.out.println("\n Puntos Jugador 1: " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2(IA): " + cd.getPuntosJugador2());
+            System.out.println(" \n");
+            System.out.println("Fichas Jugador 2: " + cd.obtenerFichasAlgoritmo());
             System.out.println(" \n");
             mostrarTablero();
             System.out.println("\n\n--- Fichas Disponibles ---");

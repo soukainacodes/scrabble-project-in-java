@@ -42,12 +42,21 @@ public class CtrlPartida {
             if (partidaActual.getTurnoJugador() == false) {
                 //algoritmo.find_all_words(partidaActual.getFichasJugador2(), dawg, partidaActual.getTablero());
                 jugarAlgoritmo();
+                partidaActual.addPuntos(jugarAlgoritmo());
+                partidaActual.bloquearCeldas();
                 partidaActual.cambiarTurnoJugador();
+
             }
-            
+
         } else {
             this.isAlgoritmo = false;
         }
+
+    }
+
+    public List<String> obtenerFichasAlgoritmo() {
+
+        return partidaActual.obtenerFichasAlgoritmo();
 
     }
 
@@ -102,15 +111,13 @@ public class CtrlPartida {
         return partidaActual.quitarFichaTablero(x, y);
     }
 
-    public int getPuntosJugador1(){
-       return partidaActual.getPuntosJugador1();
+    public int getPuntosJugador1() {
+        return partidaActual.getPuntosJugador1();
     }
 
-    public int getPuntosJugador2(){
-       return partidaActual.getPuntosJugador2();
+    public int getPuntosJugador2() {
+        return partidaActual.getPuntosJugador2();
     }
-
-   
 
     public void finTurno() {
 
@@ -126,8 +133,9 @@ public class CtrlPartida {
             partidaActual.aumentarContador();
             if (isAlgoritmo) {
                 partidaActual.addPuntos(jugarAlgoritmo());
+                partidaActual.bloquearCeldas();
                 partidaActual.cambiarTurnoJugador();
-                
+
             }
 
             partidaActual.recuperarFichas();
@@ -144,14 +152,14 @@ public class CtrlPartida {
     private int jugarAlgoritmo() {
         Pair<List<Pair<Ficha, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador2(), dawg, partidaActual.getTablero());
         List<Pair<Ficha, Pair<Integer, Integer>>> s = ss.getFirst();
-        
+
         for (Pair<Ficha, Pair<Integer, Integer>> aa : s) {
             System.out.println(aa.getFirst().getLetra());
 
             partidaActual.añadirFicha(aa.getFirst().getLetra(), aa.getSecond().getFirst(), aa.getSecond().getSecond());
 
         }
-        
+
         return ss.getSecond();
     }
 

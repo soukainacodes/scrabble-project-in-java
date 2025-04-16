@@ -52,7 +52,9 @@ public class CtrlDominio {
     public List<String> obtenerFichas() {
         return ctrlPartida.obtenerFichas();
     }
-
+    public List<String> obtenerFichasAlgoritmo(){
+      return ctrlPartida.obtenerFichasAlgoritmo();
+    }
     public int getPuntosJugador1() {
 
         return ctrlPartida.getPuntosJugador1();

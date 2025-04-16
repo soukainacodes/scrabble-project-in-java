@@ -17,13 +17,13 @@ public class Partida {
     private Bolsa bolsa;
     private Tablero tablero;
     private int contadorTurno;
-    private List<Pair<Integer,Integer>> coordenadasPalabra;
+    private List<Pair<Integer, Integer>> coordenadasPalabra;
 
     // Constructor
     public Partida(List<String> s, List<String> lineasArchivoBolsa) {
         fichasJugador1 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 1
         fichasJugador2 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 2
-                  // Inicializa el turno (por defecto, Jugador 2 comienza)
+        // Inicializa el turno (por defecto, Jugador 2 comienza)
         puntosJugador1 = 0;                 // Inicializa los puntos del Jugador 1 en 0
         puntosJugador2 = 0;                 // Inicializa los puntos del Jugador 2 en 0
         jugador1 = s.get(0);
@@ -31,61 +31,64 @@ public class Partida {
         this.bolsa = new Bolsa(lineasArchivoBolsa);
         this.tablero = new Tablero();
         this.contadorTurno = 0;
-        this.turnoJugador = Math.random() < 0.5; 
+        this.turnoJugador = Math.random() < 0.5;
         this.coordenadasPalabra = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
             setFicha(bolsa.sacarFichaAleatoria());
             turnoJugador = !turnoJugador;
         }
-        turnoJugador = true;
+
     }
 
-    public Tablero getTablero(){
+    public Tablero getTablero() {
         return this.tablero;
     }
-    public int getContadorTurno(){
+
+    public int getContadorTurno() {
         return contadorTurno;
     }
-    
-    public void aumentarContador(){
-        contadorTurno ++;
+
+    public void aumentarContador() {
+        contadorTurno++;
     }
-    public List<Pair<Integer,Integer>> getCoordenadasPalabras(){
+
+    public List<Pair<Integer, Integer>> getCoordenadasPalabras() {
         return coordenadasPalabra;
     }
 
-    public void coordenadasClear(){
+    public void coordenadasClear() {
         coordenadasPalabra.clear();
     }
 
-    public void añadirFicha(String ficha, int x, int y){
-     
-        if(!tablero.getCelda(x, y).estaOcupada()){
-           coordenadasPalabra.add(Pair.createPair(x,y));
+    public void añadirFicha(String ficha, int x, int y) {
+
+        if (!tablero.getCelda(x, y).estaOcupada()) {
+            coordenadasPalabra.add(Pair.createPair(x, y));
             tablero.ponerFicha(getFichaString(ficha), x, y);
             quitarFicha(ficha);
         }
-        
+
     }
 
     public void addPuntos(int puntos) {
-        if(turnoJugador){
+        if (turnoJugador) {
             puntosJugador1 += puntos;
-        }
-        else{
+        } else {
             puntosJugador2 += puntos;
         }
     }
-     public boolean quitarFichaTablero(int x, int y){
-        Ficha f = tablero.quitarFicha(x,y);
-        if(f != null){
-            coordenadasPalabra.remove(Pair.createPair(x,y));
+
+    public boolean quitarFichaTablero(int x, int y) {
+        Ficha f = tablero.quitarFicha(x, y);
+        if (f != null) {
+            coordenadasPalabra.remove(Pair.createPair(x, y));
             setFicha(f);
             return true;
         }
         return false;
-          
+
     }
+
     // Método setFicha
     public void setFicha(Ficha ficha) {
         if (turnoJugador) {
@@ -118,9 +121,10 @@ public class Partida {
         turnoJugador = !turnoJugador; // Cambia el turno entre Jugador 1 y Jugador 2
     }
 
-    public void setTurnoJugador(boolean turno){
+    public void setTurnoJugador(boolean turno) {
         turnoJugador = turno;
     }
+
     // Método getFicha
     public Ficha getFicha(int n) {
         if (turnoJugador) {
@@ -133,15 +137,15 @@ public class Partida {
     public Ficha getFichaString(String s) {
 
         if (turnoJugador) {
-            for (int i = 0; i <  fichasJugador1.size(); ++i) {
+            for (int i = 0; i < fichasJugador1.size(); ++i) {
                 if (fichasJugador1.get(i).getLetra().equals(s)) {
-                    
+
                     return fichasJugador1.get(i);
                 }
             }
         } else {
-            for (int i = 0; i <  fichasJugador2.size(); ++i) {
-                
+            for (int i = 0; i < fichasJugador2.size(); ++i) {
+
                 if (fichasJugador2.get(i).getLetra().equals(s)) {
                     return fichasJugador2.get(i);
                 }
@@ -184,14 +188,22 @@ public class Partida {
         return s; // Devuelve la lista de letras de las fichas
     }
 
+    public List<String> obtenerFichasAlgoritmo() {
+        List<String> s = new ArrayList<>(); // Lista para almacenar las letras de las fichas
+        for (Ficha f : fichasJugador2) {
+            s.add(f.getLetra()); // Añade las letras de las fichas del Jugador 2 a la lista
+        }
+        return s; // Devuelve la lista de letras de las fichas
+    }
+
     // Método getTurnoJugador
     public boolean getTurnoJugador() {
         return turnoJugador; // Devuelve el turno actual (true: Jugador 1, false: Jugador 2)
     }
 
-    public void bloquearCeldas(){
-        for(Pair<Integer,Integer> p : coordenadasPalabra){
-            tablero.bloquearCelda(p.getFirst(),p.getSecond());
+    public void bloquearCeldas() {
+        for (Pair<Integer, Integer> p : coordenadasPalabra) {
+            tablero.bloquearCelda(p.getFirst(), p.getSecond());
         }
     }
 
