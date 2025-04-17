@@ -1,7 +1,7 @@
 # Rutas a los archivos fuente del código principal (sin cambios)
 MAIN_PATH = \
-    ./FONTS/src/main/Dominio/*.java \
 	./FONTS/src/main/Dominio/Excepciones/*.java \
+    ./FONTS/src/main/Dominio/*.java \
 	./FONTS/src/main/Dominio/Modelos/*.java \
 	./FONTS/src/main/Presentacion/Drivers/*.java \
 	./FONTS/src/main/Persistencia/*.java \

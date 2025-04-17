@@ -1,12 +1,10 @@
 package Dominio;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import Dominio.Modelos.Jugador;      // <-- necesario para los drivers que lo usan
+import java.util.*;
+import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 import Dominio.Modelos.Tablero;
+import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
 
 public class CtrlDominio {
@@ -16,7 +14,6 @@ public class CtrlDominio {
     private final CtrlRanking      ctrlRanking;
     private final CtrlPartida      ctrlPartida;
 
-    // Para la sesión de DriverAplicacion
     private String usuarioActual = null;
 
     public CtrlDominio() {
@@ -26,31 +23,36 @@ public class CtrlDominio {
         ctrlPartida      = new CtrlPartida();
     }
 
-    // ————— Métodos “legacy” para otros Drivers —————————————
+    // ─── Gestión de usuarios ────────────────────────────────────────
 
-    /** DriverPartida... y DriverPartidaCon2Jugadores usan esto */
-    public void registrarJugador(String nombre, String password) {
-        ctrlJugador.crearJugador(nombre, password);
+    public void registrarJugador(String nombre, String password)
+            throws UsuarioYaRegistradoException {
+        if (!ctrlJugador.crearJugador(nombre, password))
+            throw new UsuarioYaRegistradoException(nombre);
     }
 
-    /** Para recuperar al Jugador desde otros Drivers */
-    public Jugador obtenerJugador(String nombre) {
-        return ctrlJugador.getJugador(nombre);
+    public Jugador obtenerJugador(String nombre)
+            throws UsuarioNoEncontradoException {
+        Jugador j = ctrlJugador.getJugador(nombre);
+        if (j == null) throw new UsuarioNoEncontradoException(nombre);
+        return j;
     }
 
-    // ————— Registro/Autenticación/Perfil —————————————
-
-    public boolean crearUsuario(String nombre, String password) {
-        return ctrlJugador.crearJugador(nombre, password);
+    public void crearUsuario(String nombre, String password)
+            throws UsuarioYaRegistradoException {
+        registrarJugador(nombre, password);
     }
 
-    public boolean iniciarSesion(String nombre, String password) {
-        boolean ok = ctrlJugador.iniciarSesion(nombre, password) != null;
-        if (ok) usuarioActual = nombre;
-        return ok;
+    public void iniciarSesion(String nombre, String password)
+            throws AutenticacionException {
+        Jugador j = ctrlJugador.iniciarSesion(nombre, password);
+        if (j == null) throw new AutenticacionException();
+        usuarioActual = nombre;
     }
 
-    public void cerrarSesion() {
+    public void cerrarSesion()
+            throws SesionNoIniciadaException {
+        if (usuarioActual == null) throw new SesionNoIniciadaException();
         usuarioActual = null;
     }
 
@@ -58,58 +60,68 @@ public class CtrlDominio {
         return usuarioActual != null;
     }
 
-    public String getUsuarioActual() {
+    public String getUsuarioActual()
+            throws SesionNoIniciadaException {
+        if (usuarioActual == null) throw new SesionNoIniciadaException();
         return usuarioActual;
     }
 
-    public int getPuntosActual() {
-        return ctrlJugador.getJugador(usuarioActual).getPuntos();
+    public int getPuntosActual()
+            throws SesionNoIniciadaException {
+        String u = getUsuarioActual();
+        return ctrlJugador.getJugador(u).getPuntos();
     }
 
-    public int getPosicionActual() {
-        return ctrlRanking.getPosition(usuarioActual);
+    public int getPosicionActual()
+            throws SesionNoIniciadaException {
+        String u = getUsuarioActual();
+        return ctrlRanking.getPosition(u);
     }
 
-    public boolean cambiarPassword(String antigua, String nueva) {
-        return ctrlJugador.cambiarPassword(usuarioActual, antigua, nueva);
+    public void cambiarPassword(String antigua, String nueva)
+            throws SesionNoIniciadaException, PasswordInvalidaException {
+        String u = getUsuarioActual();
+        if (!ctrlJugador.cambiarPassword(u, antigua, nueva))
+            throw new PasswordInvalidaException();
     }
 
-    public boolean eliminarUsuario(String password) {
-        boolean ok = ctrlJugador.eliminarJugador(usuarioActual, password);
-        if (ok) cerrarSesion();
-        return ok;
+    public void eliminarUsuario(String password)
+            throws SesionNoIniciadaException, PasswordInvalidaException {
+        String u = getUsuarioActual();
+        if (!ctrlJugador.eliminarJugador(u, password))
+            throw new PasswordInvalidaException();
+        usuarioActual = null;
     }
 
-    // ————— Ranking —————————————
+    // ─── Ranking ───────────────────────────────────────────────────────
 
     public List<Map.Entry<String,Integer>> obtenerRanking() {
         return ctrlRanking.getRankingOrdenado();
     }
 
-    public int getPosition(String nombre) {
-        return ctrlRanking.getPosition(nombre);
+    public int getPosition(String nombre)
+            throws UsuarioNoEncontradoException {
+        int pos = ctrlRanking.getPosition(nombre);
+        if (pos < 0) throw new UsuarioNoEncontradoException(nombre);
+        return pos;
     }
 
-    // ————— Partida/Scrabble —————————————
+    // ─── Partida / Scrabble ───────────────────────────────────────────
 
-    /** Firma clásica (2 jugadores) */
     public void iniciarPartida(int modo,
                                String nombre1,
                                String nombre2,
-                               List<String> lineasArchivo,
-                               List<String> lineasArchivoBolsa) {
-        List<String> jugadores = new ArrayList<>();
-        jugadores.add(nombre1);
-        jugadores.add(nombre2);
-        ctrlPartida.crearPartida(modo, jugadores, lineasArchivo, lineasArchivoBolsa);
+                               List<String> lineasDicc,
+                               List<String> lineasBolsa) {
+        List<String> jugadores = Arrays.asList(nombre1, nombre2);
+        ctrlPartida.crearPartida(modo, jugadores, lineasDicc, lineasBolsa);
     }
 
-    /** Firma genérica */
     public void iniciarPartida(int modo,
                                List<String> jugadores,
-                               List<String> lineasArchivo,
-                               List<String> lineasArchivoBolsa) {
-        ctrlPartida.crearPartida(modo, jugadores, lineasArchivo, lineasArchivoBolsa);
+                               List<String> lineasDicc,
+                               List<String> lineasBolsa) {
+        ctrlPartida.crearPartida(modo, jugadores, lineasDicc, lineasBolsa);
     }
 
     public void jugarScrabble(String jugada) {
@@ -131,10 +143,11 @@ public class CtrlDominio {
     public int getPuntosJugador1() {
         return ctrlPartida.getPuntosJugador1();
     }
+
     public int getPuntosJugador2() {
         return ctrlPartida.getPuntosJugador2();
     }
 
-    public void cargarPartida(Partida partida) { /* … */ }
-    public void guardarPartida(String nombre)   { /* … */ }
+    public void cargarPartida(Partida partida) { /*…*/ }
+    public void guardarPartida(String nombre)    { /*…*/ }
 }

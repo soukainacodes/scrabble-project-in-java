@@ -2,6 +2,7 @@ package Presentacion.Drivers;
 
 import java.util.*;
 import Dominio.CtrlDominio;
+import Dominio.Excepciones.*;
 
 public class DriverAplicacion {
     private static final CtrlDominio ctrl = new CtrlDominio();
@@ -10,7 +11,7 @@ public class DriverAplicacion {
     public static void main(String[] args) {
         while (true) {
             if (!ctrl.haySesion()) menuPrincipal();
-            else                  menuUsuario();
+            else                   menuUsuario();
         }
     }
 
@@ -39,8 +40,12 @@ public class DriverAplicacion {
             case "1": subMenuCuenta();    break;
             case "2": verRanking();       break;
             case "3":
-                ctrl.cerrarSesion();
-                System.out.println("Sesión cerrada.");
+                try {
+                    ctrl.cerrarSesion();
+                    System.out.println("Sesión cerrada.");
+                } catch (SesionNoIniciadaException e) {
+                    System.out.println(e.getMessage());
+                }
                 break;
             case "4": System.exit(0);
             default:  System.out.println("Opción no válida.");
@@ -52,18 +57,22 @@ public class DriverAplicacion {
         String u = sc.nextLine().trim();
         System.out.print("Password: ");
         String p = sc.nextLine().trim();
-
-        if (ctrl.iniciarSesion(u, p)) {
+        try {
+            ctrl.iniciarSesion(u, p);
             int puntos = ctrl.getPuntosActual();
             int pos    = ctrl.getPosicionActual();
 
-            System.out.println();
-            System.out.println("========================================");
+            System.out.println("\n========================================");
             System.out.printf("   ¡ Bienvenido, %s !%n", u);
-            System.out.printf("   Puntos: %d    Posición: %d%n", puntos, (pos > 0 ? pos : 0));
+            System.out.printf("   Puntos: %d    ", puntos);
+            if (pos > 0) {
+                System.out.println("Posición: " + pos);
+            } else {
+                System.out.println("Posición: Sin Clasificar! Juega a Scrabble ahora!");
+            }
             System.out.println("========================================\n");
-        } else {
-            System.out.println("Credenciales inválidas.");
+        } catch (AutenticacionException | SesionNoIniciadaException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -72,12 +81,12 @@ public class DriverAplicacion {
         String u = sc.nextLine().trim();
         System.out.print("Nueva password: ");
         String p = sc.nextLine().trim();
-
-        if (ctrl.crearUsuario(u, p)) {
+        try {
+            ctrl.crearUsuario(u, p);
             System.out.printf("Registrado '%s'. Puntos: 0%n", u);
             if (inicio) iniciarSesion();
-        } else {
-            System.out.println("Ese usuario ya existe.");
+        } catch (UsuarioYaRegistradoException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -86,29 +95,40 @@ public class DriverAplicacion {
         var lista = ctrl.obtenerRanking();
         for (int i = 0; i < lista.size(); i++) {
             var e = lista.get(i);
-            System.out.printf("%2d. %-15s %4d%n", i + 1, e.getKey(), e.getValue());
+            System.out.printf("%2d. %-15s %4d%n",
+                              i + 1, e.getKey(), e.getValue());
         }
     }
 
     private static void subMenuCuenta() {
         while (true) {
-            String u     = ctrl.getUsuarioActual();
-            int    puntos = ctrl.getPuntosActual();
-            int    pos    = ctrl.getPosicionActual();
+            try {
+                String u      = ctrl.getUsuarioActual();
+                int    puntos = ctrl.getPuntosActual();
+                int    pos    = ctrl.getPosicionActual();
 
-            System.out.println("\n--- TU CUENTA ---");
-            System.out.println("Usuario: " + u);
-            System.out.println("Puntos: " + puntos);
-            if (pos > 0) System.out.println("Posición: " + pos);
-            System.out.println("1. Cambiar Contraseña");
-            System.out.println("2. Eliminar Perfil");
-            System.out.println("3. Volver");
-            System.out.print("Opción: ");
-            switch (sc.nextLine().trim()) {
-                case "1": cambiarPassword(); break;
-                case "2": eliminarPerfil();  return;
-                case "3": return;
-                default:  System.out.println("Opción no válida.");
+                System.out.println("\n--- TU CUENTA ---");
+                System.out.println("Usuario: " + u);
+                System.out.println("Puntos: " + puntos);
+                if (pos > 0) {
+                    System.out.println("Posición: " + pos);
+                } else {
+                    System.out.println("Posición: Sin Classificar! Juega a Scrabble ahora!");
+                }
+                System.out.println("1. Cambiar Contraseña");
+                System.out.println("2. Eliminar Perfil");
+                System.out.println("3. Volver");
+                System.out.print("Opción: ");
+                String opt = sc.nextLine().trim();
+                switch (opt) {
+                    case "1": cambiarPassword(); break;
+                    case "2": eliminarPerfil();  return;
+                    case "3": return;
+                    default:  System.out.println("Opción no válida.");
+                }
+            } catch (SesionNoIniciadaException e) {
+                System.out.println(e.getMessage());
+                return;
             }
         }
     }
@@ -120,15 +140,15 @@ public class DriverAplicacion {
         String n1  = sc.nextLine().trim();
         System.out.print("Repita la nueva contraseña: ");
         String n2  = sc.nextLine().trim();
-
         if (!n1.equals(n2)) {
             System.out.println("Error: las contraseñas no coinciden.");
             return;
         }
-        if (ctrl.cambiarPassword(ant, n1)) {
+        try {
+            ctrl.cambiarPassword(ant, n1);
             System.out.println("Contraseña cambiada correctamente.");
-        } else {
-            System.out.println("Contraseña actual incorrecta. No se cambió.");
+        } catch (SesionNoIniciadaException | PasswordInvalidaException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -141,11 +161,11 @@ public class DriverAplicacion {
         }
         System.out.print("Confirme su contraseña: ");
         String pass = sc.nextLine().trim();
-
-        if (ctrl.eliminarUsuario(pass)) {
+        try {
+            ctrl.eliminarUsuario(pass);
             System.out.println("Perfil eliminado. Adiós.");
-        } else {
-            System.out.println("Contraseña incorrecta. No se eliminó.");
+        } catch (SesionNoIniciadaException | PasswordInvalidaException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
