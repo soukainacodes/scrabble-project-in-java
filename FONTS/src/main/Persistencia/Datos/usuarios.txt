@@ -2,6 +2,5 @@ A A 0
 Alex 1234 0
 alex hola 0
 Ferran 6/8 0
-suki suki123 20
-Ivan sepuedesolohayqueponerse 0
+suki suki123 0
 atli 123123 0
