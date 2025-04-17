@@ -19,6 +19,9 @@ public class CtrlPartida {
     private boolean isAlgoritmo;
     private Algoritmo algoritmo;
 
+
+
+    
     // Constructor
     public CtrlPartida() {
 
@@ -40,8 +43,7 @@ public class CtrlPartida {
             this.isAlgoritmo = true;
             this.algoritmo = new Algoritmo();
             if (partidaActual.getTurnoJugador() == false) {
-                //algoritmo.find_all_words(partidaActual.getFichasJugador2(), dawg, partidaActual.getTablero());
-                jugarAlgoritmo();
+                
                 partidaActual.addPuntos(jugarAlgoritmo());
                 partidaActual.bloquearCeldas();
                 partidaActual.cambiarTurnoJugador();
@@ -64,16 +66,17 @@ public class CtrlPartida {
         return partidaActual.obtenerFichas();
     }
 
-    public void cargarPartida() {
-
+    public void cargarPartida(Partida partida) {
+        this.partidaActual = partida;
     }
 
-    public void guardarPartida() {
-
+    public Partida guardarPartida() {
+        return partidaActual;
     }
 
     public void jugarScrabble(String input) {
 
+        
         String[] parts = input.split(" ");
 
         if (parts[0].contains("set")) {

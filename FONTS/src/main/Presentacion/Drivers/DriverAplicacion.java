@@ -27,7 +27,7 @@ public class DriverAplicacion {
         System.out.print("Opción: ");
         switch (sc.nextLine().trim()) {
             case "1": iniciarSesion();  break;
-            case "2": registrarse();    break;
+            case "2": registrarse(true);    break;
             case "3": System.exit(0);
             default:  System.out.println("Opción no válida.");
         }
@@ -37,14 +37,16 @@ public class DriverAplicacion {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Cuenta");
         System.out.println("2. Ver Ranking");
+        System.out.println("3. Añadir Usuario");
         System.out.println("3. Cerrar Sesión");
         System.out.println("4. Salir");
         System.out.print("Opción: ");
         switch (sc.nextLine().trim()) {
             case "1": subMenuCuenta();  break;
             case "2": verRanking();      break;
-            case "3": jugadorActu = null; System.out.println("Sesión cerrada."); break;
-            case "4": System.exit(0);
+            case "3": registrarse(false);    break;
+            case "4": jugadorActu = null; System.out.println("Sesión cerrada."); break;
+            case "5": System.exit(0);
             default:  System.out.println("Opción no válida.");
         }
     }
@@ -113,13 +115,13 @@ public class DriverAplicacion {
         }
     }
 
-    private static void registrarse() {
+    private static void registrarse(boolean inicio) {
         System.out.print("Nuevo usuario: ");
         String u = sc.nextLine().trim();
         System.out.print("Nueva password: ");
         String p = sc.nextLine().trim();
         if (ctrlJ.crearJugador(u, p)) {
-            jugadorActu = ctrlJ.iniciarSesion(u, p);
+            if(inicio) jugadorActu = ctrlJ.iniciarSesion(u, p);
             System.out.printf("Registrado '%s'. Puntos: 0%n", u);
             // pos = 1 si es el único, pero lo omitimos si -1
         } else {

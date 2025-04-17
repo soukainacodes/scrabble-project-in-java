@@ -171,6 +171,10 @@ public class DriverPartidaAlgoritmo {
             //System.out.println("\nIngrese una jugada (o escriba 'salir' para terminar):");
             input = in.nextLine();
             if (!input.equalsIgnoreCase("salir") && !input.trim().isEmpty()) {
+                if(input.equalsIgnoreCase("guardar") ){
+                    String nombre = in.nextLine();
+                    cd.guardarPartida(nombre);
+                }
                 cd.jugarScrabble(input);
             }
 

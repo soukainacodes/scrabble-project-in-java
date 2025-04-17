@@ -13,56 +13,40 @@ public class Validador {
     private int ejex, ejey;
     private int contadorTurno;
     private Tablero tablero;
-    private int puntosLinea;
-    private boolean doblePalabra;
 
+    private boolean doblePalabra;
+    private Dawg diccionario;
     private boolean hayBloqueada;
 
     public Validador() {
         //Deberia recibir el DAWG como parametro
 
-        this.puntosLinea = 0;
     }
 
     public int validarPalabra(List<Pair<Integer, Integer>> coordenadasPalabra, Dawg diccionario, Tablero tablero, int contadorTurno) {
         // If no new tiles were placed
         this.tablero = tablero;
-
-        if (coordenadasPalabra.isEmpty()) {
-            return 0;
-        }
-
-        List<String> palabras = new ArrayList<>();
+        this.diccionario = diccionario;
+        // if (coordenadasPalabra.isEmpty()) {
+        //   return 0;
+        // }
+        int puntosTotales = 0;
+       
 
         // Special case: only one tile placed
         if (coordenadasPalabra.size() == 1) {
 
             if (contadorTurno == 0) {
-
-                return 0; // First turn must have more than one tile
+                return 0;
             }
 
-            // Check both horizontal and vertical words formed with this single tile
             Pair<Integer, Integer> coord = coordenadasPalabra.get(0);
-            int puntosTotal = 0;
 
-            String horizontalWord = recorrerDireccion(coord.getFirst(), coord.getSecond(), false);
-            if (diccionario.buscarPalabra(horizontalWord)) {
-                palabras.add(horizontalWord);
-                puntosTotal += puntosLinea;
-            }
+            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false);
+            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true);
 
-            String verticalWord = recorrerDireccion(coord.getFirst(), coord.getSecond(), true);
-            if (diccionario.buscarPalabra(verticalWord)) {
-                palabras.add(verticalWord);
-                puntosTotal += puntosLinea;
-            }
-
-            return palabras.isEmpty() ? 0 : puntosTotal;
+            return puntosTotales;
         }
-
-        // Reset modifiers for scoring
-        doblePalabra = false;
 
         // Check if tiles are in a straight line
         boolean isHorizontalLine = true;
@@ -94,68 +78,60 @@ public class Validador {
         }
 
         // Calculate main word and points
-        hayBloqueada = false;
-        int puntosTotales = 0;
+        
 
         // Get the main word based on line direction
-        String mainWord;
         if (isHorizontalLine) {
-            mainWord = recorrerDireccion(coordenadasPalabra.get(0).getFirst(),
-                    coordenadasPalabra.get(0).getSecond(), false);
-                System.out.println("MainH: " + mainWord);
-            if (!diccionario.buscarPalabra(mainWord)) {
-                System.out.println("No en diccionario");
+            puntosTotales += recorrerDireccion(coordenadasPalabra.get(0).getFirst(), coordenadasPalabra.get(0).getSecond(), false);
+
+            if (puntosTotales < 0) {
                 return 0;
             }
-            palabras.add(mainWord);
-            puntosTotales += puntosLinea;
+
         } else { // isVerticalLine
-            mainWord = recorrerDireccion(coordenadasPalabra.get(0).getFirst(),
-                    coordenadasPalabra.get(0).getSecond(), true);
-                System.out.println("MainV: " + mainWord);
-            if (!diccionario.buscarPalabra(mainWord)) {
-                System.out.println("No en diccionario");
+            puntosTotales += recorrerDireccion(coordenadasPalabra.get(0).getFirst(), coordenadasPalabra.get(0).getSecond(), true);
+            if (puntosTotales < 0) {
                 return 0;
             }
-            palabras.add(mainWord);
-            puntosTotales += puntosLinea;
         }
 
         // Validate that at least one tile is connected to an existing word (if not first turn)
-        if (!hayBloqueada && contadorTurno > 0) {
-            System.out.println("No hay bloqueada");
+       
+        int puntos;
+        // Check for perpendicular words formed by each placed tile
+        for (Pair<Integer, Integer> p : coordenadasPalabra) {
+
+            if (isHorizontalLine) {
+                puntos = recorrerDireccion(p.getFirst(), p.getSecond(), true);
+                if(puntos < 0) return 0;
+                else puntosTotales += puntos;
+            } else {
+                puntos = recorrerDireccion(p.getFirst(), p.getSecond(), false);
+                if(puntos < 0) return 0;
+                else puntosTotales += puntos;
+            }
+        }
+
+         if (!hayBloqueada && contadorTurno > 0) {
+
             return 0;
         }
 
-        // Check for perpendicular words formed by each placed tile
-        for (Pair<Integer, Integer> p : coordenadasPalabra) {
-            String crossWord;
-
-            if (isHorizontalLine) {
-                crossWord = recorrerDireccion(p.getFirst(), p.getSecond(), true);
-            } else {
-                crossWord = recorrerDireccion(p.getFirst(), p.getSecond(), false);
-            }
-
-            // Only consider words with length > 1 (single letters aren't words)
-            if (crossWord.length() > 1 && diccionario.buscarPalabra(crossWord)) {
-                System.out.println("Cross: " + crossWord);
-                palabras.add(crossWord);
-                puntosTotales += puntosLinea;
-            }
-        }
+        if(coordenadasPalabra.size() == 7) puntosTotales +=50;
 
         return puntosTotales;
     }
 
-    private String recorrerDireccion(int xx, int yy, boolean vertical) {
-        this.puntosLinea = 0;
+    private int recorrerDireccion(int xx, int yy, boolean vertical) {
+        int puntosLinea = 0;
         StringBuilder palabra = new StringBuilder();
         StringBuilder palabra2 = new StringBuilder();
         int x = xx, y = yy;
         int puntosFicha = 0;
         int dx;
         int dy;
+        int bonificador = 0;
+        boolean hayBloqueada = true;
         if (vertical) {
             dx = 1;
             dy = 0;
@@ -179,14 +155,17 @@ public class Validador {
                     puntosFicha = tablero.getFicha(x, y).getPuntuacion();
                     if (tablero.getCelda(x, y).estaBloqueada()) {
                         hayBloqueada = true;
+                    } else {
+
+                        System.out.println(letra);
+                        if (tablero.getCelda(x, y).isDobleTripleLetra()) {
+                            puntosFicha *= tablero.getCelda(x, y).getBonificacion().getMultiplicador();
+                        }
+                        if (tablero.getCelda(x, y).isDobleTriplePalabra()) {
+                            bonificador *= tablero.getCelda(x, y).getBonificacion().getMultiplicador();
+                        }
                     }
 
-                    if (tablero.getCelda(x, y).isDobleTripleLetra()) {
-                        puntosFicha *= tablero.getCelda(x, y).getBonificacion().getMultiplicador();
-                    }
-                    if (tablero.getCelda(x, y).isDobleTriplePalabra()) {
-                        doblePalabra = true;
-                    }
                     puntosLinea += puntosFicha;
                 }
 
@@ -194,8 +173,18 @@ public class Validador {
                 y += dir * dy;
             }
         }
-        System.out.println(palabra2.toString() + palabra.toString());
-        return palabra2.toString() + palabra.toString();
+        if (bonificador > 0) {
+            puntosLinea *= bonificador;
+        }
+
+        String palabraFinal = palabra2.toString() + palabra.toString();
+
+        if (diccionario.buscarPalabra(palabraFinal)) {
+            return puntosLinea;
+        }
+        else if(palabraFinal.length() == 1) return 0;
+        
+        return -1;
 
     }
 

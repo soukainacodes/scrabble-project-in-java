@@ -330,6 +330,11 @@ public class Algoritmo {
         this.diccionario = diccionario;
         //fichas del jugador
         puntosFinal = 0;
+          ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
+          anchors = find_anchors();
+           if (anchors.size() == 0) {
+                anchors.add(Pair.createPair(7, 7));
+            }
         for (int i = 0; i < 2; ++i) {
             if (i == 0) {
                 vertical = false;
@@ -337,11 +342,8 @@ public class Algoritmo {
                 vertical = true;
             }
 
-            ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
-            anchors = find_anchors();
-            if (anchors.size() == 0) {
-                anchors.add(Pair.createPair(7, 7));
-            }
+          
+           
             for (Pair<Integer, Integer> pos : anchors) {
                 int puntos = 0;
                 int longitud = 0;

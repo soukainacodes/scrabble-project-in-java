@@ -52,9 +52,11 @@ public class CtrlDominio {
     public List<String> obtenerFichas() {
         return ctrlPartida.obtenerFichas();
     }
-    public List<String> obtenerFichasAlgoritmo(){
-      return ctrlPartida.obtenerFichasAlgoritmo();
+
+    public List<String> obtenerFichasAlgoritmo() {
+        return ctrlPartida.obtenerFichasAlgoritmo();
     }
+
     public int getPuntosJugador1() {
 
         return ctrlPartida.getPuntosJugador1();
@@ -62,6 +64,14 @@ public class CtrlDominio {
 
     public int getPuntosJugador2() {
         return ctrlPartida.getPuntosJugador2();
+    }
+
+    public void cargarPartida(Partida partida) {
+      //  this.partidaActual = partida;
+    }
+
+    public void guardarPartida(String nombre) {
+     //   CtrlPersistencia.guardarPartida(nombre, ctrlPartida.guardarPartida());
     }
 
 }

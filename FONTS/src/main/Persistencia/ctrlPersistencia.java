@@ -2,13 +2,20 @@
 package Persistencia;
 
 import java.io.*;
+import java.security.cert.PKIXCertPathValidatorResult;
 import java.util.*;
+
 import Dominio.Modelos.Jugador;
+import Dominio.Modelos.Partida;
 
 public class CtrlPersistencia {
     private static final String FILE_USUARIOS =
         "FONTS/src/main/Persistencia/Datos/usuarios.txt";
 
+    private Map<String,Partida> listaPartidas;
+    public CtrlPersistencia(){
+        listaPartidas = new HashMap<>();
+    } 
     /** Lee todos los jugadores de usuarios.txt */
     public Map<String, Jugador> cargarUsuarios() {
         Map<String, Jugador> mapa = new HashMap<>();
@@ -42,5 +49,13 @@ public class CtrlPersistencia {
         } catch (IOException e) {
             System.err.println("[Persistencia] Error al guardar usuarios: " + e.getMessage());
         }
+    }
+
+    public void cargarPartida() {
+         
+    }
+
+    public void guardarPartida(String id, Partida partida) {
+        listaPartidas.put(id, partida);
     }
 }
