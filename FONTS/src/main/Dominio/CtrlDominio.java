@@ -4,7 +4,10 @@ import java.util.*;
 import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 import Dominio.Modelos.Tablero;
-import Dominio.Excepciones.*;
+import Dominio.Excepciones.UsuarioYaRegistradoException;
+import Dominio.Excepciones.UsuarioNoEncontradoException;
+import Dominio.Excepciones.AutenticacionException;
+import Dominio.Excepciones.PasswordInvalidaException;
 import Persistencia.CtrlPersistencia;
 
 public class CtrlDominio {
@@ -50,9 +53,8 @@ public class CtrlDominio {
         usuarioActual = nombre;
     }
 
-    public void cerrarSesion()
-            throws SesionNoIniciadaException {
-        if (usuarioActual == null) throw new SesionNoIniciadaException();
+    public void cerrarSesion() {
+        // Si no hay sesión activa, no hace nada
         usuarioActual = null;
     }
 
@@ -60,35 +62,32 @@ public class CtrlDominio {
         return usuarioActual != null;
     }
 
-    public String getUsuarioActual()
-            throws SesionNoIniciadaException {
-        if (usuarioActual == null) throw new SesionNoIniciadaException();
+    public String getUsuarioActual() {
+        // Devuelve null si no hay sesión
         return usuarioActual;
     }
 
-    public int getPuntosActual()
-            throws SesionNoIniciadaException {
-        String u = getUsuarioActual();
-        return ctrlJugador.getJugador(u).getPuntos();
+    public int getPuntosActual() {
+        if (usuarioActual == null) return 0;
+        return ctrlJugador.getJugador(usuarioActual).getPuntos();
     }
 
-    public int getPosicionActual()
-            throws SesionNoIniciadaException {
-        String u = getUsuarioActual();
-        return ctrlRanking.getPosition(u);
+    public int getPosicionActual() {
+        if (usuarioActual == null) return -1;
+        return ctrlRanking.getPosition(usuarioActual);
     }
 
     public void cambiarPassword(String antigua, String nueva)
-            throws SesionNoIniciadaException, PasswordInvalidaException {
-        String u = getUsuarioActual();
-        if (!ctrlJugador.cambiarPassword(u, antigua, nueva))
+            throws PasswordInvalidaException {
+        if (usuarioActual == null) return;
+        if (!ctrlJugador.cambiarPassword(usuarioActual, antigua, nueva))
             throw new PasswordInvalidaException();
     }
 
     public void eliminarUsuario(String password)
-            throws SesionNoIniciadaException, PasswordInvalidaException {
-        String u = getUsuarioActual();
-        if (!ctrlJugador.eliminarJugador(u, password))
+            throws PasswordInvalidaException {
+        if (usuarioActual == null) return;
+        if (!ctrlJugador.eliminarJugador(usuarioActual, password))
             throw new PasswordInvalidaException();
         usuarioActual = null;
     }
