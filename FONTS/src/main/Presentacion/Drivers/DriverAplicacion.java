@@ -169,7 +169,7 @@ public class DriverAplicacion {
         System.out.print("\033[H\033[2J");
         System.out.println("=== Ejecutando juego de pruebas ===\n");
         List<String> usuarios = Arrays.asList("Jordi", "Pere", "Maria", "Joana", "Manel");
-        String pwd = "contraseniaGenerica";
+        String pwd = "123456";
         boolean errores = false;
     
         for (String nombre : usuarios) {
