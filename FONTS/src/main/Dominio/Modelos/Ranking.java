@@ -91,19 +91,19 @@ public class Ranking {
     }
 
     /**
-     * Obtiene una lista del ranking ordenado de mayor a menor puntuación.
-     * <p>
-     * La lista se genera ordenando las entradas del {@code HashMap} según sus valores de forma descendente.
-     * </p>
+     * Obtiene una lista del ranking ordenado de mayor a menor puntuación,
+     * incluyendo únicamente a aquellos con puntuación superior a 0.
      *
-     * @return Lista de entradas (nombre, puntuación) ordenada descendentemente.
+     * @return Lista filtrada y ordenada de entradas (nombre, puntuación).
      */
     public List<Entry<String, Integer>> obtenerRankingOrdenado() {
         return registro.entrySet().stream()
+                // Filtrar sólo puntuaciones mayores que cero
+                .filter(e -> e.getValue() > 0)
+                // Ordenar de mayor a menor
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .collect(Collectors.toList());
     }
-
     /**
      * Retorna una copia del registro interno.
      * <p>

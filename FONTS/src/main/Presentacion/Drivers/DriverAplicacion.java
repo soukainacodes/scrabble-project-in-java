@@ -65,7 +65,7 @@ public class DriverAplicacion {
             System.out.println("\n========================================");
             System.out.printf("   ¡ Bienvenido, %s !%n", u);
             System.out.printf("   Puntos: %d    ", puntos);
-            if (pos > 0) {
+            if (puntos > 0) {
                 System.out.println("Posición: " + pos);
             } else {
                 System.out.println("Posición: Sin Clasificar! Juega a Scrabble ahora!");
@@ -110,7 +110,7 @@ public class DriverAplicacion {
                 System.out.println("\n--- TU CUENTA ---");
                 System.out.println("Usuario: " + u);
                 System.out.println("Puntos: " + puntos);
-                if (pos > 0) {
+                if (puntos > 0) {
                     System.out.println("Posición: " + pos);
                 } else {
                     System.out.println("Posición: Sin Classificar! Juega a Scrabble ahora!");

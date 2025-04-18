@@ -2,6 +2,7 @@
 package Dominio.Excepciones;
 public class AutenticacionException extends Exception {
     public AutenticacionException() {
-        super("Credenciales inválidas.");
+        super("Usuario o contraseña incorrectos. Inténtalo de nuevo.\r\n" + //
+                        "");
     }
 }
