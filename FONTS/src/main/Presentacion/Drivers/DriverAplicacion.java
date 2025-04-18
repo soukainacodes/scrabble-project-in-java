@@ -21,12 +21,14 @@ public class DriverAplicacion {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
         System.out.println("2. Registrarse");
-        System.out.println("3. Salir");
+        System.out.println("3. Juego de pruebas");
+        System.out.println("4. Salir");
         System.out.print("Opción: ");
         switch (sc.nextLine().trim()) {
-            case "1": iniciarSesion();   break;
-            case "2": registrarse(true); break;
-            case "3": System.exit(0);
+            case "1": iniciarSesion();    break;
+            case "2": registrarse(true);  break;
+            case "3": juegoPruebas();     break;
+            case "4": System.exit(0);
             default:  System.out.println("Opción no válida.");
         }
     }
@@ -39,8 +41,8 @@ public class DriverAplicacion {
         System.out.println("4. Salir");
         System.out.print("Opción: ");
         switch (sc.nextLine().trim()) {
-            case "1": subMenuCuenta(); break;
-            case "2": verRanking();    break;
+            case "1": subMenuCuenta();    break;
+            case "2": verRanking();       break;
             case "3":
                 ctrl.cerrarSesion();
                 System.out.println("Sesión cerrada.");
@@ -161,4 +163,63 @@ public class DriverAplicacion {
             System.out.println(e.getMessage());
         }
     }
-}
+
+    private static void juegoPruebas() {
+        // Limpia pantalla
+        System.out.print("\033[H\033[2J");
+        System.out.println("=== Ejecutando juego de pruebas ===\n");
+        List<String> usuarios = Arrays.asList("Jordi", "Pere", "Maria", "Joana", "Manel");
+        String pwd = "contraseniaGenerica";
+        boolean errores = false;
+    
+        for (String nombre : usuarios) {
+            System.out.println("────────────────────────────────────────────────");
+            System.out.println("PRUEBAS PARA USUARIO: " + nombre);
+            System.out.println("────────────────────────────────────────────────");
+    
+            try {
+                System.out.println("-> Creando usuario...");
+                ctrl.crearUsuario(nombre, pwd);
+    
+                System.out.println("-> Iniciando sesión...");
+                ctrl.iniciarSesion(nombre, pwd);
+    
+                int puntos   = ctrl.getPuntosActual();
+                int posicion = ctrl.getPosicionActual();
+                String posStr = posicion > 0 ? String.valueOf(posicion) : "Sin clasificar";
+                System.out.printf("%s    PUNTOS: %d  |  POSICIÓN: %s%n",
+                                  nombre, puntos, posStr);
+    
+                System.out.println("-> Cerrando sesión...");
+                ctrl.cerrarSesion();
+    
+                System.out.println("-> Cambiando contraseña...");
+                ctrl.iniciarSesion(nombre, pwd);
+                String nuevaPwd = pwd + "1";
+                ctrl.cambiarPassword(pwd, nuevaPwd);
+                ctrl.cerrarSesion();
+    
+                System.out.println("-> Iniciando sesión con nueva contraseña...");
+                ctrl.iniciarSesion(nombre, nuevaPwd);
+    
+                System.out.println("-> Eliminando usuario...");
+                ctrl.eliminarUsuario(nuevaPwd);
+    
+                System.out.println("Pruebas de " + nombre + " completadas con éxito.\n");
+            } catch (Exception e) {
+                errores = true;
+                System.out.println("Error con usuario " + nombre + ": " + e.getMessage() + "\n");
+            } finally {
+                if (ctrl.haySesion()) ctrl.cerrarSesion();
+            }
+        }
+    
+        System.out.println("────────────────────────────────────────────────");
+        if (!errores) {
+            System.out.println("El juego de pruebas se ha ejecutado correctamente.");
+        } else {
+            System.out.println("El juego de pruebas NO se ejecutó completamente sin errores.");
+        }
+        System.out.println("────────────────────────────────────────────────");
+    }
+}    
