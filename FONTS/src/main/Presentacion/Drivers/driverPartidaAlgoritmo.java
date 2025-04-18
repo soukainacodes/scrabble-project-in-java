@@ -111,11 +111,11 @@ public class DriverPartidaAlgoritmo {
         // Bucle principal del juego
         String input;
         do {
-            clearScreen();
+           // clearScreen();
             System.out.println("\n--- Tablero Actual ---");
             System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-            System.out.println("\n Fichas IA: " + cd.obtenerFichasAlgoritmo() + "\n");
+        
             mostrarTablero();
             System.out.println("\n\n--- Fichas Disponibles ---");
             mostrarFichas();

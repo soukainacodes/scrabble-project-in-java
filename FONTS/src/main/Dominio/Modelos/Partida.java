@@ -107,13 +107,17 @@ public class Partida {
         }
     }
 
-    public void recuperarFichas() {
+    public boolean recuperarFichas() {
+        if(!bolsa.isEmpty()){
         for (int i = fichasJugador1.size(); i < 7; i++) {
             fichasJugador1.add(bolsa.sacarFichaAleatoria());
         }
         for (int i = fichasJugador2.size(); i < 7; i++) {
             fichasJugador2.add(bolsa.sacarFichaAleatoria());
         }
+        return true;
+        }
+        else return false;
     }
 
     // Método cambiarTurnoJugador
@@ -188,13 +192,7 @@ public class Partida {
         return s; // Devuelve la lista de letras de las fichas
     }
 
-    public List<String> obtenerFichasAlgoritmo() {
-        List<String> s = new ArrayList<>(); // Lista para almacenar las letras de las fichas
-        for (Ficha f : fichasJugador2) {
-            s.add(f.getLetra()); // Añade las letras de las fichas del Jugador 2 a la lista
-        }
-        return s; // Devuelve la lista de letras de las fichas
-    }
+
 
     // Método getTurnoJugador
     public boolean getTurnoJugador() {
@@ -226,8 +224,14 @@ public class Partida {
         return puntosJugador2; // Devuelve los puntos acumulados por el Jugador 2
     }
 
-    public List<Ficha> getFichasJugador2() {
-        return fichasJugador2;
+    public List<Ficha> getFichasJugador() {
+        if(turnoJugador){
+            return fichasJugador1;
+        }
+        else{
+            return fichasJugador2;
+        }
+        
     }
 
 }

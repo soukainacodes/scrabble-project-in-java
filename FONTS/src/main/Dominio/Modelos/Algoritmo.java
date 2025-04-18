@@ -117,14 +117,11 @@ public class Algoritmo {
         while (lenght >= 0) {
 
             puntosPalabra += getFichaPuntuacion(last_pos);
-            if (tablero.getFicha(last_pos.getFirst(), last_pos.getSecond()) != null) {
-
-                //System.out.println(tablero.getFicha(last_pos.getFirst(), last_pos.getSecond()).getLetra()) ;
-            }
+         
             int p = 0;
             for (Ficha ficha : f) {
                 if (ficha.getLetra().contains(palabraTokenizada.get(lenght))) {
-                    // System.out.println("Letra:" + ficha.getLetra());
+                    
                     p = ficha.getPuntuacion();
                     if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTripleLetra()) {
                         p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
@@ -155,10 +152,10 @@ public class Algoritmo {
         lenght = palabraTokenizada.size() - 1;
         if (puntos > puntosFinal) {
             puntosFinal = puntos;
-
+            System.out.println(palabra);
             resultadoFinal.clear();
 
-            System.out.println("Palabra: " + palabra + " Tamaño: " + (fichass.size()));
+            
             while (lenght >= 0) {
                 ponerFicha(palabraTokenizada.get(lenght), play_pos);
                 lenght--;

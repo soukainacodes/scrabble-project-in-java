@@ -24,12 +24,16 @@ public class Validador {
     }
 
     public int validarPalabra(List<Pair<Integer, Integer>> coordenadasPalabra, Dawg diccionario, Tablero tablero, int contadorTurno) {
+        this.hayBloqueada = false;
         // If no new tiles were placed
         this.tablero = tablero;
         this.diccionario = diccionario;
-        // if (coordenadasPalabra.isEmpty()) {
-        //   return 0;
-        // }
+       
+         if (coordenadasPalabra.isEmpty()) {
+          
+           return 0;
+         }
+        
         int puntosTotales = 0;
        
 
@@ -44,7 +48,7 @@ public class Validador {
 
             puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false);
             puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true);
-
+           
             return puntosTotales;
         }
 
@@ -83,13 +87,14 @@ public class Validador {
         // Get the main word based on line direction
         if (isHorizontalLine) {
             puntosTotales += recorrerDireccion(coordenadasPalabra.get(0).getFirst(), coordenadasPalabra.get(0).getSecond(), false);
-
+           // System.out.println("Linea horizontal: " + puntosTotales);
             if (puntosTotales < 0) {
                 return 0;
             }
 
         } else { // isVerticalLine
             puntosTotales += recorrerDireccion(coordenadasPalabra.get(0).getFirst(), coordenadasPalabra.get(0).getSecond(), true);
+           // System.out.println("Linea vertical: " + puntosTotales);
             if (puntosTotales < 0) {
                 return 0;
             }
@@ -103,17 +108,20 @@ public class Validador {
 
             if (isHorizontalLine) {
                 puntos = recorrerDireccion(p.getFirst(), p.getSecond(), true);
+                 
                 if(puntos < 0) return 0;
                 else puntosTotales += puntos;
             } else {
+                 
                 puntos = recorrerDireccion(p.getFirst(), p.getSecond(), false);
+                
                 if(puntos < 0) return 0;
                 else puntosTotales += puntos;
             }
         }
 
          if (!hayBloqueada && contadorTurno > 0) {
-
+         
             return 0;
         }
 
@@ -131,7 +139,7 @@ public class Validador {
         int dx;
         int dy;
         int bonificador = 0;
-        boolean hayBloqueada = true;
+        
         if (vertical) {
             dx = 1;
             dy = 0;
@@ -162,7 +170,8 @@ public class Validador {
                             puntosFicha *= tablero.getCelda(x, y).getBonificacion().getMultiplicador();
                         }
                         if (tablero.getCelda(x, y).isDobleTriplePalabra()) {
-                            bonificador *= tablero.getCelda(x, y).getBonificacion().getMultiplicador();
+                            
+                            bonificador += tablero.getCelda(x, y).getBonificacion().getMultiplicador();
                         }
                     }
 
@@ -174,6 +183,7 @@ public class Validador {
             }
         }
         if (bonificador > 0) {
+            
             puntosLinea *= bonificador;
         }
 

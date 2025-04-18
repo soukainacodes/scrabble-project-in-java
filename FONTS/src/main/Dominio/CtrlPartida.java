@@ -19,9 +19,6 @@ public class CtrlPartida {
     private boolean isAlgoritmo;
     private Algoritmo algoritmo;
 
-
-
-    
     // Constructor
     public CtrlPartida() {
 
@@ -35,7 +32,7 @@ public class CtrlPartida {
         this.dawg = new Dawg();
         dawg.cargarFichasValidas(lineasArchivoBolsa);
         dawg.construirDesdeArchivo(lineasArchivo);
-
+     
         this.partidaActual = new Partida(players, lineasArchivoBolsa);
         this.finTurno = false;
 
@@ -43,22 +40,18 @@ public class CtrlPartida {
             this.isAlgoritmo = true;
             this.algoritmo = new Algoritmo();
             if (partidaActual.getTurnoJugador() == false) {
-                
+
                 partidaActual.addPuntos(jugarAlgoritmo());
                 partidaActual.bloquearCeldas();
                 partidaActual.cambiarTurnoJugador();
-
+                partidaActual.coordenadasClear();
+                partidaActual.recuperarFichas();    
+                partidaActual.aumentarContador();
             }
 
         } else {
             this.isAlgoritmo = false;
         }
-
-    }
-
-    public List<String> obtenerFichasAlgoritmo() {
-
-        return partidaActual.obtenerFichasAlgoritmo();
 
     }
 
@@ -76,7 +69,6 @@ public class CtrlPartida {
 
     public void jugarScrabble(String input) {
 
-        
         String[] parts = input.split(" ");
 
         if (parts[0].contains("set")) {
@@ -89,29 +81,22 @@ public class CtrlPartida {
         } else if (parts[0].contains("get")) {
             int x = Integer.parseInt(parts[1]);
             int y = Integer.parseInt(parts[2]);
-            quitarFicha(x, y);
+            partidaActual.quitarFichaTablero(x, y);
         } else if (parts[0].contains("reset")) {
 
         } else if (parts[0].contains("pasar")) {
-            //for( Pair p : coordenadasPalabra){
-            // quitarFicha(p.getFirst(),p.getSecond());
-            //  }
-            //finTurno(); 
+            for( Pair <Integer,Integer> p : partidaActual.getCoordenadasPalabras()){
+                partidaActual.quitarFichaTablero(p.getFirst(),p.getSecond());
+              }
+            finTurno(false); 
         } else if (parts[0].contains("fin")) {
 
-            finTurno();
+            finTurno(true);
+        } else {
+            jugarAlgoritmo();
+            finTurno(true);
         }
 
-    }
-
-    //Funcion para añadir una ficha
-    public void añadirFicha(String ficha, int x, int y) {
-
-    }
-
-    //Funcion para quitar una ficha
-    public boolean quitarFicha(int x, int y) {
-        return partidaActual.quitarFichaTablero(x, y);
     }
 
     public int getPuntosJugador1() {
@@ -122,47 +107,65 @@ public class CtrlPartida {
         return partidaActual.getPuntosJugador2();
     }
 
-    public void finTurno() {
+    public void finTurno(boolean pasar) {
+        if(!pasar){
+            partidaActual.cambiarTurnoJugador();
+            partidaActual.aumentarContador();
 
-        System.out.println("aa");
-
+        }
         int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
-        if (puntos != 0) {
+    
+        if (puntos > 0) {
+            
             partidaActual.addPuntos(puntos);
             partidaActual.bloquearCeldas();
-            System.out.println("Palabra correcta");
             partidaActual.coordenadasClear();
             partidaActual.cambiarTurnoJugador();
             partidaActual.aumentarContador();
             if (isAlgoritmo) {
-                partidaActual.addPuntos(jugarAlgoritmo());
+                int puntosAlgoritmo = jugarAlgoritmo();
+                if(puntosAlgoritmo == 0) jugarScrabble("pasar");
+                partidaActual.addPuntos(puntosAlgoritmo);
                 partidaActual.bloquearCeldas();
-                partidaActual.cambiarTurnoJugador();
-
+                partidaActual.aumentarContador();
             }
 
-            partidaActual.recuperarFichas();
-
+            if (!partidaActual.recuperarFichas()) {
+                if (partidaActual.getListSize() == 0) {
+                    finPartida();
+                }
+            }
             partidaActual.coordenadasClear();
-
+            partidaActual.cambiarTurnoJugador();
         } else {
             System.out.println("Palabra incorrecta");
         }
-        System.out.println("Jugador 1:" + partidaActual.getPuntosJugador1());
-        System.out.println("Jugador 2:" + partidaActual.getPuntosJugador2());
+
+    }
+
+    public void finPartida() {
+        partidaActual.cambiarTurnoJugador();
+        for (Ficha ficha : partidaActual.getFichasJugador()) {
+            partidaActual.addPuntos(-ficha.getPuntuacion());
+        }
+        System.out.println("Fin Partida");
+        if(partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) System.out.println("Ganador Jugador1!!");
+        else System.out.println("Ganador Jugador2!!");
     }
 
     private int jugarAlgoritmo() {
-        Pair<List<Pair<Ficha, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador2(), dawg, partidaActual.getTablero());
+        Pair<List<Pair<Ficha, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
         List<Pair<Ficha, Pair<Integer, Integer>>> s = ss.getFirst();
-
-        for (Pair<Ficha, Pair<Integer, Integer>> aa : s) {
-            System.out.println(aa.getFirst().getLetra());
+        System.out.print(partidaActual.obtenerFichas());
+        for (Pair<Ficha , Pair<Integer, Integer>> aa : s) {
+         //   System.out.println(aa.getFirst().getLetra());
 
             partidaActual.añadirFicha(aa.getFirst().getLetra(), aa.getSecond().getFirst(), aa.getSecond().getSecond());
 
         }
-
+        if(s.size() == 0){
+            return 0;
+        }
         return ss.getSecond();
     }
 

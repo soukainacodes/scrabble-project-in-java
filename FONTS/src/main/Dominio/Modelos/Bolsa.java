@@ -61,6 +61,9 @@ public class Bolsa {
         return conjuntoDeFichas.remove((int) (Math.random() * conjuntoDeFichas.size()));
     }
 
+    public boolean isEmpty(){
+        return conjuntoDeFichas.isEmpty();
+    }
     @Override
     public String toString() {
         return "Bolsa{" +
