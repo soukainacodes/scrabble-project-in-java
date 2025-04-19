@@ -1,4 +1,3 @@
-// Dominio/CtrlDominio.java
 package Dominio;
 
 import java.util.*;
@@ -15,21 +14,11 @@ public class CtrlDominio {
 
     private final CtrlPersistencia ctrlPersistencia;
     private final CtrlJugador      ctrlJugador;
-    private final CtrlRanking      ctrlRanking;
     private final CtrlPartida      ctrlPartida;
 
     public CtrlDominio() {
         this.ctrlPersistencia = new CtrlPersistencia();
         this.ctrlJugador      = new CtrlJugador();
-        this.ctrlRanking      = new CtrlRanking();
-
-        // Inicializar ranking con los usuarios ya persistidos
-        Map<String,Integer> inicial = new HashMap<>();
-        for (Jugador j : ctrlPersistencia.getAllUsuarios().values()) {
-            inicial.put(j.getNombre(), j.getPuntos());
-        }
-        ctrlRanking.cargarInicial(inicial);
-
         this.ctrlPartida      = new CtrlPartida();
     }
 
@@ -41,7 +30,6 @@ public class CtrlDominio {
         Jugador j = new Jugador(nombre, password);
         ctrlPersistencia.addJugador(j);
         ctrlJugador.setJugadorActual(j);
-        ctrlRanking.reportarPuntuacion(nombre, 0);
     }
 
     /** Alias de registrarJugador */
@@ -108,25 +96,42 @@ public class CtrlDominio {
 
     // ─── Ranking ────────────────────────────────────────────────
 
+    /** Devuelve el ranking ordenado de Persistencia */
     public List<Map.Entry<String,Integer>> obtenerRanking() {
-        return ctrlRanking.getRankingOrdenado();
+        return ctrlPersistencia.obtenerRanking();
     }
 
-    /** Posición del usuario activo, -1 si no hay sesión o no está en ranking */
+    /**
+     * Posición 1‑based de cualquier jugador,
+     * lanza UsuarioNoEncontradoException si no existe.
+     */
+    public int getPosition(String nombre) throws UsuarioNoEncontradoException {
+        try {
+            return ctrlPersistencia.getPosition(nombre);
+        } catch (NoSuchElementException e) {
+            throw new UsuarioNoEncontradoException(nombre);
+        }
+    }
+
+    /**
+     * Posición 1‑based del usuario activo,
+     * -1 si no hay sesión o no existe en ranking.
+     */
     public int getPosicionActual() {
         String nombre = getUsuarioActual();
         if (nombre == null) return -1;
         try {
-            return ctrlRanking.getPosition(nombre);
+            return getPosition(nombre);
         } catch (UsuarioNoEncontradoException e) {
             return -1;
         }
     }
 
-    /** Posición de cualquier jugador */
-    public int getPosition(String nombre)
-            throws UsuarioNoEncontradoException {
-        return ctrlRanking.getPosition(nombre);
+    /**
+     * Alias para compatibilidad con drivers
+     */
+    public int getPosicion() {
+        return getPosicionActual();
     }
 
     // ─── Partida / Scrabble ────────────────────────────────────
@@ -139,17 +144,15 @@ public class CtrlDominio {
         ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), lineasDicc, lineasBolsa);
     }
 
-    public void jugarScrabble(int modo, String jugada) throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
+    public void jugarScrabble(int modo, String jugada)
+            throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
         String nombre = getUsuarioActual();
         ctrlPartida.jugarScrabble(modo, jugada);
 
         // Actualizar puntos en memoria y en disco
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
         Jugador j = ctrlJugador.getJugadorActual();
-        if (j != null) ctrlPersistencia.updateJugador(j);
-
-        // Actualizar ranking en memoria
-        ctrlRanking.reportarPuntuacion(nombre, ctrlPartida.getPuntosJugador1());
+        if (j != null) ctrlPersistencia.reportarPuntuacion(j.getNombre(), j.getPuntos());
     }
 
     public Tablero obtenerTablero() {
@@ -168,9 +171,11 @@ public class CtrlDominio {
         return ctrlPartida.getPuntosJugador2();
     }
 
-    public void cambiarFichas(String s)  throws PosicionVaciaTablero, PosicionOcupadaTablero , FichaIncorrecta{
+    public void cambiarFichas(String s)
+            throws PosicionVaciaTablero, PosicionOcupadaTablero, FichaIncorrecta {
         ctrlPartida.reset(s);
     }
+
     public void guardarPartida(String id) {
         ctrlPersistencia.guardarPartida(id, ctrlPartida.guardarPartida());
     }

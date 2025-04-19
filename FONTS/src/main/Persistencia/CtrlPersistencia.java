@@ -1,24 +1,36 @@
-// Persistencia/CtrlPersistencia.java
 package Persistencia;
 
 import java.io.*;
 import java.util.*;
-
+import java.util.stream.*;
 import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 import Dominio.Excepciones.UsuarioYaRegistradoException;
 
+/**
+ * Controla persistencia de usuarios, ranking y partidas.
+ * Mantiene un Map para acceso rápido y un NavigableSet para el ranking ordenado.
+ */
 public class CtrlPersistencia {
     private static final String FILE_USUARIOS =
         "FONTS/src/main/Persistencia/Datos/usuarios.txt";
 
     private final Map<String, Jugador> usuariosMap;
+    private final NavigableSet<Jugador> rankingSet;
     private final Map<String, Partida> listaPartidas;
 
     public CtrlPersistencia() {
         this.usuariosMap   = cargarUsuariosDesdeDisco();
+        // Comparator: puntos desc, nombre asc
+        this.rankingSet    = new TreeSet<>(
+            Comparator.comparingInt(Jugador::getPuntos).reversed()
+                      .thenComparing(Jugador::getNombre)
+        );
+        this.rankingSet.addAll(usuariosMap.values());
         this.listaPartidas = new HashMap<>();
     }
+
+    // ─── Persistencia de usuarios ─────────────────────────────────
 
     private Map<String, Jugador> cargarUsuariosDesdeDisco() {
         Map<String, Jugador> mapa = new HashMap<>();
@@ -52,11 +64,6 @@ public class CtrlPersistencia {
         }
     }
 
-    // Usuarios
-    public Map<String, Jugador> getAllUsuarios() {
-        return Collections.unmodifiableMap(usuariosMap);
-    }
-
     public Jugador getJugador(String nombre) {
         return usuariosMap.get(nombre);
     }
@@ -65,20 +72,65 @@ public class CtrlPersistencia {
         if (usuariosMap.containsKey(j.getNombre()))
             throw new UsuarioYaRegistradoException(j.getNombre());
         usuariosMap.put(j.getNombre(), j);
+        rankingSet.add(j);
         guardarUsuariosEnDisco();
     }
 
     public void updateJugador(Jugador j) {
+        // Si cambian puntos, actualizar rankingSet
+        rankingSet.remove(j);
         usuariosMap.put(j.getNombre(), j);
+        rankingSet.add(j);
         guardarUsuariosEnDisco();
     }
 
     public void removeJugador(String nombre) {
-        usuariosMap.remove(nombre);
-        guardarUsuariosEnDisco();
+        Jugador j = usuariosMap.remove(nombre);
+        if (j != null) {
+            rankingSet.remove(j);
+            guardarUsuariosEnDisco();
+        }
     }
 
-    // Partidas
+    /**
+     * Actualiza la puntuación si es mayor, ajustando el rankingSet.
+     */
+    public void reportarPuntuacion(String nombre, int nuevosPuntos) {
+        Jugador j = usuariosMap.get(nombre);
+        if (j != null && nuevosPuntos > j.getPuntos()) {
+            rankingSet.remove(j);
+            j.setPuntos(nuevosPuntos);
+            rankingSet.add(j);
+            guardarUsuariosEnDisco();
+        }
+    }
+
+    // ─── Ranking ─────────────────────────────────────────────────
+
+    /**
+     * Devuelve el ranking ordenado (nombre, puntos), solo puntuaciones > 0.
+     */
+    public List<Map.Entry<String,Integer>> obtenerRanking() {
+        return rankingSet.stream()
+                         .filter(j -> j.getPuntos() > 0)
+                         .map(j -> Map.entry(j.getNombre(), j.getPuntos()))
+                         .collect(Collectors.toList());
+    }
+
+    /**
+     * Posición 1‑based en el ranking, lanza NoSuchElementException si no existe.
+     */
+    public int getPosition(String nombre) {
+        int pos = 1;
+        for (Jugador j : rankingSet) {
+            if (j.getNombre().equals(nombre)) return pos;
+            if (j.getPuntos() > 0) pos++;
+        }
+        throw new NoSuchElementException("Usuario no encontrado: " + nombre);
+    }
+
+    // ─── Partidas ────────────────────────────────────────────────
+
     public void guardarPartida(String id, Partida partida) {
         listaPartidas.put(id, partida);
         System.out.println("[Persistencia] Partida '" + id + "' guardada.");
