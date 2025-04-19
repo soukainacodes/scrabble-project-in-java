@@ -126,7 +126,7 @@ public class Validador {
         }
 
         if(coordenadasPalabra.size() == 7) puntosTotales +=50;
-
+        System.out.println("Validador " + puntosTotales);
         return puntosTotales;
     }
 

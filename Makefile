@@ -31,7 +31,7 @@ code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
 
 runcode_solo:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaAlgoritmo
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaAlgoritmo < input.txt
 
 runcode_duo:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaConDosJugadores

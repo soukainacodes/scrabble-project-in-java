@@ -51,11 +51,12 @@ public class CtrlPersistencia {
         }
     }
 
-    public void cargarPartida() {
-         
+    public Partida cargarPartida(String nombre) {
+         return listaPartidas.get(nombre);
     }
 
     public void guardarPartida(String id, Partida partida) {
         listaPartidas.put(id, partida);
+        System.out.println("Partida guardada!");
     }
 }

@@ -31,10 +31,11 @@ public class Partida {
         this.bolsa = new Bolsa(lineasArchivoBolsa);
         this.tablero = new Tablero();
         this.contadorTurno = 0;
-        this.turnoJugador = Math.random() < 0.5;
+        //this.turnoJugador = Math.random() < 0.5;
+        this.turnoJugador = true;
         this.coordenadasPalabra = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
-            setFicha(bolsa.sacarFichaAleatoria());
+            setFicha(bolsa.sacarFicha());
             turnoJugador = !turnoJugador;
         }
 
@@ -108,16 +109,23 @@ public class Partida {
     }
 
     public boolean recuperarFichas() {
-        if(!bolsa.isEmpty()){
+        boolean b = true;
         for (int i = fichasJugador1.size(); i < 7; i++) {
-            fichasJugador1.add(bolsa.sacarFichaAleatoria());
+            if(!bolsa.isEmpty()){
+                fichasJugador1.add(bolsa.sacarFicha());
+                b = true;
+            }
+            else b = false;
         }
         for (int i = fichasJugador2.size(); i < 7; i++) {
-            fichasJugador2.add(bolsa.sacarFichaAleatoria());
+            if(!bolsa.isEmpty()){
+                fichasJugador2.add(bolsa.sacarFicha());
+                b = true;
+            }
+            else b = false;
         }
-        return true;
-        }
-        else return false;
+         return b;
+
     }
 
     // Método cambiarTurnoJugador

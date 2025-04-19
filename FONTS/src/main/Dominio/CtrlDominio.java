@@ -123,8 +123,9 @@ public class CtrlDominio {
         ctrlPartida.crearPartida(modo, jugadores, lineasDicc, lineasBolsa);
     }
 
-    public void jugarScrabble(String jugada) {
-        ctrlPartida.jugarScrabble(jugada);
+    public void jugarScrabble(int opcion, String jugada) {
+        
+        ctrlPartida.jugarScrabble(opcion,jugada);
     }
 
     public Tablero obtenerTablero() {
@@ -144,6 +145,12 @@ public class CtrlDominio {
         return ctrlPartida.getPuntosJugador2();
     }
 
-    public void cargarPartida(Partida partida) { /*…*/ }
-    public void guardarPartida(String nombre)    { /*…*/ }
+    public void cargarPartida(String nombre) {
+        ctrlPartida.cargarPartida(ctrlPersistencia.cargarPartida(nombre));
+     }
+    public void guardarPartida(String nombre) { 
+        ctrlPersistencia.guardarPartida(nombre,ctrlPartida.guardarPartida());
+    }
+
+
 }

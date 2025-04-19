@@ -99,7 +99,7 @@ public class Algoritmo {
         int row = pos.getFirst();
         int col = pos.getSecond();
         for (Ficha ficha : f) {
-            if (ficha.getLetra().contains(s)) {
+            if (ficha.getLetra().equals(s)) {
                 resultadoFinal.add(Pair.createPair(ficha, pos));
                 break;
             }
@@ -148,14 +148,14 @@ public class Algoritmo {
         if (fichass.size() == 0) {
             puntos += 50;
         }
-
+        
         lenght = palabraTokenizada.size() - 1;
         if (puntos > puntosFinal) {
             puntosFinal = puntos;
             System.out.println(palabra);
             resultadoFinal.clear();
 
-            
+          
             while (lenght >= 0) {
                 ponerFicha(palabraTokenizada.get(lenght), play_pos);
                 lenght--;

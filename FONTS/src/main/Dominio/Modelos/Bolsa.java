@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Bolsa {
     // Atributos
-    private int id;
     private List<Ficha> conjuntoDeFichas;
     private String idioma;
 
@@ -13,6 +12,10 @@ public class Bolsa {
         this.conjuntoDeFichas = new ArrayList<>();
        
         inicializarBolsa(lineasArchivo);
+
+        long seed = 1234L;
+        Random random = new Random(seed);
+        Collections.shuffle(conjuntoDeFichas, random);
     }
 
     // Método para inicializar la bolsa cargando desde un archivo
@@ -25,51 +28,39 @@ public class Bolsa {
                 int puntuacion = Integer.parseInt(partes[2]);
                 
                 for (int i = 0; i < cantidad; i++) {
-                    conjuntoDeFichas.add(new Ficha(conjuntoDeFichas.size() + 1, letra, puntuacion));
+                    conjuntoDeFichas.add(new Ficha( letra, puntuacion));
                 }
             }
         }
         
         // Mezclar las fichas
-        Collections.shuffle(conjuntoDeFichas);
+      //  Collections.shuffle(conjuntoDeFichas);
     }
 
     
 
     // Métodos auxiliares
-    public int getId() {
-        return id;
-    }
 
-    public List<Ficha> getConjuntoDeFichas() {
-        return conjuntoDeFichas;
-    }
-
-    public String getIdioma() {
+   public String getIdioma() {
         return idioma;
-    }
-
-    public void añadirFicha(Ficha ficha) {
-        conjuntoDeFichas.add(ficha);
     }
 
     public Ficha sacarFichaAleatoria() {
         if (conjuntoDeFichas.isEmpty()) {
-            System.out.println("La bolsa está vacía.");
             return null;
         }
         return conjuntoDeFichas.remove((int) (Math.random() * conjuntoDeFichas.size()));
     }
 
+    public Ficha sacarFicha() {
+        if (conjuntoDeFichas.isEmpty()) {
+            return null;
+        }
+        return conjuntoDeFichas.remove((0));
+    }
+
     public boolean isEmpty(){
         return conjuntoDeFichas.isEmpty();
     }
-    @Override
-    public String toString() {
-        return "Bolsa{" +
-                "id=" + id +
-                ", totalFichas=" + conjuntoDeFichas.size() +
-                ", idioma='" + idioma + '\'' +
-                '}';
-    }
+  
 }

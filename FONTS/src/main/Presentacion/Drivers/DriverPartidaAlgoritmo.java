@@ -18,6 +18,7 @@ public class DriverPartidaAlgoritmo {
     private static Scanner in = new Scanner(System.in);
     // Controlador de Dominio, que manejará la lógica de la partida
     private static CtrlDominio cd = new CtrlDominio();
+    private static String nombreJugador;
 
     private static void clearScreen() {
         System.out.print("\033[H\033[2J");
@@ -53,11 +54,16 @@ public class DriverPartidaAlgoritmo {
             return "usada";
         } else {
             switch (celda.getBonificacion()) {
-                case DOBLE_LETRA:   return "DL";
-                case TRIPLE_LETRA:  return "TL";
-                case DOBLE_PALABRA: return "DP";
-                case TRIPLE_PALABRA:return "TP";
-                default:            return "  ";
+                case DOBLE_LETRA:
+                    return "DL";
+                case TRIPLE_LETRA:
+                    return "TL";
+                case DOBLE_PALABRA:
+                    return "DP";
+                case TRIPLE_PALABRA:
+                    return "TP";
+                default:
+                    return "  ";
             }
         }
     }
@@ -76,12 +82,151 @@ public class DriverPartidaAlgoritmo {
         return lineasArchivo;
     }
 
+    private static void menuPartida() {
+     //   clearScreen();
+        System.out.println("\n--- Tablero Actual ---");
+        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+
+        mostrarTablero();
+        System.out.println("\n\n--- Fichas Disponibles ---");
+        mostrarFichas();
+        System.out.println("\n\n");
+        System.out.println("1. Añadir ficha");
+        System.out.println("2. Quitar ficha");
+        System.out.println("3. Cambiar fichas");
+        System.out.println("4. Pasar");
+        System.out.println("5. Acabar turno");
+        System.out.println("6. Salir");
+        System.out.print("Opción: ");
+        switch (in.nextLine().trim()) {
+            case "1": //Añadir Ficha
+                subMenuAnadir(); break;
+            case "2": //Quitar Ficha
+                subMenuQuitar(); break;
+            case "3": //Cambiar Ficha
+                subMenuCambiar(); break;
+            case "4":
+                cd.jugarScrabble(3, ""); 
+                menuPartida();
+            case "5": //Acabar turno
+                cd.jugarScrabble(4, ""); 
+                menuPartida();
+            case "6":
+                subMenuSalir(); break;
+            default:
+                System.out.println("Opción no válida.");
+        }
+    }
+
+    private static void subMenuAnadir() {
+        clearScreen();
+        System.out.println("\n--- Tablero Actual ---");
+        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+
+        mostrarTablero();
+        System.out.println("\n\n--- Fichas Disponibles ---");
+        mostrarFichas();
+        System.out.println("\n\n");
+        System.out.println("1. Volver atras:");
+        System.out.println("Inserta la Ficha junto a la posición del tablero:");
+        String input = in.nextLine().trim();
+        if (input.equals("1")) {
+            menuPartida(); 
+        } else {
+            cd.jugarScrabble(1, input);
+            menuPartida();
+            
+        }
+    }
+
+    private static void subMenuQuitar() {
+        clearScreen();
+        System.out.println("\n--- Tablero Actual ---");
+        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+
+        mostrarTablero();
+        System.out.println("\n\n--- Fichas Disponibles ---");
+        mostrarFichas();
+        System.out.println("\n\n");
+        System.out.println("1. Volver atras:");
+        System.out.println("Inserta la posición del tablero:");
+        String input = in.nextLine().trim();
+        if (input.equals("1")) {
+            menuPartida();
+        } else {
+            cd.jugarScrabble(2, input);
+            menuPartida();
+        }
+    }
+
+    private static void subMenuCambiar() {
+        clearScreen();
+        System.out.println("\n--- Tablero Actual ---");
+        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+
+        mostrarTablero();
+        System.out.println("\n\n--- Fichas Disponibles ---");
+        mostrarFichas();
+        System.out.println("\n\n");
+        System.out.println("1. Volver atras:");
+        System.out.println("Inserta las fichas a modificar:");
+        String input = in.nextLine().trim();
+        if (input.equals("1")) {
+            menuPartida();
+        } else {
+            cd.jugarScrabble(3, input);
+            menuPartida();
+        }
+    }
+
+    private static void subMenuSalir() {
+        clearScreen();
+        System.out.println("1. Abandonar partida");
+        System.out.println("2. Guardar Partida");
+        System.out.println("3. Volver atras:");
+        switch (in.nextLine().trim()) {
+            case "1":
+                System.out.println("Jugador " + nombreJugador + " es Francés.");
+                break;
+            case "2":
+                subMenuGuardar();
+            case "3":
+                menuPartida();
+            default:
+             System.out.println("Opción no válida.");
+        }
+    }
+
+    private static void subMenuGuardar() {
+        clearScreen();
+        System.out.println("\n--- Tablero Actual ---");
+        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+
+        mostrarTablero();
+        System.out.println("\n\n--- Fichas Disponibles ---");
+        mostrarFichas();
+        System.out.println("\n\n");
+        System.out.println("1. Volver atras:");
+        System.out.println("Nombre de la partida:");
+        String input = in.nextLine().trim();
+        if (input.equals("1")) {
+            menuPartida();  
+        } else {
+            cd.guardarPartida(input); 
+        }
+    }
+
     public static void main(String[] args) {
         System.out.println("Driver de prueba de Partida contra el Algoritmo (CtrlDominio)");
 
         // Registro del jugador
-        String nombreJugador = "A";
-        String contrasena    = "A";
+        nombreJugador = "A";
+        String contrasena = "A";
         try {
             cd.registrarJugador(nombreJugador, contrasena);
         } catch (UsuarioYaRegistradoException e) {
@@ -100,7 +245,7 @@ public class DriverPartidaAlgoritmo {
         List<String> lineasArchivoDiccionario;
         List<String> lineasArchivoBolsa;
         try {
-            lineasArchivoBolsa     = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/letrasCAST.txt");
+            lineasArchivoBolsa = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/letrasCAST.txt");
             lineasArchivoDiccionario = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/castellano.txt");
             cd.iniciarPartida(1, jugador.getNombre(), "", lineasArchivoDiccionario, lineasArchivoBolsa);
         } catch (IOException e) {
@@ -110,26 +255,8 @@ public class DriverPartidaAlgoritmo {
 
         // Bucle principal del juego
         String input;
-        do {
-           // clearScreen();
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
-            System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-        
-            mostrarTablero();
-            System.out.println("\n\n--- Fichas Disponibles ---");
-            mostrarFichas();
-            input = in.nextLine().trim();
-            if (!input.equalsIgnoreCase("salir") && !input.isEmpty()) {
-                if (input.equalsIgnoreCase("guardar")) {
-                    String nombre = in.nextLine().trim();
-                    cd.guardarPartida(nombre);
-                } else {
-                    cd.jugarScrabble(input);
-                }
-            }
-        } while (!input.equalsIgnoreCase("salir"));
-
+        menuPartida();
+       
         System.out.println("Partida finalizada. ¡Gracias por jugar!");
         in.close();
     }
