@@ -29,26 +29,18 @@ public class CtrlPartida {
     }
 
     public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa) {
-        this.dawg = new Dawg();
-        dawg.cargarFichasValidas(lineasArchivoBolsa);
-        dawg.construirDesdeArchivo(lineasArchivo);
-
+        this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
+    
         this.partidaActual = new Partida(players, lineasArchivoBolsa);
         this.finTurno = false;
 
         if (modo == 1) {
             this.isAlgoritmo = true;
             this.algoritmo = new Algoritmo();
-            /*  if (partidaActual.getTurnoJugador() == false) {
-
-             //   partidaActual.addPuntos(jugarAlgoritmo());
-                partidaActual.bloquearCeldas();
-                partidaActual.cambiarTurnoJugador();
-                partidaActual.coordenadasClear();
-                partidaActual.recuperarFichas();
-                partidaActual.aumentarContador();
-            }*/
-
+              if (partidaActual.getTurnoJugador() == false) {
+                //partidaActual.addPuntos(jugarAlgoritmo());
+                //finTurno(true,false);
+            }   
         } else {
             this.isAlgoritmo = false;
         }

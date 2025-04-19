@@ -42,7 +42,7 @@ public class Dawg {
     // ---------------------------------------------------
     
     // Carga desde un archivo la lista de fichas válidas (solo se usa la primera columna del archivo)
-    public void cargarFichasValidas(List<String> lineasArchivo) {
+    private void cargarFichasValidas(List<String> lineasArchivo) {
         fichasValidas.clear();
         longitudMaxFicha = 1;
         for (String linea : lineasArchivo) {
@@ -84,7 +84,7 @@ public class Dawg {
     }
     
     // Construye el DAWG leyendo las palabras ordenadas
-    public void construirDesdeArchivo(List<String> lineasArchivo) {
+    private void construirDesdeArchivo(List<String> lineasArchivo) {
         this.raiz = new Nodo();
         this.registro.clear();
         List<String> ultimaPalabraTokens = null;

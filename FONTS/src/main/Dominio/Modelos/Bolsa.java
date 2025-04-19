@@ -13,7 +13,18 @@ public class Bolsa {
        
         inicializarBolsa(lineasArchivo);
 
-        long seed = 1234L;
+       
+        
+        Collections.shuffle(conjuntoDeFichas);
+    }
+
+    public Bolsa(List<String> lineasArchivo, long seed) {
+        
+        this.conjuntoDeFichas = new ArrayList<>();
+       
+        inicializarBolsa(lineasArchivo);
+
+        
         Random random = new Random(seed);
         Collections.shuffle(conjuntoDeFichas, random);
     }
