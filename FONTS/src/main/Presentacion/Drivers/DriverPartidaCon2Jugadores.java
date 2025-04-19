@@ -10,7 +10,7 @@ import Dominio.Modelos.Celda;
 import Dominio.Modelos.TipoBonificacion;
 import Dominio.Excepciones.UsuarioYaRegistradoException;
 import Dominio.Excepciones.UsuarioNoEncontradoException;
-
+import Dominio.Excepciones.*;
 public class DriverPartidaCon2Jugadores {
 
     private static final Scanner in = new Scanner(System.in);
@@ -18,8 +18,8 @@ public class DriverPartidaCon2Jugadores {
     private static String jugador1, jugador2;
     private static String turnoActual;
     private static final int MODO_PARTIDA = 1;
-
-    public static void main(String[] args) {
+    
+    public static void main(String[] args) throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
         cd = new CtrlDominio();
         bienvenida();
         crearYObtenerJugadores();
@@ -73,7 +73,7 @@ public class DriverPartidaCon2Jugadores {
         }
     }
 
-    private static void buclePrincipal() {
+    private static void buclePrincipal() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
         boolean salir = false;
         while (!salir) {
             mostrarMenu();
@@ -134,7 +134,7 @@ public class DriverPartidaCon2Jugadores {
         System.out.println("  " + cd.obtenerFichas());
     }
 
-    private static void jugarTurno() {
+    private static void jugarTurno() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
         System.out.print("\nIntroduce palabra (o 'cancelar'): ");
         String palabra = in.nextLine().trim();
         if ("cancelar".equalsIgnoreCase(palabra)) {

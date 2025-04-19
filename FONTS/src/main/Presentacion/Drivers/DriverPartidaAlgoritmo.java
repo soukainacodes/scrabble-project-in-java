@@ -11,7 +11,7 @@ import Dominio.CtrlDominio;
 import Dominio.Modelos.*;
 import Dominio.Excepciones.UsuarioYaRegistradoException;
 import Dominio.Excepciones.UsuarioNoEncontradoException;
-
+import Dominio.Excepciones.*;
 public class DriverPartidaAlgoritmo {
 
     // Scanner para entrada por teclado
@@ -82,7 +82,7 @@ public class DriverPartidaAlgoritmo {
         return lineasArchivo;
     }
 
-    private static void menuPartida() {
+    private static void menuPartida() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
      //   clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -119,7 +119,7 @@ public class DriverPartidaAlgoritmo {
         }
     }
 
-    private static void subMenuAnadir() {
+    private static void subMenuAnadir() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
         clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -141,7 +141,7 @@ public class DriverPartidaAlgoritmo {
         }
     }
 
-    private static void subMenuQuitar() {
+    private static void subMenuQuitar() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
         clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -162,7 +162,7 @@ public class DriverPartidaAlgoritmo {
         }
     }
 
-    private static void subMenuCambiar() {
+    private static void subMenuCambiar() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero  {
         clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -183,7 +183,7 @@ public class DriverPartidaAlgoritmo {
         }
     }
 
-    private static void subMenuSalir() {
+    private static void subMenuSalir() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
         clearScreen();
         System.out.println("1. Abandonar partida");
         System.out.println("2. Guardar Partida");
@@ -201,7 +201,7 @@ public class DriverPartidaAlgoritmo {
         }
     }
 
-    private static void subMenuGuardar() {
+    private static void subMenuGuardar() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
         clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -221,7 +221,7 @@ public class DriverPartidaAlgoritmo {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
         System.out.println("Driver de prueba de Partida contra el Algoritmo (CtrlDominio)");
 
         // Registro del jugador

@@ -6,7 +6,7 @@ import java.util.List;
 import javax.swing.Painter;
 
 import Dominio.Modelos.*;
-
+import Dominio.Excepciones.*;
 public class CtrlPartida {
 
     private Partida partidaActual;
@@ -67,7 +67,7 @@ public class CtrlPartida {
         return partidaActual;
     }
 
-    public void jugarScrabble(int opcion, String input) {
+    public void jugarScrabble(int opcion, String input) throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
 
         String[] parts = input.split(" ");
 
@@ -91,7 +91,7 @@ public class CtrlPartida {
                 
 
                 reset("");
-                finTurno(true, false);
+                finTurno(true, true);
                 break;
             case 4: // Fin turno
                 finTurno(false, true);
@@ -106,7 +106,7 @@ public class CtrlPartida {
 
     }
 
-    public void reset(String letras) {
+    public void reset(String letras) throws PosicionVaciaTablero, PosicionOcupadaTablero , FichaIncorrecta {
 
         if (partidaActual.getCoordenadasPalabras().size() != 0) {
             for (Pair<Integer, Integer> p : partidaActual.getCoordenadasPalabras()) {
@@ -132,7 +132,7 @@ public class CtrlPartida {
         return partidaActual.getPuntosJugador2();
     }
 
-    public void finTurno(boolean pasar, boolean algoritmo) {
+    public void finTurno(boolean pasar, boolean algoritmo) throws PosicionOcupadaTablero, FichaIncorrecta {
 
         if (!pasar) {
             int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
@@ -173,7 +173,7 @@ public class CtrlPartida {
         }
     }
 
-    private int jugarAlgoritmo() {
+    private int jugarAlgoritmo() throws PosicionOcupadaTablero, FichaIncorrecta {
         Pair<List<Pair<Ficha, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
         List<Pair<Ficha, Pair<Integer, Integer>>> s = ss.getFirst();
         System.out.print(partidaActual.obtenerFichas());

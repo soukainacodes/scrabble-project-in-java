@@ -3,7 +3,7 @@ package Dominio.Modelos;
 import java.awt.image.CropImageFilter;
 import java.util.ArrayList;
 import java.util.List;
-
+import Dominio.Excepciones.*;
 public class Partida {
 
     // Atributos de la clase
@@ -61,14 +61,16 @@ public class Partida {
         coordenadasPalabra.clear();
     }
 
-    public void añadirFicha(String ficha, int x, int y) throws ExcepcioPosicionIncorrectaTablero, ExcepcioEntradaFicha {
+    public void añadirFicha(String ficha, int x, int y) throws PosicionOcupadaTablero, FichaIncorrecta {
 
-        if (!tablero.getCelda(x, y).estaOcupada()) {
+        if (!tablero.getCelda(x, y).estaOcupada()){
+
+       
             coordenadasPalabra.add(Pair.createPair(x, y));
             tablero.ponerFicha(getFichaString(ficha), x, y);
             quitarFicha(ficha);
         }
-
+    
     }
 
     public void addPuntos(int puntos) {
@@ -79,15 +81,14 @@ public class Partida {
         }
     }
 
-    public boolean quitarFichaTablero(int x, int y) {
+    public boolean quitarFichaTablero(int x, int y) throws PosicionVaciaTablero {
         Ficha f = tablero.quitarFicha(x, y);
-        if (f != null) {
+        if (f != null){ 
             coordenadasPalabra.remove(Pair.createPair(x, y));
             setFicha(f);
             return true;
         }
         return false;
-
     }
 
     // Método setFicha

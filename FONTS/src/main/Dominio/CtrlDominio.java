@@ -139,7 +139,7 @@ public class CtrlDominio {
         ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), lineasDicc, lineasBolsa);
     }
 
-    public void jugarScrabble(int modo, String jugada) {
+    public void jugarScrabble(int modo, String jugada) throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
         String nombre = getUsuarioActual();
         ctrlPartida.jugarScrabble(modo, jugada);
 

@@ -1,7 +1,7 @@
 // Dominio/Excepciones/AutenticacionException.java
 package Dominio.Excepciones;
-public class AutenticacionException extends Exception {
-    public AutenticacionException() {
+public class FichaIncorrecta extends Exception {
+    public FichaIncorrecta() {
         super("Usuario o contraseña incorrectos. Inténtalo de nuevo.\r\n" + //
                         "");
     }
