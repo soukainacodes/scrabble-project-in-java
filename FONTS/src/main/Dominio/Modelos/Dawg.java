@@ -15,12 +15,21 @@ public class Dawg {
     // Registro para la minimización: se mapean nodos equivalentes ya existentes
     private Map<Nodo, Nodo> registro;
     
-    // Constructor que inicializa la estructura
-    public Dawg() {
+    // Constructor por defecto
+    
+    
+    /**
+     * Constructor que inicializa y carga directamente desde los archivos
+     * @param lineasArchivoBolsa líneas del archivo de fichas válidas
+     * @param lineasArchivo líneas del archivo de palabras ordenadas
+     */
+    public Dawg(List<String> lineasArchivoBolsa, List<String> lineasArchivo) {
         this.raiz = new Nodo();
         this.fichasValidas = new HashSet<>();
         this.longitudMaxFicha = 1;
         this.registro = new HashMap<>();
+        cargarFichasValidas(lineasArchivoBolsa);
+        construirDesdeArchivo(lineasArchivo);
     }
     
     // Devuelve el nodo raíz para empezar a iterar en el DAWG
@@ -28,29 +37,27 @@ public class Dawg {
         return raiz;
     }
     
-   
+    // ---------------------------------------------------
+    // Métodos existentes (sin cambios)
+    // ---------------------------------------------------
+    
     // Carga desde un archivo la lista de fichas válidas (solo se usa la primera columna del archivo)
     public void cargarFichasValidas(List<String> lineasArchivo) {
-        
-            // Leer el archivo y obtener las líneas válidas
-            // Procesar las líneas para extraer las fichas
-            fichasValidas.clear();
-            longitudMaxFicha = 1;
-            
-            for (String linea : lineasArchivo) {
-                String[] partes = linea.split("\\s+");
-                if (partes.length > 0) {
-                    String ficha = partes[0];
-                    fichasValidas.add(ficha);
-                    if (ficha.length() > longitudMaxFicha) {
-                        longitudMaxFicha = ficha.length();
-                    }
+        fichasValidas.clear();
+        longitudMaxFicha = 1;
+        for (String linea : lineasArchivo) {
+            String[] partes = linea.split("\\s+");
+            if (partes.length > 0) {
+                String ficha = partes[0];
+                fichasValidas.add(ficha);
+                if (ficha.length() > longitudMaxFicha) {
+                    longitudMaxFicha = ficha.length();
                 }
             }
+        }
     }
     
-    // Tokeniza una palabra en fichas válidas se prueba primero la ficha más larga
-    // Lanza excepción si alguna parte de la palabra no se puede tokenizar
+    // Tokeniza una palabra en fichas válidas
     public List<String> tokenizarPalabra(String palabra) {
         List<String> tokens = new ArrayList<>();
         String mayuscula = palabra.toUpperCase();
@@ -70,35 +77,28 @@ public class Dawg {
             }
             if (!encontrado) {
                 System.out.println("No se puede tokenizar la secuencia: " + mayuscula.substring(i));
+                break;
             }
         }
         return tokens;
     }
     
-    // Método optimizado para construir el DAWG leyendo el archivo de palabras línea a línea
-    // Se asume que el archivo está ordenado lexicográficamente como se mencionó en el racó
-    public void construirDesdeArchivo(List<String> lineasArchivo ) {
-        // Inicializamos las estructuras
+    // Construye el DAWG leyendo las palabras ordenadas
+    public void construirDesdeArchivo(List<String> lineasArchivo) {
         this.raiz = new Nodo();
         this.registro.clear();
-        
-        // Usamos la función leerArchivo para obtener las líneas del archivo
         List<String> ultimaPalabraTokens = null;
         List<Nodo> ultimoCaminoNodos = new ArrayList<>();
         ultimoCaminoNodos.add(raiz);
-        
-        // Procesamos cada línea del archivo
         for (String linea : lineasArchivo) {
             List<String> tokens = tokenizarPalabra(linea);
-            
             if (ultimaPalabraTokens == null) {
-                // Primera palabra... insertar desde la raíz
                 Nodo nodoActual = raiz;
                 ultimoCaminoNodos = new ArrayList<>();
                 ultimoCaminoNodos.add(raiz);
                 for (int j = 0; j < tokens.size(); j++) {
                     String ficha = tokens.get(j);
-                    Nodo nuevoNodo = new Nodo(ficha); // se le asigna la ficha al nodo
+                    Nodo nuevoNodo = new Nodo(ficha);
                     if (j == tokens.size() - 1) {
                         nuevoNodo.palabraValidaHastaAqui = true;
                     }
@@ -113,7 +113,6 @@ public class Dawg {
                 while (prefijoComun < maxPrefijo && ultimaPalabraTokens.get(prefijoComun).equals(tokens.get(prefijoComun))) {
                     prefijoComun++;
                 }
-                // Minimizar nodos que no se comparten con el prefijo
                 for (int i = ultimaPalabraTokens.size(); i > prefijoComun; i--) {
                     Nodo nodoAminimizar = ultimoCaminoNodos.get(i);
                     Nodo nodoPadre = ultimoCaminoNodos.get(i - 1);
@@ -125,8 +124,6 @@ public class Dawg {
                         registro.put(nodoAminimizar, nodoAminimizar);
                     }
                 }
-                
-                // Insertar el resto de la palabra actual
                 Nodo nodoPrefijo = (prefijoComun == 0) ? raiz : ultimoCaminoNodos.get(prefijoComun);
                 if (prefijoComun == 0) {
                     ultimoCaminoNodos = new ArrayList<>();
@@ -134,7 +131,6 @@ public class Dawg {
                 } else {
                     ultimoCaminoNodos = new ArrayList<>(ultimoCaminoNodos.subList(0, prefijoComun + 1));
                 }
-                
                 for (int j = prefijoComun; j < tokens.size(); j++) {
                     String ficha = tokens.get(j);
                     Nodo nuevoNodo = new Nodo(ficha);
@@ -148,8 +144,6 @@ public class Dawg {
                 ultimaPalabraTokens = tokens;
             }
         }
-       
-        // Minimizar el último camino creado
         if (ultimaPalabraTokens != null) {
             for (int i = ultimaPalabraTokens.size(); i > 0; i--) {
                 Nodo nodoAminimizar = ultimoCaminoNodos.get(i);
@@ -166,7 +160,7 @@ public class Dawg {
         registro.clear();
     }
     
-    // Busca una palabra completa en el DAWG
+    // Métodos de búsqueda (sin cambios)
     public boolean buscarPalabra(String palabra) {
         List<String> tokens = tokenizarPalabra(palabra);
         Nodo nodoActual = raiz;
@@ -178,8 +172,6 @@ public class Dawg {
         return nodoActual.palabraValidaHastaAqui;
     }
     
-    
-    // Verifica si existe algún camino en el DAWG que coincida con el prefijo de entrada
     public boolean buscarPrefijo(String prefijo) {
         List<String> tokens = tokenizarPalabra(prefijo);
         Nodo nodoActual = raiz;
@@ -191,9 +183,6 @@ public class Dawg {
         return true;
     }
     
-    
-    // Dado un String se retorna el último nodo en el DAWG siguiendo el camino tokenizado
-    // Si el camino no existe, retorna null
     public Nodo buscarUltimoNodo(String palabra) {
         List<String> tokens = tokenizarPalabra(palabra);
         Nodo nodoActual = raiz;
@@ -206,5 +195,4 @@ public class Dawg {
         }
         return nodoActual;
     }
-    
-}    
+}
