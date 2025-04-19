@@ -1,15 +1,16 @@
+// Dominio/CtrlDominio.java
 package Dominio;
 
 import java.util.*;
 import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 import Dominio.Modelos.Tablero;
-import Dominio.Excepciones.UsuarioYaRegistradoException;
-import Dominio.Excepciones.UsuarioNoEncontradoException;
-import Dominio.Excepciones.AutenticacionException;
-import Dominio.Excepciones.PasswordInvalidaException;
+import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
 
+/**
+ * Coordina persistencia, sesión, ranking y partida.
+ */
 public class CtrlDominio {
 
     private final CtrlPersistencia ctrlPersistencia;
@@ -17,115 +18,138 @@ public class CtrlDominio {
     private final CtrlRanking      ctrlRanking;
     private final CtrlPartida      ctrlPartida;
 
-    private String usuarioActual = null;
-
     public CtrlDominio() {
-        ctrlPersistencia = new CtrlPersistencia();
-        ctrlJugador      = new CtrlJugador();
-        ctrlRanking      = new CtrlRanking(ctrlJugador);
-        ctrlPartida      = new CtrlPartida();
+        this.ctrlPersistencia = new CtrlPersistencia();
+        this.ctrlJugador      = new CtrlJugador();
+        this.ctrlRanking      = new CtrlRanking();
+
+        // Inicializar ranking con los usuarios ya persistidos
+        Map<String,Integer> inicial = new HashMap<>();
+        for (Jugador j : ctrlPersistencia.getAllUsuarios().values()) {
+            inicial.put(j.getNombre(), j.getPuntos());
+        }
+        ctrlRanking.cargarInicial(inicial);
+
+        this.ctrlPartida      = new CtrlPartida();
     }
 
-    // ─── Gestión de usuarios ────────────────────────────────────────
+    // ─── Usuarios ────────────────────────────────────────────────
 
+    /** Registra y deja autenticado */
     public void registrarJugador(String nombre, String password)
             throws UsuarioYaRegistradoException {
-        if (!ctrlJugador.crearJugador(nombre, password))
-            throw new UsuarioYaRegistradoException(nombre);
+        Jugador j = new Jugador(nombre, password);
+        ctrlPersistencia.addJugador(j);
+        ctrlJugador.setJugadorActual(j);
+        ctrlRanking.reportarPuntuacion(nombre, 0);
     }
 
-    public Jugador obtenerJugador(String nombre)
-            throws UsuarioNoEncontradoException {
-        Jugador j = ctrlJugador.getJugador(nombre);
-        if (j == null) throw new UsuarioNoEncontradoException(nombre);
-        return j;
-    }
-
+    /** Alias de registrarJugador */
     public void crearUsuario(String nombre, String password)
             throws UsuarioYaRegistradoException {
         registrarJugador(nombre, password);
     }
 
+    /** Recupera cualquier jugador */
+    public Jugador obtenerJugador(String nombre)
+            throws UsuarioNoEncontradoException {
+        Jugador j = ctrlPersistencia.getJugador(nombre);
+        if (j == null) throw new UsuarioNoEncontradoException(nombre);
+        return j;
+    }
+
+    /** Inicia sesión con un jugador existente */
     public void iniciarSesion(String nombre, String password)
-            throws AutenticacionException {
-        Jugador j = ctrlJugador.iniciarSesion(nombre, password);
-        if (j == null) throw new AutenticacionException();
-        usuarioActual = nombre;
+            throws UsuarioNoEncontradoException, AutenticacionException {
+        Jugador j = ctrlPersistencia.getJugador(nombre);
+        if (j == null) throw new UsuarioNoEncontradoException(nombre);
+        if (!j.validarPassword(password)) throw new AutenticacionException();
+        ctrlJugador.setJugadorActual(j);
     }
 
+    /** Cierra la sesión actual */
     public void cerrarSesion() {
-        // Si no hay sesión activa, no hace nada
-        usuarioActual = null;
+        ctrlJugador.clearSesion();
     }
 
+    /** ¿Hay usuario autenticado? */
     public boolean haySesion() {
-        return usuarioActual != null;
+        return ctrlJugador.haySesion();
     }
 
+    /** Nombre del usuario activo (o null) */
     public String getUsuarioActual() {
-        // Devuelve null si no hay sesión
-        return usuarioActual;
+        Jugador j = ctrlJugador.getJugadorActual();
+        return j != null ? j.getNombre() : null;
     }
 
+    /** Puntos del usuario activo (o 0) */
     public int getPuntosActual() {
-        if (usuarioActual == null) return 0;
-        return ctrlJugador.getJugador(usuarioActual).getPuntos();
+        Jugador j = ctrlJugador.getJugadorActual();
+        return j != null ? j.getPuntos() : 0;
     }
 
-    public int getPosicionActual() {
-        if (usuarioActual == null) return -1;
-        return ctrlRanking.getPosition(usuarioActual);
-    }
-
+    /** Cambia la contraseña y persiste */
     public void cambiarPassword(String antigua, String nueva)
             throws PasswordInvalidaException {
-        if (usuarioActual == null) return;
-        if (!ctrlJugador.cambiarPassword(usuarioActual, antigua, nueva))
-            throw new PasswordInvalidaException();
+        ctrlJugador.cambiarPassword(antigua, nueva);
+        Jugador j = ctrlJugador.getJugadorActual();
+        if (j != null) ctrlPersistencia.updateJugador(j);
     }
 
+    /** Elimina al usuario activo y lo borra de la persistencia */
     public void eliminarUsuario(String password)
             throws PasswordInvalidaException {
-        if (usuarioActual == null) return;
-        if (!ctrlJugador.eliminarJugador(usuarioActual, password))
-            throw new PasswordInvalidaException();
-        usuarioActual = null;
+        Jugador j = ctrlJugador.getJugadorActual();
+        if (j == null) return;
+        ctrlJugador.eliminarJugador(password);
+        ctrlPersistencia.removeJugador(j.getNombre());
     }
 
-    // ─── Ranking ───────────────────────────────────────────────────────
+    // ─── Ranking ────────────────────────────────────────────────
 
     public List<Map.Entry<String,Integer>> obtenerRanking() {
         return ctrlRanking.getRankingOrdenado();
     }
 
+    /** Posición del usuario activo, -1 si no hay sesión o no está en ranking */
+    public int getPosicionActual() {
+        String nombre = getUsuarioActual();
+        if (nombre == null) return -1;
+        try {
+            return ctrlRanking.getPosition(nombre);
+        } catch (UsuarioNoEncontradoException e) {
+            return -1;
+        }
+    }
+
+    /** Posición de cualquier jugador */
     public int getPosition(String nombre)
             throws UsuarioNoEncontradoException {
-        int pos = ctrlRanking.getPosition(nombre);
-        if (pos < 0) throw new UsuarioNoEncontradoException(nombre);
-        return pos;
+        return ctrlRanking.getPosition(nombre);
     }
 
-    // ─── Partida / Scrabble ───────────────────────────────────────────
+    // ─── Partida / Scrabble ────────────────────────────────────
 
     public void iniciarPartida(int modo,
-                               String nombre1,
-                               String nombre2,
+                               String n1,
+                               String n2,
                                List<String> lineasDicc,
                                List<String> lineasBolsa) {
-        List<String> jugadores = Arrays.asList(nombre1, nombre2);
-        ctrlPartida.crearPartida(modo, jugadores, lineasDicc, lineasBolsa);
+        ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), lineasDicc, lineasBolsa);
     }
 
-    public void iniciarPartida(int modo,
-                               List<String> jugadores,
-                               List<String> lineasDicc,
-                               List<String> lineasBolsa) {
-        ctrlPartida.crearPartida(modo, jugadores, lineasDicc, lineasBolsa);
-    }
+    public void jugarScrabble(int modo, String jugada) {
+        String nombre = getUsuarioActual();
+        ctrlPartida.jugarScrabble(modo, jugada);
 
-    public void jugarScrabble(int opcion, String jugada) {
-        
-        ctrlPartida.jugarScrabble(opcion,jugada);
+        // Actualizar puntos en memoria y en disco
+        ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
+        Jugador j = ctrlJugador.getJugadorActual();
+        if (j != null) ctrlPersistencia.updateJugador(j);
+
+        // Actualizar ranking en memoria
+        ctrlRanking.reportarPuntuacion(nombre, ctrlPartida.getPuntosJugador1());
     }
 
     public Tablero obtenerTablero() {
@@ -136,7 +160,6 @@ public class CtrlDominio {
         return ctrlPartida.obtenerFichas();
     }
 
-  
     public int getPuntosJugador1() {
         return ctrlPartida.getPuntosJugador1();
     }
@@ -145,12 +168,11 @@ public class CtrlDominio {
         return ctrlPartida.getPuntosJugador2();
     }
 
-    public void cargarPartida(String nombre) {
-        ctrlPartida.cargarPartida(ctrlPersistencia.cargarPartida(nombre));
-     }
-    public void guardarPartida(String nombre) { 
-        ctrlPersistencia.guardarPartida(nombre,ctrlPartida.guardarPartida());
+    public void guardarPartida(String id) {
+        ctrlPersistencia.guardarPartida(id, ctrlPartida.guardarPartida());
     }
 
-
+    public void cargarPartida(String id) {
+        ctrlPartida.cargarPartida(ctrlPersistencia.cargarPartida(id));
+    }
 }

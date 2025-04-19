@@ -1,77 +1,55 @@
 // Dominio/CtrlJugador.java
 package Dominio;
 
-import java.util.*;
-import Persistencia.CtrlPersistencia;
 import Dominio.Modelos.Jugador;
+import Dominio.Excepciones.PasswordInvalidaException;
 
+/**
+ * Gestiona solo el jugador activo, sin saber nada de persistencia.
+ */
 public class CtrlJugador {
-    private Map<String, Jugador> jugadores;
-    private CtrlPersistencia persistencia;
+    private Jugador jugadorActual;
 
     public CtrlJugador() {
-        persistencia = new CtrlPersistencia();
-        jugadores   = persistencia.cargarUsuarios();
+        this.jugadorActual = null;
     }
 
-    /** Crea y persiste un nuevo jugador; false si ya existía */
-    public boolean crearJugador(String nombre, String password) {
-        if (jugadores.containsKey(nombre)) return false;
-        Jugador j = new Jugador(nombre, password);
-        jugadores.put(nombre, j);
-        persistencia.guardarUsuarios(jugadores);
-        return true;
+    public boolean haySesion() {
+        return jugadorActual != null;
     }
 
-    /** Devuelve el Jugador si existe y la password coincide, o null */
-    public Jugador iniciarSesion(String nombre, String password) {
-        Jugador j = jugadores.get(nombre);
-        if (j != null && j.validarPassword(password)) return j;
-        return null;
+    public void setJugadorActual(Jugador j) {
+        this.jugadorActual = j;
     }
 
-    /** Actualiza la puntuación de un jugador (sólo si es mayor que la anterior) */
-    public void actualizarPuntuacion(String nombre, int nuevosPuntos) {
-        Jugador j = jugadores.get(nombre);
-        if (j != null && nuevosPuntos > j.getPuntos()) {
-            j.setPuntos(nuevosPuntos);
-            persistencia.guardarUsuarios(jugadores);
+    public void clearSesion() {
+        this.jugadorActual = null;
+    }
+
+    public Jugador getJugadorActual() {
+        return jugadorActual;
+    }
+
+    public void cambiarPassword(String antigua, String nueva)
+            throws PasswordInvalidaException {
+        if (jugadorActual == null) return;
+        if (!jugadorActual.validarPassword(antigua))
+            throw new PasswordInvalidaException();
+        jugadorActual.setPassword(nueva);
+    }
+
+    public void eliminarJugador(String password)
+            throws PasswordInvalidaException {
+        if (jugadorActual == null) return;
+        if (!jugadorActual.validarPassword(password))
+            throw new PasswordInvalidaException();
+        clearSesion();
+    }
+
+    public void actualizarPuntuacion(int nuevosPuntos) {
+        if (jugadorActual == null) return;
+        if (nuevosPuntos > jugadorActual.getPuntos()) {
+            jugadorActual.setPuntos(nuevosPuntos);
         }
-    }
-
-
-    public boolean cambiarPassword(String nombre, String antigua, String nueva) {
-        Jugador j = jugadores.get(nombre);
-        if (j != null && j.validarPassword(antigua)) {
-            j.setPassword(nueva);
-            persistencia.guardarUsuarios(jugadores);
-            return true;
-        }
-        return false;
-    }
-
-    /** Elimina un usuario, si la contraseña coincide devuelve true */
-    public boolean eliminarJugador(String nombre, String password) {
-        Jugador j = jugadores.get(nombre);
-        if (j != null && j.validarPassword(password)) {
-            jugadores.remove(nombre);
-            persistencia.guardarUsuarios(jugadores);
-            return true;
-        }
-        return false;
-    }
-
-        /**
-     * Devuelve el objeto Jugador a
-     * sociado a este nombre,
-     * o null si no existe.
-     */
-    public Jugador getJugador(String nombre) {
-        return jugadores.get(nombre);
-    }
-
-
-    public Map<String, Jugador> getJugadores() {
-        return jugadores;
     }
 }

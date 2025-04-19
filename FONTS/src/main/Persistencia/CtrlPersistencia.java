@@ -2,26 +2,28 @@
 package Persistencia;
 
 import java.io.*;
-import java.security.cert.PKIXCertPathValidatorResult;
 import java.util.*;
 
 import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
+import Dominio.Excepciones.UsuarioYaRegistradoException;
 
 public class CtrlPersistencia {
     private static final String FILE_USUARIOS =
         "FONTS/src/main/Persistencia/Datos/usuarios.txt";
 
-    private Map<String,Partida> listaPartidas;
-    public CtrlPersistencia(){
-        listaPartidas = new HashMap<>();
-    } 
-    /** Lee todos los jugadores de usuarios.txt */
-    public Map<String, Jugador> cargarUsuarios() {
+    private final Map<String, Jugador> usuariosMap;
+    private final Map<String, Partida> listaPartidas;
+
+    public CtrlPersistencia() {
+        this.usuariosMap   = cargarUsuariosDesdeDisco();
+        this.listaPartidas = new HashMap<>();
+    }
+
+    private Map<String, Jugador> cargarUsuariosDesdeDisco() {
         Map<String, Jugador> mapa = new HashMap<>();
         File f = new File(FILE_USUARIOS);
         if (!f.exists()) return mapa;
-
         try (BufferedReader r = new BufferedReader(new FileReader(f))) {
             String línea;
             while ((línea = r.readLine()) != null) {
@@ -34,29 +36,55 @@ public class CtrlPersistencia {
                 mapa.put(nombre, j);
             }
         } catch (IOException | NumberFormatException e) {
-            System.err.println("[Persistencia] Error al cargar usuarios: " + e.getMessage());
+            System.err.println("[Persistencia] Error cargando usuarios: " + e.getMessage());
         }
         return mapa;
     }
 
-    /** Guarda todos los jugadores en usuarios.txt */
-    public void guardarUsuarios(Map<String, Jugador> mapa) {
+    private void guardarUsuariosEnDisco() {
         try (BufferedWriter w = new BufferedWriter(new FileWriter(FILE_USUARIOS))) {
-            for (Jugador j : mapa.values()) {
+            for (Jugador j : usuariosMap.values()) {
                 w.write(j.getNombre() + " " + j.getPassword() + " " + j.getPuntos());
                 w.newLine();
             }
         } catch (IOException e) {
-            System.err.println("[Persistencia] Error al guardar usuarios: " + e.getMessage());
+            System.err.println("[Persistencia] Error guardando usuarios: " + e.getMessage());
         }
     }
 
-    public Partida cargarPartida(String nombre) {
-         return listaPartidas.get(nombre);
+    // Usuarios
+    public Map<String, Jugador> getAllUsuarios() {
+        return Collections.unmodifiableMap(usuariosMap);
     }
 
+    public Jugador getJugador(String nombre) {
+        return usuariosMap.get(nombre);
+    }
+
+    public void addJugador(Jugador j) throws UsuarioYaRegistradoException {
+        if (usuariosMap.containsKey(j.getNombre()))
+            throw new UsuarioYaRegistradoException(j.getNombre());
+        usuariosMap.put(j.getNombre(), j);
+        guardarUsuariosEnDisco();
+    }
+
+    public void updateJugador(Jugador j) {
+        usuariosMap.put(j.getNombre(), j);
+        guardarUsuariosEnDisco();
+    }
+
+    public void removeJugador(String nombre) {
+        usuariosMap.remove(nombre);
+        guardarUsuariosEnDisco();
+    }
+
+    // Partidas
     public void guardarPartida(String id, Partida partida) {
         listaPartidas.put(id, partida);
-        System.out.println("Partida guardada!");
+        System.out.println("[Persistencia] Partida '" + id + "' guardada.");
+    }
+
+    public Partida cargarPartida(String id) {
+        return listaPartidas.get(id);
     }
 }

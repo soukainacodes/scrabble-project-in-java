@@ -2,44 +2,44 @@
 package Dominio;
 
 import java.util.*;
-import java.util.stream.*;
-import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Ranking;
+import Dominio.Excepciones.UsuarioNoEncontradoException;
 
+/**
+ * Gestiona el ranking en memoria.
+ * Solo CtrlDominio lo inicializa y persiste.
+ */
 public class CtrlRanking {
-    private Ranking rankingModel;
-    private CtrlJugador ctrlJugador;
+    private final Ranking rankingModel = new Ranking();
 
-    public CtrlRanking(CtrlJugador ctrlJugador) {
-        this.ctrlJugador  = ctrlJugador;
-        this.rankingModel = new Ranking();
-        // Cargo en memoria las puntuaciones actuales
-        for (Jugador j : ctrlJugador.getJugadores().values()) {
-            rankingModel.agregarJugador(j.getNombre(), j.getPuntos());
-        }
+    /** Carga los puntos iniciales (invocado solo desde CtrlDominio). */
+    public void cargarInicial(Map<String,Integer> puntosPorJugador) {
+        puntosPorJugador.forEach(rankingModel::agregarJugador);
     }
 
-    /** Devuelve lista ordenada desc. por puntos */
-    public List<Map.Entry<String, Integer>> getRankingOrdenado() {
+    /** Lista ordenada desc. por puntos. */
+    public List<Map.Entry<String,Integer>> getRankingOrdenado() {
         return rankingModel.obtenerRankingOrdenado();
     }
 
-    /** Posición 1‑based de un jugador en el ranking, o -1 si no aparece */
-    public int getPosition(String nombre) {
-        List<Map.Entry<String, Integer>> lista = getRankingOrdenado();
+    /**
+     * Posición 1‑based de un jugador, lanza si no existe.
+     */
+    public int getPosition(String nombre)
+            throws UsuarioNoEncontradoException {
+        var lista = rankingModel.obtenerRankingOrdenado();
         for (int i = 0; i < lista.size(); i++) {
-            if (lista.get(i).getKey().equals(nombre)) return i+1;
+            if (lista.get(i).getKey().equals(nombre))
+                return i + 1;
         }
-        return -1;
+        throw new UsuarioNoEncontradoException(nombre);
     }
 
     /**
-     * Después de una partida, registra la nueva puntuación:
-     *  - en el ranking en memoria,
-     *  - y en el jugador si mejora su máximo.
+     * Registra (o actualiza) la puntuación en memoria.
+     * No persiste: CtrlDominio se encarga de guardar.
      */
     public void reportarPuntuacion(String nombre, int puntos) {
         rankingModel.agregarJugador(nombre, puntos);
-        ctrlJugador.actualizarPuntuacion(nombre, puntos);
     }
 }
