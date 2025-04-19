@@ -168,7 +168,7 @@ public class Partida {
     }
 
     public void quitarFicha(String s) {
-
+        
         if (turnoJugador) {
             for (int i = 0; i < fichasJugador1.size(); ++i) {
                 if (fichasJugador1.get(i).getLetra().equals(s)) {

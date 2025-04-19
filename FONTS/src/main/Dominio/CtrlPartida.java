@@ -88,8 +88,7 @@ public class CtrlPartida {
                 break;
             }
             case 3: // Pasar turno
-                
-
+            
                 reset("");
                 finTurno(true, true);
                 break;
@@ -113,8 +112,16 @@ public class CtrlPartida {
                 partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
             }
         }
-        String[] parts = letras.split(" ");
-        ArrayList<String> fichas = new ArrayList<>(Arrays.asList(parts));
+       
+        ArrayList<String> fichas = new ArrayList<>(Arrays.asList(letras.split(" ")));
+
+        for(int i=0;i<fichas.size();++i){
+            if(fichas.get(i).matches("[0-7]")){
+                int num = Integer.parseInt(fichas.get(i));
+                fichas.add(partidaActual.getFichasJugador().get(num).getLetra());
+                fichas.remove(i);
+            }
+        }
         System.out.println(fichas);
         if (fichas.size() != 0) {
             for (String s : fichas) {
