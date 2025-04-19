@@ -30,7 +30,7 @@ Todos los datos (nombres y contraseñas) se crean y destruyen en memoria durante
 
 
 ## 4. Valores estudiados
-- Usuarios: ["Jordi", "Pere", "Maria", "Joana", "Manel"]  
+- Usuarios: ["Alex", "Soukaïna", "Ghalia", "Mimi", "Jorge"]  
 - Contraseña inicial: "123456"  
 - Contraseña modificada: "123456"  
 - Se comprueba:

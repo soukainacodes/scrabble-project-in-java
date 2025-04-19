@@ -34,7 +34,7 @@ runcode_solo:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaAlgoritmo < input.txt
 
 runcode_duo:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaConDosJugadores
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaCon2Jugadores
 
 runcode_app:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverAplicacion
