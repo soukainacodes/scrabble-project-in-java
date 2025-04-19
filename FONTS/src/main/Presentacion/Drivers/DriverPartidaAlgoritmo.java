@@ -163,22 +163,14 @@ public class DriverPartidaAlgoritmo {
     }
 
     private static void subMenuCambiar() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero  {
-        clearScreen();
-        System.out.println("\n--- Tablero Actual ---");
-        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
-        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-
-        mostrarTablero();
-        System.out.println("\n\n--- Fichas Disponibles ---");
-        mostrarFichas();
-        System.out.println("\n\n");
+   
         System.out.println("1. Volver atras:");
         System.out.println("Inserta las fichas a modificar:");
         String input = in.nextLine().trim();
         if (input.equals("1")) {
             menuPartida();
         } else {
-            cd.jugarScrabble(3, input);
+            cd.cambiarFichas(input);
             menuPartida();
         }
     }

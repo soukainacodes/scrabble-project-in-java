@@ -2,7 +2,7 @@ package Dominio;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Arrays;
 import javax.swing.Painter;
 
 import Dominio.Modelos.*;
@@ -113,7 +113,9 @@ public class CtrlPartida {
                 partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
             }
         }
-        List<String> fichas = dawg.tokenizarPalabra(letras);
+        String[] parts = letras.split(" ");
+        ArrayList<String> fichas = new ArrayList<>(Arrays.asList(parts));
+        System.out.println(fichas);
         if (fichas.size() != 0) {
             for (String s : fichas) {
                 partidaActual.quitarFicha(s);

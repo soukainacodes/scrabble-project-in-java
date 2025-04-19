@@ -168,6 +168,9 @@ public class CtrlDominio {
         return ctrlPartida.getPuntosJugador2();
     }
 
+    public void cambiarFichas(String s)  throws PosicionVaciaTablero, PosicionOcupadaTablero , FichaIncorrecta{
+        ctrlPartida.reset(s);
+    }
     public void guardarPartida(String id) {
         ctrlPersistencia.guardarPartida(id, ctrlPartida.guardarPartida());
     }
