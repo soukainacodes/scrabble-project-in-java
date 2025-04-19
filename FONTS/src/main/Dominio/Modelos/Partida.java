@@ -61,7 +61,7 @@ public class Partida {
         coordenadasPalabra.clear();
     }
 
-    public void añadirFicha(String ficha, int x, int y) {
+    public void añadirFicha(String ficha, int x, int y) throws ExcepcioPosicionIncorrectaTablero, ExcepcioEntradaFicha {
 
         if (!tablero.getCelda(x, y).estaOcupada()) {
             coordenadasPalabra.add(Pair.createPair(x, y));
