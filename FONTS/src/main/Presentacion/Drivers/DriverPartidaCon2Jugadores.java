@@ -66,7 +66,7 @@ public class DriverPartidaCon2Jugadores {
         try {
             List<String> lineasBolsa = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/letrasCAST.txt");
             List<String> lineasDicc  = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/castellano.txt");
-            cd.iniciarPartida(MODO_PARTIDA, jugador1, jugador2, lineasDicc, lineasBolsa);
+            cd.iniciarPartida(MODO_PARTIDA, jugador1, jugador2, lineasDicc, lineasBolsa,0,-1);
         } catch (IOException e) {
             System.err.println("Error al leer ficheros: " + e.getMessage());
             System.exit(1);
@@ -134,7 +134,7 @@ public class DriverPartidaCon2Jugadores {
         System.out.println("  " + cd.obtenerFichas());
     }
 
-    private static void jugarTurno() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
+    private static void jugarTurno() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
         System.out.print("\nIntroduce palabra (o 'cancelar'): ");
         String palabra = in.nextLine().trim();
         if ("cancelar".equalsIgnoreCase(palabra)) {

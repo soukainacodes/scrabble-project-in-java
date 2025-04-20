@@ -22,9 +22,10 @@ public class Algoritmo {
     private Tablero tablero;
     private List<Pair<Ficha, Pair<Integer, Integer>>> resultadoFinal;
     private boolean vertical;
+    private int dificultad;
 
-    public Algoritmo() {
-
+    public Algoritmo(int dificultad) {
+        this.dificultad = dificultad;
     }
 
     private boolean isEmpty(Pair<Integer, Integer> pos) {
@@ -117,11 +118,11 @@ public class Algoritmo {
         while (lenght >= 0) {
 
             puntosPalabra += getFichaPuntuacion(last_pos);
-         
+
             int p = 0;
             for (Ficha ficha : f) {
                 if (ficha.getLetra().contains(palabraTokenizada.get(lenght))) {
-                    
+
                     p = ficha.getPuntuacion();
                     if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTripleLetra()) {
                         p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
@@ -148,14 +149,13 @@ public class Algoritmo {
         if (fichass.size() == 0) {
             puntos += 50;
         }
-        
+
         lenght = palabraTokenizada.size() - 1;
         if (puntos > puntosFinal) {
             puntosFinal = puntos;
             System.out.println(palabra);
             resultadoFinal.clear();
 
-          
             while (lenght >= 0) {
                 ponerFicha(palabraTokenizada.get(lenght), play_pos);
                 lenght--;
@@ -327,21 +327,20 @@ public class Algoritmo {
         this.diccionario = diccionario;
         //fichas del jugador
         puntosFinal = 0;
-          ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
-          anchors = find_anchors();
-           if (anchors.size() == 0) {
-                anchors.add(Pair.createPair(7, 7));
-            }
-        for (int i = 0; i < 2; ++i) {
-            if (i == 0) {
-                vertical = false;
-            } else {
-                vertical = true;
-            }
+        ArrayList<Pair<Integer, Integer>> anchors = find_anchors();
+        if (anchors.size() == 0) {
+            anchors.add(Pair.createPair(7, 7));
+        }
 
-          
-           
-            for (Pair<Integer, Integer> pos : anchors) {
+        int ii = 0;
+        for (Pair<Integer, Integer> pos : anchors) {
+
+            for (int i = 0; i < 2; ++i) {
+                if (i == 0) {
+                    vertical = false;
+                } else {
+                    vertical = true;
+                }
                 int puntos = 0;
                 int longitud = 0;
                 if (isFilled(before(pos))) {
@@ -375,11 +374,13 @@ public class Algoritmo {
                     }
                     before_part("", diccionario.getRaiz(), pos, limit, 0);
                 }
+
+            }
+            if (resultadoFinal.size() != 0) {
+                return Pair.createPair(resultadoFinal, puntosFinal);
             }
 
         }
-
-        return Pair.createPair(resultadoFinal, puntosFinal);
-
+    return Pair.createPair(resultadoFinal, puntosFinal);
     }
 }

@@ -18,8 +18,9 @@ public class CtrlPersistencia {
     private final Map<String, Jugador> usuariosMap;
     private final NavigableSet<Jugador> rankingSet;
     private final Map<String, Partida> listaPartidas;
-
+    private String ultimaPartida;
     public CtrlPersistencia() {
+        this.ultimaPartida = null;
         this.usuariosMap   = cargarUsuariosDesdeDisco();
         // Comparator: puntos desc, nombre asc
         this.rankingSet    = new TreeSet<>(
@@ -133,10 +134,15 @@ public class CtrlPersistencia {
 
     public void guardarPartida(String id, Partida partida) {
         listaPartidas.put(id, partida);
-        System.out.println("[Persistencia] Partida '" + id + "' guardada.");
+        ultimaPartida = id;
+       // System.out.println("[Persistencia] Partida '" + id + "' guardada.");
     }
 
     public Partida cargarPartida(String id) {
         return listaPartidas.get(id);
+    }
+
+    public Partida cargarUltimaPartida(){
+        return listaPartidas.get(ultimaPartida);
     }
 }

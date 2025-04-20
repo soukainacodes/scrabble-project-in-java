@@ -3,6 +3,8 @@ package Dominio;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+
+import javax.naming.spi.DirStateFactory;
 import javax.swing.Painter;
 
 import Dominio.Modelos.*;
@@ -28,15 +30,15 @@ public class CtrlPartida {
         //Dar fichas para jugador 2
     }
 
-    public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa) {
+    public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, int dificultad) {
         this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
     
-        this.partidaActual = new Partida(players, lineasArchivoBolsa);
+        this.partidaActual = new Partida(players, lineasArchivoBolsa,seed);
         this.finTurno = false;
 
         if (modo == 1) {
             this.isAlgoritmo = true;
-            this.algoritmo = new Algoritmo();
+            this.algoritmo = new Algoritmo(dificultad);
               if (partidaActual.getTurnoJugador() == false) {
                 //partidaActual.addPuntos(jugarAlgoritmo());
                 //finTurno(true,false);
@@ -67,6 +69,10 @@ public class CtrlPartida {
             case 1: {
                 //Poner ficha en el tablero
                 String ficha = parts[0];
+                if(ficha.matches("[0-7]")){
+                int num = Integer.parseInt(ficha);
+                ficha = partidaActual.obtenerFichas().get(num);
+                }
                 int x = Integer.parseInt(parts[1]);
                 int y = Integer.parseInt(parts[2]);
                 partidaActual.añadirFicha(ficha, x, y);

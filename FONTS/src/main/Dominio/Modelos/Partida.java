@@ -20,7 +20,7 @@ public class Partida {
     private List<Pair<Integer, Integer>> coordenadasPalabra;
 
     // Constructor
-    public Partida(List<String> s, List<String> lineasArchivoBolsa) {
+    public Partida(List<String> s, List<String> lineasArchivoBolsa, long seed) {
         fichasJugador1 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 1
         fichasJugador2 = new ArrayList<>(); // Inicializa la lista de fichas del Jugador 2
         // Inicializa el turno (por defecto, Jugador 2 comienza)
@@ -28,7 +28,11 @@ public class Partida {
         puntosJugador2 = 0;                 // Inicializa los puntos del Jugador 2 en 0
         jugador1 = s.get(0);
         jugador2 = s.get(1);
-        this.bolsa = new Bolsa(lineasArchivoBolsa);
+        if(seed != 0){
+            this.bolsa = new Bolsa(lineasArchivoBolsa,seed); 
+        }
+        else this.bolsa = new Bolsa(lineasArchivoBolsa); 
+        
         this.tablero = new Tablero();
         this.contadorTurno = 0;
         //this.turnoJugador = Math.random() < 0.5;

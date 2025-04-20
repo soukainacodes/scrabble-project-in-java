@@ -140,8 +140,9 @@ public class CtrlDominio {
                                String n1,
                                String n2,
                                List<String> lineasDicc,
-                               List<String> lineasBolsa) {
-        ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), lineasDicc, lineasBolsa);
+                               List<String> lineasBolsa,
+                               long seed, int dificultad) {
+        ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), lineasDicc, lineasBolsa, seed, dificultad);
     }
 
     public void jugarScrabble(int modo, String jugada)
@@ -182,5 +183,9 @@ public class CtrlDominio {
 
     public void cargarPartida(String id) {
         ctrlPartida.cargarPartida(ctrlPersistencia.cargarPartida(id));
+    }
+
+    public void cargarUltimaPartida(){
+        ctrlPartida.cargarPartida(ctrlPersistencia.cargarUltimaPartida());
     }
 }

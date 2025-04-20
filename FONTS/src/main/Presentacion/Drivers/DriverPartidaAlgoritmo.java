@@ -219,6 +219,7 @@ public class DriverPartidaAlgoritmo {
         // Registro del jugador
         nombreJugador = "A";
         String contrasena = "A";
+        int dificultad = 1;
         try {
             cd.registrarJugador(nombreJugador, contrasena);
         } catch (UsuarioYaRegistradoException e) {
@@ -237,9 +238,9 @@ public class DriverPartidaAlgoritmo {
         List<String> lineasArchivoDiccionario;
         List<String> lineasArchivoBolsa;
         try {
-            lineasArchivoBolsa = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/letrasCAST.txt");
-            lineasArchivoDiccionario = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/castellano.txt");
-            cd.iniciarPartida(1, jugador.getNombre(), "", lineasArchivoDiccionario, lineasArchivoBolsa);
+            lineasArchivoBolsa = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Catalan/letrasCAT.txt");
+            lineasArchivoDiccionario = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Catalan/catalan.txt");
+            cd.iniciarPartida(1, jugador.getNombre(), "", lineasArchivoDiccionario, lineasArchivoBolsa,0,dificultad);
         } catch (IOException e) {
             System.err.println("Error al cargar archivos: " + e.getMessage());
             return;

@@ -39,6 +39,9 @@ runcode_duo:
 runcode_app:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverAplicacion
 
+runcode_partidas:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionPartidas
+
 
 # Objetivo para compilar los tests.
 # NOTA: Se compila directamente en $(CLASS_OUTPUT_TEST) para que, al tener 
