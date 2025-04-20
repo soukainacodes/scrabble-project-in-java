@@ -19,16 +19,17 @@ public class CtrlPersistencia {
     private final NavigableSet<Jugador> rankingSet;
     private final Map<String, Partida> listaPartidas;
     private String ultimaPartida;
+
     public CtrlPersistencia() {
-        this.ultimaPartida = null;
-        this.usuariosMap   = cargarUsuariosDesdeDisco();
+        this.ultimaPartida  = null;
+        this.usuariosMap    = cargarUsuariosDesdeDisco();
         // Comparator: puntos desc, nombre asc
-        this.rankingSet    = new TreeSet<>(
+        this.rankingSet     = new TreeSet<>(
             Comparator.comparingInt(Jugador::getPuntos).reversed()
                       .thenComparing(Jugador::getNombre)
         );
         this.rankingSet.addAll(usuariosMap.values());
-        this.listaPartidas = new HashMap<>();
+        this.listaPartidas  = new HashMap<>();
     }
 
     // ─── Persistencia de usuarios ─────────────────────────────────
@@ -78,7 +79,7 @@ public class CtrlPersistencia {
     }
 
     public void updateJugador(Jugador j) {
-        // Si cambian puntos, actualizar rankingSet
+        // Si cambian puntos o contraseña, actualizar rankingSet y disco
         rankingSet.remove(j);
         usuariosMap.put(j.getNombre(), j);
         rankingSet.add(j);
@@ -132,17 +133,45 @@ public class CtrlPersistencia {
 
     // ─── Partidas ────────────────────────────────────────────────
 
+    /**
+     * Guarda la partida en memoria, actualiza últimaPartida.
+     */
     public void guardarPartida(String id, Partida partida) {
         listaPartidas.put(id, partida);
         ultimaPartida = id;
-       // System.out.println("[Persistencia] Partida '" + id + "' guardada.");
     }
 
+    /**
+     * Carga la partida con id dado (o null si no existe).
+     */
     public Partida cargarPartida(String id) {
         return listaPartidas.get(id);
     }
 
-    public Partida cargarUltimaPartida(){
+    /**
+     * Carga la última partida guardada (o null si no hay ninguna).
+     */
+    public Partida cargarUltimaPartida() {
         return listaPartidas.get(ultimaPartida);
+    }
+
+    // ─── Métodos añadidos para gestión de partidas ──────────────
+
+    /**
+     * Devuelve un mapa inmutable de las partidas guardadas.
+     */
+    public Map<String, Partida> getListaPartidas() {
+        return Collections.unmodifiableMap(listaPartidas);
+    }
+
+    /**
+     * Elimina de la persistencia interna la partida con id dado.
+     * Si era la última partida, limpia también la referencia.
+     */
+    public void removePartida(String id) {
+        listaPartidas.remove(id);
+        if (id.equals(ultimaPartida)) {
+            ultimaPartida = null;
+        }
     }
 }
