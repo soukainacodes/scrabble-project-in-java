@@ -75,7 +75,7 @@ public class DriverPartidaAlgoritmo {
             String linea;
             while ((linea = br.readLine()) != null) {
                 linea = linea.trim();
-                if (!linea.isEmpty() && !linea.startsWith("#")) {
+                if (!linea.isEmpty()) {
                     lineasArchivo.add(linea);
                 }
             }
@@ -145,6 +145,7 @@ public class DriverPartidaAlgoritmo {
         System.out.println("\n\n");
         System.out.println("1. Volver atras:");
         System.out.println("Inserta la Ficha junto a la posición del tablero:");
+        System.out.println("En caso de que sea un # añada despues de '#', la letra que quiera que substituya:");
         String input = in.nextLine().trim();
         if (input.equals("1")) {
             menuPartida(); 

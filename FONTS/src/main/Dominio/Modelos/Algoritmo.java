@@ -20,7 +20,7 @@ public class Algoritmo {
     private List<Ficha> f;
     private Dawg diccionario;
     private Tablero tablero;
-    private List<Pair<Ficha, Pair<Integer, Integer>>> resultadoFinal;
+    private List<Pair<String, Pair<Integer, Integer>>> resultadoFinal;
     private boolean vertical;
     private int dificultad;
 
@@ -101,12 +101,9 @@ public class Algoritmo {
     private void ponerFicha(String s, Pair<Integer, Integer> pos) {
         int row = pos.getFirst();
         int col = pos.getSecond();
-        for (Ficha ficha : f) {
-            if (ficha.getLetra().equals(s)) {
-                resultadoFinal.add(Pair.createPair(ficha, pos));
-                break;
-            }
-        }
+   
+        resultadoFinal.add(Pair.createPair(s, pos));
+            
     }
 
     private void palabra_parcial(String palabra, Pair<Integer, Integer> last_pos, int puntos) {
@@ -123,22 +120,20 @@ public class Algoritmo {
 
             int p = 0;
             for (Ficha ficha : f) {
-                if (ficha.getLetra().contains(palabraTokenizada.get(lenght))) {
+                if (ficha.getLetra().equals(palabraTokenizada.get(lenght))) {
 
                     p = ficha.getPuntuacion();
                     if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTripleLetra()) {
                         p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
                     }
                     puntosPalabra += p;
-                    if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTriplePalabra()) {
-                        bonusPalabra += tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
-                    }
-
                     break;
                 }
 
             }
-
+            if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTriplePalabra()) {
+                bonusPalabra += tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+            }
             last_pos = before(last_pos);
             lenght--;
         }
@@ -241,7 +236,7 @@ public class Algoritmo {
                     puntosRecorrerDireccion *= tablero.getCelda(xx, yy).getBonificacion().getMultiplicador();
                 }
             }
-            // System.out.println("he estado: " + palabraCompleta + " " + puntosRecorrerDireccion );
+
             return puntosRecorrerDireccion;
         } else {
             return -1;
@@ -271,7 +266,11 @@ public class Algoritmo {
                     if (fichass.contains("#") || fichass.contains(s)) {
                         int b = recorrerDireccion(next_pos, !vertical, s);
                         if (b != -1) {
-                            fichass.remove(s);
+                            if (fichass.contains(s)) {
+                                fichass.remove(s); 
+                            }else {
+                                fichass.remove("#");
+                            }
 
                             extend_after(palabraParcial + s, nodo_actual.getHijos().get(s), after(next_pos), true, puntos + b);
 
@@ -306,7 +305,11 @@ public class Algoritmo {
         if (limit > 0) {
             for (String s : nodo_actual.getHijos().keySet()) {
                 if (fichass.contains("#") || fichass.contains(s)) {
-                    fichass.remove(s);
+                    if (fichass.contains(s)) {
+                        fichass.remove(s); 
+                    }else {
+                        fichass.remove("#");
+                    }
                     before_part(partial_word + s, nodo_actual.getHijos().get(s), pos, limit - 1, puntos);
                     fichass.add(s);
                 }
@@ -316,7 +319,7 @@ public class Algoritmo {
 
     }
 
-    public Pair<List<Pair<Ficha, Pair<Integer, Integer>>>, Integer> find_all_words(List<Ficha> fichas, Dawg diccionario, Tablero tablero) {
+    public Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> find_all_words(List<Ficha> fichas, Dawg diccionario, Tablero tablero) {
 
         this.resultadoFinal = new ArrayList<>();
         this.tablero = tablero;
@@ -338,8 +341,8 @@ public class Algoritmo {
         int ii = 0;
         int limite = anchors.size();
         if (this.dificultad == 1) {
-            limite = 1; 
-        }else if (this.dificultad == 2) {
+            limite = 1;
+        } else if (this.dificultad == 2) {
             limite = 3;
         }
         for (Pair<Integer, Integer> pos : anchors) {
@@ -385,13 +388,8 @@ public class Algoritmo {
                 }
 
             }
-            if(resultadoFinal().size() != 0 && ii < limite){
-                ii++;
-            }
-            else if(resultadoFinal().size() != 0){
-                return Pair.createPair(resultadoFinal, puntosFinal);
-            }
+
         }
-         return Pair.createPair(resultadoFinal, puntosFinal);
+        return Pair.createPair(resultadoFinal, puntosFinal);
     }
 }

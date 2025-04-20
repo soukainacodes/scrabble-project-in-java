@@ -159,19 +159,12 @@ public class CtrlDominio {
      * Ejecuta una jugada y actualiza puntuación
      * tanto en memoria como en persistencia.
      */
-    public void jugarScrabble(int modo, String jugada)
+    public int jugarScrabble(int modo, String jugada)
             throws PosicionOcupadaTablero,
                    PosicionVaciaTablero,
                    FichaIncorrecta {
-        ctrlPartida.jugarScrabble(modo, jugada);
-        // Actualizar puntos en jugador y persistencia
-    public int jugarScrabble(int modo, String jugada)
-            throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
-        String nombre = getUsuarioActual();
        int fin = ctrlPartida.jugarScrabble(modo, jugada);
-
-        // Actualizar puntos en memoria y en disco
-      
+        // Actualizar puntos en jugador y persistencia
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
         Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) {
@@ -180,11 +173,9 @@ public class CtrlDominio {
                 j.getPuntos()
             );
         }
-        if (j != null) ctrlPersistencia.reportarPuntuacion(j.getNombre(), j.getPuntos());
-       
-     
-        return fin;
+        return fin; 
     }
+
 
     public Tablero obtenerTablero() {
         return ctrlPartida.obtenerTablero();

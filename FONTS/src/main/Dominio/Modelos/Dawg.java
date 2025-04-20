@@ -6,6 +6,7 @@ import java.util.*;
 import Dominio.Excepciones.*;
 
 public class Dawg {
+
     // Nodo raíz del DAWG
     private Nodo raiz;
     // Conjunto de fichas válidas (las letras o grupos de letras permitidos)
@@ -14,12 +15,11 @@ public class Dawg {
     private int longitudMaxFicha;
     // Registro para la minimización: se mapean nodos equivalentes ya existentes
     private Map<Nodo, Nodo> registro;
-    
+
     // Constructor por defecto
-    
-    
     /**
      * Constructor que inicializa y carga directamente desde los archivos
+     *
      * @param lineasArchivoBolsa líneas del archivo de fichas válidas
      * @param lineasArchivo líneas del archivo de palabras ordenadas
      */
@@ -31,16 +31,15 @@ public class Dawg {
         cargarFichasValidas(lineasArchivoBolsa);
         construirDesdeArchivo(lineasArchivo);
     }
-    
+
     // Devuelve el nodo raíz para empezar a iterar en el DAWG
     public Nodo getRaiz() {
         return raiz;
     }
-    
+
     // ---------------------------------------------------
     // Métodos existentes (sin cambios)
     // ---------------------------------------------------
-    
     // Carga desde un archivo la lista de fichas válidas (solo se usa la primera columna del archivo)
     private void cargarFichasValidas(List<String> lineasArchivo) {
         fichasValidas.clear();
@@ -56,7 +55,7 @@ public class Dawg {
             }
         }
     }
-    
+
     // Tokeniza una palabra en fichas válidas
     public List<String> tokenizarPalabra(String palabra) {
         List<String> tokens = new ArrayList<>();
@@ -82,7 +81,7 @@ public class Dawg {
         }
         return tokens;
     }
-    
+
     // Construye el DAWG leyendo las palabras ordenadas
     private void construirDesdeArchivo(List<String> lineasArchivo) {
         this.raiz = new Nodo();
@@ -159,30 +158,34 @@ public class Dawg {
         }
         registro.clear();
     }
-    
+
     // Métodos de búsqueda (sin cambios)
     public boolean buscarPalabra(String palabra) {
         List<String> tokens = tokenizarPalabra(palabra);
         Nodo nodoActual = raiz;
         for (String ficha : tokens) {
             Nodo siguiente = nodoActual.hijos.get(ficha);
-            if (siguiente == null) return false;
+            if (siguiente == null) {
+                return false;
+            }
             nodoActual = siguiente;
         }
         return nodoActual.palabraValidaHastaAqui;
     }
-    
+
     public boolean buscarPrefijo(String prefijo) {
         List<String> tokens = tokenizarPalabra(prefijo);
         Nodo nodoActual = raiz;
         for (String ficha : tokens) {
             Nodo siguiente = nodoActual.hijos.get(ficha);
-            if (siguiente == null) return false;
+            if (siguiente == null) {
+                return false;
+            }
             nodoActual = siguiente;
         }
         return true;
     }
-    
+
     public Nodo buscarUltimoNodo(String palabra) {
         List<String> tokens = tokenizarPalabra(palabra);
         Nodo nodoActual = raiz;

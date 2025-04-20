@@ -3,6 +3,9 @@ package Dominio.Modelos;
 import java.awt.image.CropImageFilter;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.table.TableRowSorter;
+
 import Dominio.Excepciones.*;
 public class Partida {
 
@@ -71,8 +74,18 @@ public class Partida {
 
        
             coordenadasPalabra.add(Pair.createPair(x, y));
+            if(getFichaString(ficha) == null){
+                if(getFichaString("#") != null){
+                    
+                }
+            } 
+            else{
+                tablero.ponerComodin(ficha,x,y);
+                    quitarFicha("#");
             tablero.ponerFicha(getFichaString(ficha), x, y);
             quitarFicha(ficha);
+            }
+            
         }
     
     }

@@ -84,6 +84,15 @@ public class Tablero {
         return false;
     }
 
+    public boolean ponerComodin(String ficha, int fila, int columna){
+        Celda celda = getCelda(fila, columna);
+        if (celda != null) {
+            Ficha f = new Ficha(ficha,0);
+            return celda.colocarFicha(f);
+        }
+        return false;
+    }
+
     // Método para quitar una ficha de una celda dada
     public Ficha quitarFicha(int fila, int columna) {
         Celda celda = getCelda(fila, columna);

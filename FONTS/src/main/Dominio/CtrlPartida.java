@@ -75,6 +75,9 @@ public class CtrlPartida {
                 }
                 int x = Integer.parseInt(parts[1]);
                 int y = Integer.parseInt(parts[2]);
+                if(ficha.matches("#") && parts.length == 4){
+                    ficha = parts[1];
+                }
                 partidaActual.añadirFicha(ficha, x, y);
                 break;
             }
@@ -182,12 +185,12 @@ public class CtrlPartida {
     }
 
     private int jugarAlgoritmo() throws PosicionOcupadaTablero, FichaIncorrecta {
-        Pair<List<Pair<Ficha, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
-        List<Pair<Ficha, Pair<Integer, Integer>>> s = ss.getFirst();
+        Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
+        List<Pair<String, Pair<Integer, Integer>>> s = ss.getFirst();
         System.out.print(partidaActual.obtenerFichas());
-        for (Pair<Ficha, Pair<Integer, Integer>> aa : s) {
+        for (Pair<String, Pair<Integer, Integer>> aa : s) {
 
-            partidaActual.añadirFicha(aa.getFirst().getLetra(), aa.getSecond().getFirst(), aa.getSecond().getSecond());
+            partidaActual.añadirFicha(aa.getFirst(), aa.getSecond().getFirst(), aa.getSecond().getSecond());
 
         }
         if (s.size() == 0) {

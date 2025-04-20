@@ -158,7 +158,7 @@ public class DriverPartidaCon2Jugadores {
             String l;
             while ((l = br.readLine()) != null) {
                 l = l.trim();
-                if (!l.isEmpty() && !l.startsWith("#")) lines.add(l);
+                if (!l.isEmpty()) lines.add(l);
             }
         }
         return lines;
