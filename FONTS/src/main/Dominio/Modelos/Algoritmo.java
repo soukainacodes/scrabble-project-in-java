@@ -26,6 +26,7 @@ public class Algoritmo {
 
     public Algoritmo(int dificultad) {
         this.dificultad = dificultad;
+
     }
 
     private boolean isEmpty(Pair<Integer, Integer> pos) {
@@ -55,6 +56,7 @@ public class Algoritmo {
                 boolean vecinoOcupado = (isFilled(before(pos)) || isFilled(after(pos)) || isFilled(up(pos)) || isFilled(down(pos)));
 
                 if (empty && vecinoOcupado) {
+                    System.out.println(pos.getFirst() + " " + pos.getSecond());
                     anchors.add(pos);
                 }
             }
@@ -155,7 +157,7 @@ public class Algoritmo {
             puntosFinal = puntos;
             System.out.println(palabra);
             resultadoFinal.clear();
-
+            System.out.println(palabra);
             while (lenght >= 0) {
                 ponerFicha(palabraTokenizada.get(lenght), play_pos);
                 lenght--;
@@ -327,12 +329,19 @@ public class Algoritmo {
         this.diccionario = diccionario;
         //fichas del jugador
         puntosFinal = 0;
+        vertical = false;
         ArrayList<Pair<Integer, Integer>> anchors = find_anchors();
         if (anchors.size() == 0) {
             anchors.add(Pair.createPair(7, 7));
         }
 
         int ii = 0;
+        int limite = anchors.size();
+        if (this.dificultad == 1) {
+            limite = 1; 
+        }else if (this.dificultad == 2) {
+            limite = 3;
+        }
         for (Pair<Integer, Integer> pos : anchors) {
 
             for (int i = 0; i < 2; ++i) {
@@ -376,11 +385,13 @@ public class Algoritmo {
                 }
 
             }
-            if (resultadoFinal.size() != 0) {
+            if(resultadoFinal().size() != 0 && ii < limite){
+                ii++;
+            }
+            else if(resultadoFinal().size() != 0){
                 return Pair.createPair(resultadoFinal, puntosFinal);
             }
-
         }
-    return Pair.createPair(resultadoFinal, puntosFinal);
+         return Pair.createPair(resultadoFinal, puntosFinal);
     }
 }

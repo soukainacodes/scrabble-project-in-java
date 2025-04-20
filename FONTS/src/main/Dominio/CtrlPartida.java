@@ -61,7 +61,7 @@ public class CtrlPartida {
         return partidaActual;
     }
 
-    public void jugarScrabble(int opcion, String input) throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
+    public int jugarScrabble(int opcion, String input) throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
 
         String[] parts = input.split(" ");
 
@@ -93,13 +93,14 @@ public class CtrlPartida {
             case 4: // Fin turno
                 finTurno(false, true);
                 break;
-            default:
-               // int puntosTotales = jugarAlgoritmo();
-               // partidaActual.addPuntos(puntosTotales);
-               // System.out.println("Validador " + puntosTotales);
-               // finTurno(true, false);
+            case 5:
+                int puntosTotales = jugarAlgoritmo();
+               partidaActual.addPuntos(puntosTotales);
+             //System.out.println("Validador " + puntosTotales);
+               finTurno(true, false);
                 break;
         }
+        return 0;
 
     }
 
@@ -139,7 +140,7 @@ public class CtrlPartida {
         return partidaActual.getPuntosJugador2();
     }
 
-    public void finTurno(boolean pasar, boolean algoritmo) throws PosicionOcupadaTablero, FichaIncorrecta {
+    public int finTurno(boolean pasar, boolean algoritmo) throws PosicionOcupadaTablero, FichaIncorrecta {
 
         if (!pasar) {
             int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
@@ -147,7 +148,7 @@ public class CtrlPartida {
                 partidaActual.addPuntos(puntos);
             } else {
                 System.out.println("Palabra incorrecta!!");
-                return;
+                return 0;
 
             }
         }
@@ -164,19 +165,19 @@ public class CtrlPartida {
             partidaActual.addPuntos(jugarAlgoritmo());
             finTurno(true, false);
         }
-
+    return 0;
     }
 
-    public void finPartida() {
+    public int finPartida() {
         partidaActual.cambiarTurnoJugador();
         for (Ficha ficha : partidaActual.getFichasJugador()) {
             partidaActual.addPuntos(-ficha.getPuntuacion());
         }
         System.out.println("Fin Partida");
         if (partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) {
-            System.out.println("Ganador Jugador1!!");
+            return 1;
         } else {
-            System.out.println("Ganador Jugador2!!");
+            return 2;
         }
     }
 

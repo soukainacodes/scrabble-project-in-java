@@ -68,6 +68,7 @@ public class DriverPartidaAlgoritmo {
         }
     }
 
+
     public static List<String> leerArchivo(String rutaArchivo) throws IOException {
         List<String> lineasArchivo = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(rutaArchivo))) {
@@ -98,6 +99,7 @@ public class DriverPartidaAlgoritmo {
         System.out.println("4. Pasar");
         System.out.println("5. Acabar turno");
         System.out.println("6. Salir");
+        System.out.println("7. Algoritmo (luego borrar)");
         System.out.print("Opción: ");
         switch (in.nextLine().trim()) {
             case "1": //Añadir Ficha
@@ -110,17 +112,29 @@ public class DriverPartidaAlgoritmo {
                 cd.jugarScrabble(3, ""); 
                 menuPartida();
             case "5": //Acabar turno
-                cd.jugarScrabble(4, ""); 
-                menuPartida();
+                int fin = cd.jugarScrabble(4, "");
+                if(fin == 0) menuPartida();
+                else if (fin == 1){
+                    System.out.println("Jugador 1 gana");
+                    break;
+                }
+                else {
+                    System.out.println("Jugador 2 gana");
+                    break;
+                }
             case "6":
                 subMenuSalir(); break;
+            case "7":
+                cd.jugarScrabble(5,"");
+                menuPartida();
             default:
                 System.out.println("Opción no válida.");
+                menuPartida();
         }
     }
 
     private static void subMenuAnadir() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
-        clearScreen();
+      //  clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
         System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
@@ -190,6 +204,7 @@ public class DriverPartidaAlgoritmo {
                 menuPartida();
             default:
              System.out.println("Opción no válida.");
+             subMenuSalir();
         }
     }
 

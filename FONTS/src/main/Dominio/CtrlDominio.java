@@ -145,15 +145,19 @@ public class CtrlDominio {
         ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), lineasDicc, lineasBolsa, seed, dificultad);
     }
 
-    public void jugarScrabble(int modo, String jugada)
+    public int jugarScrabble(int modo, String jugada)
             throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
         String nombre = getUsuarioActual();
-        ctrlPartida.jugarScrabble(modo, jugada);
+       int fin = ctrlPartida.jugarScrabble(modo, jugada);
 
         // Actualizar puntos en memoria y en disco
+      
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
         Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) ctrlPersistencia.reportarPuntuacion(j.getNombre(), j.getPuntos());
+       
+     
+        return fin;
     }
 
     public Tablero obtenerTablero() {
