@@ -9,6 +9,7 @@ import javax.swing.Painter;
 
 import Dominio.Modelos.*;
 import Dominio.Excepciones.*;
+
 public class CtrlPartida {
 
     private Partida partidaActual;
@@ -32,17 +33,17 @@ public class CtrlPartida {
 
     public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, int dificultad) {
         this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
-    
-        this.partidaActual = new Partida(players, lineasArchivoBolsa,seed);
+
+        this.partidaActual = new Partida(players, lineasArchivoBolsa, seed);
         this.finTurno = false;
 
         if (modo == 1) {
             this.isAlgoritmo = true;
             this.algoritmo = new Algoritmo(dificultad);
-              if (partidaActual.getTurnoJugador() == false) {
+            if (partidaActual.getTurnoJugador() == false) {
                 //partidaActual.addPuntos(jugarAlgoritmo());
                 //finTurno(true,false);
-            }   
+            }
         } else {
             this.isAlgoritmo = false;
         }
@@ -69,14 +70,21 @@ public class CtrlPartida {
             case 1: {
                 //Poner ficha en el tablero
                 String ficha = parts[0];
-                if(ficha.matches("[0-7]")){
-                int num = Integer.parseInt(ficha);
-                ficha = partidaActual.obtenerFichas().get(num);
+                System.out.println(parts[0]);
+                if (ficha.matches("[0-7]")) {
+                    int num = Integer.parseInt(ficha);
+                    ficha = partidaActual.obtenerFichas().get(num);
                 }
-                int x = Integer.parseInt(parts[1]);
-                int y = Integer.parseInt(parts[2]);
-                if(ficha.matches("#") && parts.length == 4){
+                int x;
+                int y;
+                
+                if (ficha.matches("#") && parts.length == 4) {
                     ficha = parts[1];
+                    x = Integer.parseInt(parts[2]);
+                    y = Integer.parseInt(parts[3]);
+                } else {
+                    x = Integer.parseInt(parts[1]);
+                    y = Integer.parseInt(parts[2]);
                 }
                 partidaActual.añadirFicha(ficha, x, y);
                 break;
@@ -89,44 +97,43 @@ public class CtrlPartida {
                 break;
             }
             case 3: // Pasar turno
-            
-                reset("");
-                break;
+                if (partidaActual.getCoordenadasPalabras().size() != 0) {
+                    for (Pair<Integer, Integer> p : partidaActual.getCoordenadasPalabras()) {
+                        partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
+                    }
+                }
+                //Torna pasar + algoritmo
+                return finTurno(true, true);
             case 4: // Fin turno
-                finTurno(false, true);
-                break;
-            case 5:
+
+                return finTurno(false, true);
+            case 5: // cambiar fichas
+                if (partidaActual.getCoordenadasPalabras().size() != 0) {
+                    for (Pair<Integer, Integer> p : partidaActual.getCoordenadasPalabras()) {
+                        partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
+                    }
+                }
+                List<String> fichas = new ArrayList<>(Arrays.asList(parts));
+                for (int i = 0; i < fichas.size(); ++i) {
+                    if (fichas.get(i).matches("[0-7]")) {
+                        int num = Integer.parseInt(fichas.get(i));
+                        fichas.add(partidaActual.getFichasJugador().get(num).getLetra());
+                        fichas.remove(i);
+                    }
+                }
+
+                partidaActual.recuperarFichas();
+                return finTurno(true, true);
+            case 7:
                 System.out.println("adfasdfa");
                 int puntosTotales = jugarAlgoritmo();
-               partidaActual.addPuntos(puntosTotales);
-             //System.out.println("Validador " + puntosTotales);
-               finTurno(true, false);
-                break;
+                partidaActual.addPuntos(puntosTotales);
+                //System.out.println("Validador " + puntosTotales);
+                return finTurno(true, true);
+                
         }
         return 0;
 
-    }
-
-    public void reset(String letras) throws PosicionVaciaTablero, PosicionOcupadaTablero , FichaIncorrecta {
-
-        if (partidaActual.getCoordenadasPalabras().size() != 0) {
-            for (Pair<Integer, Integer> p : partidaActual.getCoordenadasPalabras()) {
-                partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
-            }
-        }
-       
-        ArrayList<String> fichas = new ArrayList<>(Arrays.asList(letras.split(" ")));
-
-        for(int i=0;i<fichas.size();++i){
-            if(fichas.get(i).matches("[0-7]")){
-                int num = Integer.parseInt(fichas.get(i));
-                fichas.add(partidaActual.getFichasJugador().get(num).getLetra());
-                fichas.remove(i);
-            }
-        }
-
-        partidaActual.recuperarFichas();
-        finTurno(true, true);
     }
 
     public int getPuntosJugador1() {
@@ -155,14 +162,14 @@ public class CtrlPartida {
         partidaActual.cambiarTurnoJugador();
         partidaActual.aumentarContador();
         if (!partidaActual.recuperarFichas() && partidaActual.getListSize() == 0) {
-            finPartida();
+            return finPartida();
         }
 
         if (isAlgoritmo && algoritmo) {
             partidaActual.addPuntos(jugarAlgoritmo());
             finTurno(true, false);
         }
-    return 0;
+        return 0;
     }
 
     public int finPartida() {
@@ -170,7 +177,7 @@ public class CtrlPartida {
         for (Ficha ficha : partidaActual.getFichasJugador()) {
             partidaActual.addPuntos(-ficha.getPuntuacion());
         }
-        System.out.println("Fin Partida");
+        
         if (partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) {
             return 1;
         } else {
@@ -183,7 +190,7 @@ public class CtrlPartida {
         List<Pair<String, Pair<Integer, Integer>>> s = ss.getFirst();
         System.out.print(partidaActual.obtenerFichas());
         for (Pair<String, Pair<Integer, Integer>> aa : s) {
-
+            System.out.println("Letra algo: " + aa.getFirst());
             partidaActual.añadirFicha(aa.getFirst(), aa.getSecond().getFirst(), aa.getSecond().getSecond());
 
         }

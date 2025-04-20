@@ -76,12 +76,12 @@ public class Partida {
             coordenadasPalabra.add(Pair.createPair(x, y));
             if(getFichaString(ficha) == null){
                 if(getFichaString("#") != null){
-                    
+                    tablero.ponerComodin(ficha,x,y);
+                    quitarFicha("#");
                 }
             } 
             else{
-                tablero.ponerComodin(ficha,x,y);
-                    quitarFicha("#");
+                
             tablero.ponerFicha(getFichaString(ficha), x, y);
             quitarFicha(ficha);
             }

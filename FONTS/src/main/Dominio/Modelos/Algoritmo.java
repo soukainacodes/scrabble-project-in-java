@@ -136,7 +136,7 @@ public class Algoritmo {
             }
             last_pos = before(last_pos);
             lenght--;
-        }
+        } 
 
         if (bonusPalabra != 0) {
             puntosPalabra *= bonusPalabra;
