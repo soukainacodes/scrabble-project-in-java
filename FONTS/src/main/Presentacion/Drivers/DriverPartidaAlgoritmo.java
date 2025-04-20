@@ -84,7 +84,6 @@ public class DriverPartidaAlgoritmo {
         mostrarFichas();
     }
 
-<<<<<<< HEAD
 
     public static List<String> leerArchivo(String rutaArchivo) throws IOException {
         List<String> lineasArchivo = new ArrayList<>();
@@ -100,15 +99,13 @@ public class DriverPartidaAlgoritmo {
         return lineasArchivo;
     }
 
-    private static void menuPartida() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
-     //   clearScreen();
-=======
+      
+
     private static void menuPartida()
             throws PosicionOcupadaTablero,
                    FichaIncorrecta,
                    PosicionVaciaTablero {
-        clearScreen();
->>>>>>> 4b1bb601cf70b8e03cb7ddba2c1e33b580d3ab3f
+      //  clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
         System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
@@ -133,7 +130,6 @@ public class DriverPartidaAlgoritmo {
             case "4":
                 cd.jugarScrabble(3, "");
                 menuPartida();
-<<<<<<< HEAD
             case "5": //Acabar turno
                 int fin = cd.jugarScrabble(4, "");
                 if(fin == 0) menuPartida();
@@ -150,24 +146,14 @@ public class DriverPartidaAlgoritmo {
             case "7":
                 cd.jugarScrabble(5,"");
                 menuPartida();
-=======
                 break;
-            case "5":
-                cd.jugarScrabble(4, "");
-                menuPartida();
-                break;
-            case "6":
-                subMenuSalir();
-                break;
->>>>>>> 4b1bb601cf70b8e03cb7ddba2c1e33b580d3ab3f
             default:
                 System.out.println("Opción no válida.");
                 menuPartida();
         }
     }
 
-<<<<<<< HEAD
-    private static void subMenuAnadir() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
+    private static void subMenuAnadir() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
       //  clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -180,20 +166,7 @@ public class DriverPartidaAlgoritmo {
         System.out.println("1. Volver atras:");
         System.out.println("Inserta la Ficha junto a la posición del tablero:");
         System.out.println("En caso de que sea un # añada despues de '#', la letra que quiera que substituya:");
-=======
-    private static void subMenuAnadir()
-            throws PosicionOcupadaTablero,
-                   FichaIncorrecta,
-                   PosicionVaciaTablero {
-        clearScreen(); mostrarEstado();
-        System.out.println("Inserta la ficha y posición (o '1' para atrás):");
->>>>>>> 4b1bb601cf70b8e03cb7ddba2c1e33b580d3ab3f
-        String input = in.nextLine().trim();
-        if (!input.equals("1")) {
-            cd.jugarScrabble(1, input);
-        }
-        menuPartida();
-    }
+    } 
 
     private static void subMenuQuitar()
             throws PosicionOcupadaTablero,
@@ -240,26 +213,9 @@ public class DriverPartidaAlgoritmo {
                 try { menuPartida(); } catch (Exception ignored) {}
                 break;
             default:
-<<<<<<< HEAD
-             System.out.println("Opción no válida.");
-             subMenuSalir();
-=======
                 System.out.println("Opción no válida.");
->>>>>>> 4b1bb601cf70b8e03cb7ddba2c1e33b580d3ab3f
         }
     }
 
-    public static List<String> leerArchivo(String ruta) throws IOException {
-        List<String> lineas = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
-            String l;
-            while ((l = br.readLine()) != null) {
-                l = l.trim();
-                if (!l.isEmpty() && !l.startsWith("#")) {
-                    lineas.add(l);
-                }
-            }
-        }
-        return lineas;
-    }
+ 
 }

@@ -133,15 +133,12 @@ public class CtrlDominio {
         );
     }
 
-<<<<<<< HEAD
     /**
      * Ejecuta una jugada y actualiza puntuación
      * tanto en memoria como en persistencia.
      */
+    
     public int jugarScrabble(int modo, String jugada)
-=======
-    public void jugarScrabble(int modo, String jugada)
->>>>>>> 4b1bb601cf70b8e03cb7ddba2c1e33b580d3ab3f
             throws PosicionOcupadaTablero,
                    PosicionVaciaTablero,
                    FichaIncorrecta {
@@ -155,11 +152,8 @@ public class CtrlDominio {
         return fin; 
     }
 
-<<<<<<< HEAD
 
-=======
     /** Obtiene el tablero completo */
->>>>>>> 4b1bb601cf70b8e03cb7ddba2c1e33b580d3ab3f
     public Tablero obtenerTablero() {
         return ctrlPartida.obtenerTablero();
     }

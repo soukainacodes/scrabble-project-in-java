@@ -91,12 +91,12 @@ public class CtrlPartida {
             case 3: // Pasar turno
             
                 reset("");
-                finTurno(true, true);
                 break;
             case 4: // Fin turno
                 finTurno(false, true);
                 break;
             case 5:
+                System.out.println("adfasdfa");
                 int puntosTotales = jugarAlgoritmo();
                partidaActual.addPuntos(puntosTotales);
              //System.out.println("Validador " + puntosTotales);
@@ -122,12 +122,6 @@ public class CtrlPartida {
                 int num = Integer.parseInt(fichas.get(i));
                 fichas.add(partidaActual.getFichasJugador().get(num).getLetra());
                 fichas.remove(i);
-            }
-        }
-        System.out.println(fichas);
-        if (fichas.size() != 0) {
-            for (String s : fichas) {
-                partidaActual.quitarFicha(s);
             }
         }
 

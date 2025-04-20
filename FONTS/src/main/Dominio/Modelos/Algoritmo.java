@@ -56,7 +56,7 @@ public class Algoritmo {
                 boolean vecinoOcupado = (isFilled(before(pos)) || isFilled(after(pos)) || isFilled(up(pos)) || isFilled(down(pos)));
 
                 if (empty && vecinoOcupado) {
-                    System.out.println(pos.getFirst() + " " + pos.getSecond());
+
                     anchors.add(pos);
                 }
             }
@@ -390,6 +390,8 @@ public class Algoritmo {
             }
 
         }
+        System.out.println("1 algoritmo");
+     
         return Pair.createPair(resultadoFinal, puntosFinal);
     }
 }
