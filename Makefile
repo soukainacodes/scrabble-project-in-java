@@ -42,6 +42,9 @@ runcode_usuarios:
 runcode_partidas:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionPartidas
 
+runcode_diccionarios_bolsas:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionDiccionariosBolsas
+
 
 # Objetivo para compilar los tests.
 # NOTA: Se compila directamente en $(CLASS_OUTPUT_TEST) para que, al tener 

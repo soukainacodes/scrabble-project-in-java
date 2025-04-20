@@ -1,5 +1,6 @@
 package Dominio;
 
+import java.io.IOException;
 import java.util.*;
 import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
@@ -8,6 +9,7 @@ import Dominio.Modelos.Celda;
 import Dominio.Modelos.TipoBonificacion;
 import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
+import Dominio.Excepciones.*;
 
 /**
  * Coordina persistencia, sesión, ranking y partida.
@@ -257,5 +259,34 @@ public class CtrlDominio {
             default ->
                 "  ";
         };
+    }
+
+
+
+        // ─── Gestión de Diccionarios y Bolsas ────────────────────────
+
+    /** Lista de IDs de diccionarios existentes */
+    public Set<String> obtenerIDsDiccionarios() {
+        return ctrlPersistencia.getDiccionarioIDs();
+    }
+
+    /** Lista de IDs de bolsas existentes */
+    public Set<String> obtenerIDsBolsas() {
+        return ctrlPersistencia.getBolsaIDs();
+    }
+
+    /** Crea un nuevo diccionario con ID dado */
+    public void crearDiccionario(String id, List<String> palabras) throws IOException {
+        ctrlPersistencia.addDiccionario(id, palabras);
+    }
+
+    /** Crea una nueva bolsa con ID dado */
+    public void crearBolsa(String id, Map<String,int[]> bolsa) throws IOException {
+        ctrlPersistencia.addBolsa(id, bolsa);
+    }
+
+    /** Elimina por completo diccionario+bolsa de ID dado */
+    public void eliminarIdiomaCompleto(String id) throws IOException {
+        ctrlPersistencia.removeIdiomaCompleto(id);
     }
 }
