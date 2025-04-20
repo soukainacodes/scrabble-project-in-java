@@ -203,6 +203,10 @@ public class Partida {
         }
     }
 
+    public boolean isBolsaEmpty(){
+        return bolsa.isEmpty();
+    }
+
     // Método obtenerFichas
     public List<String> obtenerFichas() {
         List<String> s = new ArrayList<>(); // Lista para almacenar las letras de las fichas

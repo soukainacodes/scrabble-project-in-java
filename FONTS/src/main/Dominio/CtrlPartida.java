@@ -77,7 +77,7 @@ public class CtrlPartida {
                 }
                 int x;
                 int y;
-                
+
                 if (ficha.matches("#") && parts.length == 4) {
                     ficha = parts[1];
                     x = Integer.parseInt(parts[2]);
@@ -130,7 +130,7 @@ public class CtrlPartida {
                 partidaActual.addPuntos(puntosTotales);
                 //System.out.println("Validador " + puntosTotales);
                 return finTurno(true, true);
-                
+
         }
         return 0;
 
@@ -143,6 +143,8 @@ public class CtrlPartida {
     public int getPuntosJugador2() {
         return partidaActual.getPuntosJugador2();
     }
+
+
 
     public int finTurno(boolean pasar, boolean algoritmo) throws PosicionOcupadaTablero, FichaIncorrecta {
 
@@ -166,18 +168,24 @@ public class CtrlPartida {
         }
 
         if (isAlgoritmo && algoritmo) {
-            partidaActual.addPuntos(jugarAlgoritmo());
+            int puntosAlgoritmo = jugarAlgoritmo();
+            partidaActual.addPuntos(puntosAlgoritmo);
+            if(puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty() && partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()){
+                return finPartida();
+            }
             finTurno(true, false);
         }
         return 0;
     }
+
+
 
     public int finPartida() {
         partidaActual.cambiarTurnoJugador();
         for (Ficha ficha : partidaActual.getFichasJugador()) {
             partidaActual.addPuntos(-ficha.getPuntuacion());
         }
-        
+
         if (partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) {
             return 1;
         } else {
