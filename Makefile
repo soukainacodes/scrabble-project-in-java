@@ -36,8 +36,8 @@ runcode_solo:
 runcode_duo:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaCon2Jugadores
 
-runcode_app:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverAplicacion
+runcode_usuarios:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionUsuarios
 
 runcode_partidas:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionPartidas

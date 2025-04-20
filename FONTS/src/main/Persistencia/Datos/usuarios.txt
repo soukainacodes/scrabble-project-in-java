@@ -3,6 +3,7 @@ Alex 1234 100000
 e 1234 0
 j1 1234 0
 dermaroll 1234 0
+Suki 1234 0
 atliiii 1234 0
 j2 1234 0
 conan 1234 0

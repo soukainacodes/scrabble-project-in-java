@@ -4,7 +4,7 @@ import java.util.*;
 import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 
-public class DriverAplicacion {
+public class DriverGestionUsuarios {
     private static final CtrlDominio ctrl = new CtrlDominio();
     private static final Scanner sc  = new Scanner(System.in);
 

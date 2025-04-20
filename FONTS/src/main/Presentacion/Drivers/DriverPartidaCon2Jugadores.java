@@ -4,23 +4,17 @@ import java.util.*;
 import java.io.*;
 
 import Dominio.CtrlDominio;
-import Dominio.Modelos.Jugador;
-import Dominio.Modelos.Tablero;
-import Dominio.Modelos.Celda;
-import Dominio.Modelos.TipoBonificacion;
-import Dominio.Excepciones.UsuarioYaRegistradoException;
-import Dominio.Excepciones.UsuarioNoEncontradoException;
 import Dominio.Excepciones.*;
+
 public class DriverPartidaCon2Jugadores {
 
     private static final Scanner in = new Scanner(System.in);
-    private static CtrlDominio cd;
+    private static final CtrlDominio cd = new CtrlDominio();
     private static String jugador1, jugador2;
     private static String turnoActual;
     private static final int MODO_PARTIDA = 1;
-    
-    public static void main(String[] args) throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
-        cd = new CtrlDominio();
+
+    public static void main(String[] args) throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
         bienvenida();
         crearYObtenerJugadores();
         cargarYConstruirPartida();
@@ -52,13 +46,6 @@ public class DriverPartidaCon2Jugadores {
             System.out.println("(*) " + e.getMessage());
         }
 
-        try {
-            cd.obtenerJugador(jugador1);
-            cd.obtenerJugador(jugador2);
-        } catch (UsuarioNoEncontradoException e) {
-            System.err.println("Error al cargar jugadores: " + e.getMessage());
-            System.exit(1);
-        }
         System.out.println("\nJugadores listos: " + jugador1 + " vs " + jugador2 + "\n");
     }
 
@@ -66,14 +53,14 @@ public class DriverPartidaCon2Jugadores {
         try {
             List<String> lineasBolsa = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/letrasCAST.txt");
             List<String> lineasDicc  = leerArchivo("./FONTS/src/main/Recursos/Idiomas/Castellano/castellano.txt");
-            cd.iniciarPartida(MODO_PARTIDA, jugador1, jugador2, lineasDicc, lineasBolsa,0,-1);
+            cd.iniciarPartida(MODO_PARTIDA, jugador1, jugador2, lineasDicc, lineasBolsa, 0L, -1);
         } catch (IOException e) {
             System.err.println("Error al leer ficheros: " + e.getMessage());
             System.exit(1);
         }
     }
 
-    private static void buclePrincipal() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero{
+    private static void buclePrincipal() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
         boolean salir = false;
         while (!salir) {
             mostrarMenu();
@@ -83,8 +70,8 @@ public class DriverPartidaCon2Jugadores {
                 case "2": mostrarFichas();    break;
                 case "3": jugarTurno();       break;
                 case "4": cambiarTurno();     break;
-                case "5": salir = true;       System.out.println("¡Hasta luego!"); break;
-                default:   System.out.println("Opción no válida."); 
+                case "5": salir = true; System.out.println("¡Hasta luego!"); break;
+                default:  System.out.println("Opción no válida.");
             }
         }
     }
@@ -101,28 +88,16 @@ public class DriverPartidaCon2Jugadores {
 
     private static void mostrarTablero() {
         System.out.println("\n    Tablero actual:");
+        int N = cd.getTableroDimension();
         System.out.print("    ");
-        for (int x = 0; x < 15; x++) System.out.printf("%4d", x);
+        for (int x = 0; x < N; x++) System.out.printf("%4d", x);
         System.out.println();
-        Tablero t = cd.obtenerTablero();
-        for (int y = 0; y < 15; y++) {
+        for (int y = 0; y < N; y++) {
             System.out.printf("%2d: ", y);
-            for (int x = 0; x < 15; x++) {
-                Celda c = t.getCelda(y, x);
-                String d;
-                if (c.getFicha() != null) {
-                    d = c.getFicha().getLetra();
-                } else if (!c.bonusDisponible() && c.getBonificacion() != TipoBonificacion.NINGUNA) {
-                    d = " . ";
-                } else {
-                    switch (c.getBonificacion()) {
-                        case DOBLE_LETRA:    d = "DL"; break;
-                        case TRIPLE_LETRA:   d = "TL"; break;
-                        case DOBLE_PALABRA:  d = "DP"; break;
-                        case TRIPLE_PALABRA: d = "TP"; break;
-                        default:             d = "  "; break;
-                    }
-                }
+            for (int x = 0; x < N; x++) {
+                String letra = cd.getLetraCelda(y, x);
+                String bono  = cd.getBonusCelda(y, x);
+                String d     = letra != null ? letra : bono;
                 System.out.printf("[%2s]", d);
             }
             System.out.println();
