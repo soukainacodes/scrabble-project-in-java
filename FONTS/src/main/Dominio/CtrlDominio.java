@@ -127,33 +127,52 @@ public class CtrlDominio {
         }
     }
 
-    /**
-     * Alias para compatibilidad con drivers
-     */
+    /** Alias para compatibilidad con drivers */
     public int getPosicion() {
         return getPosicionActual();
     }
 
     // ─── Partida / Scrabble ────────────────────────────────────
 
+    /**
+     * Crea una nueva partida en CtrlPartida con
+     * diccionario y bolsa definidos por listas de líneas.
+     */
     public void iniciarPartida(int modo,
                                String n1,
                                String n2,
                                List<String> lineasDicc,
                                List<String> lineasBolsa,
-                               long seed, int dificultad) {
-        ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), lineasDicc, lineasBolsa, seed, dificultad);
+                               long seed,
+                               int dificultad) {
+        ctrlPartida.crearPartida(
+            modo,
+            Arrays.asList(n1, n2),
+            lineasDicc,
+            lineasBolsa,
+            seed,
+            dificultad
+        );
     }
 
+    /**
+     * Ejecuta una jugada y actualiza puntuación
+     * tanto en memoria como en persistencia.
+     */
     public void jugarScrabble(int modo, String jugada)
-            throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
-        String nombre = getUsuarioActual();
+            throws PosicionOcupadaTablero,
+                   PosicionVaciaTablero,
+                   FichaIncorrecta {
         ctrlPartida.jugarScrabble(modo, jugada);
-
-        // Actualizar puntos en memoria y en disco
+        // Actualizar puntos en jugador y persistencia
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
         Jugador j = ctrlJugador.getJugadorActual();
-        if (j != null) ctrlPersistencia.reportarPuntuacion(j.getNombre(), j.getPuntos());
+        if (j != null) {
+            ctrlPersistencia.reportarPuntuacion(
+                j.getNombre(),
+                j.getPuntos()
+            );
+        }
     }
 
     public Tablero obtenerTablero() {
@@ -173,19 +192,45 @@ public class CtrlDominio {
     }
 
     public void cambiarFichas(String s)
-            throws PosicionVaciaTablero, PosicionOcupadaTablero, FichaIncorrecta {
+            throws PosicionVaciaTablero,
+                   PosicionOcupadaTablero,
+                   FichaIncorrecta {
         ctrlPartida.reset(s);
     }
 
+    /** Guarda la partida actual identificada por id */
     public void guardarPartida(String id) {
-        ctrlPersistencia.guardarPartida(id, ctrlPartida.guardarPartida());
+        Partida p = ctrlPartida.guardarPartida();
+        ctrlPersistencia.guardarPartida(id, p);
     }
 
+    /** Carga una partida por id */
     public void cargarPartida(String id) {
-        ctrlPartida.cargarPartida(ctrlPersistencia.cargarPartida(id));
+        Partida p = ctrlPersistencia.cargarPartida(id);
+        ctrlPartida.cargarPartida(p);
     }
 
-    public void cargarUltimaPartida(){
-        ctrlPartida.cargarPartida(ctrlPersistencia.cargarUltimaPartida());
+    /** Carga la última partida guardada */
+    public void cargarUltimaPartida() {
+        Partida p = ctrlPersistencia.cargarUltimaPartida();
+        ctrlPartida.cargarPartida(p);
     }
+
+    // ─── Gestión de partidas guardadas ────────────────────────
+
+    /**
+     * Devuelve el conjunto de todos los nombres de partidas
+     * que hay en persistencia.
+     */
+    public Set<String> obtenerNombresPartidasGuardadas() {
+        return ctrlPersistencia.getListaPartidas().keySet();
+    }
+
+    /**
+     * Elimina de persistencia la partida con id dado.
+     */
+    public void eliminarPartidaGuardada(String id) {
+        ctrlPersistencia.removePartida(id);
+    }
+
 }
