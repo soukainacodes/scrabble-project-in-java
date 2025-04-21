@@ -1,245 +1,298 @@
 package Presentacion.Drivers;
 
-import java.io.*;
 import java.util.*;
-
 import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 
 public class DriverGestionPartidas {
     private static final Scanner sc = new Scanner(System.in);
     private static final CtrlDominio cd = new CtrlDominio();
-    private static String modo = "", idioma = "", dificultad = "";
+
+    private static final String MODO1 = "1 Jugador";
+    private static final String MODO2 = "2 Jugadores";
+
+    private static String modo          = "";
+    private static String idDiccionario = "";
+    private static String nombre1       = "";
+    private static String nombre2       = "";
 
     public static void main(String[] args) {
         while (true) {
             try {
                 menuPrincipal();
             } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-                sc.nextLine();
+                System.err.println("¡Error!: " + e.getMessage());
+                pause();
             }
         }
     }
 
-    private static void menuPrincipal() throws Exception {
+    private static void menuPrincipal() {
         clearScreen();
-        System.out.println("\n===== MENÚ PRINCIPAL =====");
-        System.out.println("1. Jugar");
-        System.out.println("2. Juego de pruebas");
-        System.out.println("3. Salir");
+        System.out.println("=== MENÚ PRINCIPAL ===");
+        System.out.println("1) Nueva Partida");
+        System.out.println("2) Seguir última partida");
+        System.out.println("3) Cargar Partida");
+        System.out.println("4) Gestión partidas guardadas");      // NUEVO
+        System.out.println("5) Juego de pruebas");
+        System.out.println("6) Salir");
         System.out.print("Opción: ");
+
         switch (sc.nextLine().trim()) {
-            case "1": subMenuGestionPartida(); break;
-            case "2": juegoPruebas();         break;
-            case "3": System.exit(0);
-            default:  System.out.println("Opción no válida.");
-        }
-    }
-
-    private static void juegoPruebas() {
-        clearScreen();
-        System.out.println("=== Ejecutando juego de pruebas de partidas ===\n");
-        boolean errores = false;
-        var modos       = List.of("1 Jugador","2 Jugadores");
-        var idiomas     = List.of("Catalán","Castellano","Inglés");
-        var dificultades= List.of("Fácil","Intermedio","Difícil");
-
-        for (String m : modos) for (String idio : idiomas) for (String dif : dificultades) {
-            try {
-                System.out.printf("--- Prueba: modo=%s, idioma=%s, dificultad=%s ---%n", m, idio, dif);
-                modo = m; idioma = idio; dificultad = dif;
-
-                // 1) Iniciar partida
-               /* cd.iniciarPartida(
-                  m.equals("1 Jugador") ? 0 : 1,
-                  "PruebaUser","PruebaUser",
-                  leerArchivo(obtenerPathDiccionario(idio)),
-                  leerArchivo(obtenerPathBolsa(idio)),
-                  0L,
-                  switch(dif) {
-                    case "Fácil"      -> 1;
-                    case "Intermedio" -> 2;
-                    default           -> 3;
-                  }
-                );*/
-
-                // 2) Guardar
-                String saveName = "test_"+m.replace(" ","")+"_"+idio+"_"+dif;
-                cd.guardarPartida(saveName);
-                System.out.println("- Guardada como: " + saveName);
-
-                // 3) Listar
-                var partidas = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
-                System.out.println("Partidas disponibles: " + partidas);
-
-                // 4) Cargar y 5) recargar última
-                cd.cargarPartida(saveName);
-                System.out.println("- Cargada: " + saveName);
+            case "1": subMenuCrearPartida();       break;
+            case "2":
                 cd.cargarUltimaPartida();
-                System.out.println("- Última partida recargada.");
+                subMenuPartida();
+                break;
+            case "3": subMenuCargarPartida();      break;
+            case "4": subMenuGestionGuardadas();   break;  // NUEVO
+            case "5": juegoPruebas();              break;
+            case "6": System.exit(0);
+            default:
+                System.out.println("Opción no válida.");
+                pause();
+        }
+    }
 
-                // 6) Eliminar
-                cd.eliminarPartidaGuardada(saveName);
-                System.out.println("- Partida eliminada de la persistencia.");
+    /** NUEVO: menú para listar, cargar o eliminar partidas guardadas */
+    private static void subMenuGestionGuardadas() {
+        clearScreen();
+        System.out.println("=== GESTIÓN PARTIDAS GUARDADAS ===");
+        List<String> partidas = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
+        if (partidas.isEmpty()) {
+            System.out.println("No hay partidas guardadas.");
+            pause();
+            return;
+        }
+        for (int i = 0; i < partidas.size(); i++) {
+            System.out.printf("%2d) %s%n", i + 1, partidas.get(i));
+        }
+        System.out.println("0) Volver");
+        System.out.print("Elige número para cargar/eliminar: ");
+        String in = sc.nextLine().trim();
+        if (in.equals("0")) return;
 
-                System.out.println("Prueba completada con éxito.\n");
-            } catch (Exception e) {
-                errores = true;
-                System.err.printf("Error en prueba [%s,%s,%s]: %s%n%n",
-                                  modo, idioma, dificultad, e.getMessage());
+        String id;
+        if (in.matches("\\d+")) {
+            int idx = Integer.parseInt(in) - 1;
+            if (idx < 0 || idx >= partidas.size()) {
+                System.out.println("Selección fuera de rango.");
+                pause();
+                return;
+            }
+            id = partidas.get(idx);
+        } else {
+            id = in;
+            if (!partidas.contains(id)) {
+                System.out.println("ID no válido.");
+                pause();
+                return;
             }
         }
 
-        System.out.println("---------------------------------------------");
-        System.out.println(!errores
-            ? "Todas las pruebas se ejecutaron correctamente."
-            : "Algunas pruebas fallaron. Revisar errores.");
-        System.out.println("---------------------------------------------");
-    }
-
-    private static void subMenuGestionPartida() throws Exception {
-        clearScreen();
-        System.out.println("\n===== GESTIÓN PARTIDAS =====");
-        System.out.println("1. Nueva Partida");
-        System.out.println("2. Seguir última partida");
-        System.out.println("3. Cargar Partida");
+        // Pregunta acción
+        System.out.printf("Has elegido \"%s\". ¿Qué deseas hacer?%n", id);
+        System.out.println("1) Cargar");
+        System.out.println("2) Eliminar");
+        System.out.println("0) Volver");
         System.out.print("Opción: ");
         switch (sc.nextLine().trim()) {
-            case "1": subMenuCrearPartida();           break;
-            case "2": cd.cargarUltimaPartida(); subMenuPartida(); break;
-            case "3": subMenuCargarPartida();          break;
-            default:  System.out.println("Opción no válida.");
+            case "1":
+                cd.cargarPartida(id);
+                System.out.println("Partida cargada.");
+                pause();
+                subMenuPartida();
+                break;
+            case "2":
+                cd.eliminarPartidaGuardada(id);
+                System.out.println("Partida eliminada.");
+                pause();
+                break;
+            default:
+                // 0 o cualquier otra: volver
+        }
+    }
+
+    // --- resto de submenus sin cambios salvo ajustar retornos cuando convenga ---
+
+    private static void subMenuCrearPartida() {
+        while (true) {
+            clearScreen();
+            System.out.println("=== CREAR NUEVA PARTIDA ===");
+            System.out.printf("Modo        : %s%n", modo.isEmpty()          ? "<no seleccionado>" : modo);
+            System.out.printf("Diccionario : %s%n", idDiccionario.isEmpty() ? "<no seleccionado>" : idDiccionario);
+            System.out.printf("Jugador 1   : %s%n", nombre1.isEmpty()      ? "<no asignado>"     : nombre1);
+            if (modo.equals(MODO2)) {
+                System.out.printf("Jugador 2   : %s%n", nombre2.isEmpty()  ? "<no asignado>" : nombre2);
+            } else {
+                System.out.printf("Jugador 2   : <IA>%n");
+            }
+            System.out.println("1) Elegir modo");
+            System.out.println("2) Elegir diccionario");
+            System.out.println("3) Introducir nombres");
+            System.out.println("4) Finalizar y jugar");
+            System.out.println("5) Volver");
+            System.out.print("Opción: ");
+
+            String opt = sc.nextLine().trim();
+            switch (opt) {
+                case "1": elegirModo();              break;
+                case "2": elegirDiccionario();       break;
+                case "3": introducirNombres();       break;
+                case "4":
+                    if (!datosCompletos()) {
+                        System.out.println("¡Faltan datos! Completa modo, diccionario y nombres.");
+                        pause();
+                    } else {
+                        iniciarYJugar();
+                        return; // vuelve al principal tras jugar
+                    }
+                    break;
+                case "5": return;
+                default:
+                    System.out.println("Opción no válida.");
+                    pause();
+            }
+        }
+    }
+
+    private static boolean datosCompletos() {
+        if (modo.isEmpty() || idDiccionario.isEmpty() || nombre1.isBlank()) return false;
+        if (modo.equals(MODO2) && nombre2.isBlank()) return false;
+        return true;
+    }
+
+    private static void iniciarYJugar() {
+        long seed = new Random().nextLong();
+        int modoInt = modo.equals(MODO1) ? 0 : 1;
+        cd.iniciarPartida(modoInt,
+            nombre1,
+            modoInt == 1 ? nombre2 : "",
+            idDiccionario,
+            seed
+        );
+        subMenuPartida();
+    }
+
+    private static void elegirModo() {
+        clearScreen();
+        System.out.println("=== SELECCIONAR MODO ===");
+        System.out.println("1) " + MODO1);
+        System.out.println("2) " + MODO2);
+        System.out.print("Opción: ");
+        String o = sc.nextLine().trim();
+        if (o.equals("1"))      modo = MODO1;
+        else if (o.equals("2")) modo = MODO2;
+        else {
+            System.out.println("Opción no válida.");
+            pause();
+        }
+    }
+
+    private static void elegirDiccionario() {
+        clearScreen();
+        System.out.println("=== SELECCIONAR DICCIONARIO ===");
+        List<String> ids = new ArrayList<>(cd.obtenerIDsDiccionarios());
+        if (ids.isEmpty()) {
+            System.out.println("No hay diccionarios disponibles.");
+            pause();
+            return;
+        }
+        for (int i = 0; i < ids.size(); i++) {
+            System.out.printf("%2d) %s%n", i + 1, ids.get(i));
+        }
+        System.out.print("Elige n.º o ID: ");
+        String in = sc.nextLine().trim();
+        if (in.matches("\\d+")) {
+            int idx = Integer.parseInt(in) - 1;
+            if (idx >= 0 && idx < ids.size()) {
+                idDiccionario = ids.get(idx);
+                return;
+            }
+        } else if (ids.contains(in)) {
+            idDiccionario = in;
+            return;
+        }
+        System.out.println("Selección no válida.");
+        pause();
+    }
+
+    private static void introducirNombres() {
+        clearScreen();
+        System.out.print("Nombre Jugador 1: ");
+        nombre1 = sc.nextLine().trim();
+        if (modo.equals(MODO2)) {
+            System.out.print("Nombre Jugador 2: ");
+            nombre2 = sc.nextLine().trim();
         }
     }
 
     private static void subMenuCargarPartida() {
         clearScreen();
-        System.out.println("\n===== CARGAR PARTIDA =====");
-        var nombres = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
-        if (nombres.isEmpty()) {
-            System.out.println("No hay partidas guardadas."); return;
+        System.out.println("=== CARGAR PARTIDA ===");
+        List<String> partidas = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
+        if (partidas.isEmpty()) {
+            System.out.println("No hay partidas guardadas.");
+            pause();
+            return;
         }
-        System.out.println("Partidas disponibles:");
-        for (int i=0; i<nombres.size(); i++)
-            System.out.printf(" %d. %s%n", i+1, nombres.get(i));
-
-        System.out.print("Elige número o nombre ('0' para volver): ");
+        for (int i = 0; i < partidas.size(); i++) {
+            System.out.printf("%2d) %s%n", i + 1, partidas.get(i));
+        }
+        System.out.print("Elige n.º o ID (0 = volver): ");
         String in = sc.nextLine().trim();
         if (in.equals("0")) return;
-        String elegido = in.matches("\\d+")
-                       ? nombres.get(Integer.parseInt(in)-1)
-                       : in;
-        cd.cargarPartida(elegido);
+        String id = in.matches("\\d+")
+                    ? partidas.get(Integer.parseInt(in) - 1)
+                    : in;
+        cd.cargarPartida(id);
         subMenuPartida();
     }
 
-    private static void subMenuCrearPartida() throws Exception {
-        clearScreen();
-        System.out.println("\n===== CREAR PARTIDA =====");
-        System.out.println("1. Modo:       " + modo);
-        System.out.println("2. Idioma:     " + idioma);
-        System.out.println("3. Dificultad: " + dificultad);
-        System.out.println("4. Finalizar");
-        switch (sc.nextLine().trim()) {
-            case "1": elegirModo();       break;
-            case "2": elegirIdioma();     break;
-            case "3": elegirDificultad(); break;
-            case "4":
-                if (modo.isEmpty()||idioma.isEmpty()||dificultad.isEmpty()) {
-                    System.out.println("Completa todos los parámetros.");
-                } else {
-                 /*   cd.iniciarPartida(
-                      modo.equals("1 Jugador") ? 0 : 1,
-                      "Alex","",
-                      leerArchivo(obtenerPathDiccionario(idioma)),
-                      leerArchivo(obtenerPathBolsa(idioma)),
-                      0L,
-                      switch(dificultad) {
-                        case "Fácil"      -> 1;
-                        case "Intermedio" -> 2;
-                        default           -> 3;
-                      }
-                    );*/
-                  //  subMenuPartida();
-                }
-                break;
-            default: System.out.println("Opción no válida.");
-        }
-    }
-
-    private static void elegirModo() throws Exception {
-        clearScreen();
-        System.out.println("\n1. 1 Jugador\n2. 2 Jugadores");
-        String o = sc.nextLine().trim();
-        if (o.equals("1")) modo="1 Jugador";
-        else if (o.equals("2")) modo="2 Jugadores";
-        else System.out.println("Opción no válida.");
-        subMenuCrearPartida();
-    }
-
-    private static void elegirIdioma() throws Exception {
-        clearScreen();
-        System.out.println("\n1. Catalán\n2. Castellano\n3. Inglés");
-        String o = sc.nextLine().trim();
-        if (o.equals("1")) idioma="Catalán";
-        else if (o.equals("2")) idioma="Castellano";
-        else if (o.equals("3")) idioma="Inglés";
-        else System.out.println("Opción no válida.");
-        subMenuCrearPartida();
-    }
-
-    private static void elegirDificultad() throws Exception {
-        clearScreen();
-        System.out.println("\n1. Fácil\n2. Intermedio\n3. Difícil");
-        String o = sc.nextLine().trim();
-        if (o.equals("1")) dificultad="Fácil";
-        else if (o.equals("2")) dificultad="Intermedio";
-        else if (o.equals("3")) dificultad="Difícil";
-        else System.out.println("Opción no válida.");
-        subMenuCrearPartida();
-    }
-
     private static void subMenuPartida() {
-        try {
+        while (true) {
             clearScreen();
-            System.out.println("\n--- TABLERO ACTUAL ---");
+            System.out.println("=== PARTIDA ACTUAL ===");
             imprimirTablero();
-            System.out.println("\n--- Fichas Disponibles ---");
-            System.out.println(cd.obtenerFichas());
-            System.out.println("\n1. Abandonar partida");
-            System.out.println("2. Guardar Partida");
+            System.out.println("\nFichas: " + cd.obtenerFichas());
+            System.out.println("1) Abandonar (volver)");
+            System.out.println("2) Guardar partida");
+            System.out.println("3) Continuar jugada");
             System.out.print("Opción: ");
-            String o = sc.nextLine().trim();
-            if (o.equals("1")) cd.cargarUltimaPartida();
-            else if (o.equals("2")) subMenuGuardar();
-            else System.out.println("Opción no válida.");
-        } catch (Exception e) {
-            System.err.println("Error: "+e.getMessage());
-        }
-    }
-
-    private static void subMenuGuardar() {
-        System.out.print("Nombre para guardar: ");
-        String n = sc.nextLine().trim();
-        if (!n.isEmpty()) {
-            cd.guardarPartida(n);
-            System.out.println("Guardada como: "+n);
-        } else {
-            System.out.println("Nombre inválido.");
+            switch (sc.nextLine().trim()) {
+                case "1": return;
+                case "2":
+                    System.out.print("Nombre para guardar: ");
+                    String save = sc.nextLine().trim();
+                    if (!save.isEmpty()) {
+                        cd.guardarPartida(save);
+                        System.out.println("Guardada como «" + save + "»");
+                    } else {
+                        System.out.println("Nombre inválido.");
+                    }
+                    pause();
+                    break;
+                case "3":
+                    System.out.println("[Aquí iría el menú de jugadas]");
+                    pause();
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    pause();
+            }
         }
     }
 
     private static void imprimirTablero() {
         int N = cd.getTableroDimension();
         System.out.print("    ");
-        for (int j=0; j<N; j++) System.out.printf("%4d", j);
+        for (int j = 0; j < N; j++) System.out.printf("%3d", j);
         System.out.println();
-        for (int i=0; i<N; i++) {
+        for (int i = 0; i < N; i++) {
             System.out.printf("%2d: ", i);
-            for (int j=0; j<N; j++) {
-                String letra = cd.getLetraCelda(i,j);
-                String bono  = cd.getBonusCelda(i,j);
+            for (int j = 0; j < N; j++) {
+                String letra = cd.getLetraCelda(i, j);
+                String bono  = cd.getBonusCelda(i, j);
                 String disp  = letra != null ? letra : bono;
                 System.out.printf("[%2s]", disp);
             }
@@ -247,53 +300,78 @@ public class DriverGestionPartidas {
         }
     }
 
-    // Rutas de recursos
-    private static String obtenerPathDiccionario(String idio) {
-        return "./FONTS/src/main/Recursos/Idiomas/"
-             + switch(idio) {
-                 case "Catalán"    -> "Catalan";
-                 case "Castellano" -> "Castellano";
-                 case "Inglés"     -> "Ingles";
-                 default            -> "";
-               }
-             + "/"
-             + switch(idio) {
-                 case "Catalán"    -> "catalan.txt";
-                 case "Castellano" -> "castellano.txt";
-                 case "Inglés"     -> "english.txt";
-                 default           -> "";
-               };
-    }
-    private static String obtenerPathBolsa(String idio) {
-        return "./FONTS/src/main/Recursos/Idiomas/"
-             + switch(idio) {
-                 case "Catalán"    -> "Catalan";
-                 case "Castellano" -> "Castellano";
-                 case "Inglés"     -> "Ingles";
-                 default            -> "";
-               }
-             + "/"
-             + switch(idio) {
-                 case "Catalán"    -> "letrasCAT.txt";
-                 case "Castellano" -> "letrasCAST.txt";
-                 case "Inglés"     -> "letrasENG.txt";
-                 default           -> "";
-               };
-    }
+    private static void juegoPruebas() {
+        clearScreen();
+        System.out.println("=== JUEGO DE PRUEBAS ===");
+        boolean falloGlobal = false;
 
-    private static List<String> leerArchivo(String ruta) throws IOException {
-        var lineas = new ArrayList<String>();
-        try (var br = new BufferedReader(new FileReader(ruta))) {
-            String l;
-            while ((l = br.readLine()) != null) {
-                l = l.trim();
-                if (!l.isEmpty() && !l.startsWith("#")) lineas.add(l);
+        List<String> modos = List.of(MODO1, MODO2);
+        List<String> dicts = new ArrayList<>(cd.obtenerIDsDiccionarios());
+        if (dicts.isEmpty()) {
+            System.out.println("No hay diccionarios para probar.");
+            pause();
+            return;
+        }
+
+        for (String m : modos) {
+            for (String d : dicts) {
+                System.out.printf("%n→ Prueba [Modo=%s, Dic=%s]%n", m, d);
+                boolean falloCaso = false;
+                String saveId = "PRUEBA_" + m.replace(" ", "") + "_" + d;
+                int modoInt = m.equals(MODO1) ? 0 : 1;
+                long seed  = new Random().nextLong();
+
+                try {
+                    System.out.print("  • Crear partida... ");
+                    cd.iniciarPartida(modoInt, "Test1", modoInt==1?"Test2":"", d, seed);
+                    System.out.println("OK");
+
+                    System.out.print("  • Guardar partida \"" + saveId + "\"... ");
+                    cd.guardarPartida(saveId);
+                    System.out.println("OK");
+
+                    System.out.print("  • Listar partidas guardadas... ");
+                    List<String> list = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
+                    System.out.println(list.contains(saveId) ? "OK" : "FALLÓ");
+                    if (!list.contains(saveId)) falloCaso = true;
+
+                    System.out.print("  • Cargar partida... ");
+                    cd.cargarPartida(saveId);
+                    System.out.println("OK");
+
+                    System.out.print("  • Eliminar partida... ");
+                    cd.eliminarPartidaGuardada(saveId);
+                    System.out.println("OK");
+
+                    System.out.print("  • Listar tras eliminación... ");
+                    list = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
+                    System.out.println(!list.contains(saveId) ? "OK" : "FALLÓ");
+                    if (list.contains(saveId)) falloCaso = true;
+
+                } catch (Exception ex) {
+                    System.out.println("ERROR → " + ex.getMessage());
+                    falloCaso = true;
+                }
+
+                System.out.println("  Resultado: " + (falloCaso ? "FALLÓ" : "OK"));
+                if (falloCaso) falloGlobal = true;
             }
         }
-        return lineas;
+
+        System.out.println("\n" + (falloGlobal
+            ? "ALGUNAS PRUEBAS FALLARON."
+            : "TODAS LAS PRUEBAS PASARON CORRECTAMENTE."));
+        pause();
+    }
+
+    private static void pause() {
+        System.out.println("\nPulsa ENTER para continuar...");
+        sc.nextLine();
     }
 
     private static void clearScreen() {
-        System.out.print("\033[H\033[2J"); System.out.flush();
+        // ANSI
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }

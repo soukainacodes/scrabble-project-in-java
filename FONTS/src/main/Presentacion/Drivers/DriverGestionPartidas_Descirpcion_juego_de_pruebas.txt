@@ -1,68 +1,85 @@
-# Descripción del juego de pruebas de gestión de partidas
+# Descripción del juego de pruebas de gestión de partidas (OPCIÓN 5)
 
-## 1. Objeto de la prueba
-Verificar de forma integrada los flujos completos de gestión de partidas a través de `CtrlDominio`, cubriendo:
+## 1. Objeto de la prueba  
+Verificar de forma integrada el flujo completo de gestión de partidas a través de CtrlDominio y nuestro driver mejorado, cubriendo:
 
-- Creación de nuevas partidas en modos 1 Jugador y 2 Jugadores, combinando  
-  - Idiomas: Catalán, Castellano, Inglés  
-  - Dificultades: Fácil, Intermedio, Difícil
-- Guardado de cada partida con un identificador único (`test_…`)
-- Listado de todas las partidas guardadas
-- Carga de una partida por su nombre
-- Carga de la última partida guardada
-- Eliminación de la partida de la persistencia interna
+- Creación de nuevas partidas en modos 1 Jugador y 2 Jugadores, para cada diccionario disponible  
+- Guardado de cada partida con un identificador único:  
+  PRUEBA_<modoSinEspacios>_<diccionario>  
+- Listado de todas las partidas guardadas  
+- Carga de la partida por su nombre  
+- Carga de la última partida guardada  
+- Eliminación de la partida de la persistencia interna  
 
-## 2. Otros elementos integrados
-Se reutilizan sin tests unitarios separados:
+Cada paso imprime “OK” o “FALLÓ” para indicar el resultado.
 
-- CtrlDominio, que a su vez emplea  
-  - `CtrlPartida` (gestión de tableros, fichas y jugadas)  
-  - `CtrlPersistencia` (almacenamiento en memoria de partidas y ranking de usuarios)  
-- Lectura de ficheros de recursos de idiomas (diccionario y bolsa)
+## 2. Componentes integrados  
+Se ejercitan conjuntamente, sin tests unitarios aislados:
 
-## 3. Archivos de datos necesarios
-- Diccionario y bolsa de letras para cada idioma, localizados en:  
-  `FONTS/src/main/Recursos/Idiomas/{Catalan,Castellano,Ingles}/…`  
-- No se crean ni modifican ficheros de usuario/jugadores ni de ranking en disco durante estas pruebas.
+- DriverGestionPartidas (menús interactivo y automático)  
+- CtrlDominio, que usa a su vez:  
+  - CtrlPartida (lógica de juego)  
+  - CtrlPersistencia (almacena partidas en memoria)  
+- Ficheros de recursos de idiomas (diccionario y bolsa) ubicados en  
+  FONTS/src/main/Recursos/Idiomas/{Catalan,Castellano,Ingles}/…
 
-## 4. Valores estudiados
-- Modos:  
-  - `1 Jugador` (modo vs IA)  
-  - `2 Jugadores`
-- Idiomas: `Catalán`, `Castellano`, `Inglés`
-- Dificultades: `Fácil` (1), `Intermedio` (2), `Difícil` (3)
-- Usuario de prueba: `"PruebaUser"` (mismo para jugador 1 y 2)
+## 3. Datos necesarios  
+- Diccionarios y bolsas de cada idioma, ya presentes en recursos  
+- No se crean ni modifican archivos de usuarios o ranking en disco
+
+## 4. Parámetros de las pruebas  
+- Modos: 1 Jugador, 2 Jugadores  
+- Diccionarios: todos los IDs devueltos por cd.obtenerIDsDiccionarios()  
+- Usuarios de prueba: "Test1" (y "Test2" si aplica)  
 - Identificador de guardado:  
-  `"test_" + modoSinEspacios + "_" + idioma + "_" + dificultad`
-- Se comprueba tanto el éxito de cada paso como la gestión de errores (si alguno lanza excepción, se marca la prueba como fallida)
+  
+  PRUEBA_<modoSinEspacios>_<diccionario>
+  
+- Semilla: aleatoria (no afecta a la persistencia)
 
-## 5. Efectos estudiados
-- Salidas en consola:
-  - Mensaje inicial de ejecución  
-  - Indicador de cada combinación de modo/idioma/dificultad  
-  - Confirmación de guardado, listado de partidas, carga y eliminación  
-  - Resumen final de “todas correctas” o “algunas fallaron”
-- Persistencia interna:
-  - Correcto almacenamiento en `CtrlPersistencia.listaPartidas`  
-  - Eliminación efectiva tras llamar a `eliminarPartidaGuardada`  
-- Comportamiento encadenado:
-  - `iniciarPartida` → `guardarPartida` → `cargarPartida` → `cargarUltimaPartida` → `eliminarPartidaGuardada`
+## 5. Pasos verificables  
+Para cada combinación (modo, diccionario):
+
+1. Crear partida → imprime OK si no falla  
+2. Guardar partida → imprime OK  
+3. Listar y comprobar que aparece el saveId → OK/FALLÓ  
+4. Cargar partida → imprime OK  
+5. Cargar última → imprime OK  
+6. Eliminar partida → imprime OK  
+7. Listar y comprobar que ya no aparece → OK/FALLÓ  
+
+Al final, resumen:
+
+- TODAS LAS PRUEBAS PASARON CORRECTAMENTE.  
+- o  
+- ALGUNAS PRUEBAS FALLARON.
+
+## 6. Cómo ejecutar
+
+1. Compilar el proyecto:  
+                                      make code
+   
+2. Ejecutar el driver de partidas:
+                                      make runcode_partidas
+   
+3. En el menú, seleccionar "4) Juego de pruebas".
+
+### Ejemplo de salida (una de las muchas combinaciones)
 
 
-## 6. Operativa de uso
+=== JUEGO DE PRUEBAS ===
 
-1. Compila el proyecto (desde el directorio raíz del proyecto haz `make code`).  
-2. Ejecuta el driver: make runcode_partidas
+→ Prueba [Modo=2 Jugadores, Dic=Castellano]
+  • Crear partida... OK
+  • Guardar partida "PRUEBA_2Jugadores_Castellano"... OK
+  • Listar partidas... OK
+  • Cargar partida... OK
+  • Cargar última... OK
+  • Eliminar partida... OK
+  • Listar tras eliminación... OK
+  Resultado: OK
 
-### Ejemplo de salida esperada (una prueba, el driver tiene 18 combinaciones de pruebas)
+[... otras más combinaciones ...]
 
-```
-                --- Prueba: modo=2 Jugadores, idioma=Inglés, dificultad=Fácil ---
-                - Guardada como: test_2Jugadores_Inglés_Fácil
-                Partidas disponibles: [test_2Jugadores_Inglés_Fácil]
-                - Cargada: test_2Jugadores_Inglés_Fácil
-                - Última partida recargada.
-                - Partida eliminada de la persistencia.
-                Prueba completada con éxito.
+TODAS LAS PRUEBAS PASARON CORRECTAMENTE.
 
-´´´

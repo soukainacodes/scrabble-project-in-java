@@ -1,13 +1,24 @@
 package Dominio;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import Dominio.Excepciones.AutenticacionException;
+import Dominio.Excepciones.FichaIncorrecta;
+import Dominio.Excepciones.PasswordInvalidaException;
+import Dominio.Excepciones.PosicionOcupadaTablero;
+import Dominio.Excepciones.PosicionVaciaTablero;
+import Dominio.Excepciones.UsuarioNoEncontradoException;
+import Dominio.Excepciones.UsuarioYaRegistradoException;
+import Dominio.Modelos.Celda;
 import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 import Dominio.Modelos.Tablero;
-import Dominio.Modelos.Celda;
 import Dominio.Modelos.TipoBonificacion;
-import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
 
 /**
@@ -16,16 +27,17 @@ import Persistencia.CtrlPersistencia;
 public class CtrlDominio {
 
     private final CtrlPersistencia ctrlPersistencia;
-    private final CtrlJugador ctrlJugador;
-    private final CtrlPartida ctrlPartida;
+    private final CtrlJugador    ctrlJugador;
+    private final CtrlPartida    ctrlPartida;
 
     public CtrlDominio() {
         this.ctrlPersistencia = new CtrlPersistencia();
-        this.ctrlJugador = new CtrlJugador();
-        this.ctrlPartida = new CtrlPartida();
+        this.ctrlJugador      = new CtrlJugador();
+        this.ctrlPartida      = new CtrlPartida();
     }
 
-    // ─── Usuarios ────────────────────────────────────────────────
+    // ─── Usuarios ────────────────────────────────────────────────────────────────
+
     public void registrarJugador(String nombre, String password)
             throws UsuarioYaRegistradoException {
         Jugador j = new Jugador(nombre, password);
@@ -33,6 +45,9 @@ public class CtrlDominio {
         ctrlJugador.setJugadorActual(j);
     }
 
+    /**
+     * Mismo que registrarJugador, para el driver de usuarios.
+     */
     public void crearUsuario(String nombre, String password)
             throws UsuarioYaRegistradoException {
         registrarJugador(nombre, password);
@@ -69,12 +84,12 @@ public class CtrlDominio {
 
     public String getUsuarioActual() {
         Jugador j = ctrlJugador.getJugadorActual();
-        return j != null ? j.getNombre() : null;
+        return (j != null) ? j.getNombre() : null;
     }
 
     public int getPuntosActual() {
         Jugador j = ctrlJugador.getJugadorActual();
-        return j != null ? j.getPuntos() : 0;
+        return (j != null) ? j.getPuntos() : 0;
     }
 
     public void cambiarPassword(String antigua, String nueva)
@@ -89,24 +104,32 @@ public class CtrlDominio {
     public void eliminarUsuario(String password)
             throws PasswordInvalidaException {
         Jugador j = ctrlJugador.getJugadorActual();
-        if (j == null) {
-            return;
+        if (j != null) {
+            ctrlJugador.eliminarJugador(password);
+            ctrlPersistencia.removeJugador(j.getNombre());
         }
-        ctrlJugador.eliminarJugador(password);
-        ctrlPersistencia.removeJugador(j.getNombre());
     }
 
-    // ─── Ranking ────────────────────────────────────────────────
-    public List<Map.Entry<String, Integer>> obtenerRanking() {
+    // ─── Ranking ────────────────────────────────────────────────────────────────
+
+    public List<Map.Entry<String,Integer>> obtenerRanking() {
         return ctrlPersistencia.obtenerRanking();
     }
 
-    public int getPosition(String nombre) throws UsuarioNoEncontradoException {
+    public int getPosition(String nombre)
+            throws UsuarioNoEncontradoException {
         try {
             return ctrlPersistencia.getPosition(nombre);
         } catch (NoSuchElementException e) {
             throw new UsuarioNoEncontradoException(nombre);
         }
+    }
+
+    /**
+     * Para el driver de usuarios (mismo que getPosicionActual).
+     */
+    public int getPosicion() {
+        return getPosicionActual();
     }
 
     public int getPosicionActual() {
@@ -121,11 +144,8 @@ public class CtrlDominio {
         }
     }
 
-    public int getPosicion() {
-        return getPosicionActual();
-    }
+    // ─── Partida / Scrabble ──────────────────────────────────────────────────────
 
-    // ─── Partida / Scrabble ────────────────────────────────────
     public void iniciarPartida(int modo,
             String n1,
             String n2,
@@ -135,54 +155,36 @@ public class CtrlDominio {
                 modo,
                 Arrays.asList(n1, n2),
                 ctrlPersistencia.getDiccionario(idDiccionario),
-                 ctrlPersistencia.getBolsa(idDiccionario),
-                seed);
+                ctrlPersistencia.getBolsa(idDiccionario),
+                seed
+        );
     }
 
-    /**
-     * Ejecuta una jugada y actualiza puntuación tanto en memoria como en
-     * persistencia.
-     */
     public int jugarScrabble(int modo, String jugada)
             throws PosicionOcupadaTablero,
-            PosicionVaciaTablero,
-            FichaIncorrecta {
-
+                   PosicionVaciaTablero,
+                   FichaIncorrecta {
         int fin = ctrlPartida.jugarScrabble(modo, jugada);
-        // Actualizar puntos en jugador y persistencia
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
         Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) {
             ctrlPersistencia.reportarPuntuacion(j.getNombre(), j.getPuntos());
         }
-        System.out.println("Final de la partida:" + fin);
         return fin;
     }
 
-    /**
-     * Obtiene el tablero completo
-     */
     public Tablero obtenerTablero() {
         return ctrlPartida.obtenerTablero();
     }
 
-    /**
-     * Obtiene la lista de fichas actuales
-     */
     public List<String> obtenerFichas() {
         return ctrlPartida.obtenerFichas();
     }
 
-    /**
-     * Puntos del jugador 1 en la partida actual
-     */
     public int getPuntosJugador1() {
         return ctrlPartida.getPuntosJugador1();
     }
 
-    /**
-     * Puntos del jugador 2 (IA) en la partida actual
-     */
     public int getPuntosJugador2() {
         return ctrlPartida.getPuntosJugador2();
     }
@@ -202,7 +204,6 @@ public class CtrlDominio {
         ctrlPartida.cargarPartida(p);
     }
 
-    // ─── Gestión de partidas guardadas ────────────────────────
     public Set<String> obtenerNombresPartidasGuardadas() {
         return ctrlPersistencia.getListaPartidas().keySet();
     }
@@ -211,30 +212,20 @@ public class CtrlDominio {
         ctrlPersistencia.removePartida(id);
     }
 
-    // ─── Métodos auxiliares (opcional) ────────────────────────
-    /**
-     * Dimensión fija del tablero (15×15)
-     */
+    // ─── Helpers para driver ────────────────────────────────────────────────────
+
     public int getTableroDimension() {
         return 15;
     }
 
-    /**
-     * Letra en celda (fila,col) o null si está vacía. Para no exponer Celda en
-     * el driver.
-     */
     public String getLetraCelda(int fila, int col) {
         Celda cel = ctrlPartida.obtenerTablero().getCelda(fila, col);
         return cel.getFicha() != null
-                ? (cel.getFicha().getPuntuacion() == 0 ? "#" : cel.getFicha().getLetra())
+                ? (cel.getFicha().getPuntuacion() == 0
+                   ? "#" : cel.getFicha().getLetra())
                 : null;
-
     }
 
-    /**
-     * Código de bonificación en celda (fila,col): "US" si estaba y ya se usó,
-     * "DL","TL","DP","TP" según el tipo, " " si no hay bonus.
-     */
     public String getBonusCelda(int fila, int col) {
         Celda cel = ctrlPartida.obtenerTablero().getCelda(fila, col);
         if (!cel.bonusDisponible()
@@ -242,55 +233,43 @@ public class CtrlDominio {
             return "US";
         }
         return switch (cel.getBonificacion()) {
-            case DOBLE_LETRA ->
-                "DL";
-            case TRIPLE_LETRA ->
-                "TL";
-            case DOBLE_PALABRA ->
-                "DP";
-            case TRIPLE_PALABRA ->
-                "TP";
-            default ->
-                "  ";
+            case DOBLE_LETRA   -> "DL";
+            case TRIPLE_LETRA  -> "TL";
+            case DOBLE_PALABRA -> "DP";
+            case TRIPLE_PALABRA-> "TP";
+            default            -> "  ";
         };
     }
 
-    // ─── Gestión de Diccionarios y Bolsas ────────────────────────
-    /**
-     * Lista de IDs de diccionarios existentes
-     */
+    // ─── Diccionarios y Bolsas ──────────────────────────────────────────────────
+
     public Set<String> obtenerIDsDiccionarios() {
         return ctrlPersistencia.getDiccionarioIDs();
     }
 
-    /**
-     * Lista de IDs de bolsas existentes
-     */
     public Set<String> obtenerIDsBolsas() {
         return ctrlPersistencia.getBolsaIDs();
     }
 
-    /**
-     * Crea un nuevo diccionario con ID dado
-     */
-    public void crearDiccionario(String id, List<String> palabras) throws IOException {
+    public void crearDiccionario(String id, List<String> palabras)
+            throws IOException {
         ctrlPersistencia.addDiccionario(id, palabras);
     }
 
-    /**
-     * Crea una nueva bolsa con ID dado
-     */
-    public void crearBolsa(String id, Map<String, int[]> bolsa) throws IOException {
-        ctrlPersistencia.addBolsa(id, bolsa);
+    public void crearBolsa(String id, Map<String,int[]> datos)
+            throws IOException {
+        ctrlPersistencia.addBolsa(id, datos);
     }
 
-    /**
-     * Elimina por completo diccionario+bolsa de ID dado
-     */
     public void eliminarIdiomaCompleto(String id) throws IOException {
         ctrlPersistencia.removeIdiomaCompleto(id);
+    }
 
-    
+    public List<String> getDiccionario(String id) {
+        return ctrlPersistencia.getDiccionario(id);
+    }
 
+    public List<String> getBolsa(String id) {
+        return ctrlPersistencia.getBolsa(id);
     }
 }
