@@ -8,14 +8,14 @@ public class DriverGestionUsuarios {
     private static final CtrlDominio ctrl = new CtrlDominio();
     private static final Scanner sc  = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UsuarioNoEncontradoException, RankingVacioException, PasswordInvalidaException {
         while (true) {
             if (!ctrl.haySesion()) menuPrincipal();
             else                   menuUsuario();
         }
     }
 
-    private static void menuPrincipal() {
+    private static void menuPrincipal() throws PasswordInvalidaException, UsuarioNoEncontradoException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
         System.out.println("2. Registrarse");
@@ -31,7 +31,7 @@ public class DriverGestionUsuarios {
         }
     }
 
-    private static void menuUsuario() {
+    private static void menuUsuario() throws UsuarioNoEncontradoException, RankingVacioException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Cuenta");
         System.out.println("2. Ver Ranking");
@@ -55,11 +55,11 @@ public class DriverGestionUsuarios {
         String u = sc.nextLine().trim();
         System.out.print("Password: ");
         String p = sc.nextLine().trim();
-
+    
         try {
             ctrl.iniciarSesion(u, p);
-        } catch (UsuarioNoEncontradoException | AutenticacionException e) {
-            System.out.println(e.getMessage());
+        } catch (UsuarioNoEncontradoException | PasswordInvalidaException e) {
+            System.out.println("ERROR: " + e.getMessage());
             return;
         }
 
@@ -77,13 +77,13 @@ public class DriverGestionUsuarios {
         System.out.println("========================================\n");
     }
 
-    private static void registrarse(boolean inicio) {
+    private static void registrarse(boolean inicio) throws PasswordInvalidaException {
         System.out.print("Nuevo usuario: ");
         String u = sc.nextLine().trim();
         System.out.print("Nueva password: ");
         String p = sc.nextLine().trim();
         try {
-            ctrl.crearUsuario(u, p);
+            ctrl.registrarJugador(u, p);
             System.out.printf("Registrado '%s'. Puntos: 0%n", u);
             if (inicio) iniciarSesion();
         } catch (UsuarioYaRegistradoException e) {
@@ -91,7 +91,7 @@ public class DriverGestionUsuarios {
         }
     }
 
-    private static void verRanking() {
+    private static void verRanking() throws RankingVacioException {
         System.out.println("\n--- RANKING GLOBAL ---");
         var lista = ctrl.obtenerRanking();
         for (int i = 0; i < lista.size(); i++) {
@@ -101,7 +101,7 @@ public class DriverGestionUsuarios {
         }
     }
 
-    private static void subMenuCuenta() {
+    private static void subMenuCuenta() throws UsuarioNoEncontradoException {
         while (true) {
             String u      = ctrl.getUsuarioActual();
             int    puntos = ctrl.getPuntosActual();
@@ -129,7 +129,7 @@ public class DriverGestionUsuarios {
         }
     }
 
-    private static void cambiarPassword() {
+    private static void cambiarPassword() throws UsuarioNoEncontradoException {
         System.out.print("Contraseña actual: ");
         String ant = sc.nextLine().trim();
         System.out.print("Nueva contraseña: ");
@@ -148,7 +148,7 @@ public class DriverGestionUsuarios {
         }
     }
 
-    private static void eliminarPerfil() {
+    private static void eliminarPerfil() throws UsuarioNoEncontradoException {
         System.out.print("¿Seguro que desea eliminar su cuenta? (s/n): ");
         String r = sc.nextLine().trim().toLowerCase();
         if (!r.equals("s") && !r.equals("si")) {
@@ -180,7 +180,7 @@ public class DriverGestionUsuarios {
 
             try {
                 System.out.println("-> Creando usuario...");
-                ctrl.crearUsuario(nombre, pwd);
+                ctrl.registrarJugador(nombre, pwd);
 
                 System.out.println("-> Iniciando sesión...");
                 ctrl.iniciarSesion(nombre, pwd);

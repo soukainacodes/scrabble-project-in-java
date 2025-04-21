@@ -4,18 +4,22 @@ import java.io.*;
 import java.util.*;
 
 import Dominio.CtrlDominio;
+import Dominio.Excepciones.BolsaNoEncontradaException;
+import Dominio.Excepciones.BolsaYaExistenteException;
+import Dominio.Excepciones.DiccionarioNoEncontradoException;
+import Dominio.Excepciones.DiccionarioYaExistenteException;
 
 public class DriverGestionDiccionariosBolsas {
     private static final Scanner sc = new Scanner(System.in);
     private static final CtrlDominio ctrl = new CtrlDominio();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, DiccionarioYaExistenteException, BolsaYaExistenteException {
         while (true) {
             menuPrincipal();
         }
     }
 
-    private static void menuPrincipal() {
+    private static void menuPrincipal() throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, DiccionarioYaExistenteException, BolsaYaExistenteException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Consultar diccionarios y bolsas");
         System.out.println("2. Juego de pruebas");
@@ -106,7 +110,7 @@ public class DriverGestionDiccionariosBolsas {
         System.out.println("────────────────────────────────────────\n");
     }
 
-    private static void gestionRecursos() {
+    private static void gestionRecursos() throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, DiccionarioYaExistenteException, BolsaYaExistenteException {
         while (true) {
             System.out.println("\n=== GESTIÓN DE RECURSOS ===");
             System.out.println("1. Eliminar diccionario+bolsa");
@@ -122,7 +126,7 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
-    private static void eliminarRecurso() {
+    private static void eliminarRecurso() throws DiccionarioNoEncontradoException, BolsaNoEncontradaException {
         System.out.print("ID a eliminar (0 para volver): ");
         String id = sc.nextLine().trim();
         if ("0".equals(id)) return;
@@ -135,7 +139,7 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
-    private static void anadirRecurso() {
+    private static void anadirRecurso() throws DiccionarioYaExistenteException, BolsaYaExistenteException {
         while (true) {
             System.out.println("\n--- AÑADIR RECURSO ---");
             System.out.println("1. Desde directorio existente");
@@ -151,7 +155,7 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
-    private static void anadirDesdeDirectorio() {
+    private static void anadirDesdeDirectorio() throws DiccionarioYaExistenteException, BolsaYaExistenteException {
         System.out.print("Ruta al directorio (0 para volver): ");
         String dirPath = sc.nextLine().trim();
         if ("0".equals(dirPath)) return;
@@ -182,7 +186,7 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
-    private static void anadirDesdeTeclado() {
+    private static void anadirDesdeTeclado() throws DiccionarioYaExistenteException, BolsaYaExistenteException {
         System.out.print("Nuevo ID (0 para volver): ");
         String id = sc.nextLine().trim();
         if ("0".equals(id)) return;

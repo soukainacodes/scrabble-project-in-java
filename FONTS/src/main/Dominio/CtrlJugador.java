@@ -3,6 +3,8 @@ package Dominio;
 
 import Dominio.Modelos.Jugador;
 import Dominio.Excepciones.PasswordInvalidaException;
+import Dominio.Excepciones.PuntuacionInvalidaException;
+import Dominio.Excepciones.UsuarioNoEncontradoException;
 
 /**
  * Gestiona solo el jugador activo, sin saber nada de persistencia.
@@ -46,10 +48,20 @@ public class CtrlJugador {
         clearSesion();
     }
 
-    public void actualizarPuntuacion(int nuevosPuntos) {
-        if (jugadorActual == null) return;
+    public void actualizarPuntuacion(int nuevosPuntos)
+            throws UsuarioNoEncontradoException, PuntuacionInvalidaException {
+
+        if (jugadorActual == null) {
+            throw new UsuarioNoEncontradoException();
+        }
+
+        if (nuevosPuntos < 0) {
+            throw new PuntuacionInvalidaException(nuevosPuntos);
+        }
+
         if (nuevosPuntos > jugadorActual.getPuntos()) {
             jugadorActual.setPuntos(nuevosPuntos);
         }
     }
+
 }

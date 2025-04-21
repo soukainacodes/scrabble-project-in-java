@@ -7,17 +7,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import Dominio.Excepciones.AutenticacionException;
-import Dominio.Excepciones.FichaIncorrecta;
-import Dominio.Excepciones.PasswordInvalidaException;
-import Dominio.Excepciones.PosicionOcupadaTablero;
-import Dominio.Excepciones.PosicionVaciaTablero;
-import Dominio.Excepciones.UsuarioNoEncontradoException;
-import Dominio.Excepciones.UsuarioYaRegistradoException;
+import Dominio.Excepciones.*;
 import Dominio.Modelos.Celda;
 import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
-import Dominio.Modelos.Tablero;
 import Dominio.Modelos.TipoBonificacion;
 import Persistencia.CtrlPersistencia;
 
@@ -45,31 +38,16 @@ public class CtrlDominio {
         ctrlJugador.setJugadorActual(j);
     }
 
-    /**
-     * Mismo que registrarJugador, para el driver de usuarios.
-     */
-    public void crearUsuario(String nombre, String password)
-            throws UsuarioYaRegistradoException {
-        registrarJugador(nombre, password);
-    }
-
-    public Jugador obtenerJugador(String nombre)
-            throws UsuarioNoEncontradoException {
-        Jugador j = ctrlPersistencia.getJugador(nombre);
-        if (j == null) {
-            throw new UsuarioNoEncontradoException(nombre);
-        }
-        return j;
-    }
+ 
 
     public void iniciarSesion(String nombre, String password)
-            throws UsuarioNoEncontradoException, AutenticacionException {
+            throws UsuarioNoEncontradoException, PasswordInvalidaException {
         Jugador j = ctrlPersistencia.getJugador(nombre);
         if (j == null) {
             throw new UsuarioNoEncontradoException(nombre);
         }
         if (!j.validarPassword(password)) {
-            throw new AutenticacionException();
+            throw new PasswordInvalidaException();
         }
         ctrlJugador.setJugadorActual(j);
     }
@@ -93,7 +71,7 @@ public class CtrlDominio {
     }
 
     public void cambiarPassword(String antigua, String nueva)
-            throws PasswordInvalidaException {
+            throws PasswordInvalidaException, UsuarioNoEncontradoException {
         ctrlJugador.cambiarPassword(antigua, nueva);
         Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) {
@@ -102,7 +80,7 @@ public class CtrlDominio {
     }
 
     public void eliminarUsuario(String password)
-            throws PasswordInvalidaException {
+            throws PasswordInvalidaException, UsuarioNoEncontradoException {
         Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) {
             ctrlJugador.eliminarJugador(password);
@@ -112,7 +90,7 @@ public class CtrlDominio {
 
     // ─── Ranking ────────────────────────────────────────────────────────────────
 
-    public List<Map.Entry<String,Integer>> obtenerRanking() {
+    public List<Map.Entry<String,Integer>> obtenerRanking() throws RankingVacioException {
         return ctrlPersistencia.obtenerRanking();
     }
 
@@ -146,25 +124,36 @@ public class CtrlDominio {
 
     // ─── Partida / Scrabble ──────────────────────────────────────────────────────
 
-    public void iniciarPartida(int modo,
+public void iniciarPartida(int modo,
             String n1,
             String n2,
             String idDiccionario,
-            long seed, boolean jugadorAlgoritmo) {
-        ctrlPartida.crearPartida(
+            long seed,
+            boolean jugadorAlgoritmo) throws DiccionarioNoEncontradoException, BolsaNoEncontradaException {
+        try {
+            List<String> dic = ctrlPersistencia.getDiccionario(idDiccionario);
+            List<String> bolsa = ctrlPersistencia.getBolsa(idDiccionario);
+
+            ctrlPartida.crearPartida(
                 modo,
                 Arrays.asList(n1, n2),
-                ctrlPersistencia.getDiccionario(idDiccionario),
-                ctrlPersistencia.getBolsa(idDiccionario),
+                dic,
+                bolsa,
                 seed,
                 jugadorAlgoritmo
-        );
+            );
+        }
+        catch (DiccionarioNoEncontradoException e) {
+            // relanzamos con mensaje más contextualizado, si queremos
+            throw new DiccionarioNoEncontradoException();
+        }
+        catch (BolsaNoEncontradaException e) {
+            throw new BolsaNoEncontradaException();
+        }
     }
 
     public int jugarScrabble(int modo, String jugada)
-            throws PosicionOcupadaTablero,
-                   PosicionVaciaTablero,
-                   FichaIncorrecta {
+            throws  UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         int fin = ctrlPartida.jugarScrabble(modo, jugada);
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
         Jugador j = ctrlJugador.getJugadorActual();
@@ -174,9 +163,7 @@ public class CtrlDominio {
         return fin;
     }
 
-    public Tablero obtenerTablero() {
-        return ctrlPartida.obtenerTablero();
-    }
+ 
 
     public List<String> obtenerFichas() {
         return ctrlPartida.obtenerFichas();
@@ -190,17 +177,17 @@ public class CtrlDominio {
         return ctrlPartida.getPuntosJugador2();
     }
 
-    public void guardarPartida(String id) {
+    public void guardarPartida(String id) throws PartidaYaExistenteException {
         Partida p = ctrlPartida.guardarPartida();
         ctrlPersistencia.guardarPartida(id, p);
     }
 
-    public void cargarPartida(String id) {
+    public void cargarPartida(String id) throws PartidaNoEncontradaException {
         Partida p = ctrlPersistencia.cargarPartida(id);
         ctrlPartida.cargarPartida(p);
     }
 
-    public void cargarUltimaPartida() {
+    public void cargarUltimaPartida() throws NoHayPartidaGuardadaException {
         Partida p = ctrlPersistencia.cargarUltimaPartida();
         ctrlPartida.cargarPartida(p);
     }
@@ -209,7 +196,7 @@ public class CtrlDominio {
         return ctrlPersistencia.getListaPartidas().keySet();
     }
 
-    public void eliminarPartidaGuardada(String id) {
+    public void eliminarPartidaGuardada(String id) throws PartidaNoEncontradaException {
         ctrlPersistencia.removePartida(id);
     }
 
@@ -253,24 +240,40 @@ public class CtrlDominio {
     }
 
     public void crearDiccionario(String id, List<String> palabras)
-            throws IOException {
+            throws IOException, DiccionarioYaExistenteException {
         ctrlPersistencia.addDiccionario(id, palabras);
     }
 
     public void crearBolsa(String id, Map<String,int[]> datos)
-            throws IOException {
+            throws IOException, BolsaYaExistenteException {
         ctrlPersistencia.addBolsa(id, datos);
     }
 
-    public void eliminarIdiomaCompleto(String id) throws IOException {
+    public void eliminarIdiomaCompleto(String id) throws IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException {
         ctrlPersistencia.removeIdiomaCompleto(id);
     }
 
-    public List<String> getDiccionario(String id) {
-        return ctrlPersistencia.getDiccionario(id);
+    public List<String> getDiccionario(String id) throws DiccionarioNoEncontradoException {
+        try {
+            return ctrlPersistencia.getDiccionario(id);
+        }
+        catch (DiccionarioNoEncontradoException e) {
+            throw new DiccionarioNoEncontradoException();
+        }
     }
 
-    public List<String> getBolsa(String id) {
-        return ctrlPersistencia.getBolsa(id);
+    /**
+     * Recupera una bolsa; traduce la excepción de persistencia
+     * a la de dominio si el ID no existe.
+     * @throws BolsaNoEncontradaException 
+     */
+    public List<String> getBolsa(String id) throws BolsaNoEncontradaException {
+        try {
+            return ctrlPersistencia.getBolsa(id);
+        }
+        catch (BolsaNoEncontradaException e) {
+            throw new BolsaNoEncontradaException();
+        }
     }
+
 }

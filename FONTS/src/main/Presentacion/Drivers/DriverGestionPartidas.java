@@ -27,7 +27,7 @@ public class DriverGestionPartidas {
         }
     }
 
-    private static void menuPrincipal() {
+    private static void menuPrincipal() throws PartidaYaExistenteException, PartidaNoEncontradaException, NoHayPartidaGuardadaException {
         clearScreen();
         System.out.println("=== MENÚ PRINCIPAL ===");
         System.out.println("1) Nueva Partida");
@@ -54,8 +54,10 @@ public class DriverGestionPartidas {
         }
     }
 
-    /** NUEVO: menú para listar, cargar o eliminar partidas guardadas */
-    private static void subMenuGestionGuardadas() {
+    /** NUEVO: menú para listar, cargar o eliminar partidas guardadas 
+     * @throws PartidaYaExistenteException 
+     * @throws PartidaNoEncontradaException */
+    private static void subMenuGestionGuardadas() throws PartidaYaExistenteException, PartidaNoEncontradaException {
         clearScreen();
         System.out.println("=== GESTIÓN PARTIDAS GUARDADAS ===");
         List<String> partidas = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
@@ -115,7 +117,7 @@ public class DriverGestionPartidas {
 
     // --- resto de submenus sin cambios salvo ajustar retornos cuando convenga ---
 
-    private static void subMenuCrearPartida() {
+    private static void subMenuCrearPartida() throws PartidaYaExistenteException {
         while (true) {
             clearScreen();
             System.out.println("=== CREAR NUEVA PARTIDA ===");
@@ -162,20 +164,30 @@ public class DriverGestionPartidas {
         return true;
     }
 
-    private static void iniciarYJugar() {
+    private static void iniciarYJugar() throws PartidaYaExistenteException {
         long seed = new Random().nextLong();
         int modoInt = modo.equals(MODO1) ? 0 : 1;
         
-        cd.iniciarPartida(modoInt,
-            nombre1,
-            modoInt == 1 ? nombre2 : "",
-            idDiccionario,
-            seed,
-            false
-        );
-        subMenuPartida();
+        try {
+            cd.iniciarPartida(
+                modoInt,
+                nombre1,
+                modoInt == 1 ? nombre2 : "",
+                idDiccionario,
+                seed,
+                false
+            );
+            // Si todo va bien, seguimos a la subinterfaz de juego
+            subMenuPartida();
+        }
+        catch (DiccionarioNoEncontradoException e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        catch (BolsaNoEncontradaException e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
     }
-
+    
     private static void elegirModo() {
         clearScreen();
         System.out.println("=== SELECCIONAR MODO ===");
@@ -229,7 +241,7 @@ public class DriverGestionPartidas {
         }
     }
 
-    private static void subMenuCargarPartida() {
+    private static void subMenuCargarPartida() throws PartidaYaExistenteException, PartidaNoEncontradaException {
         clearScreen();
         System.out.println("=== CARGAR PARTIDA ===");
         List<String> partidas = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
@@ -251,7 +263,7 @@ public class DriverGestionPartidas {
         subMenuPartida();
     }
 
-    private static void subMenuPartida() {
+    private static void subMenuPartida() throws PartidaYaExistenteException {
         while (true) {
             clearScreen();
             System.out.println("=== PARTIDA ACTUAL ===");

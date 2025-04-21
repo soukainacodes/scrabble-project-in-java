@@ -79,9 +79,7 @@ public class DriverGestionJuego {
     }
 
     private static void menuPartida()
-            throws PosicionOcupadaTablero,
-            FichaIncorrecta,
-            PosicionVaciaTablero {
+            throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         //  clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -242,7 +240,7 @@ public class DriverGestionJuego {
         subMenuCrearPartida();
     }
 
-    private static void subMenuAnadir() throws PosicionOcupadaTablero, FichaIncorrecta, PosicionVaciaTablero {
+    private static void subMenuAnadir() throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         //  clearScreen();
         System.out.println("\n--- Tablero Actual ---");
         System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
@@ -264,9 +262,7 @@ public class DriverGestionJuego {
     }
 
     private static void subMenuQuitar()
-            throws PosicionOcupadaTablero,
-            FichaIncorrecta,
-            PosicionVaciaTablero {
+            throws  PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         clearScreen();
         mostrarEstado();
         System.out.println("Inserta la posición a quitar (o '1' para atrás):");
@@ -278,9 +274,7 @@ public class DriverGestionJuego {
     }
 
     private static void subMenuCambiar()
-            throws PosicionVaciaTablero,
-            PosicionOcupadaTablero,
-            FichaIncorrecta {
+            throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         clearScreen();
         mostrarEstado();
         System.out.println("Inserta las fichas a cambiar (o '1' para atrás):");
@@ -291,7 +285,7 @@ public class DriverGestionJuego {
         menuPartida();
     }
 
-    private static void subMenuSalir() throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
+    private static void subMenuSalir() throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         System.out.println("1. Abandonar partida");
         System.out.println("2. Guardar Partida");
         System.out.println("3. Volver atrás");

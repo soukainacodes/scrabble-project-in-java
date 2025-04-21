@@ -1,7 +1,14 @@
-// Dominio/Excepciones/UsuarioNoEncontradoException.java
 package Dominio.Excepciones;
+
+/**
+ * Se lanza cuando no se encuentra un usuario con el nombre dado.
+ */
 public class UsuarioNoEncontradoException extends Exception {
+    public UsuarioNoEncontradoException() {
+        super("Usuario no encontrado.");
+    }
+
     public UsuarioNoEncontradoException(String nombre) {
-        super("Usuario no encontrado: " + nombre);
+        super(String.format("Usuario con nombre '%s' no encontrado.", nombre));
     }
 }

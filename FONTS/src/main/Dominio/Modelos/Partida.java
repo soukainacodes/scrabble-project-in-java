@@ -3,7 +3,6 @@ package Dominio.Modelos;
 import java.util.ArrayList;
 import java.util.List;
 
-import Dominio.Excepciones.PosicionVaciaTablero;
 
 /**
  * Representa una partida de Scrabble con dos jugadores.
@@ -141,9 +140,8 @@ public class Partida {
      * @param x Fila.
      * @param y Columna.
      * @return {@code true} si la ficha se retiró, {@code false} si estaba vacía.
-     * @throws PosicionVaciaTablero Si no hay ficha en la posición.
      */
-    public boolean quitarFichaTablero(int x, int y) throws PosicionVaciaTablero {
+    public boolean quitarFichaTablero(int x, int y) {
         Ficha f = tablero.quitarFicha(x, y);
         if (f != null) {
             coordenadasPalabra.remove(Pair.createPair(x, y));
