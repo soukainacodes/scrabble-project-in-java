@@ -23,9 +23,9 @@ public class CtrlPersistencia {
     private final Map<String, Partida> listaPartidas;
     private String ultimaPartida;
 
-    // Nuevos: diccionarios y bolsas
+    // Diccionarios y bolsas
     private final Map<String, List<String>> diccionarios;
-    private final Map<String, Map<String,int[]>> bolsas;
+    private final Map<String, List<String>> bolsas;
 
     public CtrlPersistencia() {
         this.ultimaPartida = null;
@@ -167,7 +167,7 @@ public class CtrlPersistencia {
                 }
                 File fb = new File(dir, id + "_bolsa.txt");
                 if (fb.exists()) {
-                    bolsas.put(id, leerArchivoBolsa(fb.getPath()));
+                    bolsas.put(id, leerArchivoTexto(fb.getPath()));
                 }
             } catch (IOException ignored) {}
         }
@@ -181,6 +181,26 @@ public class CtrlPersistencia {
     /** IDs de bolsas disponibles */
     public Set<String> getBolsaIDs() {
         return Collections.unmodifiableSet(bolsas.keySet());
+    }
+
+    /**
+     * Devuelve las palabras del diccionario con ese ID,
+     * o lista vacía si no existe.
+     */
+    public List<String> getDiccionario(String id) {
+        return Collections.unmodifiableList(
+            diccionarios.getOrDefault(id, Collections.emptyList())
+        );
+    }
+
+    /**
+     * Devuelve las líneas de la bolsa con ese ID,
+     * o lista vacía si no existe.
+     */
+    public List<String> getBolsa(String id) {
+        return Collections.unmodifiableList(
+            bolsas.getOrDefault(id, Collections.emptyList())
+        );
     }
 
     /** Añade un nuevo diccionario y lo graba en disco */
@@ -210,7 +230,8 @@ public class CtrlPersistencia {
                 w.write(e.getKey() + " " + e.getValue()[0] + " " + e.getValue()[1] + "\n");
             }
         }
-        bolsas.put(id, new LinkedHashMap<>(bolsaData));
+        // Guardamos las líneas tal cual se escribieron
+        bolsas.put(id, new ArrayList<>(leerArchivoTexto(f.getPath())));
     }
 
     /** Elimina por completo diccionario y bolsa de un mismo ID */
@@ -232,19 +253,6 @@ public class CtrlPersistencia {
             for (String l; (l = br.readLine()) != null; ) {
                 l = l.trim();
                 if (!l.isEmpty()) out.add(l);
-            }
-        }
-        return out;
-    }
-
-    private Map<String,int[]> leerArchivoBolsa(String ruta) throws IOException {
-        Map<String,int[]> out = new LinkedHashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
-            for (String l; (l = br.readLine()) != null; ) {
-                l = l.trim();
-                if (l.isEmpty() || l.startsWith("#")) continue;
-                String[] t = l.split("\\s+");
-                out.put(t[0], new int[]{ Integer.parseInt(t[1]), Integer.parseInt(t[2]) });
             }
         }
         return out;

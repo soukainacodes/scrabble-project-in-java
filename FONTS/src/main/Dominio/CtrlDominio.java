@@ -9,7 +9,6 @@ import Dominio.Modelos.Celda;
 import Dominio.Modelos.TipoBonificacion;
 import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
-import Dominio.Excepciones.*;
 
 /**
  * Coordina persistencia, sesión, ranking y partida.
@@ -288,5 +287,17 @@ public class CtrlDominio {
     /** Elimina por completo diccionario+bolsa de ID dado */
     public void eliminarIdiomaCompleto(String id) throws IOException {
         ctrlPersistencia.removeIdiomaCompleto(id);
+    }
+
+    public List<String> getDiccionario(String id) {
+        return ctrlPersistencia.getDiccionario(id);
+    }
+
+    /**
+     * Devuelve las líneas de la bolsa con ese ID,
+     * o lista vacía si no existe.
+     */
+    public List<String> getBolsa(String id) {
+        return ctrlPersistencia.getBolsa(id);
     }
 }
