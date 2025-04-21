@@ -150,9 +150,9 @@ public class Algoritmo {
         lenght = palabraTokenizada.size() - 1;
         if (puntos > puntosFinal) {
             puntosFinal = puntos;
-            System.out.println(palabra);
+            
             resultadoFinal.clear();
-            System.out.println(palabra);
+            System.out.println(palabra + " " + puntosFinal);
             while (lenght >= 0) {
                 ponerFicha(palabraTokenizada.get(lenght), play_pos);
                 lenght--;

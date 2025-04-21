@@ -18,13 +18,15 @@ public class DriverGestionDiccionariosBolsas {
     private static void menuPrincipal() {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Consultar diccionarios y bolsas");
-        System.out.println("2. Gestión de diccionarios y bolsas");
-        System.out.println("3. Salir");
+        System.out.println("2. Juego de pruebas");
+        System.out.println("3. Gestión de diccionarios y bolsas");
+        System.out.println("4. Salir");
         System.out.print("Opción: ");
         switch (sc.nextLine().trim()) {
-            case "1": consultarRecursos();       break;
-            case "2": gestionRecursos();         break;
-            case "3": System.exit(0);            break;
+            case "1": consultarRecursos();   break;
+            case "2": juegoPruebas();        break;
+            case "3": gestionRecursos();     break;
+            case "4": System.exit(0);        break;
             default:  System.out.println("Opción no válida.");
         }
     }
@@ -47,6 +49,61 @@ public class DriverGestionDiccionariosBolsas {
             String b = bolIDs.contains(id) ? id + "_bolsa.txt"       : "(n/a)";
             System.out.printf("%-6s | %-26s | %s%n", id, d, b);
         }
+    }
+
+    private static void juegoPruebas() {
+        // Limpia pantalla
+        System.out.print("\033[H\033[2J");
+        System.out.println("=== Ejecutando juego de pruebas de Diccionarios/Bolsas ===\n");
+        boolean errores = false;
+        List<String> testIDs = List.of(
+            "Pingu", "HelloKitty", "DragonBall",
+            "Mickey", "SpongeBob", "Pokemon"
+        );
+
+        for (String id : testIDs) {
+            System.out.println("────────────────────────────────────────");
+            System.out.println("PRUEBA RECURSO ID = " + id);
+            System.out.println("────────────────────────────────────────");
+            try {
+                // 1) Crear diccionario de prueba
+                List<String> palabras = List.of("A", "B", "C");
+                ctrl.crearDiccionario(id, palabras);
+                System.out.println("-> Diccionario '" + id + "' creado.");
+
+                // 2) Crear bolsa de prueba
+                Map<String,int[]> bolsa = new LinkedHashMap<>();
+                bolsa.put("A", new int[]{1,1});
+                bolsa.put("B", new int[]{2,2});
+                bolsa.put("C", new int[]{3,3});
+                ctrl.crearBolsa(id, bolsa);
+                System.out.println("-> Bolsa '" + id + "' creada.");
+
+                // 3) Listar y verificar
+                System.out.println("\nListado tras creación:");
+                consultarRecursos();
+
+                // 4) Eliminar ambos
+                try {
+                    ctrl.eliminarIdiomaCompleto(id);
+                    System.out.println("-> Recurso '" + id + "' eliminado.\n");
+                } catch (IOException ex) {
+                    throw new RuntimeException("No se pudo eliminar: " + ex.getMessage(), ex);
+                }
+
+            } catch (Exception e) {
+                errores = true;
+                System.err.println("Error en prueba ID " + id + ": " + e.getMessage() + "\n");
+            }
+        }
+
+        System.out.println("────────────────────────────────────────");
+        if (!errores) {
+            System.out.println("Todas las pruebas se ejecutaron correctamente.");
+        } else {
+            System.out.println("Algunas pruebas fallaron. Revisar errores.");
+        }
+        System.out.println("────────────────────────────────────────\n");
     }
 
     private static void gestionRecursos() {
@@ -73,7 +130,7 @@ public class DriverGestionDiccionariosBolsas {
         try {
             ctrl.eliminarIdiomaCompleto(id);
             System.out.println("Recurso '" + id + "' eliminado.");
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error al eliminar recurso: " + e.getMessage());
         }
     }
@@ -108,18 +165,20 @@ public class DriverGestionDiccionariosBolsas {
         File fDicc = new File(dir, id + "_diccionario.txt");
         File fBol  = new File(dir, id + "_bolsa.txt");
         if (!fDicc.exists() || !fBol.exists()) {
-            System.err.println("Faltan '" + fDicc.getName() + "' o '" + fBol.getName() + "'.");
+            System.err.println("Faltan archivos en el directorio.");
             return;
         }
 
         try {
             List<String> palabras = leerArchivoTexto(fDicc.getAbsolutePath());
             ctrl.crearDiccionario(id, palabras);
+
             Map<String,int[]> bolsa = leerArchivoBolsa(fBol.getAbsolutePath());
             ctrl.crearBolsa(id, bolsa);
+
             System.out.println("Recurso '" + id + "' añadido desde directorio.");
-        } catch (Exception e) {
-            System.err.println("Error al añadir recurso: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error I/O: " + e.getMessage());
         }
     }
 
@@ -128,7 +187,6 @@ public class DriverGestionDiccionariosBolsas {
         String id = sc.nextLine().trim();
         if ("0".equals(id)) return;
 
-        // Diccionario
         System.out.println("Introduce palabras (MAYÚSCULAS), línea vacía para terminar:");
         List<String> palabras = new ArrayList<>();
         while (true) {
@@ -137,31 +195,22 @@ public class DriverGestionDiccionariosBolsas {
             palabras.add(w);
         }
 
-        // Bolsa
         System.out.println("Introduce líneas de bolsa: \"Ficha repeticiones puntos\" (vacío para terminar):");
         Map<String,int[]> bolsa = new LinkedHashMap<>();
         while (true) {
             String l = sc.nextLine().trim();
             if (l.isEmpty()) break;
             String[] t = l.split("\\s+");
-            if (t.length != 3) {
-                System.err.println("Formato inválido. Debe ser: Ficha número puntos");
-                continue;
-            }
-            try {
-                int rep = Integer.parseInt(t[1]);
-                int pts = Integer.parseInt(t[2]);
-                bolsa.put(t[0], new int[]{rep, pts});
-            } catch (NumberFormatException e) {
-                System.err.println("Valores numéricos incorrectos.");
-            }
+            int rep = Integer.parseInt(t[1]);
+            int pts = Integer.parseInt(t[2]);
+            bolsa.put(t[0], new int[]{rep, pts});
         }
 
         try {
             ctrl.crearDiccionario(id, palabras);
             ctrl.crearBolsa(id, bolsa);
             System.out.println("Recurso '" + id + "' creado correctamente.");
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error al crear recurso: " + e.getMessage());
         }
     }

@@ -125,7 +125,7 @@ public class CtrlPartida {
                 partidaActual.recuperarFichas();
                 return finTurno(true, true);
             case 7:
-                System.out.println("adfasdfa");
+                System.out.println("Jugador: " + partidaActual.getTurnoJugador()); 
                 int puntosTotales = jugarAlgoritmo();
                 partidaActual.addPuntos(puntosTotales);
                 //System.out.println("Validador " + puntosTotales);
