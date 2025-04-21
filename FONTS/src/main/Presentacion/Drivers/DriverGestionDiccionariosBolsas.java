@@ -235,7 +235,7 @@ public class DriverGestionDiccionariosBolsas {
             String linea;
             while ((linea = br.readLine()) != null) {
                 linea = linea.trim();
-                if (linea.isEmpty() || linea.startsWith("#")) continue;
+                if (linea.isEmpty()) continue;
                 String[] t = linea.split("\\s+");
                 mapa.put(t[0], new int[]{
                     Integer.parseInt(t[1]),
