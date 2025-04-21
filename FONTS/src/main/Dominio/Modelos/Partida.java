@@ -68,7 +68,7 @@ public class Partida {
         coordenadasPalabra.clear();
     }
 
-    public void añadirFicha(String ficha, int x, int y) throws PosicionOcupadaTablero, FichaIncorrecta {
+    public void añadirFicha(String ficha, int x, int y){
 
         if (!tablero.getCelda(x, y).estaOcupada()){
 

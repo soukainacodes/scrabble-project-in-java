@@ -1,67 +1,34 @@
+// FONTS/src/test/testsUnitarios/FichaTest.java
 package testsUnitarios;
 
-
 import Dominio.Modelos.Ficha;
-
-import static org.junit.Assert.*;
-import org.junit.Before;
 import org.junit.Test;
-
-
-
+import static org.junit.Assert.*;
 
 public class FichaTest {
 
-    private Ficha ficha;
+    @Test
+    public void testGetters() {
+        // Creamos una ficha con letra "X" y puntuación 8
+        Ficha ficha = new Ficha("X", 8);
 
-    /**
-     * Este método se ejecuta antes de cada test.
-     * Lo usamos para inicializar la instancia de Ficha o cualquier otro recurso que necesitemos.
-     */
-    @Before
-    public void setUp() {
-        // Creamos una Ficha con valores iniciales
-        ficha = new Ficha(1, "A", 1);
+        // Comprobamos que getLetra() devuelve lo esperado
+        assertEquals("La letra debe ser la pasada al constructor", "X", ficha.getLetra());
+
+        // Comprobamos que getPuntuacion() devuelve lo esperado
+        assertEquals("La puntuación debe ser la pasada al constructor", 8, ficha.getPuntuacion());
     }
 
     @Test
-    public void testConstructor() {
-        // Verificamos que el constructor haya asignado los valores correctamente
-        assertEquals(1, ficha.getId());
-        assertEquals("A", ficha.getLetra());
-        assertEquals(1, ficha.getPuntuacion());
-    }
+    public void testVariasInstancias() {
+        // Otra ficha con valores distintos
+        Ficha fichaA = new Ficha("A", 1);
+        Ficha fichaB = new Ficha("B", 3);
 
-    @Test
-    public void testSetId() {
-        ficha.setId(5);
-        assertEquals(5, ficha.getId());
-    }
+        assertEquals("A", fichaA.getLetra());
+        assertEquals(1, fichaA.getPuntuacion());
 
-    @Test
-    public void testSetLetra() {
-        ficha.setLetra("Z");
-        assertEquals("Z", ficha.getLetra());
-    }
-
-    @Test
-    public void testSetPuntuacion() {
-        ficha.setPuntuacion(10);
-        assertEquals(10, ficha.getPuntuacion());
-    }
-
-    @Test
-    public void testToString() {
-        // Modificamos algunos valores
-        ficha.setId(2);
-        ficha.setLetra("B");
-        ficha.setPuntuacion(3);
-
-        String resultado = ficha.toString();
-
-        // Comprobamos que el toString incluye la información esperada
-        assertTrue("Debe contener 'id=2'", resultado.contains("id=2"));
-        assertTrue("Debe contener 'letra='B''", resultado.contains("letra='B'"));
-        assertTrue("Debe contener 'puntuacion=3'", resultado.contains("puntuacion=3"));
+        assertEquals("B", fichaB.getLetra());
+        assertEquals(3, fichaB.getPuntuacion());
     }
 }

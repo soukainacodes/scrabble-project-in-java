@@ -75,7 +75,6 @@ public class Dawg {
                 }
             }
             if (!encontrado) {
-                System.out.println("No se puede tokenizar la secuencia: " + mayuscula.substring(i));
                 break;
             }
         }

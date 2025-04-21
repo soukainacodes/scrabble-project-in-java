@@ -1,109 +1,103 @@
+// FONTS/src/test/testsUnitarios/NodoTest.java
 package testsUnitarios;
 
+import Dominio.Modelos.Nodo;
+import org.junit.Test;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import Dominio.Modelos.Nodo;
-
-/**
- * Test unitario para la clase Nodo utilizando únicamente mocks para los nodos hijos.
- * Se verifican los métodos equals, hashCode y toString.
- */
 public class NodoTest {
 
-    // Usamos mocks para los nodos hijos.
-    private Nodo hijoMock;
+    @Test
+    public void testConstructorsAndGetters() {
+        // Nodo raíz
+        Nodo raiz = new Nodo();
+        assertNull("La letra de la raíz debe ser null", raiz.getLetra());
+        assertNotNull("El mapa de hijos no debe ser null", raiz.getHijos());
+        assertTrue("El mapa de hijos debe estar vacío", raiz.getHijos().isEmpty());
+        assertFalse("Por defecto no debe ser palabra válida", raiz.esValida());
 
-    @Before
-    public void setUp() {
-        // Creamos un mock de Nodo que servirá como hijo.
-        hijoMock = mock(Nodo.class);
+        // Nodo con letra
+        Nodo nodoX = new Nodo("X");
+        assertEquals("X", nodoX.getLetra());
+        assertNotNull(nodoX.getHijos());
+        assertTrue(nodoX.getHijos().isEmpty());
+        assertFalse(nodoX.esValida());
     }
 
-    /**
-     * Verifica que un nodo es igual a sí mismo.
-     */
     @Test
-    public void testEqualsSameInstance() {
-        Nodo nodo = new Nodo("A");
-        assertTrue("Un nodo debe ser igual a sí mismo", nodo.equals(nodo));
+    public void testEsValidaFlagViaReflection() throws Exception {
+        Nodo n = new Nodo("A");
+        assertFalse("Inicialmente esValida() debe ser false", n.esValida());
+
+        // Accedemos y cambiamos el campo privado palabraValidaHastaAqui
+        Field flag = Nodo.class.getDeclaredField("palabraValidaHastaAqui");
+        flag.setAccessible(true);
+        flag.setBoolean(n, true);
+
+        assertTrue("Después de reflejar el cambio, esValida() debe ser true", n.esValida());
     }
 
-    /**
-     * Verifica que dos nodos con la misma letra y el mismo mapa de hijos (por referencia)
-     * se consideren iguales.
-     */
     @Test
-    public void testEqualsIdenticalNodes() {
-        Nodo nodo1 = new Nodo("A");
-        Nodo nodo2 = new Nodo("A");
-        
-        // Agregamos el mismo hijo mock en ambos nodos con la misma clave.
-        nodo1.getHijos().put("child", hijoMock);
-        nodo2.getHijos().put("child", hijoMock);
-        
-        // Ambos nodos fueron creados con el mismo valor por defecto de palabraValidaHastaAqui (false)
-        assertTrue("Nodos con la misma letra y mismos hijos deben ser iguales", nodo1.equals(nodo2));
-        assertEquals("Los códigos hash de nodos iguales deben coincidir", nodo1.hashCode(), nodo2.hashCode());
+    public void testGetHijosAndMutability() {
+        Nodo padre = new Nodo("P");
+        Map<String,Nodo> hijos = padre.getHijos();
+        assertTrue("Inicialmente no debe haber hijos", hijos.isEmpty());
+
+        Nodo h1 = new Nodo("H");
+        hijos.put("H", h1);
+        assertEquals("Ahora debe contener un hijo bajo clave 'H'", 1, padre.getHijos().size());
+        assertSame("El hijo obtenido debe ser el mismo objeto", h1, padre.getHijos().get("H"));
     }
 
-    /**
-     * Verifica que dos nodos con letras diferentes no sean iguales.
-     */
     @Test
-    public void testEqualsDifferentLetter() {
-        Nodo nodo1 = new Nodo("A");
-        Nodo nodo2 = new Nodo("B");
-        assertFalse("Nodos con letras diferentes no deben ser iguales", nodo1.equals(nodo2));
+    public void testEqualsAndHashCodeWithSameChildReference() {
+        Nodo n1 = new Nodo("L");
+        Nodo hijo = new Nodo("C");
+        n1.getHijos().put("C", hijo);
+
+        // Creamos otro nodo idéntico usando la misma referencia de hijo
+        Nodo n2 = new Nodo("L");
+        n2.getHijos().put("C", hijo);
+
+        assertTrue("n1 debe ser igual a n2", n1.equals(n2));
+        assertTrue("n2 debe ser igual a n1", n2.equals(n1));
+        assertEquals("hashCode debe coincidir cuando equals es true", n1.hashCode(), n2.hashCode());
+
+        // Cambiamos la bandera de palabra válida en uno solo
+        // (para asegurarnos de que ambos deben coincidir en esa bandera)
+        // Aquí la dejamos en false por defecto: igualdad mantiene
+        assertFalse("palabraValidaHastaAqui es false en ambos, sigue siendo igual", n1.esValida());
+        assertEquals(n1, n2);
     }
 
-    /**
-     * Verifica que dos nodos con hijos distintos (diferente instancia para una misma clave) no sean iguales.
-     */
     @Test
-    public void testEqualsDifferentChildren() {
-        Nodo nodo1 = new Nodo("A");
-        Nodo nodo2 = new Nodo("A");
-        
-        // En nodo1, agregamos el hijoMock.
-        nodo1.getHijos().put("child", hijoMock);
-        // En nodo2, agregamos otro mock para el hijo (diferente instancia).
-        Nodo otroHijoMock = mock(Nodo.class);
-        nodo2.getHijos().put("child", otroHijoMock);
-        
-        assertFalse("Nodos con hijos diferentes no deben ser iguales", nodo1.equals(nodo2));
+    public void testEqualsInequalityDifferentLetterOrChild() {
+        Nodo base = new Nodo("X");
+        Nodo igual = new Nodo("X");
+        assertEquals(base, igual);
+
+        Nodo distintoLetra = new Nodo("Y");
+        assertFalse("Distinta letra debe romper equals", base.equals(distintoLetra));
+
+        // Con hijo diferente (aunque misma clave)
+        Nodo conHijo1 = new Nodo("Z");
+        Nodo hA = new Nodo("A");
+        conHijo1.getHijos().put("A", hA);
+        Nodo conHijo2 = new Nodo("Z");
+        Nodo hB = new Nodo("B");
+        conHijo2.getHijos().put("A", hB);
+        assertFalse("Distinto objeto hijo bajo misma clave debe romper equals",
+                    conHijo1.equals(conHijo2));
     }
 
-    /**
-     * Verifica que el método hashCode sea consistente con equals.
-     */
     @Test
-    public void testHashCodeConsistency() {
-        Nodo nodo1 = new Nodo("A");
-        Nodo nodo2 = new Nodo("A");
-
-        nodo1.getHijos().put("child", hijoMock);
-        nodo2.getHijos().put("child", hijoMock);
-
-        assertTrue("Nodos iguales deben tener el mismo hashCode", nodo1.hashCode() == nodo2.hashCode());
-    }
-
-    /**
-     * Verifica que el método toString retorne una cadena que contenga la letra y las claves de sus hijos.
-     */
-    @Test
-    public void testToStringFormat() {
-        Nodo nodo = new Nodo("A");
-        nodo.getHijos().put("child", hijoMock);
-        String str = nodo.toString();
-        assertNotNull("El toString no debe retornar null", str);
-        assertTrue("El toString debe contener la letra 'A'", str.contains("A"));
-        // Verificamos que se incluya la clave "child"
-        assertTrue("El toString debe incluir la clave 'child'", str.contains("child"));
+    public void testEqualsSelfAndNullAndOtherClass() {
+        Nodo n = new Nodo("Q");
+        assertTrue("Un nodo debe ser igual a sí mismo", n.equals(n));
+        assertFalse("Un nodo no debe ser igual a null", n.equals(null));
+        assertFalse("Un nodo no debe ser igual a un objeto de otra clase", n.equals("algo"));
     }
 }
