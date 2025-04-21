@@ -165,7 +165,7 @@ public class DriverPartida {
                 subMenuCrearPartida();
                 break;
             case "2":
-                  juegoPruebas();
+                menuJuegoPruebas();
                 break;
             case "3":
                 System.exit(0);
@@ -175,7 +175,7 @@ public class DriverPartida {
     }
 
     private static void subMenuCrearPartida() throws Exception {
-       // clearScreen();
+        // clearScreen();
         System.out.println("\n===== CREAR PARTIDA =====");
         System.out.println("1. Modo:       " + modo);
         System.out.println("2. Idioma:     " + idioma);
@@ -288,7 +288,7 @@ public class DriverPartida {
         menuPartida();
     }
 
-    private static void subMenuSalir() {
+    private static void subMenuSalir() throws PosicionOcupadaTablero, PosicionVaciaTablero, FichaIncorrecta {
         System.out.println("1. Abandonar partida");
         System.out.println("2. Guardar Partida");
         System.out.println("3. Volver atrás");
@@ -296,7 +296,8 @@ public class DriverPartida {
         String opt = in.nextLine().trim();
         switch (opt) {
             case "1":
-                System.out.println("Jugador " + nombreJugador + " abandona.");
+                int num = cd.jugarScrabble(6, "");
+                System.out.println("Jugador " + num + " abandona.");
                 break;
             case "2":
                 System.out.print("Nombre para guardar: ");
@@ -316,31 +317,201 @@ public class DriverPartida {
         }
     }
 
-    private static void juegoPruebas() {
+    private static void menuJuegoPruebas() {
+        System.out.println("1. Juego de Pruebas 1");
+        System.out.println("2. Juego de Pruebas 2");
+        System.out.println("3. Juego de Pruebas 3");
+        String opt = in.nextLine().trim();
+        switch (opt) {
+            case "1":
+                juegoPruebas1();
+                break;
+            case "2":
+                juegoPruebas2();
+                break;
+            case "3":
+                juegoPruebas3();
+            default:
+                System.out.println("Opción no válida.");
+        }
+    }
+
+    private static void juegoPruebas1() {
         // Limpia pantalla
         System.out.print("\033[H\033[2J");
-        System.out.println("=== Ejecutando juego de pruebas ===\n");
+        System.out.println("=== Ejecutando juego de pruebas 1 ===\n");
         List<String> usuarios = Arrays.asList("Jordi");
         String pwd = "123456";
         boolean errores = false;
         System.out.println("Juego de pruebas de Partida: ");
-        System.out.println("Modo: 1 Judador vs Algoritmo ");
+        System.out.println("Modo: 0 Judador vs Algoritmo ");
         System.out.println("Idioma: Catalán ");
         try {
 
-            int modo = 0; // 1 Jugador
-            int idioma = 0;
             System.out.println("-> Creando partida...");
+            //Modo 1 Jugador
             cd.iniciarPartida(0, usuarios.get(0), "", "Catalan", 123L);
             System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
+
+            System.out.println("-> Añadiendo ficha...");
+            cd.jugarScrabble(1, "T 7 7");
+            mostrarTablero();
+
+            System.out.println("-> Quitando ficha...");
+            cd.jugarScrabble(2, "7 7");
+            mostrarTablero();
+
+            System.out.println("-> Añadiendo ficha...");
+            cd.jugarScrabble(1, "N 7 6");
+            cd.jugarScrabble(1, "A 7 5");
+            cd.jugarScrabble(1, "L 7 4");
+            cd.jugarScrabble(1, "G 7 3");
+            cd.jugarScrabble(1, "E 7 2");
+            cd.jugarScrabble(1, "R 7 1");
+
+            System.out.println("-> Finalizando Turno...");
+            cd.jugarScrabble(4, "");
+            mostrarTablero();
+
+            System.out.println("-> Palabra incorrecta..");
+
+            System.out.println("-> Añadiendo ficha...");
+            cd.jugarScrabble(1, "0 7 7");
+
+            System.out.println("-> Finalizando Turno...");
+            cd.jugarScrabble(4, "");
+            System.out.println("\n--- Tablero Actual ---");
+            System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+            System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+            mostrarTablero();
+
+            System.out.println("-> Turno del algoritmo...");
+            mostrarTablero();
+
+            System.out.println("-> Pasar turno..");
+            cd.jugarScrabble(3, "");
+            System.out.println("-> Turno del algoritmo...");
+            mostrarTablero();
+
+            System.out.println("-> Cambiar fichas..");
+            cd.jugarScrabble(3, "0 2 3");
+
+            System.out.println("-> Guardar partida..");
+            cd.guardarPartida("partida1");
+
         } catch (Exception e) {
         }
 
+    }
+
+    private static void juegoPruebas2() {
+        // Limpia pantalla
+        System.out.print("\033[H\033[2J");
+        System.out.println("=== Ejecutando juego de pruebas 2 ===\n");
+        List<String> usuarios = Arrays.asList("Jordi", "Maria");
+        String pwd = "123456";
+        boolean errores = false;
+        System.out.println("Juego de pruebas de Partida: ");
+        System.out.println("Modo: 1 Judador vs Jugador ");
+        System.out.println("Idioma: Catalán ");
+        try {
+
+            System.out.println("-> Creando partida...");
+            //Modo 1 Jugador
+            cd.iniciarPartida(0, usuarios.get(0), usuarios.get(1), "Ingles", 123L);
+            System.out.println("\n--- Tablero Actual ---");
+            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos" + usuarios.get(1) + ": " + cd.getPuntosJugador2());
+            mostrarTablero();
+            System.out.println("\n--- Fichas Disponibles ---");
+            mostrarFichas();
+    
+            int fin = cd.jugarScrabble(6, "");
+            if (fin == 2) {
+                System.out.println("-> Jugador 1 abandona.."); 
+            }else if (fin == 1) {
+                System.out.println("-> Gana Jugador 2..");
+            }
+        } catch (Exception e) {
+        }
+
+    }
+
+    private static void juegoPruebas3() {
+        // Limpia pantalla
+        System.out.print("\033[H\033[2J");
+        System.out.println("=== Ejecutando juego de pruebas 3 ===\n");
+        List<String> usuarios = Arrays.asList("Alex");
+        String pwd = "123456";
+        boolean errores = false;
+        System.out.println("Juego de pruebas de Partida: ");
+        System.out.println("Modo: 0 Judador vs Algoritmo ");
+        System.out.println("Idioma: Catalán ");
+        try {
+
+            System.out.println("-> Creando partida...");
+            //Modo 1 Jugador
+            cd.iniciarPartida(0, usuarios.get(0), "", "Inuyasha", 123L);
+            System.out.println("\n--- Tablero Actual ---");
+            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+            mostrarTablero();
+            System.out.println("\n--- Fichas Disponibles ---");
+            mostrarFichas();
+
+            System.out.println("-> Añadiendo ficha...");
+            cd.jugarScrabble(1, "T 7 7");
+            mostrarTablero();
+
+            System.out.println("-> Quitando ficha...");
+            cd.jugarScrabble(2, "7 7");
+            mostrarTablero();
+
+            System.out.println("-> Añadiendo ficha...");
+            cd.jugarScrabble(1, "N 7 6");
+            cd.jugarScrabble(1, "A 7 5");
+            cd.jugarScrabble(1, "L 7 4");
+            cd.jugarScrabble(1, "G 7 3");
+            cd.jugarScrabble(1, "E 7 2");
+            cd.jugarScrabble(1, "R 7 1");
+
+            System.out.println("-> Finalizando Turno...");
+            cd.jugarScrabble(4, "");
+            mostrarTablero();
+
+            System.out.println("-> Palabra incorrecta..");
+
+            System.out.println("-> Añadiendo ficha...");
+            cd.jugarScrabble(1, "0 7 7");
+
+            System.out.println("-> Finalizando Turno...");
+            cd.jugarScrabble(4, "");
+            System.out.println("\n--- Tablero Actual ---");
+            System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+            System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
+            mostrarTablero();
+
+            System.out.println("-> Turno del algoritmo...");
+            mostrarTablero();
+
+            System.out.println("-> Pasar turno..");
+            cd.jugarScrabble(3, "");
+            System.out.println("-> Turno del algoritmo...");
+            mostrarTablero();
+
+            System.out.println("-> Cambiar fichas..");
+            cd.jugarScrabble(3, "0 2 3");
+
+            System.out.println("-> Guardar partida..");
+            cd.guardarPartida("partida1");
+
+        } catch (Exception e) {
+        }
     }
 
 }

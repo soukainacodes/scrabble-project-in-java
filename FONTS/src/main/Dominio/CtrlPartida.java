@@ -41,8 +41,8 @@ public class CtrlPartida {
             this.isAlgoritmo = true;
             this.algoritmo = new Algoritmo();
             if (partidaActual.getTurnoJugador() == false) {
-                //partidaActual.addPuntos(jugarAlgoritmo());
-                //finTurno(true,false);
+              //  partidaActual.addPuntos(jugarAlgoritmo());
+             //   finTurno(true,false);
             }
         } else {
             this.isAlgoritmo = false;
@@ -121,11 +121,12 @@ public class CtrlPartida {
                         fichas.remove(i);
                     }
                 }
-
                 partidaActual.recuperarFichas();
                 return finTurno(true, true);
+            case 6:
+               return finPartida(false);    
             case 7:
-                System.out.println("Jugador: " + partidaActual.getTurnoJugador()); 
+                System.out.println("Jugador: " + partidaActual.getTurnoJugador());
                 int puntosTotales = jugarAlgoritmo();
                 partidaActual.addPuntos(puntosTotales);
                 //System.out.println("Validador " + puntosTotales);
@@ -144,15 +145,13 @@ public class CtrlPartida {
         return partidaActual.getPuntosJugador2();
     }
 
-
-
     public int finTurno(boolean pasar, boolean algoritmo) throws PosicionOcupadaTablero, FichaIncorrecta {
 
         if (!pasar) {
             int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
                 System.out.println("Puntos Validador:" + puntos);
-                //partidaActual.addPuntos(puntos);
+                partidaActual.addPuntos(puntos);
             } else {
                 System.out.println("Palabra incorrecta!!");
                 return 0;
@@ -165,23 +164,25 @@ public class CtrlPartida {
         partidaActual.cambiarTurnoJugador();
         partidaActual.aumentarContador();
         if (!partidaActual.recuperarFichas() && partidaActual.getListSize() == 0) {
-            return finPartida();
+            return finPartida(false);
         }
 
         if (isAlgoritmo && algoritmo) {
             int puntosAlgoritmo = jugarAlgoritmo();
             partidaActual.addPuntos(puntosAlgoritmo);
-            if(puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty() && partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()){
-                return finPartida();
+            if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty() && partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) {
+                return finPartida(false);
             }
             finTurno(true, false);
         }
         return 0;
     }
 
-
-
-    public int finPartida() {
+    public int finPartida(boolean abandono) {
+        if(abandono){
+            if(partidaActual.getTurnoJugador()) return 2;
+            else return 1;
+        }
         partidaActual.cambiarTurnoJugador();
         for (Ficha ficha : partidaActual.getFichasJugador()) {
             partidaActual.addPuntos(-ficha.getPuntuacion());

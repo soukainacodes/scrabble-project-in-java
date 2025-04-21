@@ -22,10 +22,9 @@ public class Algoritmo {
     private Tablero tablero;
     private List<Pair<String, Pair<Integer, Integer>>> resultadoFinal;
     private boolean vertical;
-    
 
     public Algoritmo() {
-    
+
     }
 
     private boolean isEmpty(Pair<Integer, Integer> pos) {
@@ -100,9 +99,9 @@ public class Algoritmo {
     private void ponerFicha(String s, Pair<Integer, Integer> pos) {
         int row = pos.getFirst();
         int col = pos.getSecond();
-   
+
         resultadoFinal.add(Pair.createPair(s, pos));
-            
+
     }
 
     private void palabra_parcial(String palabra, Pair<Integer, Integer> last_pos, int puntos) {
@@ -115,33 +114,37 @@ public class Algoritmo {
         int lenght = palabraTokenizada.size() - 1;
         while (lenght >= 0) {
 
-            puntosPalabra += getFichaPuntuacion(last_pos);
+            if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).estaBloqueada()) {
+                puntosPalabra += getFichaPuntuacion(last_pos);
+            } else {
+                int p;
+                for (Ficha ficha : f) {
+                    if (ficha.getLetra().equals(palabraTokenizada.get(lenght))) {
 
-            int p = 0;
-            for (Ficha ficha : f) {
-                if (ficha.getLetra().equals(palabraTokenizada.get(lenght))) {
+                        p = ficha.getPuntuacion();
+                        if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTripleLetra()) {
+                            p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+                        }
 
-                    p = ficha.getPuntuacion();
-                    if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTripleLetra()) {
-                        p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+                        puntosPalabra += p;
+                        break;
                     }
-                    puntosPalabra += p;
-                    break;
-                }
 
+                }
+                if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTriplePalabra() && tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).bonusDisponible()) {
+                    bonusPalabra += tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+                }
             }
-            if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTriplePalabra()) {
-                bonusPalabra += tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
-            }
+
             last_pos = before(last_pos);
             lenght--;
-        } 
+        }
 
         if (bonusPalabra != 0) {
             puntosPalabra *= bonusPalabra;
         }
-        puntos += puntosPalabra;
 
+        puntos += puntosPalabra;
         if (fichass.size() == 0) {
             puntos += 50;
         }
@@ -149,9 +152,9 @@ public class Algoritmo {
         lenght = palabraTokenizada.size() - 1;
         if (puntos > puntosFinal) {
             puntosFinal = puntos;
-            
+
             resultadoFinal.clear();
-            System.out.println(palabra + " " + puntosFinal);
+            System.out.println(palabra + " " + puntos + " " + puntosPalabra );
             while (lenght >= 0) {
                 ponerFicha(palabraTokenizada.get(lenght), play_pos);
                 lenght--;
@@ -200,8 +203,9 @@ public class Algoritmo {
 
                 String letra = tablero.getFicha(x, y).getLetra();
                 Pair<Integer, Integer> p = Pair.createPair(x, y);
-
-                puntosRecorrerDireccion += getFichaPuntuacion(p);
+                if (tablero.getCelda(p.getFirst(), p.getSecond()).estaBloqueada()) {
+                    puntosRecorrerDireccion += getFichaPuntuacion(p);
+                }
 
                 // Append letter to appropriate StringBuilder
                 if (dir == 1) {
@@ -266,8 +270,8 @@ public class Algoritmo {
                         int b = recorrerDireccion(next_pos, !vertical, s);
                         if (b != -1) {
                             if (fichass.contains(s)) {
-                                fichass.remove(s); 
-                            }else {
+                                fichass.remove(s);
+                            } else {
                                 fichass.remove("#");
                             }
 
@@ -305,8 +309,8 @@ public class Algoritmo {
             for (String s : nodo_actual.getHijos().keySet()) {
                 if (fichass.contains("#") || fichass.contains(s)) {
                     if (fichass.contains(s)) {
-                        fichass.remove(s); 
-                    }else {
+                        fichass.remove(s);
+                    } else {
                         fichass.remove("#");
                     }
                     before_part(partial_word + s, nodo_actual.getHijos().get(s), pos, limit - 1, puntos);
@@ -336,7 +340,7 @@ public class Algoritmo {
         if (anchors.size() == 0) {
             anchors.add(Pair.createPair(7, 7));
         }
-        
+
         for (Pair<Integer, Integer> pos : anchors) {
 
             for (int i = 0; i < 2; ++i) {
@@ -350,14 +354,14 @@ public class Algoritmo {
                 if (isFilled(before(pos))) {
 
                     Pair<Integer, Integer> scan_pos = before(pos);
-                    puntos = getFichaPuntuacion(scan_pos);
+                    
 
                     String partial_word = getFicha(scan_pos);
 
                     while (isFilled(before(scan_pos))) {
 
                         scan_pos = before(scan_pos);
-                        puntos += getFichaPuntuacion(scan_pos);
+                        
                         partial_word = getFicha(scan_pos) + partial_word;
                     }
 
@@ -380,11 +384,10 @@ public class Algoritmo {
                 }
 
             }
-        
-        
+
         }
         System.out.println("1 algoritmo");
-     
+
         return Pair.createPair(resultadoFinal, puntosFinal);
     }
 }

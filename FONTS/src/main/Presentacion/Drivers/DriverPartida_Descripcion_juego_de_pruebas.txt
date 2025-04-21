@@ -1,0 +1,12 @@
+# Descripción del juego de pruebas
+
+
+
+## 1. Objeto de la prueba
+Verificar de forma integrada los flujos completos de gestión de juego a través de CtrlDominio, cubriendo:
+
+- Registro de nuevos perfiles.
+- Inicio y cierre de sesión.
+- Obtención de puntos y posición en el ranking.
+- Cambio de contraseña.
+- Eliminación de usuario.
