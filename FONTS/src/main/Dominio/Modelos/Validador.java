@@ -186,13 +186,14 @@ public class Validador {
             
             puntosLinea *= bonificador;
         }
-
+        
         String palabraFinal = palabra2.toString() + palabra.toString();
-
+        List<String> s = diccionario.tokenizarPalabra(palabraFinal);
+        System.out.println("Validador:" + palabraFinal);
         if (diccionario.buscarPalabra(palabraFinal)) {
             return puntosLinea;
         }
-        else if(palabraFinal.length() == 1) return 0;
+        else if(s.size() == 1) return 0;
         
         return -1;
 

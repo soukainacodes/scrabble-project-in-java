@@ -31,15 +31,15 @@ public class CtrlPartida {
         //Dar fichas para jugador 2
     }
 
-    public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, int dificultad) {
+    public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed) {
         this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
 
         this.partidaActual = new Partida(players, lineasArchivoBolsa, seed);
         this.finTurno = false;
 
-        if (modo == 1) {
+        if (modo == 0) {
             this.isAlgoritmo = true;
-            this.algoritmo = new Algoritmo(dificultad);
+            this.algoritmo = new Algoritmo();
             if (partidaActual.getTurnoJugador() == false) {
                 //partidaActual.addPuntos(jugarAlgoritmo());
                 //finTurno(true,false);
@@ -129,7 +129,7 @@ public class CtrlPartida {
                 int puntosTotales = jugarAlgoritmo();
                 partidaActual.addPuntos(puntosTotales);
                 //System.out.println("Validador " + puntosTotales);
-                return finTurno(true, true);
+                return finTurno(false, false);
 
         }
         return 0;
@@ -151,7 +151,8 @@ public class CtrlPartida {
         if (!pasar) {
             int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
-                partidaActual.addPuntos(puntos);
+                System.out.println("Puntos Validador:" + puntos);
+                //partidaActual.addPuntos(puntos);
             } else {
                 System.out.println("Palabra incorrecta!!");
                 return 0;

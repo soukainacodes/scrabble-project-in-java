@@ -51,7 +51,7 @@ public class DriverGestionPartidas {
                 modo = m; idioma = idio; dificultad = dif;
 
                 // 1) Iniciar partida
-                cd.iniciarPartida(
+               /* cd.iniciarPartida(
                   m.equals("1 Jugador") ? 0 : 1,
                   "PruebaUser","PruebaUser",
                   leerArchivo(obtenerPathDiccionario(idio)),
@@ -62,7 +62,7 @@ public class DriverGestionPartidas {
                     case "Intermedio" -> 2;
                     default           -> 3;
                   }
-                );
+                );*/
 
                 // 2) Guardar
                 String saveName = "test_"+m.replace(" ","")+"_"+idio+"_"+dif;
@@ -149,7 +149,7 @@ public class DriverGestionPartidas {
                 if (modo.isEmpty()||idioma.isEmpty()||dificultad.isEmpty()) {
                     System.out.println("Completa todos los parámetros.");
                 } else {
-                    cd.iniciarPartida(
+                 /*   cd.iniciarPartida(
                       modo.equals("1 Jugador") ? 0 : 1,
                       "Alex","",
                       leerArchivo(obtenerPathDiccionario(idioma)),
@@ -160,8 +160,8 @@ public class DriverGestionPartidas {
                         case "Intermedio" -> 2;
                         default           -> 3;
                       }
-                    );
-                    subMenuPartida();
+                    );*/
+                  //  subMenuPartida();
                 }
                 break;
             default: System.out.println("Opción no válida.");

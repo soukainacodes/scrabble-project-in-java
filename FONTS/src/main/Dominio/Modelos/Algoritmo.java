@@ -22,11 +22,10 @@ public class Algoritmo {
     private Tablero tablero;
     private List<Pair<String, Pair<Integer, Integer>>> resultadoFinal;
     private boolean vertical;
-    private int dificultad;
+    
 
-    public Algoritmo(int dificultad) {
-        this.dificultad = dificultad;
-
+    public Algoritmo() {
+    
     }
 
     private boolean isEmpty(Pair<Integer, Integer> pos) {
@@ -337,14 +336,7 @@ public class Algoritmo {
         if (anchors.size() == 0) {
             anchors.add(Pair.createPair(7, 7));
         }
-
-        int ii = 0;
-        int limite = anchors.size();
-        if (this.dificultad == 1) {
-            limite = 1;
-        } else if (this.dificultad == 2) {
-            limite = 3;
-        }
+        
         for (Pair<Integer, Integer> pos : anchors) {
 
             for (int i = 0; i < 2; ++i) {
@@ -388,7 +380,8 @@ public class Algoritmo {
                 }
 
             }
-
+        
+        
         }
         System.out.println("1 algoritmo");
      

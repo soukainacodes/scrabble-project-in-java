@@ -129,18 +129,14 @@ public class CtrlDominio {
     public void iniciarPartida(int modo,
             String n1,
             String n2,
-            List<String> lineasDicc,
-            List<String> lineasBolsa,
-            long seed,
-            int dificultad) {
+            String idDiccionario,
+            long seed) {
         ctrlPartida.crearPartida(
                 modo,
                 Arrays.asList(n1, n2),
-                lineasDicc,
-                lineasBolsa,
-                seed,
-                dificultad
-        );
+                ctrlPersistencia.getDiccionario(idDiccionario),
+                 ctrlPersistencia.getBolsa(idDiccionario),
+                seed);
     }
 
     /**
@@ -151,7 +147,6 @@ public class CtrlDominio {
             throws PosicionOcupadaTablero,
             PosicionVaciaTablero,
             FichaIncorrecta {
-            
 
         int fin = ctrlPartida.jugarScrabble(modo, jugada);
         // Actualizar puntos en jugador y persistencia
@@ -260,44 +255,42 @@ public class CtrlDominio {
         };
     }
 
-
-
-        // ─── Gestión de Diccionarios y Bolsas ────────────────────────
-
-    /** Lista de IDs de diccionarios existentes */
+    // ─── Gestión de Diccionarios y Bolsas ────────────────────────
+    /**
+     * Lista de IDs de diccionarios existentes
+     */
     public Set<String> obtenerIDsDiccionarios() {
         return ctrlPersistencia.getDiccionarioIDs();
     }
 
-    /** Lista de IDs de bolsas existentes */
+    /**
+     * Lista de IDs de bolsas existentes
+     */
     public Set<String> obtenerIDsBolsas() {
         return ctrlPersistencia.getBolsaIDs();
     }
 
-    /** Crea un nuevo diccionario con ID dado */
+    /**
+     * Crea un nuevo diccionario con ID dado
+     */
     public void crearDiccionario(String id, List<String> palabras) throws IOException {
         ctrlPersistencia.addDiccionario(id, palabras);
     }
 
-    /** Crea una nueva bolsa con ID dado */
-    public void crearBolsa(String id, Map<String,int[]> bolsa) throws IOException {
+    /**
+     * Crea una nueva bolsa con ID dado
+     */
+    public void crearBolsa(String id, Map<String, int[]> bolsa) throws IOException {
         ctrlPersistencia.addBolsa(id, bolsa);
     }
 
-    /** Elimina por completo diccionario+bolsa de ID dado */
+    /**
+     * Elimina por completo diccionario+bolsa de ID dado
+     */
     public void eliminarIdiomaCompleto(String id) throws IOException {
         ctrlPersistencia.removeIdiomaCompleto(id);
-    }
 
-    public List<String> getDiccionario(String id) {
-        return ctrlPersistencia.getDiccionario(id);
-    }
+    
 
-    /**
-     * Devuelve las líneas de la bolsa con ese ID,
-     * o lista vacía si no existe.
-     */
-    public List<String> getBolsa(String id) {
-        return ctrlPersistencia.getBolsa(id);
     }
 }
