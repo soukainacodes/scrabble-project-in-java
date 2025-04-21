@@ -1,106 +1,73 @@
+// FONTS/src/test/testsUnitarios/PairTest.java
 package testsUnitarios;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import Dominio.Modelos.Pair;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-/**
- * Test unitario para la clase Pair usando únicamente mocks.
- *
- * Se define en este test una interfaz auxiliar "Element" para poder crear mocks
- * y utilizarlos como parámetros genéricos del Pair. Así se puede testear:
- * - Los getters y setters.
- * - El método toString (usando stubs para toString de los mocks).
- * - El comportamiento de equals, comprobando que dos Pair con los mismos elementos son iguales y
- *   dos Pair con elementos distintos no lo son.
- */
-@RunWith(MockitoJUnitRunner.class)
 public class PairTest {
 
-    /**
-     * Interfaz auxiliar para generar mocks que serán usados como parámetros
-     * en la clase Pair.
-     */
-    public interface Element {}
-
-    // Mocks para los elementos (first y second)
-    @Mock
-    private Element firstMock;
-    @Mock
-    private Element secondMock;
-    @Mock
-    private Element newFirstMock;
-    @Mock
-    private Element newSecondMock;
-
-    // Instancia de Pair que se testeará.
-    private Pair<Element, Element> pair;
-
-    @Before
-    public void setUp() {
-        // Se utiliza el método estático createPair para crear una nueva pareja con los mocks.
-        pair = Pair.createPair(firstMock, secondMock);
-    }
-
-    /**
-     * Test de los getters: se verifica que se obtienen los mismos objetos inyectados.
-     */
     @Test
-    public void testGetters() {
-        assertSame("El primer elemento debe ser firstMock", firstMock, pair.getFirst());
-        assertSame("El segundo elemento debe ser secondMock", secondMock, pair.getSecond());
+    public void testConstructorAndGetters() {
+        Pair<String,Integer> p = new Pair<>("foo", 42);
+        assertEquals("foo", p.getFirst());
+        assertEquals(Integer.valueOf(42), p.getSecond());
     }
 
-    /**
-     * Test de los setters: se verifica que se actualizan correctamente los elementos.
-     */
+    @Test
+    public void testCreatePairFactory() {
+        Pair<Double,Character> p = Pair.createPair(3.14, 'π');
+        assertEquals(Double.valueOf(3.14), p.getFirst());
+        assertEquals(Character.valueOf('π'), p.getSecond());
+    }
+
     @Test
     public void testSetters() {
-        pair.setFirst(newFirstMock);
-        pair.setSecond(newSecondMock);
-        assertSame("El primer elemento debe actualizarse a newFirstMock", newFirstMock, pair.getFirst());
-        assertSame("El segundo elemento debe actualizarse a newSecondMock", newSecondMock, pair.getSecond());
+        Pair<String,String> p = new Pair<>("a","b");
+        p.setFirst("x");
+        p.setSecond("y");
+        assertEquals("x", p.getFirst());
+        assertEquals("y", p.getSecond());
     }
 
-    /**
-     * Test de toString:
-     * Se stubmean los métodos toString de los mocks para valores predecibles,
-     * y se verifica que Pair genera el string en el formato "(first, second)".
-     */
     @Test
     public void testToString() {
-        when(firstMock.toString()).thenReturn("first");
-        when(secondMock.toString()).thenReturn("second");
-        Pair<Element, Element> pair2 = Pair.createPair(firstMock, secondMock);
-        assertEquals("El toString debe formar '(first, second)'", "(first, second)", pair2.toString());
+        Pair<Integer,Integer> p = new Pair<>(1, 2);
+        assertEquals("(1, 2)", p.toString());
     }
 
-    /**
-     * Test de equals:
-     * Verifica que dos Pair construidos con los mismos objetos (mismos mocks) sean iguales.
-     */
     @Test
-    public void testEqualsSame() {
-        Pair<Element, Element> pair2 = Pair.createPair(firstMock, secondMock);
-        assertTrue("Dos Pair creados con los mismos elementos deben ser iguales", pair.equals(pair2));
-        assertTrue("La igualdad debe ser simétrica", pair2.equals(pair));
+    public void testEqualsAndReflexive() {
+        Pair<String,String> p1 = new Pair<>("L", "R");
+        // reflexive
+        assertTrue(p1.equals(p1));
+        // symmetric & transitive
+        Pair<String,String> p2 = new Pair<>("L", "R");
+        Pair<String,String> p3 = new Pair<>("L", "R");
+        assertTrue(p1.equals(p2));
+        assertTrue(p2.equals(p1));
+        assertTrue(p2.equals(p3));
+        assertTrue(p1.equals(p3));
     }
 
-    /**
-     * Test de equals:
-     * Verifica que dos Pair construidos con elementos distintos no sean iguales.
-     */
     @Test
-    public void testEqualsDifferent() {
-        Pair<Element, Element> pair2 = Pair.createPair(newFirstMock, newSecondMock);
-        assertFalse("Dos Pair con elementos diferentes no deben ser iguales", pair.equals(pair2));
-        assertFalse("La igualdad debe ser simétrica", pair2.equals(pair));
+    public void testNotEqualsDifferentFirst() {
+        Pair<String,String> p1 = new Pair<>("A", "B");
+        Pair<String,String> p2 = new Pair<>("X", "B");
+        assertFalse(p1.equals(p2));
+    }
+
+    @Test
+    public void testNotEqualsDifferentSecond() {
+        Pair<String,String> p1 = new Pair<>("A", "B");
+        Pair<String,String> p2 = new Pair<>("A", "Z");
+        assertFalse(p1.equals(p2));
+    }
+
+    @Test
+    public void testNotEqualsNullOrDifferentType() {
+        Pair<Integer,Integer> p = new Pair<>(1, 1);
+        assertFalse(p.equals(null));
+        assertFalse(p.equals("not a pair"));
     }
 }

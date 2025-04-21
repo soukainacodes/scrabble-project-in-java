@@ -134,18 +134,5 @@ public class Nodo {
         return resultado;
     }
     
-    /**
-     * Retorna una representación en cadena del nodo que incluye:
-     * - La letra del nodo.
-     * - El indicador 'palabraValidaHastaAqui'.
-     * - Las claves (fichas) del mapa de hijos.
-     *
-     * @return Una cadena descriptiva del nodo.
-     */
-    @Override
-    public String toString() {
-        return "Nodo {letra=" + letra 
-                + ", palabraValidaHastaAqui=" + palabraValidaHastaAqui 
-                + ", hijos=" + hijos.keySet() + "}";
-    }
+    
 }

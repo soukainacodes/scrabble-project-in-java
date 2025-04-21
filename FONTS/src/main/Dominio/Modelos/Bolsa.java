@@ -43,9 +43,6 @@ public class Bolsa {
                 }
             }
         }
-        
-        // Mezclar las fichas
-      //  Collections.shuffle(conjuntoDeFichas);
     }
 
     

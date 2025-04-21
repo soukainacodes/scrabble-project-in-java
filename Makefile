@@ -82,13 +82,18 @@ runTestNodo:
 	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.NodoTest
 
 
-runTestRanking:
-	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.RankingTest
-
-runTestCtrlRanking:
-	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.CtrlRankingTest
 
 
 # Regla para limpiar el directorio EXE (tanto main como test)
 clean:
 	rm -rf $(CLASS_OUTPUT_MAIN)/* $(CLASS_OUTPUT_TEST)/*
+
+# …resto de tu Makefile…
+
+# Ejecuta todos los tests uno tras otro
+runAllTests: test runTestFicha runTestBolsa runTestCelda runTestTablero runTestJugador runTestTipoBonificacion runTestDawg runTestPair runTestNodo
+	@echo
+	@echo "──────────────────────────────────────────────────────────"
+	@echo "✅  Todos los tests unitarios han terminado"
+	@echo "──────────────────────────────────────────────────────────"
+
