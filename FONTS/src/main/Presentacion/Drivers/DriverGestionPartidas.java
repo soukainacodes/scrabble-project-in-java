@@ -165,11 +165,13 @@ public class DriverGestionPartidas {
     private static void iniciarYJugar() {
         long seed = new Random().nextLong();
         int modoInt = modo.equals(MODO1) ? 0 : 1;
+        
         cd.iniciarPartida(modoInt,
             nombre1,
             modoInt == 1 ? nombre2 : "",
             idDiccionario,
-            seed
+            seed,
+            false
         );
         subMenuPartida();
     }
@@ -323,7 +325,7 @@ public class DriverGestionPartidas {
 
                 try {
                     System.out.print("  • Crear partida... ");
-                    cd.iniciarPartida(modoInt, "Test1", modoInt==1?"Test2":"", d, seed);
+                    cd.iniciarPartida(modoInt, "Test1", modoInt==1?"Test2":"", d, seed, false);
                     System.out.println("OK");
 
                     System.out.print("  • Guardar partida \"" + saveId + "\"... ");

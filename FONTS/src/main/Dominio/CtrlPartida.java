@@ -21,6 +21,7 @@ public class CtrlPartida {
     private Bolsa bolsa;
     private boolean isAlgoritmo;
     private Algoritmo algoritmo;
+    private boolean jugadorAlgoritmo;
 
     // Constructor
     public CtrlPartida() {
@@ -31,18 +32,18 @@ public class CtrlPartida {
         //Dar fichas para jugador 2
     }
 
-    public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed) {
+    public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, boolean jugadorAlgoritmo) {
         this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
 
         this.partidaActual = new Partida(players, lineasArchivoBolsa, seed);
         this.finTurno = false;
-
+        this.jugadorAlgoritmo = jugadorAlgoritmo;
         if (modo == 0) {
             this.isAlgoritmo = true;
             this.algoritmo = new Algoritmo();
             if (partidaActual.getTurnoJugador() == false) {
-              //  partidaActual.addPuntos(jugarAlgoritmo());
-             //   finTurno(true,false);
+                //  partidaActual.addPuntos(jugarAlgoritmo());
+                //   finTurno(true,false);
             }
         } else {
             this.isAlgoritmo = false;
@@ -124,13 +125,17 @@ public class CtrlPartida {
                 partidaActual.recuperarFichas();
                 return finTurno(true, true);
             case 6:
-               return finPartida(false);    
+                return finPartida(false);
             case 7:
-                System.out.println("Jugador: " + partidaActual.getTurnoJugador());
-                int puntosTotales = jugarAlgoritmo();
-                partidaActual.addPuntos(puntosTotales);
-                //System.out.println("Validador " + puntosTotales);
-                return finTurno(false, false);
+                if (jugadorAlgoritmo) {
+                    System.out.println("Jugador: " + partidaActual.getTurnoJugador());
+                    int puntosAlgoritmo = jugarAlgoritmo();
+                    partidaActual.addPuntos(puntosAlgoritmo);
+                    if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty() && partidaActual.getPuntosJugador2() > partidaActual.getPuntosJugador1()) {
+                    return finPartida(false);
+            }
+                    return finTurno(true, true);
+                }
 
         }
         return 0;
@@ -179,9 +184,12 @@ public class CtrlPartida {
     }
 
     public int finPartida(boolean abandono) {
-        if(abandono){
-            if(partidaActual.getTurnoJugador()) return 2;
-            else return 1;
+        if (abandono) {
+            if (partidaActual.getTurnoJugador()) {
+                return 2; 
+            }else {
+                return 1;
+            }
         }
         partidaActual.cambiarTurnoJugador();
         for (Ficha ficha : partidaActual.getFichasJugador()) {

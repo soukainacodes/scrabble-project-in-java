@@ -150,13 +150,14 @@ public class CtrlDominio {
             String n1,
             String n2,
             String idDiccionario,
-            long seed) {
+            long seed, boolean jugadorAlgoritmo) {
         ctrlPartida.crearPartida(
                 modo,
                 Arrays.asList(n1, n2),
                 ctrlPersistencia.getDiccionario(idDiccionario),
                 ctrlPersistencia.getBolsa(idDiccionario),
-                seed
+                seed,
+                jugadorAlgoritmo
         );
     }
 

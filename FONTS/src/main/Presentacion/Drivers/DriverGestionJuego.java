@@ -197,7 +197,8 @@ public class DriverGestionJuego {
                             modo.equals("1 Jugador") ? 0 : 1,
                             "PruebaUser", "PruebaUser",
                             idioma,
-                            123L);
+                            123L,
+                            true);
                     menuPartida();
                 }
                 break;
@@ -322,6 +323,7 @@ public class DriverGestionJuego {
     private static void menuJuegoPruebas() {
         System.out.println("1. Juego de Pruebas Algoritmo");
         System.out.println("2. Juego de Pruebas Duo");
+        System.out.println("2. Juego de Pruebas (IA vs IA)");
         String opt = in.nextLine().trim();
         switch (opt) {
             case "1":
@@ -329,6 +331,9 @@ public class DriverGestionJuego {
                 break;
             case "2":
                 juegoPruebas2();
+                break;
+            case "3":
+                juegoPruebas3();
                 break;
             default:
                 System.out.println("Opción no válida.");
@@ -349,7 +354,7 @@ public class DriverGestionJuego {
 
             System.out.println("-> Creando partida...");
             //Modo 1 Jugador
-            cd.iniciarPartida(0, usuarios.get(0), "", "Catalan", 123L);
+            cd.iniciarPartida(0, usuarios.get(0), "", "Catalan", 123L, false);
             System.out.println("\n--- Tablero Actual ---");
             System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
@@ -387,10 +392,11 @@ public class DriverGestionJuego {
             System.out.println("\n--- Tablero Actual ---");
             System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-            mostrarTablero();
-
             System.out.println("-> Turno del algoritmo...");
             mostrarTablero();
+
+            
+            
 
             System.out.println("-> Pasar turno..");
             cd.jugarScrabble(3, "");
@@ -398,13 +404,12 @@ public class DriverGestionJuego {
             mostrarTablero();
 
             System.out.println("-> Cambiar fichas..");
-            cd.jugarScrabble(3, "0 2 3");
+            cd.jugarScrabble(3, "0 2 NY 4 I");
 
             System.out.println("-> Guardar partida..");
-           cd.guardarPartida("partida1");
+            cd.guardarPartida("partida1");
             System.out.println("-> Se ha guardado la partida correctamente..");
-            System.out.println("-> Guardar partida..");
-         
+        
         } catch (Exception e) {
         }
 
@@ -424,7 +429,7 @@ public class DriverGestionJuego {
 
             System.out.println("-> Creando partida...");
             //Modo 1 Jugador
-            cd.iniciarPartida(1, usuarios.get(0), usuarios.get(1), "Ingles", 123L);
+            cd.iniciarPartida(1, usuarios.get(0), usuarios.get(1), "Ingles", 123L, false);
             System.out.println("\n--- Tablero Actual ---");
             System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos" + usuarios.get(1) + ": " + cd.getPuntosJugador2());
@@ -472,21 +477,64 @@ public class DriverGestionJuego {
             System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
 
-
             int fin = cd.jugarScrabble(6, "");
-            if (fin == 2) {
-                System.out.println("-> Jugador 1 abandona..");
-                System.out.println("-> Gana Jugador 2..");
-            } else if (fin == 1) {
-                System.out.println("-> Jugador 2 abandona..");
-                System.out.println("-> Gana Jugador 1..");
-            }
-            
+              if (fin != 0) {
+                    System.out.println("\n--- Puntuación final ---");
+                    System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+                    System.out.println(" Puntos" + usuarios.get(1) + ": " + cd.getPuntosJugador2());
+                    if (fin == 2) {
+                        System.out.println("-> Jugador 1 abandona..");
+                        System.out.println("-> Gana Jugador 2.");
+                    } else if (fin == 1) {
+                        System.out.println("-> Jugador 2 abandona..");
+                        System.out.println("-> Gana Jugador 1.");
+                    }
+                }
+
         } catch (Exception e) {
         }
 
     }
 
+    private static void juegoPruebas3() {
+        System.out.print("\033[H\033[2J");
+        System.out.println("=== Ejecutando juego de pruebas 3 ===\n");
+        List<String> usuarios = Arrays.asList("Jordi", "Maria");
+        String pwd = "123456";
+        boolean errores = false;
+        System.out.println("Juego de pruebas de Partida: ");
+        System.out.println("Modo: 1 Judador vs Jugador ");
+        System.out.println("Idioma: Catalán ");
 
+        try {
+
+            System.out.println("-> Creando partida...");
+            //Modo 1 Jugador
+            cd.iniciarPartida(0, usuarios.get(0), "", "CastellanoCorto", 123L, true);
+
+            for (int i = 0; i < 10; ++i) {
+                System.out.println("\n--- Tablero Actual ---");
+                System.out.println(" Puntos GLaDOS: " + cd.getPuntosJugador1());
+                System.out.println(" Puntos Skynet: " + cd.getPuntosJugador2());
+                mostrarTablero();
+                System.out.println("\n--- Fichas Disponibles ---");
+                mostrarFichas();
+                int fin = cd.jugarScrabble(7, "");
+                if (fin != 0) {
+                    System.out.println("\n--- Puntuación final ---");
+                    System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+                    System.out.println(" Puntos Skynet: " + cd.getPuntosJugador2());
+                    if (fin == 2) {
+                        System.out.println("-> Jugador 1 abandona..");
+                        System.out.println("-> Gana Jugador 2.");
+                    } else if (fin == 1) {
+                        System.out.println("-> Jugador 2 abandona..");
+                        System.out.println("-> Gana Jugador 1.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
 
 }

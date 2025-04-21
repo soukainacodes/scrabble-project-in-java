@@ -5,8 +5,22 @@
 ## 1. Objeto de la prueba
 Verificar de forma integrada los flujos completos de gestión de juego a través de CtrlDominio, cubriendo:
 
-- Registro de nuevos perfiles.
-- Inicio y cierre de sesión.
-- Obtención de puntos y posición en el ranking.
-- Cambio de contraseña.
-- Eliminación de usuario.
+- Crear y configurar partida.
+- Interacción con el tablero fichas.
+- Interacción con las fichas de jugador.
+- Cambios de turnos y gestión de la partida.
+- Finalización correcta de la partida.
+
+## 2. Componentes integrados  
+Se ejercitan conjuntamente, sin tests unitarios aislados:
+
+- DriverGestionPartidas (menús interactivo y automático)  
+- CtrlDominio, que usa a su vez:  
+  - CtrlPartida (lógica de juego)  
+  - CtrlPersistencia (almacena partidas en memoria)  
+- Ficheros de recursos de idiomas (diccionario y bolsa) ubicados en  
+  FONTS/src/main/Recursos/Idiomas/{Catalan,Castellano,Ingles}/…
+
+## 3. Datos necesarios  
+- Diccionarios y bolsas de cada idioma, ya presentes en recursos  
+- No se crean ni modifican archivos de usuarios o ranking en disco
