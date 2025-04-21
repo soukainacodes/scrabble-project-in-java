@@ -1,14 +1,12 @@
 # Descripción del juego de pruebas
 
+## 1. Objeto de la prueba  
+Verificar de forma integrada los flujos completos de gestión del juego a través de CtrlDominio, cubriendo:
 
-
-## 1. Objeto de la prueba
-Verificar de forma integrada los flujos completos de gestión de juego a través de CtrlDominio, cubriendo:
-
-- Crear y configurar partida.
-- Interacción con el tablero fichas.
-- Interacción con las fichas de jugador.
-- Cambios de turnos y gestión de la partida.
+- Crear y configurar partida.  
+- Interacción con el tablero mediante colocación y retirada de fichas.  
+- Gestión de fichas del jugador (colocar, quitar, cambiar).  
+- Cambios de turno y evolución de la partida.  
 - Finalización correcta de la partida.
 
 ## 2. Componentes integrados  
@@ -24,3 +22,40 @@ Se ejercitan conjuntamente, sin tests unitarios aislados:
 ## 3. Datos necesarios  
 - Diccionarios y bolsas de cada idioma, ya presentes en recursos  
 - No se crean ni modifican archivos de usuarios o ranking en disco
+
+## 4. Parámetros de las pruebas  
+- Modos: 1 Jugador, 2 Jugadores  
+- Diccionarios: todos los IDs devueltos por cd.obtenerIDsDiccionarios()  
+- Identificador de guardado:  
+
+  PRUEBA_<modoSinEspacios>_<diccionario>
+
+## 5. Pasos verificables  
+Para cada combinación (modo, diccionario):
+
+1. Crear partida → imprime OK si no falla  
+2. Añadir una o más fichas al tablero → imprime OK  
+3. Quitar ficha del tablero → imprime OK  
+4. Finalizar turno → imprime OK  
+5. Turno del oponente (IA o jugador) → imprime OK  
+6. Cambiar fichas → imprime OK  
+7. Guardar partida → imprime OK  
+8. Cargar partida → imprime OK  
+9. Eliminar partida → imprime OK  
+10. Verificar que no queda rastro de la partida eliminada → OK/FALLÓ
+
+## 6. Cómo ejecutar
+
+1. Compilar el proyecto:  
+                                      make code
+                                      
+2. Ejecutar el driver de partidas:  
+                                      make runcode_juego
+                                      
+3. En el menú, seleccionar "2) Juego de pruebas".  
+   3.1. En el menú de juego de pruebas, seleccionar "1) Juego de pruebas".  
+   3.2. En el menú de juego de pruebas, seleccionar "2) Juego de pruebas".  
+   3.3. En el menú de juego de pruebas, seleccionar "3) Juego de pruebas".
+
+### Ejemplo de salida (una de las muchas combinaciones):
+
