@@ -30,11 +30,8 @@ LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDD
 code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
 
-runcode_solo:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartida
-
-runcode_duo:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverPartidaCon2Jugadores
+runcode_juego:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionJuego
 
 runcode_usuarios:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionUsuarios

@@ -10,7 +10,7 @@ import Dominio.Excepciones.*;
 
 ;
 
-public class DriverPartida {
+public class DriverGestionJuego {
 
     private static final Scanner in = new Scanner(System.in);
     private static final CtrlDominio cd = new CtrlDominio();
