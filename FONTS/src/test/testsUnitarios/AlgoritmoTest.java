@@ -80,7 +80,7 @@ public class AlgoritmoTest {
     }
 
     @Test
-    public void find_anchors_sinCasillasOcupadas_retornaListaVacia() {
+    public void findAnchors_sinCasillasOcupadas_retornaListaVacia() {
         // Simula TODO el tablero vacío (getCelda==null)
         when(tablero.getCelda(anyInt(), anyInt())).thenReturn(null);
 
@@ -90,8 +90,8 @@ public class AlgoritmoTest {
     }
 
     @Test
-    public void find_anchors_unTileEnCentro_retornaVecinos() {
-        // Por defecto: (7,7) está ocupada, resto no.
+    public void findAnchors_unTileEnCentro_retornaVecinos() {
+        // Por defecto en setUp: (7,7) está ocupada, resto no.
         List<Pair<Integer,Integer>> anchors = algoritmo.find_anchors();
 
         // Debe devolver exactamente los 4 vecinos de (7,7)

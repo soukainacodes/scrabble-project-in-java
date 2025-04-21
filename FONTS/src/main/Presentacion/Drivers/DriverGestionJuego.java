@@ -321,9 +321,9 @@ public class DriverGestionJuego {
     }
 
     private static void menuJuegoPruebas() {
-        System.out.println("1. Juego de Pruebas Algoritmo");
-        System.out.println("2. Juego de Pruebas Duo");
-        System.out.println("2. Juego de Pruebas (IA vs IA)");
+        System.out.println("1. Juego de Pruebas (Solo / Jugador VS IA) ");
+        System.out.println("2. Juego de Pruebas (Duo / 2 Jugadores)");
+        System.out.println("3. Juego de Pruebas (IA vs IA)");
         String opt = in.nextLine().trim();
         switch (opt) {
             case "1":
