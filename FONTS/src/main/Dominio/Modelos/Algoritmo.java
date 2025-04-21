@@ -27,25 +27,25 @@ public class Algoritmo {
 
     }
 
-    private boolean isEmpty(Pair<Integer, Integer> pos) {
+    public boolean isEmpty(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
         int y = pos.getSecond();
         return (tablero.getCelda(x, y) != null && !tablero.getCelda(x, y).estaOcupada());
     }
 
-    private boolean isFilled(Pair<Integer, Integer> pos) {
+    public boolean isFilled(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
         int y = pos.getSecond();
         return (tablero.getCelda(x, y) != null && tablero.getCelda(x, y).estaOcupada());
     }
 
-    private boolean isDentroTablero(Pair<Integer, Integer> pos) {
+    public boolean isDentroTablero(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
         int y = pos.getSecond();
         return (tablero.getCelda(x, y) != null);
     }
 
-    private ArrayList<Pair<Integer, Integer>> find_anchors() {
+    public ArrayList<Pair<Integer, Integer>> find_anchors() {
         ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
         for (int i = 0; i < 15; ++i) {
             for (int j = 0; j < 15; j++) {

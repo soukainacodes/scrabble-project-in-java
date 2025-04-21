@@ -30,6 +30,9 @@ LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDD
 code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
 
+runcode_scrabble:
+	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverScrabble
+
 runcode_juego:
 	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionJuego
 
@@ -79,7 +82,15 @@ runTestNodo:
 	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.NodoTest
 
 
+runTestPartida:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.PartidaTest
 
+runTestValidador:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.ValidadorTest
+
+
+runTestAlgoritmo:
+	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.AlgoritmoTest
 
 # Regla para limpiar el directorio EXE (tanto main como test)
 clean:
@@ -87,10 +98,13 @@ clean:
 
 # …resto de tu Makefile…
 
-# Ejecuta todos los tests uno tras otro
-runAllTests: test runTestFicha runTestBolsa runTestCelda runTestTablero runTestJugador runTestTipoBonificacion runTestDawg runTestPair runTestNodo
+# Nuevo objetivo que corre todo en cadena
+runAllUnitTests: test \
+                 runTestFicha runTestBolsa runTestCelda runTestTablero \
+                 runTestJugador runTestTipoBonificacion runTestDawg \
+                 runTestPair runTestNodo runTestPartida \
+                 runTestValidador runTestAlgoritmo
 	@echo
 	@echo "──────────────────────────────────────────────────────────"
-	@echo "✅  Todos los tests unitarios han terminado"
+	@echo " ;)  Todos los tests unitarios han terminado"
 	@echo "──────────────────────────────────────────────────────────"
-

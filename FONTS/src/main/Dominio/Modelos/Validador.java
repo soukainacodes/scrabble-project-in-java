@@ -5,21 +5,14 @@ import java.util.List;
 
 public class Validador {
 
-    private Partida partida;
 
-    private Bolsa bolsa;
-    private boolean finTurno;
-    private boolean prueba;
-    private int ejex, ejey;
     private int contadorTurno;
     private Tablero tablero;
 
-    private boolean doblePalabra;
     private Dawg diccionario;
     private boolean hayBloqueada;
 
     public Validador() {
-        //Deberia recibir el DAWG como parametro
 
     }
 
@@ -126,7 +119,7 @@ public class Validador {
         }
 
         if(coordenadasPalabra.size() == 7) puntosTotales +=50;
-        System.out.println("Validador " + puntosTotales);
+        //System.out.println("Validador " + puntosTotales);
         return puntosTotales;
     }
 
@@ -165,7 +158,7 @@ public class Validador {
                         hayBloqueada = true;
                     } else {
 
-                        System.out.println(letra);
+                        //System.out.println(letra);
                         if (tablero.getCelda(x, y).isDobleTripleLetra()) {
                             puntosFicha *= tablero.getCelda(x, y).getBonificacion().getMultiplicador();
                         }
@@ -189,7 +182,7 @@ public class Validador {
         
         String palabraFinal = palabra2.toString() + palabra.toString();
         List<String> s = diccionario.tokenizarPalabra(palabraFinal);
-        System.out.println("Validador:" + palabraFinal);
+        //System.out.println("Validador:" + palabraFinal);
         if (diccionario.buscarPalabra(palabraFinal)) {
             return puntosLinea;
         }
