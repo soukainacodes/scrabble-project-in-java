@@ -1,10 +1,14 @@
 
-### Compilar el código principal
+### Compilar el codigo principal
 
 make code
 
 
 ###  Ejecutar Drivers (programas principales)
+
+Son cuatro drivers independientes que prueban los casos de uso 
+(gestion de usuarios, gestion diccionarios y bolsas, gestion partidas y gestion de juego) 
+y un driver integral (DriverScrabble) que agrupa todas esas funcionalidades en una unica aplicacion.
 
 make runcode_scrabble               # Lanza el DriverScrabble
 make runcode_juego                  # Lanza el DriverGestionJuego
