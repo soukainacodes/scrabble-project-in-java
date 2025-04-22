@@ -212,7 +212,7 @@ public class DriverGestionJuego {
                             true);
                     while (true) { 
                         menuPartida();
-                    }}
+                    }
                     
                 }
                
