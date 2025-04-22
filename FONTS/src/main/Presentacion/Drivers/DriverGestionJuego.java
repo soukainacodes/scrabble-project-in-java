@@ -26,19 +26,30 @@ public class DriverGestionJuego {
 
         // Registro del jugador (si ya existe, lo ignoramos)
         try {
+
             cd.registrarJugador(nombreJugador, contrasena);
         } catch (UsuarioYaRegistradoException e) {
             System.out.println("Aviso: " + e.getMessage());
         }
-
-        // Bucle de menú principal de la partida
         try {
-            menuPrincipal();
-        } catch (Exception e) {
-            System.err.println("Error en partida: " + e.getMessage());
+            cd.iniciarSesion(nombreJugador, nombreJugador);
+        } catch (UsuarioNoEncontradoException e) {
+            System.out.println("Aviso: " + e.getMessage());
+        } catch (PasswordInvalidaException f) {
+            System.out.println("Aviso: " + f.getMessage());
         }
 
-        System.out.println("Partida finalizada. ¡Gracias por jugar!");
+        // Bucle de menú principal de la partida
+        while (true) {
+            try {
+                menuPrincipal();
+            } catch (Exception e) {
+                System.err.println("Error en partida: " + e.getMessage());
+            }
+            System.out.println("Partida finalizada. ¡Gracias por jugar!");
+        }
+
+        
     }
 
     private static void clearScreen() {
@@ -162,8 +173,10 @@ public class DriverGestionJuego {
         System.out.print("Opción: ");
         switch (in.nextLine().trim()) {
             case "1":
-                subMenuCrearPartida();
-                break;
+                while(true){
+                    subMenuCrearPartida();
+                }
+                
             case "2":
                 menuJuegoPruebas();
                 break;
@@ -193,13 +206,16 @@ public class DriverGestionJuego {
                 } else {
                     cd.iniciarPartida(
                             modo.equals("1 Jugador") ? 0 : 1,
-                            "PruebaUser", "PruebaUser",
+                            nombreJugador, nombreJugador,
                             idioma,
                             123L,
                             true);
-                    menuPartida();
+                    while (true) { 
+                        menuPartida();
+                    }}
+                    
                 }
-                break;
+               
             default:
                 System.out.println("Opción no válida.");
         }
@@ -262,7 +278,7 @@ public class DriverGestionJuego {
     }
 
     private static void subMenuQuitar()
-            throws  PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
+            throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         clearScreen();
         mostrarEstado();
         System.out.println("Inserta la posición a quitar (o '1' para atrás):");
@@ -338,7 +354,7 @@ public class DriverGestionJuego {
         // Limpia pantalla
         System.out.print("\033[H\033[2J");
         System.out.println("=== Ejecutando juego de pruebas 1 ===\n");
-        List<String> usuarios = Arrays.asList("Jordi");
+        String usuario = nombreJugador;
         String pwd = "123456";
         boolean errores = false;
         System.out.println("Juego de pruebas de Partida: ");
@@ -348,9 +364,9 @@ public class DriverGestionJuego {
 
             System.out.println("-> Creando partida...");
             //Modo 1 Jugador
-            cd.iniciarPartida(0, usuarios.get(0), "", "Catalan", 123L, false);
+            cd.iniciarPartida(0, nombreJugador, "", "Catalan", 123L, false);
             System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n\n--- Fichas Disponibles ---\n");
@@ -395,7 +411,7 @@ public class DriverGestionJuego {
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             System.out.println("-> Turno del algoritmo...\n");
             System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n\n--- Fichas Disponibles ---\n");
@@ -405,7 +421,7 @@ public class DriverGestionJuego {
             cd.jugarScrabble(3, "");
             System.out.println("-> Turno del algoritmo...\n");
             System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n\n--- Fichas Disponibles ---\n");
@@ -414,12 +430,11 @@ public class DriverGestionJuego {
             System.out.println("-> Cambiar fichas. R, I, E, E, S");
             cd.jugarScrabble(5, "0 3 E I 5");
             System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n\n--- Fichas Disponibles ---\n");
             mostrarFichas();
-
 
             System.out.println("-> Guardar partida.");
             cd.guardarPartida("PRUEBA_1Jugador_Catalan");
@@ -514,7 +529,7 @@ public class DriverGestionJuego {
     private static void juegoPruebas3() {
         System.out.print("\033[H\033[2J");
         System.out.println("=== Ejecutando juego de pruebas 3 ===\n");
-        List<String> usuarios = Arrays.asList("Jordi", "Maria");
+        String usuario = nombreJugador;
         String pwd = "123456";
         boolean errores = false;
         System.out.println("Juego de pruebas de Partida: ");
@@ -525,7 +540,7 @@ public class DriverGestionJuego {
 
             System.out.println("-> Creando partida...");
             //Modo 1 Jugador
-            cd.iniciarPartida(0, usuarios.get(0), "", "CastellanoCorto", 123L, true);
+            cd.iniciarPartida(0, usuario, "", "CastellanoCorto", 123L, true);
 
             for (int i = 0; i < 10; ++i) {
                 System.out.println("\n--- Tablero Actual ---");
@@ -537,7 +552,7 @@ public class DriverGestionJuego {
                 int fin = cd.jugarScrabble(7, "");
                 if (fin != 0) {
                     System.out.println("\n--- Puntuación final ---");
-                    System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+                    System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
                     System.out.println(" Puntos Skynet: " + cd.getPuntosJugador2());
                     if (fin == 2) {
                         System.out.println("-> Jugador 1 abandona..");

@@ -71,6 +71,12 @@ public class CtrlPersistencia {
         guardarUsuariosEnDisco();
     }
 
+    public boolean existeJugador(String nombre){
+        Jugador j = usuariosMap.get(nombre);
+         if (j == null) return false;
+        return true;
+    }
+
     /**
      * Actualiza los datos de un jugador existente.
      *
