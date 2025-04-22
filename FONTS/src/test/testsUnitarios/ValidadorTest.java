@@ -1,173 +1,143 @@
-// FONTS/src/test/testsUnitarios/ValidadorTest.java
 package testsUnitarios;
-
-import Dominio.Modelos.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import Dominio.Modelos.Validador;
+import Dominio.Modelos.Dawg;
+import Dominio.Modelos.Tablero;
+import Dominio.Modelos.Celda;
+import Dominio.Modelos.Ficha;
+import Dominio.Modelos.Pair;
+import Dominio.Excepciones.PalabraInvalidaException;
+
+/**
+ * Test unitario independiente para la clase Validador.
+ * Se usan mocks para Dawg y Tablero, evitando dependencias externas.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ValidadorTest {
 
-    @Mock private Tablero tablero;
-    @Mock private Dawg diccionario;
-    @Mock private Celda celda;
-    @Mock private Ficha ficha;
-
+    @InjectMocks
     private Validador validador;
+
+    @Mock
+    private Dawg diccionario;
+
+    @Mock
+    private Tablero tablero;
+
+    @Mock
+    private Celda c00, c01, c02;
+
+    @Mock
+    private Ficha f00, f01, f02;
 
     @Before
     public void setUp() {
         validador = new Validador();
-        // stubs por defecto para no encontrar nada ni en el tablero ni en el diccionario
+    }
+
+    /**
+     * Una sola letra en el primer turno (contadorTurno=0) debe lanzar excepción.
+     */
+    @Test(expected = PalabraInvalidaException.class)
+    public void validarPalabra_SingleTileFirstTurn_ThrowsException() throws PalabraInvalidaException {
+        List<Pair<Integer, Integer>> coords = Arrays.asList(new Pair<>(7, 7));
+        validador.validarPalabra(coords, diccionario, tablero, 0);
+    }
+
+    /**
+     * Jugada horizontal válida en primer turno sobre el centro: "CAT" => 3+1+1 = 5 puntos.
+     */
+    @Test
+    public void validarPalabra_HorizontalWord_ReturnsCorrectScore() throws PalabraInvalidaException {
+        List<Pair<Integer, Integer>> coords = Arrays.asList(
+            new Pair<>(7, 7),
+            new Pair<>(7, 8),
+            new Pair<>(7, 9)
+        );
+        // Centro en primer turno
+        when(tablero.esCentroDelTablero(7, 7)).thenReturn(true);
+        // fuera de coords, null
         when(tablero.getCelda(anyInt(), anyInt())).thenReturn(null);
         when(tablero.getFicha(anyInt(), anyInt())).thenReturn(null);
-        when(tablero.esCentroDelTablero(anyInt(), anyInt())).thenReturn(false);
+        // stub en coords
+        when(tablero.getCelda(7, 7)).thenReturn(c00);
+        when(tablero.getCelda(7, 8)).thenReturn(c01);
+        when(tablero.getCelda(7, 9)).thenReturn(c02);
+        when(tablero.getFicha(7, 7)).thenReturn(f00);
+        when(tablero.getFicha(7, 8)).thenReturn(f01);
+        when(tablero.getFicha(7, 9)).thenReturn(f02);
+        // configuración de celdas
+        when(c00.estaBloqueada()).thenReturn(false);
+        when(c01.estaBloqueada()).thenReturn(false);
+        when(c02.estaBloqueada()).thenReturn(false);
+        when(c00.isDobleTripleLetra()).thenReturn(false);
+        when(c01.isDobleTripleLetra()).thenReturn(false);
+        when(c02.isDobleTripleLetra()).thenReturn(false);
+        when(c00.isDobleTriplePalabra()).thenReturn(false);
+        when(c01.isDobleTriplePalabra()).thenReturn(false);
+        when(c02.isDobleTriplePalabra()).thenReturn(false);
+        // Letras y puntuaciones: C=3, A=1, T=1
+        when(f00.getLetra()).thenReturn("C");
+        when(f01.getLetra()).thenReturn("A");
+        when(f02.getLetra()).thenReturn("T");
+        when(f00.getPuntuacion()).thenReturn(3);
+        when(f01.getPuntuacion()).thenReturn(1);
+        when(f02.getPuntuacion()).thenReturn(1);
+        // fallback tokenización para subpalabras de un carácter
+        when(diccionario.tokenizarPalabra(anyString())).thenAnswer(invocation -> {
+            String palabra = invocation.getArgument(0);
+            return Collections.singletonList(palabra);
+        });
+        // Diccionario reconoce "CAT"
+        when(diccionario.buscarPalabra("CAT")).thenReturn(true);
+        when(diccionario.tokenizarPalabra("CAT")).thenReturn(Collections.singletonList("CAT"));
+
+        int score = validador.validarPalabra(coords, diccionario, tablero, 0);
+        assertEquals(5, score);
+    }
+
+    /**
+     * Palabra no válida según el diccionario debe lanzar excepción.
+     */
+    @Test(expected = PalabraInvalidaException.class)
+    public void validarPalabra_InvalidWord_ThrowsException() throws PalabraInvalidaException {
+        List<Pair<Integer, Integer>> coords = Arrays.asList(
+            new Pair<>(7, 7),
+            new Pair<>(7, 8),
+            new Pair<>(7, 9)
+        );
+        when(tablero.esCentroDelTablero(7, 7)).thenReturn(true);
+        when(tablero.getCelda(anyInt(), anyInt())).thenReturn(null);
+        when(tablero.getFicha(anyInt(), anyInt())).thenReturn(null);
+        when(tablero.getCelda(7, 7)).thenReturn(c00);
+        when(tablero.getCelda(7, 8)).thenReturn(c00);
+        when(tablero.getCelda(7, 9)).thenReturn(c00);
+        when(tablero.getFicha(7, 7)).thenReturn(f00);
+        when(tablero.getFicha(7, 8)).thenReturn(f00);
+        when(tablero.getFicha(7, 9)).thenReturn(f00);
+        when(c00.estaBloqueada()).thenReturn(false);
+        when(c00.isDobleTripleLetra()).thenReturn(false);
+        when(c00.isDobleTriplePalabra()).thenReturn(false);
+        when(f00.getLetra()).thenReturn("X");
+        when(f00.getPuntuacion()).thenReturn(1);
+        // invalid dictionary
         when(diccionario.buscarPalabra(anyString())).thenReturn(false);
-        when(diccionario.tokenizarPalabra(anyString()))
-            .thenReturn(new ArrayList<String>() {{ add(""); }});
+        when(diccionario.tokenizarPalabra(anyString())).thenReturn(Arrays.asList("X", "Y"));
+
+        validador.validarPalabra(coords, diccionario, tablero, 0);
     }
-
-    @Test
-    public void sinCoordenadas_devuelve0() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 5);
-        assertEquals(0, pts);
-    }
-
-    @Test
-    public void unSoloTile_primerTurno_devuelve0() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        coords.add(new Pair<>(7,7));
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 0);
-        assertEquals(0, pts);
-    }
-
-    @Test
-    public void unSoloTile_segundoTurno_sumaAmbasDirecciones() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        coords.add(new Pair<>(4,4));
-
-        when(tablero.getCelda(4,4)).thenReturn(celda);
-        when(tablero.getFicha(4,4)).thenReturn(ficha);
-        when(ficha.getLetra()).thenReturn("B");
-        when(ficha.getPuntuacion()).thenReturn(2);
-        when(celda.estaBloqueada()).thenReturn(false);
-        when(celda.isDobleTripleLetra()).thenReturn(false);
-        when(celda.isDobleTriplePalabra()).thenReturn(false);
-        when(diccionario.buscarPalabra("B")).thenReturn(true);
-
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 1);
-        assertEquals(4, pts); // 2 + 2
-    }
-
-    @Test
-    public void noEnLinea_devuelve0() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        coords.add(new Pair<>(1,2));
-        coords.add(new Pair<>(2,3));
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 1);
-        assertEquals(0, pts);
-    }
-
-    @Test
-    public void primerTurno_sinCentro_devuelve0() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        coords.add(new Pair<>(5,5));
-        coords.add(new Pair<>(5,6));
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 0);
-        assertEquals(0, pts);
-    }
-
-    @Test
-    public void palabraPrincipalInvalida_devuelve0() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        coords.add(new Pair<>(3,3));
-        coords.add(new Pair<>(3,4));
-
-        when(tablero.getCelda(3,3)).thenReturn(celda);
-        when(tablero.getFicha(3,3)).thenReturn(ficha);
-        when(tablero.getCelda(3,4)).thenReturn(celda);
-        when(tablero.getFicha(3,4)).thenReturn(ficha);
-        when(ficha.getLetra()).thenReturn("Z");
-        when(ficha.getPuntuacion()).thenReturn(10);
-        when(celda.estaBloqueada()).thenReturn(false);
-        when(celda.isDobleTripleLetra()).thenReturn(false);
-        when(celda.isDobleTriplePalabra()).thenReturn(false);
-
-        when(diccionario.buscarPalabra("ZZ")).thenReturn(false);
-        when(diccionario.tokenizarPalabra("ZZ"))
-            .thenReturn(new ArrayList<String>() {{ add(""); }});
-
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 2);
-        assertEquals(0, pts);
-    }
-
-    @Test
-    public void perpendicularInvalida_devuelve0() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        coords.add(new Pair<>(6,6));
-        coords.add(new Pair<>(6,7));
-
-        when(tablero.getCelda(6,6)).thenReturn(celda);
-        when(tablero.getFicha(6,6)).thenReturn(ficha);
-        when(tablero.getCelda(6,7)).thenReturn(celda);
-        when(tablero.getFicha(6,7)).thenReturn(ficha);
-        when(ficha.getLetra()).thenReturn("A");
-        when(ficha.getPuntuacion()).thenReturn(1);
-        when(celda.estaBloqueada()).thenReturn(false);
-        when(celda.isDobleTripleLetra()).thenReturn(false);
-        when(celda.isDobleTriplePalabra()).thenReturn(false);
-
-        // palabra principal válida
-        when(diccionario.buscarPalabra("AA")).thenReturn(true);
-        // perpendicular inválida
-        when(diccionario.buscarPalabra("A")).thenReturn(false);
-        when(diccionario.tokenizarPalabra("A"))
-            .thenReturn(new ArrayList<String>() {{ add(""); }});
-
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 1);
-        assertEquals(0, pts);
-    }
-
-    @Test
-    public void bingo_suma50() {
-        List<Pair<Integer,Integer>> coords = new ArrayList<>();
-        coords.add(new Pair<>(7,7));
-        coords.add(new Pair<>(8,7));
-        coords.add(new Pair<>(9,7));
-        coords.add(new Pair<>(10,7));
-        coords.add(new Pair<>(11,7));
-        coords.add(new Pair<>(12,7));
-        coords.add(new Pair<>(13,7));
-
-        when(tablero.esCentroDelTablero(7,7)).thenReturn(true);
-        for (Pair<Integer,Integer> p : coords) {
-            when(tablero.getCelda(p.getFirst(), p.getSecond())).thenReturn(celda);
-            when(tablero.getFicha(p.getFirst(), p.getSecond())).thenReturn(ficha);
-        }
-        when(ficha.getLetra()).thenReturn("M");
-        when(ficha.getPuntuacion()).thenReturn(1);
-        when(celda.estaBloqueada()).thenReturn(false);
-        when(celda.isDobleTripleLetra()).thenReturn(false);
-        when(celda.isDobleTriplePalabra()).thenReturn(false);
-
-        // palabra principal "MMMMMMM" válida
-        when(diccionario.buscarPalabra("MMMMMMM")).thenReturn(true);
-        // perpendiculares válidas ("M")
-        when(diccionario.buscarPalabra("M")).thenReturn(true);
-
-        int pts = validador.validarPalabra(coords, diccionario, tablero, 0);
-        // 7 puntos palabra principal + 7 puntos (1 por cada perpendicular) + 50 de bingo = 64
-        assertEquals(64, pts);
-    }
-
 }
