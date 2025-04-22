@@ -1,0 +1,11 @@
+Dominio  
+Carpeta de la capa de dominio, encargada de la logica y el modelo de negocio. Contiene:
+
+- Modelos  
+  Clases Java que definen las entidades fundamentales del juego (por ejemplo, `Ficha`, `Jugador`, `Partida`, `Tablero`, etc.).  
+- Excepciones  
+  Clases para gestionar los distintos errores y validaciones (`PalabraInvalidaException`, `UsuarioNoEncontradoException`, etc.).  
+- Controladores  
+  - `CtrlJugador`: orquesta las operaciones sobre jugadores.  
+  - `CtrlPartida`: gestiona la creacion, carga y desarrollo de partidas.  
+  - `CtrlDominio`: punto de entrada que coordina la interaccion entre modelos y controladores.

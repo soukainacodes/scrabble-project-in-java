@@ -4,6 +4,22 @@ import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 import java.util.*;
 
+/**
+ * Driver para gestionar y probar la funcionalidad de partidas.
+ * Permite realizar operaciones como:
+ * <ul>
+ *   <li>Crear nuevas partidas.</li>
+ *   <li>Cargar y continuar partidas guardadas.</li>
+ *   <li>Gestionar partidas guardadas (listar, cargar, eliminar).</li>
+ *   <li>Ejecutar pruebas automáticas de creación, guardado y eliminación de partidas.</li>
+ * </ul>
+ */
+
+
+ /**
+ * Constructor por defecto para la clase DriverGestionPartidas.
+ * Inicializa los valores necesarios para gestionar las partidas.
+ */
 public class DriverGestionPartidas {
     private static final Scanner sc = new Scanner(System.in);
     private static final CtrlDominio cd = new CtrlDominio();
@@ -16,6 +32,12 @@ public class DriverGestionPartidas {
     private static String nombre1       = "";
     private static String nombre2       = "";
 
+    /**
+     * Punto de entrada principal del driver.
+     * Muestra un menú principal para interactuar con las funcionalidades.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
         while (true) {
             try {
@@ -27,13 +49,20 @@ public class DriverGestionPartidas {
         }
     }
 
+    /**
+     * Muestra el menú principal y gestiona las opciones seleccionadas por el usuario.
+     *
+     * @throws PartidaYaExistenteException si ya existe una partida con el mismo ID
+     * @throws PartidaNoEncontradaException si no se encuentra la partida
+     * @throws NoHayPartidaGuardadaException si no hay una partida guardada reciente
+     */
     private static void menuPrincipal() throws PartidaYaExistenteException, PartidaNoEncontradaException, NoHayPartidaGuardadaException {
         clearScreen();
         System.out.println("=== MENÚ PRINCIPAL ===");
         System.out.println("1) Nueva Partida");
         System.out.println("2) Seguir última partida");
         System.out.println("3) Cargar Partida");
-        System.out.println("4) Gestión partidas guardadas");      // NUEVO
+        System.out.println("4) Gestión partidas guardadas");
         System.out.println("5) Juego de pruebas");
         System.out.println("6) Salir");
         System.out.print("Opción: ");
@@ -45,7 +74,7 @@ public class DriverGestionPartidas {
                 subMenuPartida();
                 break;
             case "3": subMenuCargarPartida();      break;
-            case "4": subMenuGestionGuardadas();   break;  // NUEVO
+            case "4": subMenuGestionGuardadas();   break;
             case "5": juegoPruebas();              break;
             case "6": System.exit(0);
             default:
@@ -54,9 +83,55 @@ public class DriverGestionPartidas {
         }
     }
 
-    /** NUEVO: menú para listar, cargar o eliminar partidas guardadas 
+    /**
+     * Muestra un submenú para cargar una partida guardada.
+     *
+     * @throws PartidaNoEncontradaException si no se encuentra la partida
      * @throws PartidaYaExistenteException 
-     * @throws PartidaNoEncontradaException */
+     */
+    private static void subMenuCargarPartida() throws PartidaNoEncontradaException, PartidaYaExistenteException {
+        clearScreen();
+        System.out.println("=== CARGAR PARTIDA ===");
+        List<String> partidas = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
+        if (partidas.isEmpty()) {
+            System.out.println("No hay partidas guardadas.");
+            pause();
+            return;
+        }
+        for (int i = 0; i < partidas.size(); i++) {
+            System.out.printf("%2d) %s%n", i + 1, partidas.get(i));
+        }
+        System.out.print("Elige número o escribe el ID: ");
+        String in = sc.nextLine().trim();
+        String id;
+        if (in.matches("\\d+")) {
+            int idx = Integer.parseInt(in) - 1;
+            if (idx < 0 || idx >= partidas.size()) {
+                System.out.println("Selección fuera de rango.");
+                pause();
+                return;
+            }
+            id = partidas.get(idx);
+        } else {
+            id = in;
+            if (!partidas.contains(id)) {
+                System.out.println("ID no válido.");
+                pause();
+                return;
+            }
+        }
+        cd.cargarPartida(id);
+        System.out.println("Partida cargada.");
+        pause();
+        subMenuPartida();
+    }
+
+    /**
+     * Muestra un submenú para gestionar partidas guardadas (listar, cargar, eliminar).
+     *
+     * @throws PartidaYaExistenteException si ya existe una partida con el mismo ID
+     * @throws PartidaNoEncontradaException si no se encuentra la partida
+     */
     private static void subMenuGestionGuardadas() throws PartidaYaExistenteException, PartidaNoEncontradaException {
         clearScreen();
         System.out.println("=== GESTIÓN PARTIDAS GUARDADAS ===");
@@ -92,7 +167,6 @@ public class DriverGestionPartidas {
             }
         }
 
-        // Pregunta acción
         System.out.printf("Has elegido \"%s\". ¿Qué deseas hacer?%n", id);
         System.out.println("1) Cargar");
         System.out.println("2) Eliminar");
@@ -115,8 +189,11 @@ public class DriverGestionPartidas {
         }
     }
 
-    // --- resto de submenus sin cambios salvo ajustar retornos cuando convenga ---
-
+    /**
+     * Muestra un submenú para crear una nueva partida.
+     *
+     * @throws PartidaYaExistenteException si ya existe una partida con el mismo ID
+     */
     private static void subMenuCrearPartida() throws PartidaYaExistenteException {
         while (true) {
             clearScreen();
@@ -147,7 +224,7 @@ public class DriverGestionPartidas {
                         pause();
                     } else {
                         iniciarYJugar();
-                        return; // vuelve al principal tras jugar
+                        return;
                     }
                     break;
                 case "5": return;
@@ -158,16 +235,26 @@ public class DriverGestionPartidas {
         }
     }
 
+    /**
+     * Comprueba si los datos necesarios para iniciar una partida están completos.
+     *
+     * @return true si los datos están completos, false en caso contrario
+     */
     private static boolean datosCompletos() {
         if (modo.isEmpty() || idDiccionario.isEmpty() || nombre1.isBlank()) return false;
         if (modo.equals(MODO2) && nombre2.isBlank()) return false;
         return true;
     }
 
+    /**
+     * Inicia una nueva partida con los datos proporcionados y muestra el submenú de partida.
+     *
+     * @throws PartidaYaExistenteException si ya existe una partida con el mismo ID
+     */
     private static void iniciarYJugar() throws PartidaYaExistenteException {
         long seed = new Random().nextLong();
         int modoInt = modo.equals(MODO1) ? 0 : 1;
-        
+
         try {
             cd.iniciarPartida(
                 modoInt,
@@ -177,92 +264,17 @@ public class DriverGestionPartidas {
                 seed,
                 false
             );
-            // Si todo va bien, seguimos a la subinterfaz de juego
             subMenuPartida();
-        }
-        catch (DiccionarioNoEncontradoException e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
-        catch (BolsaNoEncontradaException e) {
+        } catch (DiccionarioNoEncontradoException | BolsaNoEncontradaException e) {
             System.out.println("ERROR: " + e.getMessage());
         }
     }
-    
-    private static void elegirModo() {
-        clearScreen();
-        System.out.println("=== SELECCIONAR MODO ===");
-        System.out.println("1) " + MODO1);
-        System.out.println("2) " + MODO2);
-        System.out.print("Opción: ");
-        String o = sc.nextLine().trim();
-        if (o.equals("1"))      modo = MODO1;
-        else if (o.equals("2")) modo = MODO2;
-        else {
-            System.out.println("Opción no válida.");
-            pause();
-        }
-    }
 
-    private static void elegirDiccionario() {
-        clearScreen();
-        System.out.println("=== SELECCIONAR DICCIONARIO ===");
-        List<String> ids = new ArrayList<>(cd.obtenerIDsDiccionarios());
-        if (ids.isEmpty()) {
-            System.out.println("No hay diccionarios disponibles.");
-            pause();
-            return;
-        }
-        for (int i = 0; i < ids.size(); i++) {
-            System.out.printf("%2d) %s%n", i + 1, ids.get(i));
-        }
-        System.out.print("Elige n.º o ID: ");
-        String in = sc.nextLine().trim();
-        if (in.matches("\\d+")) {
-            int idx = Integer.parseInt(in) - 1;
-            if (idx >= 0 && idx < ids.size()) {
-                idDiccionario = ids.get(idx);
-                return;
-            }
-        } else if (ids.contains(in)) {
-            idDiccionario = in;
-            return;
-        }
-        System.out.println("Selección no válida.");
-        pause();
-    }
-
-    private static void introducirNombres() {
-        clearScreen();
-        System.out.print("Nombre Jugador 1: ");
-        nombre1 = sc.nextLine().trim();
-        if (modo.equals(MODO2)) {
-            System.out.print("Nombre Jugador 2: ");
-            nombre2 = sc.nextLine().trim();
-        }
-    }
-
-    private static void subMenuCargarPartida() throws PartidaYaExistenteException, PartidaNoEncontradaException {
-        clearScreen();
-        System.out.println("=== CARGAR PARTIDA ===");
-        List<String> partidas = new ArrayList<>(cd.obtenerNombresPartidasGuardadas());
-        if (partidas.isEmpty()) {
-            System.out.println("No hay partidas guardadas.");
-            pause();
-            return;
-        }
-        for (int i = 0; i < partidas.size(); i++) {
-            System.out.printf("%2d) %s%n", i + 1, partidas.get(i));
-        }
-        System.out.print("Elige n.º o ID (0 = volver): ");
-        String in = sc.nextLine().trim();
-        if (in.equals("0")) return;
-        String id = in.matches("\\d+")
-                    ? partidas.get(Integer.parseInt(in) - 1)
-                    : in;
-        cd.cargarPartida(id);
-        subMenuPartida();
-    }
-
+    /**
+     * Muestra un submenú para gestionar la partida actual.
+     *
+     * @throws PartidaYaExistenteException si ya existe una partida con el mismo ID
+     */
     private static void subMenuPartida() throws PartidaYaExistenteException {
         while (true) {
             clearScreen();
@@ -297,6 +309,9 @@ public class DriverGestionPartidas {
         }
     }
 
+    /**
+     * Imprime el tablero actual de la partida.
+     */
     private static void imprimirTablero() {
         int N = cd.getTableroDimension();
         System.out.print("    ");
@@ -314,6 +329,10 @@ public class DriverGestionPartidas {
         }
     }
 
+    /**
+     * Ejecuta un conjunto de pruebas automáticas para verificar la funcionalidad
+     * de creación, guardado y eliminación de partidas.
+     */
     private static void juegoPruebas() {
         clearScreen();
         System.out.println("=== JUEGO DE PRUEBAS ===");
@@ -378,13 +397,84 @@ public class DriverGestionPartidas {
         pause();
     }
 
+    /**
+     * Permite al usuario elegir el modo de juego.
+     */
+    private static void elegirModo() {
+        clearScreen();
+        System.out.println("=== ELEGIR MODO ===");
+        System.out.println("1) " + MODO1);
+        System.out.println("2) " + MODO2);
+        System.out.print("Opción: ");
+        String opt = sc.nextLine().trim();
+        switch (opt) {
+            case "1": modo = MODO1; break;
+            case "2": modo = MODO2; break;
+            default:
+                System.out.println("Opción no válida.");
+                pause();
+        }
+    }
+
+    /**
+     * Permite al usuario elegir un diccionario.
+     */
+    private static void elegirDiccionario() {
+        clearScreen();
+        System.out.println("=== ELEGIR DICCIONARIO ===");
+        List<String> diccionarios = new ArrayList<>(cd.obtenerIDsDiccionarios());
+        if (diccionarios.isEmpty()) {
+            System.out.println("No hay diccionarios disponibles.");
+            pause();
+            return;
+        }
+        for (int i = 0; i < diccionarios.size(); i++) {
+            System.out.printf("%2d) %s%n", i + 1, diccionarios.get(i));
+        }
+        System.out.print("Elige número o escribe el ID: ");
+        String in = sc.nextLine().trim();
+        if (in.matches("\\d+")) {
+            int idx = Integer.parseInt(in) - 1;
+            if (idx >= 0 && idx < diccionarios.size()) {
+                idDiccionario = diccionarios.get(idx);
+            } else {
+                System.out.println("Selección fuera de rango.");
+                pause();
+            }
+        } else if (diccionarios.contains(in)) {
+            idDiccionario = in;
+        } else {
+            System.out.println("ID no válido.");
+            pause();
+        }
+    }
+
+    /**
+     * Pausa la ejecución hasta que el usuario presione ENTER.
+     */
     private static void pause() {
         System.out.println("\nPulsa ENTER para continuar...");
         sc.nextLine();
     }
 
+    /**
+     * Permite al usuario introducir los nombres de los jugadores.
+     */
+    private static void introducirNombres() {
+        clearScreen();
+        System.out.println("=== INTRODUCIR NOMBRES ===");
+        System.out.print("Nombre del Jugador 1: ");
+        nombre1 = sc.nextLine().trim();
+        if (modo.equals(MODO2)) {
+            System.out.print("Nombre del Jugador 2: ");
+            nombre2 = sc.nextLine().trim();
+        }
+    }
+
+    /**
+     * Limpia la pantalla de la consola.
+     */
     private static void clearScreen() {
-        // ANSI
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }

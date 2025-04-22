@@ -1,0 +1,2 @@
+En esta carpeta se almacenan los recursos externos que puede usar el sistema;
+actualmente solo contiene la carpeta Idiomas.

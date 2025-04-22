@@ -1,0 +1,5 @@
+En esta carpeta se almacenan los diccionarios y las bolsas en formato .txt. Al crear un nuevo diccionario identificado como ID, se genera automaticamente una carpeta llamada ID que contiene los archivos:
+
+- ID_diccionario.txt
+
+- ID_bolsa.txt

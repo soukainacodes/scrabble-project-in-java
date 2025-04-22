@@ -1,0 +1,13 @@
+Esta carpeta agrupa las clases encargadas de gestionar 
+las diferentes condiciones excepcionales del sistema, como: 
+- errores de usuario
+- problemas de persistencia
+- validaciones inválidas
+
+
+
+
+
+
+
+

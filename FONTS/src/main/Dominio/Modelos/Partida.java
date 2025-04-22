@@ -189,6 +189,12 @@ public class Partida {
     }
 
     /** Establece el turno actual. */
+    /**
+     * Sets the turn status for the player.
+     *
+     * @param turno a boolean indicating whether it is the player's turn (true) 
+     *              or not (false).
+     */
     public void setTurnoJugador(boolean turno) {
         turnoJugador = turno;
     }

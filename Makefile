@@ -58,8 +58,9 @@ test:
 	mkdir -p $(CLASS_OUTPUT_TEST)
 	javac -d $(CLASS_OUTPUT_TEST) -cp $(CLASS_OUTPUT_MAIN):$(LIBS) $(TEST_PATH)
 
-# Objetivo para ejecutar el test.
-# Se asume que FichaTest.java declara el paquete "testsUnitarios" y está preparado para ser ejecutado.
+
+# Objetivo para ejecutar un test unitarios de JUnit.
+
 runTestFicha:
 	java -cp $(CLASS_OUTPUT_MAIN):$(CLASS_OUTPUT_TEST):$(LIBS) org.junit.runner.JUnitCore testsUnitarios.FichaTest
 
@@ -101,9 +102,8 @@ runTestAlgoritmo:
 clean:
 	rm -rf $(CLASS_OUTPUT_MAIN)/* $(CLASS_OUTPUT_TEST)/*
 
-# …resto de tu Makefile…
 
-# Nuevo objetivo que corre todo en cadena
+# Se ejecutan todos los tests unitarios en una sola línea
 runAllUnitTests: test \
                  runTestFicha runTestBolsa runTestCelda runTestTablero \
                  runTestJugador runTestTipoBonificacion runTestDawg \
@@ -113,3 +113,8 @@ runAllUnitTests: test \
 	@echo "──────────────────────────────────────────────────────────"
 	@echo " ;)  Todos los tests unitarios han terminado"
 	@echo "──────────────────────────────────────────────────────────"
+
+
+# regla para generar la documentación de JavaDoc
+javadoc:
+	javadoc   -d DOCS/javadoc   -sourcepath FONTS/src/main   Dominio   Dominio.Excepciones   Dominio.Modelos   Persistencia   Presentacion.Drivers

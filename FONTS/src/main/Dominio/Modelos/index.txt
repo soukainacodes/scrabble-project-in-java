@@ -1,0 +1,1 @@
+Carpeta que agrupa las clases Java (.java) que definen las entidades y estructuras fundamentales del juego.

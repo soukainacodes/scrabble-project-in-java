@@ -1,0 +1,15 @@
+Esta carpeta contiene los ficheros fuente del proyecto Scrabble.
+
+En main:
+
+    Dominio: lógica y modelo de negocio.
+
+    Presentación: clases de interfaz y controladores de usuario.
+
+    Persistencia: gestión de almacenamiento y acceso a datos.
+
+En test:
+
+    lib: librerías necesarias para ejecutar los tests.
+
+    testUnitarios: pruebas unitarias que verifican el correcto funcionamiento de cada componente.

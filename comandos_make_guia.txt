@@ -10,7 +10,7 @@ make runcode_scrabble               # Lanza el DriverScrabble
 make runcode_juego                  # Lanza el DriverGestionJuego
 make runcode_usuarios               # Lanza el DriverGestionUsuarios
 make runcode_partidas               # Lanza el DriverGestionPartidas
-make runcode_diccionarios_bolsas  # Lanza el DriverGestionDiccionariosBolsas
+make runcode_diccionarios_bolsas    # Lanza el DriverGestionDiccionariosBolsas
 
 
 ### Compilar tests unitarios

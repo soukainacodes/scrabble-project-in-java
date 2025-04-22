@@ -1,1 +1,7 @@
-Aqui tenemos la documentacion de la Entrega 1 (diagramas UML y Casos de USo, y el Documento_Scrabble).
+Aqui tenemos la documentacion de la Entrega 1:
+
+    - Diagramas UML y Casos de Usos.
+    - JavaDoc files.
+    - Documento_Scrabble.pdf.
+
+    

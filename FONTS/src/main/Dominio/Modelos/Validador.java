@@ -26,92 +26,109 @@ public class Validador {
      * configuración inicial explícita.
      */
     public Validador() {
-
+        // Constructor vacío
     }
 
+    /**
+     * Valida una palabra colocada en el tablero según las reglas del juego.
+     * <p>
+     * Verifica que la palabra esté alineada (horizontal o vertical), conectada
+     * con otras fichas, y que sea válida según el diccionario. También calcula
+     * la puntuación total de la jugada, incluyendo bonificaciones y palabras
+     * adicionales formadas.
+     *
+     * @param coordenadasPalabra lista de coordenadas de las fichas colocadas.
+     * @param diccionario el diccionario DAWG utilizado para validar palabras.
+     * @param tablero el tablero actual del juego.
+     * @param contadorTurno el número del turno actual.
+     * @return la puntuación total de la jugada.
+     * @throws PalabraInvalidaException si la jugada no es válida.
+     */
+    public int validarPalabra(
+        List<Pair<Integer, Integer>> coordenadasPalabra,
+        Dawg diccionario,
+        Tablero tablero,
+        int contadorTurno
+    ) throws PalabraInvalidaException {
 
-public int validarPalabra(
-    List<Pair<Integer, Integer>> coordenadasPalabra,
-    Dawg diccionario,
-    Tablero tablero,
-    int contadorTurno
-) throws PalabraInvalidaException {
+        this.hayBloqueada = false;
+        this.tablero = tablero;
+        this.diccionario = diccionario;
 
-    this.hayBloqueada = false;
-    this.tablero = tablero;
-    this.diccionario = diccionario;
+        if (coordenadasPalabra.isEmpty()) {
+            throw new PalabraInvalidaException();
+        }
 
-    if (coordenadasPalabra.isEmpty()) {
-        throw new PalabraInvalidaException();
-    }
+        int puntosTotales = 0;
 
-    int puntosTotales = 0;
+        // Caso especial: una sola ficha colocada
+        if (coordenadasPalabra.size() == 1) {
+            if (contadorTurno == 0) throw new PalabraInvalidaException();
 
-    if (coordenadasPalabra.size() == 1) {
-        if (contadorTurno == 0) throw new PalabraInvalidaException();
+            Pair<Integer, Integer> coord = coordenadasPalabra.get(0);
+            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false);
+            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true);
+            return puntosTotales;
+        }
 
-        Pair<Integer, Integer> coord = coordenadasPalabra.get(0);
-        puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false);
-        puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true);
+        boolean isHorizontalLine = true;
+        boolean isVerticalLine = true;
+        boolean touchesCenterTile = false;
+
+        int refX = coordenadasPalabra.get(0).getFirst();
+        int refY = coordenadasPalabra.get(0).getSecond();
+
+        // Verifica alineación y conexión con el centro
+        for (Pair<Integer, Integer> p : coordenadasPalabra) {
+            if (p.getFirst() != refX) isHorizontalLine = false;
+            if (p.getSecond() != refY) isVerticalLine = false;
+            if (tablero.esCentroDelTablero(p.getFirst(), p.getSecond())) touchesCenterTile = true;
+        }
+
+        if (!isHorizontalLine && !isVerticalLine) throw new PalabraInvalidaException();
+        if (contadorTurno == 0 && !touchesCenterTile) throw new PalabraInvalidaException();
+
+        // Calcula la puntuación de la palabra principal
+        int puntosPrincipales = isHorizontalLine
+            ? recorrerDireccion(refX, refY, false)
+            : recorrerDireccion(refX, refY, true);
+
+        if (puntosPrincipales < 0) throw new PalabraInvalidaException();
+        puntosTotales += puntosPrincipales;
+
+        // Calcula la puntuación de palabras perpendiculares
+        for (Pair<Integer, Integer> p : coordenadasPalabra) {
+            int puntos = isHorizontalLine
+                ? recorrerDireccion(p.getFirst(), p.getSecond(), true)
+                : recorrerDireccion(p.getFirst(), p.getSecond(), false);
+
+            if (puntos < 0) throw new PalabraInvalidaException();
+            puntosTotales += puntos;
+        }
+
+        // Verifica si hay fichas bloqueadas
+        if (!hayBloqueada && contadorTurno > 0) {
+            throw new PalabraInvalidaException();
+        }
+
+        // Bonificación por usar todas las fichas (bingo)
+        if (coordenadasPalabra.size() == 7) {
+            puntosTotales += 50;
+        }
+
         return puntosTotales;
     }
-
-    boolean isHorizontalLine = true;
-    boolean isVerticalLine = true;
-    boolean touchesCenterTile = false;
-
-    int refX = coordenadasPalabra.get(0).getFirst();
-    int refY = coordenadasPalabra.get(0).getSecond();
-
-    for (Pair<Integer, Integer> p : coordenadasPalabra) {
-        if (p.getFirst() != refX) isHorizontalLine = false;
-        if (p.getSecond() != refY) isVerticalLine = false;
-        if (tablero.esCentroDelTablero(p.getFirst(), p.getSecond())) touchesCenterTile = true;
-    }
-
-    if (!isHorizontalLine && !isVerticalLine) throw new PalabraInvalidaException();
-    if (contadorTurno == 0 && !touchesCenterTile) throw new PalabraInvalidaException();
-
-    int puntosPrincipales = isHorizontalLine
-        ? recorrerDireccion(refX, refY, false)
-        : recorrerDireccion(refX, refY, true);
-
-    if (puntosPrincipales < 0) throw new PalabraInvalidaException();
-    puntosTotales += puntosPrincipales;
-
-    for (Pair<Integer, Integer> p : coordenadasPalabra) {
-        int puntos = isHorizontalLine
-            ? recorrerDireccion(p.getFirst(), p.getSecond(), true)
-            : recorrerDireccion(p.getFirst(), p.getSecond(), false);
-
-        if (puntos < 0) throw new PalabraInvalidaException();
-        puntosTotales += puntos;
-    }
-
-    if (!hayBloqueada && contadorTurno > 0) {
-        throw new PalabraInvalidaException();
-    }
-
-    if (coordenadasPalabra.size() == 7) {
-        puntosTotales += 50;
-    }
-
-    return puntosTotales;
-}
-
-
-
 
     /**
      * Recorre una dirección específica desde una posición dada (horizontal o
      * vertical), construyendo una palabra y calculando su puntuación teniendo
      * en cuenta bonificaciones de celda.
-     *
+     * <p>
      * También determina si alguna de las fichas colocadas es nueva (bloqueada),
      * lo cual es necesario para validar la jugada.
      *
-     * @param xx Fila inicial desde donde comienza el recorrido.
-     * @param yy Columna inicial desde donde comienza el recorrido.
+     * @param xx fila inicial desde donde comienza el recorrido.
+     * @param yy columna inicial desde donde comienza el recorrido.
      * @param vertical {@code true} para recorrer verticalmente, {@code false}
      * para horizontalmente.
      * @return Puntuación de la palabra construida si es válida, {@code 0} si

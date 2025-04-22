@@ -4,10 +4,36 @@ import java.util.*;
 import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 
+/**
+ * Driver para gestionar y probar la funcionalidad de usuarios.
+ * Permite realizar operaciones como:
+ * <ul>
+ *   <li>Iniciar sesión con un usuario existente.</li>
+ *   <li>Registrar nuevos usuarios.</li>
+ *   <li>Gestionar la cuenta del usuario actual (cambiar contraseña, eliminar perfil).</li>
+ *   <li>Consultar el ranking global de jugadores.</li>
+ *   <li>Ejecutar pruebas automáticas de creación, inicio de sesión y eliminación de usuarios.</li>
+ * </ul>
+ */
+
+
+/**
+ * Constructor por defecto para la clase DriverGestionUsuarios.
+ * Inicializa los valores necesarios para gestionar los usuarios.
+ */
 public class DriverGestionUsuarios {
     private static final CtrlDominio ctrl = new CtrlDominio();
     private static final Scanner sc  = new Scanner(System.in);
 
+    /**
+     * Punto de entrada principal del driver.
+     * Muestra un menú principal o de usuario según el estado de la sesión.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario
+     * @throws RankingVacioException si el ranking está vacío
+     * @throws PasswordInvalidaException si la contraseña proporcionada es incorrecta
+     */
     public static void main(String[] args) throws UsuarioNoEncontradoException, RankingVacioException, PasswordInvalidaException {
         while (true) {
             if (!ctrl.haySesion()) menuPrincipal();
@@ -15,6 +41,12 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Muestra el menú principal para usuarios no autenticados.
+     *
+     * @throws PasswordInvalidaException si la contraseña proporcionada es incorrecta
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario
+     */
     private static void menuPrincipal() throws PasswordInvalidaException, UsuarioNoEncontradoException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
@@ -31,6 +63,12 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Muestra el menú para usuarios autenticados.
+     *
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario
+     * @throws RankingVacioException si el ranking está vacío
+     */
     private static void menuUsuario() throws UsuarioNoEncontradoException, RankingVacioException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Cuenta");
@@ -50,6 +88,9 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Inicia sesión con un usuario existente.
+     */
     private static void iniciarSesion() {
         System.out.print("Usuario: ");
         String u = sc.nextLine().trim();
@@ -77,6 +118,12 @@ public class DriverGestionUsuarios {
         System.out.println("========================================\n");
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     *
+     * @param inicio indica si se debe iniciar sesión automáticamente después del registro
+     * @throws PasswordInvalidaException si la contraseña proporcionada es inválida
+     */
     private static void registrarse(boolean inicio) throws PasswordInvalidaException {
         System.out.print("Nuevo usuario: ");
         String u = sc.nextLine().trim();
@@ -91,6 +138,11 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Muestra el ranking global de jugadores.
+     *
+     * @throws RankingVacioException si el ranking está vacío
+     */
     private static void verRanking() throws RankingVacioException {
         System.out.println("\n--- RANKING GLOBAL ---");
         var lista = ctrl.obtenerRanking();
@@ -101,6 +153,11 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Muestra el submenú de gestión de la cuenta del usuario actual.
+     *
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario
+     */
     private static void subMenuCuenta() throws UsuarioNoEncontradoException {
         while (true) {
             String u      = ctrl.getUsuarioActual();
@@ -129,6 +186,11 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Cambia la contraseña del usuario actual.
+     *
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario
+     */
     private static void cambiarPassword() throws UsuarioNoEncontradoException {
         System.out.print("Contraseña actual: ");
         String ant = sc.nextLine().trim();
@@ -148,6 +210,11 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Elimina el perfil del usuario actual.
+     *
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario
+     */
     private static void eliminarPerfil() throws UsuarioNoEncontradoException {
         System.out.print("¿Seguro que desea eliminar su cuenta? (s/n): ");
         String r = sc.nextLine().trim().toLowerCase();
@@ -165,8 +232,11 @@ public class DriverGestionUsuarios {
         }
     }
 
+    /**
+     * Ejecuta un conjunto de pruebas automáticas para verificar la funcionalidad
+     * de creación, inicio de sesión y eliminación de usuarios.
+     */
     private static void juegoPruebas() {
-        // Limpia pantalla
         System.out.print("\033[H\033[2J");
         System.out.println("=== Ejecutando juego de pruebas ===\n");
         List<String> usuarios = Arrays.asList("Jordi", "Pere", "Maria", "Joana", "Manel");

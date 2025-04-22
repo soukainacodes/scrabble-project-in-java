@@ -10,8 +10,8 @@ public class DriverGestionJuego {
 
     private static final Scanner in = new Scanner(System.in);
     private static final CtrlDominio cd = new CtrlDominio();
-    private static final String nombreJugador = "A";
-    private static final String contrasena = "A";
+    private static final String nombreJugador = "jojo";
+    private static final String contrasena = "oraoraora";
     private static int fin = 0;
     private static String modo = "", idioma = "";
 
@@ -19,14 +19,14 @@ public class DriverGestionJuego {
         System.out.println("Driver de prueba de Partida contra el Algoritmo (CtrlDominio)");
 
         // Registro del jugador (si ya existe, lo ignoramos)
-        try {
+       /*  try {
 
             cd.registrarJugador(nombreJugador, contrasena);
         } catch (UsuarioYaRegistradoException e) {
             System.out.println("Aviso: " + e.getMessage());
-        }
+        } */
         try {
-            cd.iniciarSesion(nombreJugador, nombreJugador);
+            cd.iniciarSesion(nombreJugador, contrasena);
         } catch (UsuarioNoEncontradoException e) {
             System.out.println("Aviso: " + e.getMessage());
             pause();

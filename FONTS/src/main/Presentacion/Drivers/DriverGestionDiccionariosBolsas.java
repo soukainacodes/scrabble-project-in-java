@@ -18,6 +18,8 @@ import Dominio.Excepciones.DiccionarioYaExistenteException;
  *   <li>Gestionar recursos manualmente (añadir/eliminar).</li>
  * </ul>
  */
+
+ 
 public class DriverGestionDiccionariosBolsas {
     private static final Scanner sc = new Scanner(System.in);
     private static final CtrlDominio ctrl = new CtrlDominio();

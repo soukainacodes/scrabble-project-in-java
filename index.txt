@@ -2,7 +2,7 @@ DOCS/
 - Contiene documentacion del proyecto (docuemntacion y diagramas).
 
 EXE/
-- Carpeta de salida de compilacion.
+- Carpeta de salida de compilacion donde estaran los Drivers ejecutables (.jar).
 - EXE/main: archivos .class del codigo principal.
 - EXE/test: archivos .class de los tests unitarios.
 

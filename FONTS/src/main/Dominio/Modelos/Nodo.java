@@ -12,7 +12,6 @@ import java.util.Map;
  *   <li>Un mapa de hijos que asocia fichas a nodos descendientes.</li>
  *   <li>Un indicador de si marca el final de una palabra válida.</li>
  * </ul>
- * </p>
  */
 public class Nodo {
 
@@ -70,14 +69,13 @@ public class Nodo {
 
     /**
      * Compara este nodo con otro para igualdad semántica.
-     * <p>
+     * 
      * Dos nodos son iguales si:
      * <ul>
      *   <li>Tienen misma letra (o ambas null).</li>
      *   <li>Comparten el estado de "fin de palabra".</li>
      *   <li>Tienen idénticos hijos (mismo conjunto de claves y mismas referencias de nodos).</li>
      * </ul>
-     * </p>
      *
      * @param obj Objeto a comparar.
      * @return {@code true} si son iguales, {@code false} en caso contrario.
@@ -99,14 +97,13 @@ public class Nodo {
 
     /**
      * Genera un código hash consistente con {@link #equals(Object)}.
-     * <p>
+     * 
      * Combina:
      * <ul>
      *   <li>Estado de fin de palabra.</li>
      *   <li>Hash de la letra.</li>
      *   <li>Hash de las entradas en el mapa de hijos (clave y referencia).</li>
      * </ul>
-     * </p>
      *
      * @return Código hash del nodo.
      */

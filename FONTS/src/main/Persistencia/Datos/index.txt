@@ -1,0 +1,2 @@
+Datos 
+- Carpeta donde se almacenan archivos `.txt` con la informacion persistente de usuarios, partidas, etc.
