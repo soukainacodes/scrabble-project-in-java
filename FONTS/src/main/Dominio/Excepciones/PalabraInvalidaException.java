@@ -5,7 +5,7 @@ package Dominio.Excepciones;
  */
 public class PalabraInvalidaException extends Exception {
     public PalabraInvalidaException() {
-        super("La jugada no forma una palabra válida.");
+        super("La palabra no es válida.");
     }
 
     public PalabraInvalidaException(String razon) {

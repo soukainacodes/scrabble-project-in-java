@@ -2,7 +2,7 @@ package Dominio.Excepciones;
 
 public class ComandoInvalidoException extends Exception {
     public ComandoInvalidoException() {
-        super("Comando inválido o mal formateado.");
+        super("Comando inválido.");
     }
 
     public ComandoInvalidoException(String detalle) {
