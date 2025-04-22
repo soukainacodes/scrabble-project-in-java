@@ -49,11 +49,8 @@ public class CtrlJugador {
     }
 
     public void actualizarPuntuacion(int nuevosPuntos)
-            throws UsuarioNoEncontradoException, PuntuacionInvalidaException {
+            throws  PuntuacionInvalidaException {
 
-        if (jugadorActual == null) {
-            throw new UsuarioNoEncontradoException();
-        }
 
         if (nuevosPuntos < 0) {
             throw new PuntuacionInvalidaException(nuevosPuntos);
