@@ -29,21 +29,26 @@ LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDD
 # Objetivo para compilar el código principal (no se toca)
 code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
+	jar cfv $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionDiccionariosBolsas.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionPartidas.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) . 
 
 runcode_scrabble:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverScrabble
+	java -cp $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar Presentacion.Drivers.DriverScrabble
 
 runcode_juego:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionJuego
+	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar  Presentacion.Drivers.DriverGestionJuego
 
 runcode_usuarios:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionUsuarios
+	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar Presentacion.Drivers.DriverGestionUsuarios
 
 runcode_partidas:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionPartidas
+	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionPartidas.jar Presentacion.Drivers.DriverGestionPartidas
 
 runcode_diccionarios_bolsas:
-	java -cp $(CLASS_OUTPUT_MAIN) Presentacion.Drivers.DriverGestionDiccionariosBolsas
+	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionDiccionariosBolsas.jar Presentacion.Drivers.DriverGestionDiccionariosBolsas
 
 
 # Objetivo para compilar los tests.
