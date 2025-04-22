@@ -34,6 +34,26 @@ public class DriverGestionDiccionariosBolsas {
      * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
      * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
      */
+
+      /**
+     * Constructor por defecto para la clase DriverGestionDiccionariosBolsas.
+     * Inicializa los valores necesarios para gestionar los Disccionarios y Bolsas de Fichas del Scrabble.
+     */
+    private DriverGestionDiccionariosBolsas() {
+        // Constructor vacío
+    }
+
+
+    /**
+     * Método principal que inicia la ejecución del driver.
+     * Muestra un menú principal y gestiona las opciones seleccionadas por el usuario.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     * @throws DiccionarioNoEncontradoException si no se encuentra un diccionario
+     * @throws BolsaNoEncontradaException si no se encuentra una bolsa
+     * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
+     * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
+     */
     public static void main(String[] args) throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, DiccionarioYaExistenteException, BolsaYaExistenteException {
         while (true) {
             menuPrincipal();

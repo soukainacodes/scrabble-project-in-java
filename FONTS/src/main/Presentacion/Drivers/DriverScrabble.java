@@ -5,22 +5,43 @@ import Dominio.Excepciones.*;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Driver principal para gestionar y probar todas las funcionalidades del juego de Scrabble.
+ * Permite gestionar usuarios, diccionarios, bolsas y partidas, así como interactuar con el tablero.
+ */
 public class DriverScrabble {
     private static final Scanner sc = new Scanner(System.in);
     private static final CtrlDominio ctrl = new CtrlDominio();
 
+    /**
+     * Constructor por defecto para la clase DriverScrabble.
+     * Inicializa los valores necesarios para gestionar el juego de Scrabble.
+     */
+    public DriverScrabble() {
+        // Constructor vacío
+    }
+
+    /**
+     * Punto de entrada principal del driver.
+     * Muestra el menú principal o de usuario según el estado de la sesión.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
         while (true) {
             try {
                 if (!ctrl.haySesion()) menuPrincipal();
-                else               menuUsuario();
+                else menuUsuario();
             } catch (Exception e) {
                 System.err.println("Error: " + e.getMessage());
             }
         }
     }
 
-    // Menú inicial (sin sesión)
+    /**
+     * Muestra el menú principal para usuarios no autenticados.
+     * Permite iniciar sesión, registrarse o salir.
+     */
     private static void menuPrincipal() {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
@@ -32,11 +53,16 @@ public class DriverScrabble {
             case "1": iniciarSesion();     break;
             case "2": registrarse();       break;
             case "3": System.exit(0);      break;
-            default:   System.out.println("Opción no válida.");
+            default:  System.out.println("Opción no válida.");
         }
     }
 
-    // Menú principal (con sesión iniciada)
+    /**
+     * Muestra el menú principal para usuarios autenticados.
+     * Permite gestionar cuenta, diccionarios, partidas o cerrar sesión.
+     *
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario actual.
+     */
     private static void menuUsuario() throws UsuarioNoEncontradoException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Gestión de Cuenta");
@@ -47,21 +73,26 @@ public class DriverScrabble {
         System.out.print("Opción: ");
         String opt = sc.nextLine().trim();
         switch (opt) {
-            case "1": subMenuCuenta();        break;
-            case "2": subMenuDiccionarios();  break;
-            case "3": subMenuPartidas();      break;
+            case "1": subMenuCuenta(); break;
+            case "2": subMenuDiccionarios(); break;
+            case "3": subMenuPartidas(); break;
             case "4": ctrl.cerrarSesion(); System.out.println("Sesión cerrada."); break;
-            case "5": System.exit(0);         break;
-            default:   System.out.println("Opción no válida.");
+            case "5": System.exit(0); break;
+            default: System.out.println("Opción no válida.");
         }
     }
 
-    // --- Gestión de Cuenta --------------------------------------------------
+    /**
+     * Muestra el submenú de gestión de la cuenta del usuario actual.
+     * Permite cambiar contraseña, ver ranking, eliminar perfil o volver.
+     *
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario actual.
+     */
     private static void subMenuCuenta() throws UsuarioNoEncontradoException {
         while (true) {
             String user = ctrl.getUsuarioActual();
-            int puntos  = ctrl.getPuntosActual();
-            int pos     = ctrl.getPosicion();
+            int puntos = ctrl.getPuntosActual();
+            int pos = ctrl.getPosicion();
 
             System.out.println("\n--- TU CUENTA ---");
             System.out.println("Usuario:  " + user);
@@ -74,26 +105,33 @@ public class DriverScrabble {
             System.out.print("Opción: ");
             String opt = sc.nextLine().trim();
             switch (opt) {
-                case "1": cambiarPassword();    break;
+                case "1": cambiarPassword(); break;
                 case "2":
-                    try { verRanking(); } catch (RankingVacioException e) {
+                    try {
+                        verRanking();
+                    } catch (RankingVacioException e) {
                         System.out.println("No hay puntuaciones registradas.");
                     }
                     break;
-                case "3": eliminarPerfil();     return;
+                case "3": eliminarPerfil(); return;
                 case "4": return;
-                default:  System.out.println("Opción no válida.");
+                default: System.out.println("Opción no válida.");
             }
         }
     }
 
+    /**
+     * Cambia la contraseña del usuario actual.
+     *
+     * @throws UsuarioNoEncontradoException si no se encuentra el usuario actual.
+     */
     private static void cambiarPassword() throws UsuarioNoEncontradoException {
         System.out.print("Contraseña actual: ");
         String ant = sc.nextLine().trim();
         System.out.print("Nueva contraseña: ");
-        String n1  = sc.nextLine().trim();
+        String n1 = sc.nextLine().trim();
         System.out.print("Repita la nueva contraseña: ");
-        String n2  = sc.nextLine().trim();
+        String n2 = sc.nextLine().trim();
         if (!n1.equals(n2)) {
             System.out.println("Error: las contraseñas no coinciden.");
             return;
@@ -106,6 +144,11 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Muestra el ranking global de jugadores.
+     *
+     * @throws RankingVacioException si no hay jugadores en el ranking.
+     */
     private static void verRanking() throws RankingVacioException {
         System.out.println("\n--- RANKING GLOBAL ---");
         var lista = ctrl.obtenerRanking();
@@ -115,6 +158,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Elimina el perfil del usuario actual tras confirmación.
+     */
     private static void eliminarPerfil() {
         System.out.print("¿Seguro que desea eliminar su cuenta? (s/n): ");
         String r = sc.nextLine().trim().toLowerCase();
@@ -132,7 +178,9 @@ public class DriverScrabble {
         }
     }
 
-    // --- Gestión de Usuarios ------------------------------------------------
+    /**
+     * Inicia sesión con un usuario existente.
+     */
     private static void iniciarSesion() {
         System.out.print("Usuario: ");
         String u = sc.nextLine().trim();
@@ -141,7 +189,7 @@ public class DriverScrabble {
         try {
             ctrl.iniciarSesion(u, p);
             int puntos = ctrl.getPuntosActual();
-            int pos    = ctrl.getPosicion();
+            int pos = ctrl.getPosicion();
             System.out.println("\n========================================");
             System.out.printf("   ¡Bienvenido, %s!%n", u);
             System.out.printf("   Puntos: %d    ", puntos);
@@ -152,6 +200,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     */
     private static void registrarse() {
         System.out.print("Nuevo usuario: ");
         String u = sc.nextLine().trim();
@@ -164,10 +215,14 @@ public class DriverScrabble {
             System.out.println("Sesión iniciada como '" + u + "'.");
         } catch (UsuarioYaRegistradoException e) {
             System.out.println("ERROR: " + e.getMessage());
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
-    // --- Gestión de Diccionarios y Bolsas -----------------------------------
+    /**
+     * Muestra el submenú de gestión de diccionarios y bolsas.
+     * Permite consultar, añadir o eliminar recursos.
+     */
     private static void subMenuDiccionarios() {
         while (true) {
             System.out.println("\n=== GESTIÓN DICCIONARIOS Y BOLSAS ===");
@@ -179,11 +234,11 @@ public class DriverScrabble {
             String opt = sc.nextLine().trim();
             try {
                 switch (opt) {
-                    case "1": consultarRecursos();        break;
-                    case "2": addResourceMenu();          break;
-                    case "3": deleteResource();           break;
+                    case "1": consultarRecursos(); break;
+                    case "2": addResourceMenu(); break;
+                    case "3": deleteResource(); break;
                     case "4": return;
-                    default:   System.out.println("Opción no válida.");
+                    default: System.out.println("Opción no válida.");
                 }
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
@@ -191,6 +246,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Consulta y muestra los diccionarios y bolsas disponibles.
+     */
     private static void consultarRecursos() {
         Set<String> dicIDs = ctrl.obtenerIDsDiccionarios();
         Set<String> bolIDs = ctrl.obtenerIDsBolsas();
@@ -209,6 +267,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Muestra el submenú para añadir recursos (diccionario+bolsa).
+     */
     private static void addResourceMenu() {
         while (true) {
             System.out.println("\n--- AÑADIR RECURSO ---");
@@ -230,6 +291,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Añade un recurso desde un directorio existente.
+     */
     private static void addFromDirectory() {
         System.out.print("Ruta al directorio (0 para volver): ");
         String dirPath = sc.nextLine().trim();
@@ -259,6 +323,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Añade un recurso desde el teclado.
+     */
     private static void addFromKeyboard() {
         System.out.print("Nuevo ID (0 para volver): ");
         String id = sc.nextLine().trim();
@@ -291,6 +358,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Elimina un recurso (diccionario+bolsa) seleccionado por el usuario.
+     */
     private static void deleteResource() {
         System.out.print("ID a eliminar (0 para volver): ");
         String id = sc.nextLine().trim();
@@ -305,6 +375,13 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Lee un archivo de texto y devuelve una lista de líneas.
+     *
+     * @param ruta la ruta del archivo de texto.
+     * @return una lista de líneas del archivo.
+     * @throws IOException si ocurre un error de E/S.
+     */
     private static List<String> leerArchivoTexto(String ruta) throws IOException {
         List<String> lista = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
@@ -317,6 +394,13 @@ public class DriverScrabble {
         return lista;
     }
 
+    /**
+     * Lee un archivo de bolsa y devuelve un mapa de letras y sus propiedades.
+     *
+     * @param ruta la ruta del archivo de bolsa.
+     * @return un mapa de letras y sus propiedades.
+     * @throws IOException si ocurre un error de E/S.
+     */
     private static Map<String,int[]> leerArchivoBolsa(String ruta) throws IOException {
         Map<String,int[]> mapa = new LinkedHashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
@@ -331,7 +415,10 @@ public class DriverScrabble {
         return mapa;
     }
 
-    // --- Gestión de Partidas ------------------------------------------------
+    /**
+     * Muestra el submenú de gestión de partidas.
+     * Permite crear, cargar o ver ranking de partidas.
+     */
     private static void subMenuPartidas() {
         while (true) {
             System.out.println("\n=== GESTIÓN DE PARTIDAS ===");
@@ -343,11 +430,13 @@ public class DriverScrabble {
             System.out.print("Opción: ");
             String opt = sc.nextLine().trim();
             switch (opt) {
-                case "1": crearPartida();          break;
-                case "2": cargarUltimaPartida();   break;
+                case "1": crearPartida(); break;
+                case "2": cargarUltimaPartida(); break;
                 case "3": cargarPartidaGuardada(); break;
                 case "4":
-                    try { verRanking(); } catch (RankingVacioException e) {
+                    try {
+                        verRanking();
+                    } catch (RankingVacioException e) {
                         System.out.println("No hay puntuaciones registradas.");
                     }
                     break;
@@ -357,6 +446,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Crea una nueva partida solicitando los datos necesarios al usuario.
+     */
     private static void crearPartida() {
         try {
             System.out.println("\n--- Crear nueva partida ---");
@@ -408,6 +500,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Carga la última partida guardada.
+     */
     private static void cargarUltimaPartida() {
         try {
             ctrl.cargarUltimaPartida();
@@ -418,6 +513,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Carga una partida guardada seleccionada por el usuario.
+     */
     private static void cargarPartidaGuardada() {
         List<String> partidas = new ArrayList<>(ctrl.obtenerNombresPartidasGuardadas());
         if (partidas.isEmpty()) { System.out.println("No hay partidas guardadas."); return; }
@@ -445,7 +543,29 @@ public class DriverScrabble {
         }
     }
 
-    // --- Menú de juego -------------------------------------------------------
+    /**
+     * Muestra el tablero actual de la partida.
+     */
+    private static void mostrarTablero() {
+        int N = ctrl.getTableroDimension();
+        System.out.print("    ");
+        for (int j = 0; j < N; j++) System.out.printf("%4d", j);
+        System.out.println();
+        for (int i = 0; i < N; i++) {
+            System.out.printf("%2d: ", i);
+            for (int j = 0; j < N; j++) {
+                String letra = ctrl.getLetraCelda(i, j);
+                String bono  = ctrl.getBonusCelda(i, j);
+                String disp  = letra != null ? letra : bono;
+                System.out.printf("[%2s]", disp);
+            }
+            System.out.println();
+        }
+    }
+
+    /**
+     * Muestra el menú de juego y permite realizar acciones en la partida.
+     */
     private static void menuJuego() {
         while (true) {
             System.out.println("\n--- ESTADO DE LA PARTIDA ---");
@@ -510,23 +630,9 @@ public class DriverScrabble {
         }
     }
 
-    private static void mostrarTablero() {
-        int N = ctrl.getTableroDimension();
-        System.out.print("    ");
-        for (int j = 0; j < N; j++) System.out.printf("%4d", j);
-        System.out.println();
-        for (int i = 0; i < N; i++) {
-            System.out.printf("%2d: ", i);
-            for (int j = 0; j < N; j++) {
-                String letra = ctrl.getLetraCelda(i, j);
-                String bono  = ctrl.getBonusCelda(i, j);
-                String disp  = letra != null ? letra : bono;
-                System.out.printf("[%2s]", disp);
-            }
-            System.out.println();
-        }
-    }
-
+    /**
+     * Muestra el submenú para añadir fichas al tablero.
+     */
     private static void subMenuAnadir() {
         System.out.print("Inserta ficha y posición (formato: LETRA fila columna), o '0' para volver: ");
         String input = sc.nextLine().trim();
@@ -536,6 +642,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Muestra el submenú para quitar fichas del tablero.
+     */
     private static void subMenuQuitar() {
         System.out.print("Inserta posición a quitar (formato: fila columna), o '0' para volver: ");
         String input = sc.nextLine().trim();
@@ -545,6 +654,9 @@ public class DriverScrabble {
         }
     }
 
+    /**
+     * Muestra el submenú para cambiar fichas.
+     */
     private static void subMenuCambiar() {
         System.out.print("Inserta fichas a cambiar (letras separadas por espacio), o '0' para volver: ");
         String input = sc.nextLine().trim();

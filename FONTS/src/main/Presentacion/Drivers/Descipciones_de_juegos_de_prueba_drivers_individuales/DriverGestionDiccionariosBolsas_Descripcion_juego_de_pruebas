@@ -1,0 +1,63 @@
+# Descripcion del juego de pruebas de gestion de diccionarios y bolsas (OPCION 2)
+
+1. Objeto de la prueba  
+Verificar de forma integrada el flujo completo de gestion de diccionarios y bolsas a traves de CtrlDominio y el driver, cubriendo:  
+- Creacion de un diccionario con ID de prueba.  
+- Creacion de la bolsa asociada al mismo ID.  
+- Listado de recursos tras la creacion.  
+- Eliminacion completa del recurso (diccionario + bolsa).  
+- Informe de "OK" o "FALLO" en cada paso.  
+
+2. Componentes integrados  
+- DriverGestionDiccionariosBolsas (menu interactivo y automatizado)  
+- CtrlDominio, que usa:  
+  - CtrlPersistencia (gestiona almacenamiento interno de diccionarios y bolsas)  
+- No requiere ficheros externos adicionales: todo se crea y borra en memoria o en el repositorio de recursos.  
+
+3. Datos necesarios  
+Ninguno.  
+Las listas de palabras y la configuracion de la bolsa se generan dinamicamente dentro del driver (p. ej. palabras = [A,B,C], bolsa = {A:[1,1], B:[2,2], C:[3,3]}).  
+
+4. Parametros de las pruebas  
+- IDs de prueba: Pingu, HelloKitty, DragonBall, Mickey, SpongeBob, Pokemon  
+- Palabras de ejemplo: [A, B, C]  
+- Configuracion de la bolsa:  
+  - A -> repeticiones=1, puntos=1  
+  - B -> repeticiones=2, puntos=2  
+  - C -> repeticiones=3, puntos=3  
+
+5. Pasos verificables  
+Para cada id en los testIDs:  
+  1. Crear diccionario -> imprime OK si ctrl.crearDiccionario(id, palabras) no lanza excepcion.  
+  2. Crear bolsa      -> imprime OK si ctrl.crearBolsa(id, bolsa) no lanza excepcion.  
+  3. Listar recursos -> imprime OK si id_diccionario.txt y id_bolsa.txt aparecen en la salida de consultarRecursos().  
+  4. Eliminar recurso-> imprime OK si ctrl.eliminarIdiomaCompleto(id) funciona sin excepcion.  
+  5. Verificar eliminacion -> imprime OK si id ya no aparece en el listado.  
+
+Al finalizar todas las iteraciones, el driver muestra:  
+- Todas las pruebas se ejecutaron correctamente.  
+- o  
+- Algunas pruebas fallaron. Revisar errores.  
+
+6. Como ejecutar  
+1. Compilar el proyecto:  
+   make code  
+
+2. Ejecutar el driver de diccionarios y bolsas:  
+   make runcode_diccionarios_bolsas  
+
+3. En el menu principal, seleccionar:  
+   2) Juego de pruebas  
+
+Ejemplo de salida para un ID  
+
+=== Ejecutando juego de pruebas de Diccionarios/Bolsas ===  
+
+PRUEBA RECURSO ID = Pingu  
+  * Crear diccionario... OK  
+  * Crear bolsa...... OK  
+  * Listar recursos.. OK  
+  * Eliminar recurso. OK  
+
+────────────────────────────────────────  
+Todas las pruebas se ejecutaron correctamente.  

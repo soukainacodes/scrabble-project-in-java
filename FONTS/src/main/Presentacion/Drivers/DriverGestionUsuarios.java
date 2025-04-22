@@ -26,6 +26,14 @@ public class DriverGestionUsuarios {
     private static final Scanner sc  = new Scanner(System.in);
 
     /**
+     * Constructor por defecto para la clase DriverGestionUsuarios.
+     * Inicializa los valores necesarios para gestionar los usuarios.
+     */
+    public DriverGestionUsuarios() {
+        // Constructor vacío
+    }
+
+    /**
      * Punto de entrada principal del driver.
      * Muestra un menú principal o de usuario según el estado de la sesión.
      *

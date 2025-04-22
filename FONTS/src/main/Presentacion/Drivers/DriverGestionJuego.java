@@ -4,6 +4,10 @@ import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 import java.util.*;
 
+/**
+ * Driver para gestionar y probar la funcionalidad de juego de Scrabble.
+ * Permite crear partidas, ejecutar juegos de prueba y simular partidas entre jugadores o IAs.
+ */
 public class DriverGestionJuego {
 
     private static final Scanner in = new Scanner(System.in);
@@ -14,6 +18,20 @@ public class DriverGestionJuego {
     private static String modo = "";
     private static String idioma = "";
 
+     /**
+     * Constructor por defecto para la clase DriverGestionJuego.
+     * Inicializa los valores necesarios para gestionar el juego.
+     */
+    private DriverGestionJuego() {
+        // Constructor vacío
+    }
+
+    /**
+     * Punto de entrada principal del driver.
+     * Muestra el menú principal para jugar o ejecutar juegos de prueba.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
         iniciarSesionAutomatica();
 
@@ -40,6 +58,10 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Inicia sesión automática con un usuario de prueba.
+     * Si el usuario ya existe, ignora la excepción.
+     */
     private static void iniciarSesionAutomatica() {
         try {
             cd.registrarJugador(nombreJugador, contrasena);
@@ -53,6 +75,10 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Muestra el submenú para crear una nueva partida.
+     * Permite elegir modo, idioma y finalizar la creación.
+     */
     private static void subMenuCrearPartida() {
         while (true) {
             System.out.println("\n===== CREAR PARTIDA =====");
@@ -89,6 +115,10 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Inicia una nueva partida con los parámetros seleccionados.
+     * Si ocurre un error, lo muestra por pantalla.
+     */
     private static void iniciarPartida() {
         try {
             cd.iniciarPartida(modo.equals("1 Jugador") ? 0 : 1, nombreJugador,
@@ -100,6 +130,9 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Permite al usuario elegir el modo de juego (1 o 2 jugadores).
+     */
     private static void elegirModo() {
         System.out.println("\n1. 1 Jugador\n2. 2 Jugadores");
         switch (in.nextLine().trim()) {
@@ -109,6 +142,9 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Permite al usuario elegir el idioma (diccionario) para la partida.
+     */
     private static void elegirIdioma() {
         List<String> idiomas = new ArrayList<>(cd.obtenerIDsDiccionarios());
         for (int i = 0; i < idiomas.size(); i++) {
@@ -122,6 +158,9 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Muestra el menú de la partida en curso y gestiona las acciones del usuario.
+     */
     private static void menuPartida() {
         while (true) {
             System.out.println("\n--- Estado de la partida ---");
@@ -151,6 +190,13 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Gestiona las opciones seleccionadas por el usuario durante la partida.
+     *
+     * @param opt opción seleccionada por el usuario.
+     * @return un entero indicando el estado final de la partida (0 si sigue).
+     * @throws Exception si ocurre un error en la acción seleccionada.
+     */
     private static int gestionarOpcionesPartida(String opt) throws Exception {
         switch (opt) {
             case "1": System.out.print("Ficha y posición: "); cd.jugarScrabble(1, in.nextLine()); break;
@@ -164,6 +210,11 @@ public class DriverGestionJuego {
         return 0;
     }
 
+    /**
+     * Muestra el submenú para salir de la partida, permitiendo abandonar o guardar.
+     *
+     * @throws Exception si ocurre un error al abandonar o guardar la partida.
+     */
     private static void subMenuSalir() throws Exception {
         System.out.println("1. Abandonar partida\n2. Guardar partida");
         switch (in.nextLine().trim()) {
@@ -172,23 +223,32 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Muestra el resultado final de la partida.
+     *
+     * @param fin indica el jugador que ha ganado o el motivo de finalización.
+     */
     private static void finalPartida(int fin) {
         System.out.println("Jugador " + fin + " gana");
         pause();
     }
 
-  
-
+    /**
+     * Limpia la pantalla de la consola.
+     */
     private static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
+    /**
+     * Muestra las fichas actuales del jugador.
+     */
     private static void mostrarFichas() {
         System.out.println("Fichas actuales: " + cd.obtenerFichas());
     }
 
-     /**
+    /**
      * Pausa la ejecución hasta que el usuario presione ENTER.
      */
     private static void pause() {
@@ -196,6 +256,9 @@ public class DriverGestionJuego {
         in.nextLine();
     }
 
+    /**
+     * Muestra el tablero actual de la partida.
+     */
     private static void mostrarTablero() {
         int N = cd.getTableroDimension();
         System.out.print("    ");
@@ -215,6 +278,9 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Muestra el estado actual de la partida (puntos, tablero y fichas).
+     */
     private static void mostrarEstado() {
         System.out.println("\n--- Estado de la partida ---");
         System.out.println(" Puntos J1: " + cd.getPuntosJugador1());
@@ -224,6 +290,9 @@ public class DriverGestionJuego {
         mostrarFichas();
     }
 
+    /**
+     * Muestra el menú de juegos de prueba y ejecuta el seleccionado.
+     */
     private static void menuJuegoPruebas() {
         System.out.println("1. Juego de Pruebas (Solo / Jugador VS IA) ");
         System.out.println("2. Juego de Pruebas (Duo / 2 Jugadores)");
@@ -244,6 +313,9 @@ public class DriverGestionJuego {
         }
     }
 
+    /**
+     * Ejecuta el juego de pruebas 1: 1 jugador vs IA en catalán.
+     */
     private static void juegoPruebas1() {
         // Limpiar pantalla e iniciar juego de prueba 1
         clearScreen();
@@ -356,6 +428,9 @@ public class DriverGestionJuego {
 
     }
 
+    /**
+     * Ejecuta el juego de pruebas 2: 2 jugadores humanos en inglés.
+     */
     private static void juegoPruebas2() {
         // Limpiar pantalla e iniciar juego de prueba 2
         clearScreen();
@@ -475,6 +550,9 @@ public class DriverGestionJuego {
         pause();
     }
 
+    /**
+     * Ejecuta el juego de pruebas 3: IA vs IA en castellano.
+     */
     private static void juegoPruebas3() {
         // Limpiar pantalla e iniciar juego de prueba 3
         clearScreen();

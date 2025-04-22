@@ -33,6 +33,14 @@ public class DriverGestionPartidas {
     private static String nombre2       = "";
 
     /**
+     * Constructor por defecto para la clase DriverGestionPartidas.
+     * Inicializa los valores necesarios para gestionar las partidas.
+     */
+    private DriverGestionPartidas() {
+        // Constructor vacío
+    }
+
+    /**
      * Punto de entrada principal del driver.
      * Muestra un menú principal para interactuar con las funcionalidades.
      *

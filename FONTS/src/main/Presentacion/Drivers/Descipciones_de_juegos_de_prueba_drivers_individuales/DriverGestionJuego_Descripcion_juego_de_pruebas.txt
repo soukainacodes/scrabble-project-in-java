@@ -1,59 +1,61 @@
-# Descripción del juego de pruebas
+# Descripcion del juego de pruebas de flujo de juego (OPCION 2)
 
-## 1. Objeto de la prueba  
-Verificar de forma integrada los flujos completos de gestión del juego a través de CtrlDominio, cubriendo:
+1. Objeto de la prueba  
+Verificar de forma integrada tres escenarios de juego usando CtrlDominio y el driver, cubriendo:  
+- Prueba 1: Modo 1 Jugador vs IA en Catalan.  
+- Prueba 2: Modo 2 Jugadores (JvJ) en Ingles.  
+- Prueba 3: IA vs IA en Castellano.  
 
-- Crear y configurar partida.  
-- Interacción con el tablero mediante colocación y retirada de fichas.  
-- Gestión de fichas del jugador (colocar, quitar, cambiar).  
-- Cambios de turno y evolución de la partida.  
-- Finalización correcta de la partida.
+Cada prueba simula un flujo completo (creacion de partida, movimientos, puntuacion, cambio de fichas y guardado o abandono) e informa “OK” o “FALLO” en cada paso.
 
-## 2. Componentes integrados  
-Se ejercitan conjuntamente, sin tests unitarios aislados:
+2. Componentes integrados  
+- DriverGestionJuego (menu interactivo y automatizado)  
+- CtrlDominio, que invoca:  
+  - CtrlPartida (logica del juego)  
+  - CtrlPersistencia (almacena partidas)  
+- Recursos de idiomas (diccionarios y bolsas) ya presentes en el proyecto.
 
-- DriverGestionPartidas (menús interactivo y automático)  
-- CtrlDominio, que usa a su vez:  
-  - CtrlPartida (lógica de juego)  
-  - CtrlPersistencia (almacena partidas en memoria)  
-- Ficheros de recursos de idiomas (diccionario y bolsa) ubicados en  
-  FONTS/src/main/Recursos/Idiomas/{Catalan,Castellano,Ingles}/…
+3. Datos necesarios  
+- Diccionario y bolsa del idioma correspondiente.  
+- Usuarios de prueba:  
+  - Prueba1: nombreJugador (usuario en sesion)  
+  - Prueba2: “Jordi” y “Maria” con password “123456”  
+- Semilla fija (123L) para determinismo.  
+- No se requieren ficheros externos adicionales.
 
-## 3. Datos necesarios  
-- Diccionarios y bolsas de cada idioma, ya presentes en recursos  
-- No se crean ni modifican archivos de usuarios o ranking en disco
+4. Parametros de las pruebas  
+- Prueba1:  
+  - Modo=0 (1 Jugador vs IA)  
+  - Idioma=Catalan  
+  - Secuencia de acciones: crear, mostrar estado, anadir ficha, quitar ficha, formar palabra “REGLANT”, finalizar turno, pasar turno, cambio de fichas [R,I,E,E,S], guardar partida “PRUEBA_1Jugador_Catalan”.  
+- Prueba2:  
+  - Modo=1 (2 Jugadores)  
+  - Idioma=Ingles  
+  - Usuarios=[Jordi,Maria]  
+  - Secuencia de turnos: Jugador1 forma “HANDLES”, Jugador2 forma “WIENIE”, Jugador1 abandona, mostrar resultado final.  
+- Prueba3:  
+  - Modo=0 + IA vs IA activo  
+  - Idioma=Castellano  
+  - Nombres IA: GLaDOS vs Skynet  
+  - Simulacion hasta 10 turnos automaticos, luego verificar fin por abandono o sin movimientos.
 
-## 4. Parámetros de las pruebas  
-- Modos: 1 Jugador, 2 Jugadores  
-- Diccionarios: todos los IDs devueltos por cd.obtenerIDsDiccionarios()  
-- Identificador de guardado:  
+5. Pasos verificables  
+Para cada prueba:  
+  1. Crear partida → OK si cd.iniciarPartida(...) no lanza excepcion.  
+  2. Mostrar estado inicial → OK si getPuntos y mostrarTablero no fallan.  
+  3. Ejecutar cada accion (anadir, quitar, formar palabra, pasar turno, cambio de fichas, turno IA) → OK/FALLO segun excepciones.  
+  4. Guardar o abandonar partida (segun prueba) → OK si cd.guardarPartida o cd.jugarScrabble(6,…) funciona.  
+  5. Verificar guardado o resultado final → OK si getPuntos refleja puntuacion esperada o partida no existe tras abandono.
 
-  "PRUEBA_Modo_Diccionario"
+Al finalizar cada prueba, se muestra un resumen:
+- “Todas las pruebas se ejecutaron correctamente.”  
+- o  
+- “Algunas pruebas fallaron. Revisar errores.”
 
-## 5. Pasos verificables  
-Para cada combinación (modo, diccionario):
-
-1. Crear partida → imprime OK si no falla  
-2. Añadir una o más fichas al tablero → imprime tablero actualizado con la ficha si no falla  
-3. Quitar ficha del tablero → imprime tablero actualizado  sin la ficha ni no falla    
-4. Finalizar turno → imprime tablero actualizado ni no falla  
-6. Cambiar fichas → imprime las nuevas fichas y el tablero
-7. Guardar partida → imprime partida guardada exitosamente y finaliza la ejecución.
-8. Abandonar partida → imprime el resultado de la partida y finaliza la ejecución.
-10. Verificar que no queda rastro de la partida eliminada → OK/FALLÓ
-
-## 6. Cómo ejecutar
-
+6. Como ejecutar  
 1. Compilar el proyecto:  
-                                      make code
-                                      
-2. Ejecutar el driver de partidas:  
-                                      make runcode_juego
-                                      
-3. En el menú, seleccionar "2) Juego de pruebas".  
-   3.1. En el menú de juego de pruebas, seleccionar "1) Juego de pruebas".  
-   3.2. En el menú de juego de pruebas, seleccionar "2) Juego de pruebas".  
-   3.3. En el menú de juego de pruebas, seleccionar "3) Juego de pruebas".
-
-### Ejemplo de salida (una de las muchas combinaciones):
-
+   make code  
+2. Ejecutar el driver de juego:  
+   make runcode_juego  
+3. En el menu principal seleccionar:  
+   2 Juego de pruebas
