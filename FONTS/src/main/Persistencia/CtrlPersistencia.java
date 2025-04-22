@@ -113,15 +113,13 @@ public class CtrlPersistencia {
      * @throws PuntuacionInvalidaException  si la puntuación es negativa
      */
     public void reportarPuntuacion(String nombre, int nuevosPuntos)
-            throws UsuarioNoEncontradoException, PuntuacionInvalidaException {
+            throws  PuntuacionInvalidaException {
         if (nuevosPuntos < 0) {
             throw new PuntuacionInvalidaException(nuevosPuntos);
         }
 
         Jugador j = usuariosMap.get(nombre);
-        if (j == null) {
-            throw new UsuarioNoEncontradoException(nombre);
-        }
+        
 
         if (nuevosPuntos > j.getPuntos()) {
             rankingSet.remove(j);

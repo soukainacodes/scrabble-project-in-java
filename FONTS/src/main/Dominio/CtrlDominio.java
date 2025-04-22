@@ -153,14 +153,14 @@ public void iniciarPartida(int modo,
     }
 
     public int jugarScrabble(int modo, String jugada)
-            throws  UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
+            throws   PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         int fin = ctrlPartida.jugarScrabble(modo, jugada);
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
         Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) {
             ctrlPersistencia.reportarPuntuacion(j.getNombre(), j.getPuntos());
         }
-        return fin;
+        return fin;         
     }
 
  
