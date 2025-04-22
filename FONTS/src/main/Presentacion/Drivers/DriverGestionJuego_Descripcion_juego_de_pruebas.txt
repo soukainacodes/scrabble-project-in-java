@@ -28,20 +28,18 @@ Se ejercitan conjuntamente, sin tests unitarios aislados:
 - Diccionarios: todos los IDs devueltos por cd.obtenerIDsDiccionarios()  
 - Identificador de guardado:  
 
-  PRUEBA_<modoSinEspacios>_<diccionario>
+  "PRUEBA_Modo_Diccionario"
 
 ## 5. Pasos verificables  
 Para cada combinación (modo, diccionario):
 
 1. Crear partida → imprime OK si no falla  
-2. Añadir una o más fichas al tablero → imprime OK  
-3. Quitar ficha del tablero → imprime OK  
-4. Finalizar turno → imprime OK  
-5. Turno del oponente (IA o jugador) → imprime OK  
-6. Cambiar fichas → imprime OK  
-7. Guardar partida → imprime OK  
-8. Cargar partida → imprime OK  
-9. Eliminar partida → imprime OK  
+2. Añadir una o más fichas al tablero → imprime tablero actualizado con la ficha si no falla  
+3. Quitar ficha del tablero → imprime tablero actualizado  sin la ficha ni no falla    
+4. Finalizar turno → imprime tablero actualizado ni no falla  
+6. Cambiar fichas → imprime las nuevas fichas y el tablero
+7. Guardar partida → imprime partida guardada exitosamente y finaliza la ejecución.
+8. Abandonar partida → imprime el resultado de la partida y finaliza la ejecución.
 10. Verificar que no queda rastro de la partida eliminada → OK/FALLÓ
 
 ## 6. Cómo ejecutar

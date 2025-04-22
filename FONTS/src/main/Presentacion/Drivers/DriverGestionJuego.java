@@ -1,16 +1,10 @@
 package Presentacion.Drivers;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-
-import org.w3c.dom.CDATASection;
-
 import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
+import java.util.*;
 
-;
+
 
 public class DriverGestionJuego {
 
@@ -35,8 +29,10 @@ public class DriverGestionJuego {
             cd.iniciarSesion(nombreJugador, nombreJugador);
         } catch (UsuarioNoEncontradoException e) {
             System.out.println("Aviso: " + e.getMessage());
+            pause();
         } catch (PasswordInvalidaException f) {
             System.out.println("Aviso: " + f.getMessage());
+            pause();
         }
 
         // Bucle de menú principal de la partida
@@ -45,11 +41,17 @@ public class DriverGestionJuego {
                 menuPrincipal();
             } catch (Exception e) {
                 System.err.println("Error en partida: " + e.getMessage());
+                pause();
             }
             System.out.println("Partida finalizada. ¡Gracias por jugar!");
         }
 
         
+    }
+
+     private static void pause() {
+        System.out.println("\nPulsa ENTER para continuar...");
+        in.nextLine();
     }
 
     private static void clearScreen() {
@@ -129,7 +131,6 @@ public class DriverGestionJuego {
                 }
             case "5": //Acabar turno
                 fin = cd.jugarScrabble(4, "");
-
                 if (fin == 0) {
                     menuPartida();
                 } else {
@@ -141,6 +142,7 @@ public class DriverGestionJuego {
                 break;
             case "7":
                 fin = cd.jugarScrabble(7, "");
+               
                 if (fin == 0) {
                     menuPartida();
                 } else {
@@ -165,7 +167,7 @@ public class DriverGestionJuego {
     }
 
     private static void menuPrincipal() throws Exception {
-        clearScreen();
+       // clearScreen();
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Jugar");
         System.out.println("2. Juego de pruebas");
@@ -184,6 +186,7 @@ public class DriverGestionJuego {
                 System.exit(0);
             default:
                 System.out.println("Opción no válida.");
+                pause();
         }
     }
 
@@ -203,6 +206,7 @@ public class DriverGestionJuego {
             case "3":
                 if (modo.isEmpty() || idioma.isEmpty()) {
                     System.out.println("Completa todos los parámetros.");
+                    pause();
                 } else {
                     cd.iniciarPartida(
                             modo.equals("1 Jugador") ? 0 : 1,
@@ -210,14 +214,15 @@ public class DriverGestionJuego {
                             idioma,
                             123L,
                             true);
-                    while (true) { 
+                    
                         menuPartida();
-                    }
+                    
                     
                 }
                
             default:
                 System.out.println("Opción no válida.");
+                pause();
         }
     }
 
@@ -231,6 +236,7 @@ public class DriverGestionJuego {
             modo = "2 Jugadores";
         } else {
             System.out.println("Opción no válida.");
+            pause();
         }
         subMenuCrearPartida();
     }
@@ -355,9 +361,7 @@ public class DriverGestionJuego {
         System.out.print("\033[H\033[2J");
         System.out.println("=== Ejecutando juego de pruebas 1 ===\n");
         String usuario = nombreJugador;
-        String pwd = "123456";
-        boolean errores = false;
-        System.out.println("Juego de pruebas de Partida: ");
+        
         System.out.println("Modo: 0 Judador vs Algoritmo ");
         System.out.println("Idioma: Catalán ");
         try {
@@ -393,17 +397,10 @@ public class DriverGestionJuego {
             System.out.println("-> Añadir ficha: " + "E");
             cd.jugarScrabble(1, "R 7 1");
             System.out.println("-> Añadir ficha: " + "R");
-
-            System.out.println("-> Finalizando Turno. Resultado:" + "REGLAN\n");
-            cd.jugarScrabble(4, "");
-
-            mostrarTablero();
-
-            System.out.println("\n\n-> Palabra incorrecta. 'REGLAN' no esta en el diccionario");
-
+            
             System.out.println("-> Añadir ficha: " + "T");
             cd.jugarScrabble(1, "0 7 7");
-
+            mostrarTablero();
             System.out.println("-> Finalizando Turno. Resultado:" + "REGLANT");
             cd.jugarScrabble(4, "");
             System.out.println("\n--- Tablero Actual ---");
@@ -442,7 +439,7 @@ public class DriverGestionJuego {
 
         } catch (Exception e) {
         }
-
+    pause();
     }
 
     private static void juegoPruebas2() {
@@ -523,15 +520,14 @@ public class DriverGestionJuego {
 
         } catch (Exception e) {
         }
-
+    pause();
     }
 
     private static void juegoPruebas3() {
         System.out.print("\033[H\033[2J");
         System.out.println("=== Ejecutando juego de pruebas 3 ===\n");
         String usuario = nombreJugador;
-        String pwd = "123456";
-        boolean errores = false;
+        
         System.out.println("Juego de pruebas de Partida: ");
         System.out.println("Modo: 1 Judador vs Jugador ");
         System.out.println("Idioma: Catalán ");
@@ -565,6 +561,7 @@ public class DriverGestionJuego {
             }
         } catch (Exception e) {
         }
+        pause();
     }
 
 }

@@ -1,10 +1,9 @@
 // Dominio/CtrlJugador.java
 package Dominio;
 
-import Dominio.Modelos.Jugador;
 import Dominio.Excepciones.PasswordInvalidaException;
 import Dominio.Excepciones.PuntuacionInvalidaException;
-import Dominio.Excepciones.UsuarioNoEncontradoException;
+import Dominio.Modelos.Jugador;
 
 /**
  * Gestiona solo el jugador activo, sin saber nada de persistencia.
@@ -19,6 +18,7 @@ public class CtrlJugador {
     public boolean haySesion() {
         return jugadorActual != null;
     }
+
 
     public void setJugadorActual(Jugador j) {
         this.jugadorActual = j;

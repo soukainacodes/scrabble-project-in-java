@@ -1,17 +1,7 @@
 package Dominio.Modelos;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-
-import javax.swing.Painter;
-import javax.swing.plaf.basic.BasicTreeUI;
-
-import jdk.swing.interop.DragSourceContextWrapper;
 
 /**
  * Se encarga de buscar y construir jugadas posibles en el juego de Scrabble.
@@ -483,7 +473,6 @@ public class Algoritmo {
         }
 
         for (Pair<Integer, Integer> pos : anchors) {
-
             for (int i = 0; i < 2; ++i) {
                 if (i == 0) {
                     vertical = false;
@@ -493,36 +482,25 @@ public class Algoritmo {
                 int puntos = 0;
                 int longitud = 0;
                 if (isFilled(before(pos))) {
-
                     Pair<Integer, Integer> scan_pos = before(pos);
-
                     String partial_word = getFicha(scan_pos);
-
                     while (isFilled(before(scan_pos))) {
-
                         scan_pos = before(scan_pos);
-
                         partial_word = getFicha(scan_pos) + partial_word;
                     }
-
                     Nodo pw_node = diccionario.buscarUltimoNodo(partial_word);
-
                     if (pw_node != null) {
-
                         extend_after(partial_word, pw_node, pos, false, puntos);
-
                     }
                 } else {
                     int limit = 0;
                     Pair<Integer, Integer> scan_pos = pos;
-
                     while (isEmpty(before(scan_pos)) && !anchors.contains(before(scan_pos))) {
                         limit++;
                         scan_pos = before(scan_pos);
                     }
                     before_part("", diccionario.getRaiz(), pos, limit, 0);
                 }
-
             }
             if (resultadoFinal.size() != 0) {
                 return Pair.createPair(resultadoFinal, puntosFinal);
