@@ -1,0 +1,46 @@
+
+### Compilar el código principal
+
+make code
+
+
+###  Ejecutar Drivers (programas principales)
+
+make runcode_scrabble               # Lanza el DriverScrabble
+make runcode_juego                  # Lanza el DriverGestionJuego
+make runcode_usuarios               # Lanza el DriverGestionUsuarios
+make runcode_partidas               # Lanza el DriverGestionPartidas
+make runcode_diccionarios_bolsas  # Lanza el DriverGestionDiccionariosBolsas
+
+
+### Compilar tests unitarios
+
+make test
+
+
+### Ejecutar tests unitarios individuales
+
+make runTestFicha
+make runTestBolsa
+make runTestCelda
+make runTestTablero
+make runTestJugador
+make runTestTipoBonificacion
+make runTestDawg
+make runTestPair
+make runTestNodo
+make runTestPartida
+make runTestValidador
+make runTestAlgoritmo
+
+
+### Ejecutar todos los tests unitarios a la vez
+
+make runAllUnitTests
+
+
+### Limpiar los archivos compilados
+
+make clean
+
+

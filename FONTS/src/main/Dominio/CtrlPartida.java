@@ -4,26 +4,56 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 
-
 import Dominio.Modelos.*;
 import Dominio.Excepciones.*;
 
+/**
+ * Controlador de la lógica para una partida de Scrabble.
+ * <p>
+ * Gestiona la partida actual, validación de palabras, turnos de juego,
+ * interacción con el algoritmo de IA y finalización de la partida.
+ */
 public class CtrlPartida {
 
+    /** Partida actualmente en curso. */
     private Partida partidaActual;
+
+    /** Estructura DAWG para validación de vocabulario. */
     private Dawg dawg;
+
+    /** Validador de palabras y reglas de Scrabble. */
     private Validador validador;
+
+    /** Indica si el turno actual ha finalizado. */
     private boolean finTurno;
+
+    /** Indica si el modo de juego es con IA. */
     private boolean isAlgoritmo;
+
+    /** Motor de IA para jugar automáticamente. */
     private Algoritmo algoritmo;
+
+    /** Determina si el jugador 2 es la IA. */
     private boolean jugadorAlgoritmo;
 
-    // Constructor
+    /**
+     * Construye un controlador de partida sin partida inicial.
+     * Inicializa el validador de palabras.
+     */
     public CtrlPartida() {
-
         this.validador = new Validador();
-
     }
+
+    /**
+     * Crea una nueva partida con los parámetros indicados.
+     *
+     * @param modo             0 para un jugador (vs IA), otro para dos jugadores.
+     * @param players          lista de nombres de los jugadores.
+     * @param lineasArchivo    líneas del archivo de diccionario.
+     * @param lineasArchivoBolsa líneas del archivo de configuración de bolsa.
+     * @param seed             semilla para aleatoriedad de fichas.
+     * @param jugadorAlgoritmo {@code true} si el jugador 2 es IA.
+     */
 
     public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, boolean jugadorAlgoritmo) {
         this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
@@ -34,28 +64,51 @@ public class CtrlPartida {
         if (modo == 0) {
             this.isAlgoritmo = true;
             this.algoritmo = new Algoritmo();
-            if (partidaActual.getTurnoJugador() == false) {
-                //  partidaActual.addPuntos(jugarAlgoritmo());
-                //   finTurno(true,false);
-            }
         } else {
             this.isAlgoritmo = false;
         }
 
     }
 
+ /**
+     * Obtiene las fichas actuales del jugador activo.
+     *
+     * @return lista de cadenas con las fichas en mano.
+     */
     public List<String> obtenerFichas() {
         return partidaActual.obtenerFichas();
     }
 
+    /**
+     * Carga una partida existente como la actual.
+     *
+     * @param partida instancia de {@link Partida} a restaurar.
+     */
     public void cargarPartida(Partida partida) {
         this.partidaActual = partida;
     }
 
+    /**
+     * Devuelve la partida actual para su almacenamiento externo.
+     *
+     * @return la {@link Partida} en curso.
+     */
     public Partida guardarPartida() {
         return partidaActual;
     }
 
+
+/**
+     * Ejecuta una jugada de Scrabble según la opción especificada.
+     *
+     * @param opcion código de acción (1:añadir ficha, 2:quitar ficha,
+     *               3:cambiar fichas, 4:finalizar turno,
+     *               5:intercambiar, 6:abandonar, 7:IA).
+     * @param input  cadena con los parámetros de la jugada.
+     * @return código de fin de turno o fin de partida.
+     * @throws ComandoInvalidoException si el formato del comando es incorrecto.
+     * @throws PalabraInvalidaException  si la palabra formada no es válida.
+     */
 
 public int jugarScrabble(int opcion, String input) throws ComandoInvalidoException, PalabraInvalidaException {
 
@@ -179,13 +232,34 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
 }
 
 
+ /**
+     * Obtiene la puntuación acumulada del jugador 1.
+     *
+     * @return puntos del jugador 1.
+     */
     public int getPuntosJugador1() {
         return partidaActual.getPuntosJugador1();
     }
 
+    /**
+     * Obtiene la puntuación acumulada del jugador 2 o IA.
+     *
+     * @return puntos del jugador 2.
+     */
     public int getPuntosJugador2() {
         return partidaActual.getPuntosJugador2();
     }
+
+
+     /**
+     * Finaliza el turno actual: valida palabra, actualiza puntos,
+     * bloquea celdas y cambia turno.
+     *
+     * @param pasar     {@code true} para pasar sin validar palabra.
+     * @param algoritmo {@code true} para ejecutar turno de IA.
+     * @return 0 si continúa, código de fin de partida si corresponde.
+     * @throws PalabraInvalidaException si la validación de la palabra falla.
+     */
 
     public int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
 
@@ -218,6 +292,13 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         return 0;
     }
 
+
+     /**
+     * Finaliza la partida, calculando resultado o abandono.
+     *
+     * @param abandono {@code true} si el jugador abandona.
+     * @return código del jugador ganador (1 o 2).
+     */
     public int finPartida(boolean abandono) {
         if (abandono) {
             if (partidaActual.getTurnoJugador()) {
@@ -238,6 +319,11 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         }
     }
 
+    /**
+     * Ejecuta la jugada automática del algoritmo de IA.
+     *
+     * @return puntos obtenidos por la IA.
+     */
     private int jugarAlgoritmo() {
         Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
         List<Pair<String, Pair<Integer, Integer>>> s = ss.getFirst();
@@ -251,6 +337,12 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         return ss.getSecond();
     }
 
+
+     /**
+     * Obtiene el tablero de la partida actual.
+     *
+     * @return el {@link Tablero} de la partida.
+     */
     public Tablero obtenerTablero() {
         return partidaActual.getTablero();
     }

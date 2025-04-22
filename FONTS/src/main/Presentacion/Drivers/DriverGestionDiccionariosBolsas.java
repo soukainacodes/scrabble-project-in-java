@@ -9,16 +9,43 @@ import Dominio.Excepciones.BolsaYaExistenteException;
 import Dominio.Excepciones.DiccionarioNoEncontradoException;
 import Dominio.Excepciones.DiccionarioYaExistenteException;
 
+/**
+ * Driver para gestionar y probar la funcionalidad de diccionarios y bolsas.
+ * Permite realizar operaciones como:
+ * <ul>
+ *   <li>Consultar diccionarios y bolsas disponibles.</li>
+ *   <li>Ejecutar pruebas automáticas de creación y eliminación de recursos.</li>
+ *   <li>Gestionar recursos manualmente (añadir/eliminar).</li>
+ * </ul>
+ */
 public class DriverGestionDiccionariosBolsas {
     private static final Scanner sc = new Scanner(System.in);
     private static final CtrlDominio ctrl = new CtrlDominio();
 
+    /**
+     * Punto de entrada principal del driver.
+     * Muestra un menú principal para interactuar con las funcionalidades.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     * @throws DiccionarioNoEncontradoException si no se encuentra un diccionario
+     * @throws BolsaNoEncontradaException si no se encuentra una bolsa
+     * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
+     * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
+     */
     public static void main(String[] args) throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, DiccionarioYaExistenteException, BolsaYaExistenteException {
         while (true) {
             menuPrincipal();
         }
     }
 
+    /**
+     * Muestra el menú principal y gestiona las opciones seleccionadas por el usuario.
+     *
+     * @throws DiccionarioNoEncontradoException si no se encuentra un diccionario
+     * @throws BolsaNoEncontradaException si no se encuentra una bolsa
+     * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
+     * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
+     */
     private static void menuPrincipal() throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, DiccionarioYaExistenteException, BolsaYaExistenteException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Consultar diccionarios y bolsas");
@@ -35,6 +62,9 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
+    /**
+     * Consulta y muestra los diccionarios y bolsas disponibles.
+     */
     private static void consultarRecursos() {
         Set<String> dicIDs = ctrl.obtenerIDsDiccionarios();
         Set<String> bolIDs = ctrl.obtenerIDsBolsas();
@@ -55,8 +85,11 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
+    /**
+     * Ejecuta un conjunto de pruebas automáticas para verificar la funcionalidad
+     * de creación, consulta y eliminación de diccionarios y bolsas.
+     */
     private static void juegoPruebas() {
-        // Limpia pantalla
         System.out.print("\033[H\033[2J");
         System.out.println("=== Ejecutando juego de pruebas de Diccionarios/Bolsas ===\n");
         boolean errores = false;
@@ -70,12 +103,10 @@ public class DriverGestionDiccionariosBolsas {
             System.out.println("PRUEBA RECURSO ID = " + id);
             System.out.println("────────────────────────────────────────");
             try {
-                // 1) Crear diccionario de prueba
                 List<String> palabras = List.of("A", "B", "C");
                 ctrl.crearDiccionario(id, palabras);
                 System.out.println("-> Diccionario '" + id + "' creado.");
 
-                // 2) Crear bolsa de prueba
                 Map<String,int[]> bolsa = new LinkedHashMap<>();
                 bolsa.put("A", new int[]{1,1});
                 bolsa.put("B", new int[]{2,2});
@@ -83,11 +114,9 @@ public class DriverGestionDiccionariosBolsas {
                 ctrl.crearBolsa(id, bolsa);
                 System.out.println("-> Bolsa '" + id + "' creada.");
 
-                // 3) Listar y verificar
                 System.out.println("\nListado tras creación:");
                 consultarRecursos();
 
-                // 4) Eliminar ambos
                 try {
                     ctrl.eliminarIdiomaCompleto(id);
                     System.out.println("-> Recurso '" + id + "' eliminado.\n");
@@ -110,6 +139,14 @@ public class DriverGestionDiccionariosBolsas {
         System.out.println("────────────────────────────────────────\n");
     }
 
+    /**
+     * Muestra un menú para gestionar recursos (añadir/eliminar diccionarios y bolsas).
+     *
+     * @throws DiccionarioNoEncontradoException si no se encuentra un diccionario
+     * @throws BolsaNoEncontradaException si no se encuentra una bolsa
+     * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
+     * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
+     */
     private static void gestionRecursos() throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, DiccionarioYaExistenteException, BolsaYaExistenteException {
         while (true) {
             System.out.println("\n=== GESTIÓN DE RECURSOS ===");
@@ -126,6 +163,12 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
+    /**
+     * Elimina un recurso (diccionario y bolsa) por su ID.
+     *
+     * @throws DiccionarioNoEncontradoException si no se encuentra el diccionario
+     * @throws BolsaNoEncontradaException si no se encuentra la bolsa
+     */
     private static void eliminarRecurso() throws DiccionarioNoEncontradoException, BolsaNoEncontradaException {
         System.out.print("ID a eliminar (0 para volver): ");
         String id = sc.nextLine().trim();
@@ -139,6 +182,12 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
+    /**
+     * Añade un nuevo recurso (diccionario y bolsa) desde un directorio o desde el teclado.
+     *
+     * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
+     * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
+     */
     private static void anadirRecurso() throws DiccionarioYaExistenteException, BolsaYaExistenteException {
         while (true) {
             System.out.println("\n--- AÑADIR RECURSO ---");
@@ -155,6 +204,12 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
+    /**
+     * Añade un recurso desde un directorio existente.
+     *
+     * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
+     * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
+     */
     private static void anadirDesdeDirectorio() throws DiccionarioYaExistenteException, BolsaYaExistenteException {
         System.out.print("Ruta al directorio (0 para volver): ");
         String dirPath = sc.nextLine().trim();
@@ -186,6 +241,12 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
+    /**
+     * Añade un recurso desde el teclado.
+     *
+     * @throws DiccionarioYaExistenteException si ya existe un diccionario con el mismo ID
+     * @throws BolsaYaExistenteException si ya existe una bolsa con el mismo ID
+     */
     private static void anadirDesdeTeclado() throws DiccionarioYaExistenteException, BolsaYaExistenteException {
         System.out.print("Nuevo ID (0 para volver): ");
         String id = sc.nextLine().trim();
@@ -219,8 +280,13 @@ public class DriverGestionDiccionariosBolsas {
         }
     }
 
-    // ─── Helpers de lectura ──────────────────────────────────
-
+    /**
+     * Lee un archivo de texto y devuelve una lista de líneas no vacías.
+     *
+     * @param ruta ruta del archivo
+     * @return lista de líneas leídas
+     * @throws IOException si ocurre un error de lectura
+     */
     private static List<String> leerArchivoTexto(String ruta) throws IOException {
         List<String> lista = new ArrayList<>();
         try (var br = new BufferedReader(new FileReader(ruta))) {
@@ -233,6 +299,13 @@ public class DriverGestionDiccionariosBolsas {
         return lista;
     }
 
+    /**
+     * Lee un archivo de bolsa y devuelve un mapa con los datos de las fichas.
+     *
+     * @param ruta ruta del archivo
+     * @return mapa con las fichas y sus datos (repeticiones y puntos)
+     * @throws IOException si ocurre un error de lectura
+     */
     private static Map<String,int[]> leerArchivoBolsa(String ruta) throws IOException {
         Map<String,int[]> mapa = new LinkedHashMap<>();
         try (var br = new BufferedReader(new FileReader(ruta))) {

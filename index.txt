@@ -1,0 +1,15 @@
+DOCS/
+- Contiene documentacion del proyecto (docuemntacion y diagramas).
+
+EXE/
+- Carpeta de salida de compilacion.
+- EXE/main: archivos .class del codigo principal.
+- EXE/test: archivos .class de los tests unitarios.
+
+FONTS/
+- src/main: codigo fuente Java principal (separados por Dominio, Persistencia, Presentacion).
+- src/test: tests unitarios (.java) y librerias (.jar) de JUnit, Mockito, Hamcrest, ByteBuddy, Objenesis.
+
+Makefile
+- Reglas para compilar codigo y tests, ejecutar drivers y tests individuales o todos en conjunto, y limpiar salidas.
+
