@@ -4,55 +4,180 @@ import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 import java.util.*;
 
-
-
 public class DriverGestionJuego {
 
     private static final Scanner in = new Scanner(System.in);
     private static final CtrlDominio cd = new CtrlDominio();
-    private static final String nombreJugador = "jojo";
-    private static final String contrasena = "oraoraora";
-    private static int fin = 0;
-    private static String modo = "", idioma = "";
+    private static final String nombreJugador = "A";
+    private static final String contrasena = "A";
+
+    private static String modo = "";
+    private static String idioma = "";
 
     public static void main(String[] args) {
-        System.out.println("Driver de prueba de Partida contra el Algoritmo (CtrlDominio)");
+        iniciarSesionAutomatica();
 
-        // Registro del jugador (si ya existe, lo ignoramos)
-       /*  try {
+        while (true) {
+            System.out.println("\n===== MENÚ PRINCIPAL =====");
+            System.out.println("1. Jugar");
+            System.out.println("2. Juegos de Prueba");
+            System.out.println("3. Salir");
+            System.out.print("Opción: ");
 
+            switch (in.nextLine().trim()) {
+                case "1":
+                    subMenuCrearPartida();
+                    break;
+                case "2":
+                    menuJuegoPruebas();
+                    break;
+                case "3":
+                    System.exit(0);
+                default:
+                    System.out.println("Opción no válida.");
+                    pause();
+            }
+        }
+    }
+
+    private static void iniciarSesionAutomatica() {
+        try {
             cd.registrarJugador(nombreJugador, contrasena);
-        } catch (UsuarioYaRegistradoException e) {
-            System.out.println("Aviso: " + e.getMessage());
-        } */
+        } catch (UsuarioYaRegistradoException ignored) {}
+
         try {
             cd.iniciarSesion(nombreJugador, contrasena);
-        } catch (UsuarioNoEncontradoException e) {
-            System.out.println("Aviso: " + e.getMessage());
-            pause();
-        } catch (PasswordInvalidaException f) {
-            System.out.println("Aviso: " + f.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error al iniciar sesión automática: " + e.getMessage());
             pause();
         }
+    }
 
-        // Bucle de menú principal de la partida
+    private static void subMenuCrearPartida() {
         while (true) {
+            System.out.println("\n===== CREAR PARTIDA =====");
+            System.out.println("1. Modo: " + modo);
+            System.out.println("2. Idioma: " + idioma);
+            System.out.println("3. Finalizar");
+            System.out.print("Opción: ");
+
+            switch (in.nextLine().trim()) {
+                case "1":
+                    elegirModo();
+                    break;
+                case "2":
+                    elegirIdioma();
+                    break;
+                case "3":
+                    if (modo.isEmpty() || idioma.isEmpty()) {
+                        System.out.println("Completa todos los parámetros.");
+                        pause();
+                    } else {
+                        if (modo.equals("2 Jugadores")) {
+                            try {
+                                cd.registrarJugador("Invitado", "Invitado");
+                            } catch (UsuarioYaRegistradoException ignored) {}
+                        }
+                        iniciarPartida();
+                        return;
+                    }
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    pause();
+            }
+        }
+    }
+
+    private static void iniciarPartida() {
+        try {
+            cd.iniciarPartida(modo.equals("1 Jugador") ? 0 : 1, nombreJugador,
+                    modo.equals("1 Jugador") ? "" : "Invitado", idioma, 123L, false);
+            menuPartida();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            pause();
+        }
+    }
+
+    private static void elegirModo() {
+        System.out.println("\n1. 1 Jugador\n2. 2 Jugadores");
+        switch (in.nextLine().trim()) {
+            case "1": modo = "1 Jugador"; break;
+            case "2": modo = "2 Jugadores"; break;
+            default: System.out.println("Opción no válida."); pause();
+        }
+    }
+
+    private static void elegirIdioma() {
+        List<String> idiomas = new ArrayList<>(cd.obtenerIDsDiccionarios());
+        for (int i = 0; i < idiomas.size(); i++) {
+            System.out.println((i+1) + ". " + idiomas.get(i));
+        }
+        try {
+            int opcion = Integer.parseInt(in.nextLine().trim());
+            idioma = idiomas.get(opcion - 1);
+        } catch (Exception e) {
+            System.out.println("Opción no válida."); pause();
+        }
+    }
+
+    private static void menuPartida() {
+        while (true) {
+            System.out.println("\n--- Estado de la partida ---");
+            System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+            System.out.println(" Puntos Jugador 2: " + cd.getPuntosJugador2());
+            mostrarTablero();
+            mostrarFichas();
+
+            System.out.println("\n1. Añadir ficha");
+            System.out.println("2. Quitar ficha");
+            System.out.println("3. Cambiar fichas");
+            System.out.println("4. Pasar turno");
+            System.out.println("5. Acabar turno");
+            System.out.println("6. Salir");
+            System.out.print("Opción: ");
+
             try {
-                menuPrincipal();
+                int resultado = gestionarOpcionesPartida(in.nextLine().trim());
+                if (resultado != 0) {
+                    finalPartida(resultado);
+                    return;
+                }
             } catch (Exception e) {
-                System.err.println("Error en partida: " + e.getMessage());
+                System.out.println("Error: " + e.getMessage());
                 pause();
             }
-            System.out.println("Partida finalizada. ¡Gracias por jugar!");
         }
-
-        
     }
 
-     private static void pause() {
-        System.out.println("\nPulsa ENTER para continuar...");
-        in.nextLine();
+    private static int gestionarOpcionesPartida(String opt) throws Exception {
+        switch (opt) {
+            case "1": System.out.print("Ficha y posición: "); cd.jugarScrabble(1, in.nextLine()); break;
+            case "2": System.out.print("Posición: "); cd.jugarScrabble(2, in.nextLine()); break;
+            case "3": System.out.print("Fichas a cambiar: "); cd.jugarScrabble(5, in.nextLine()); break;
+            case "4": return cd.jugarScrabble(3, "");
+            case "5": return cd.jugarScrabble(4, "");
+            case "6": subMenuSalir(); return 2;
+            default: System.out.println("Opción no válida."); pause();
+        }
+        return 0;
     }
+
+    private static void subMenuSalir() throws Exception {
+        System.out.println("1. Abandonar partida\n2. Guardar partida");
+        switch (in.nextLine().trim()) {
+            case "1": int num = cd.jugarScrabble(6, ""); System.out.println("Jugador " + num + " abandona."); break;
+            case "2": System.out.print("Nombre para guardar: "); cd.guardarPartida(in.nextLine()); break;
+        }
+    }
+
+    private static void finalPartida(int fin) {
+        System.out.println("Jugador " + fin + " gana");
+        pause();
+    }
+
+  
 
     private static void clearScreen() {
         System.out.print("\033[H\033[2J");
@@ -61,6 +186,14 @@ public class DriverGestionJuego {
 
     private static void mostrarFichas() {
         System.out.println("Fichas actuales: " + cd.obtenerFichas());
+    }
+
+     /**
+     * Pausa la ejecución hasta que el usuario presione ENTER.
+     */
+    private static void pause() {
+        System.out.println("\nPulsa ENTER para continuar...");
+        in.nextLine();
     }
 
     private static void mostrarTablero() {
@@ -91,251 +224,6 @@ public class DriverGestionJuego {
         mostrarFichas();
     }
 
-    private static void menuPartida()
-            throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
-        //  clearScreen();
-        System.out.println("\n--- Tablero Actual ---");
-        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
-        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-        mostrarTablero();
-        System.out.println("\n--- Fichas Disponibles ---");
-        mostrarFichas();
-
-        System.out.println("\n1. Añadir ficha");
-        System.out.println("2. Quitar ficha");
-        System.out.println("3. Cambiar fichas");
-        System.out.println("4. Pasar turno");
-        System.out.println("5. Acabar turno");
-        System.out.println("6. Salir");
-        System.out.println("7. Algoritmo (luego borrar)");
-        System.out.print("Opción: ");
-
-        String opt = in.nextLine().trim();
-        switch (opt) {
-            case "1": //Añadir Ficha
-                subMenuAnadir();
-                break;
-            case "2": //Quitar Ficha
-                subMenuQuitar();
-                break;
-            case "3": //Cambiar Fichas
-                subMenuCambiar();
-                break;
-            case "4": //Pasar Turno
-                fin = cd.jugarScrabble(3, "");
-                if (fin == 0) {
-                    menuPartida();
-                } else {
-                    finalPartida(fin);
-                    break;
-                }
-            case "5": //Acabar turno
-                fin = cd.jugarScrabble(4, "");
-                if (fin == 0) {
-                    menuPartida();
-                } else {
-                    finalPartida(fin);
-                    break;
-                }
-            case "6":
-                subMenuSalir();
-                break;
-            case "7":
-                fin = cd.jugarScrabble(7, "");
-               
-                if (fin == 0) {
-                    menuPartida();
-                } else {
-                    finalPartida(fin);
-                    break;
-                }
-                break;
-            default:
-                System.out.println("Opción no válida.");
-                menuPartida();
-        }
-    }
-
-    private static void finalPartida(int fin) {
-        if (fin == 1) {
-            System.out.println("Jugador 1 gana");
-
-        } else {
-            System.out.println("Jugador 2 gana");
-
-        }
-    }
-
-    private static void menuPrincipal() throws Exception {
-       // clearScreen();
-        System.out.println("\n===== MENÚ PRINCIPAL =====");
-        System.out.println("1. Jugar");
-        System.out.println("2. Juego de pruebas");
-        System.out.println("3. Salir");
-        System.out.print("Opción: ");
-        switch (in.nextLine().trim()) {
-            case "1":
-                while(true){
-                    subMenuCrearPartida();
-                }
-                
-            case "2":
-                menuJuegoPruebas();
-                break;
-            case "3":
-                System.exit(0);
-            default:
-                System.out.println("Opción no válida.");
-                pause();
-        }
-    }
-
-    private static void subMenuCrearPartida() throws Exception {
-        // clearScreen();
-        System.out.println("\n===== CREAR PARTIDA =====");
-        System.out.println("1. Modo:       " + modo);
-        System.out.println("2. Idioma:     " + idioma);
-        System.out.println("3. Finalizar");
-        switch (in.nextLine().trim()) {
-            case "1":
-                elegirModo();
-                break;
-            case "2":
-                elegirIdioma();
-                break;
-            case "3":
-                if (modo.isEmpty() || idioma.isEmpty()) {
-                    System.out.println("Completa todos los parámetros.");
-                    pause();
-                } else {
-                    cd.iniciarPartida(
-                            modo.equals("1 Jugador") ? 0 : 1,
-                            nombreJugador, nombreJugador,
-                            idioma,
-                            123L,
-                            true);
-                    
-                        menuPartida();
-                    
-                    
-                }
-               
-            default:
-                System.out.println("Opción no válida.");
-                pause();
-        }
-    }
-
-    private static void elegirModo() throws Exception {
-        clearScreen();
-        System.out.println("\n1. 1 Jugador\n2. 2 Jugadores");
-        String o = in.nextLine().trim();
-        if (o.equals("1")) {
-            modo = "1 Jugador";
-        } else if (o.equals("2")) {
-            modo = "2 Jugadores";
-        } else {
-            System.out.println("Opción no válida.");
-            pause();
-        }
-        subMenuCrearPartida();
-    }
-
-    private static void elegirIdioma() throws Exception {
-        clearScreen();
-        int i = 1;
-        for (String s : cd.obtenerIDsDiccionarios()) {
-            System.out.println(i + ". " + s);
-            i++;
-        }
-
-        String entrada = in.nextLine().trim();
-        i = 1;
-        for (String s : cd.obtenerIDsDiccionarios()) {
-            if (entrada.equals(String.valueOf(i))) {
-                idioma = s;
-            }
-            i++;
-
-        }
-
-        subMenuCrearPartida();
-    }
-
-    private static void subMenuAnadir() throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
-        //  clearScreen();
-        System.out.println("\n--- Tablero Actual ---");
-        System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
-        System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-
-        mostrarTablero();
-        System.out.println("\n\n--- Fichas Disponibles ---");
-        mostrarFichas();
-        System.out.println("\n\n");
-        System.out.println("1. Volver atras:");
-        System.out.println("Inserta la Ficha junto a la posición del tablero:");
-        System.out.println("En caso de que sea un # añada despues de '#', la letra que quiera que substituya:");
-        String input = in.nextLine().trim();
-        if (!input.equals("1")) {
-            cd.jugarScrabble(1, input);
-        }
-        menuPartida();
-
-    }
-
-    private static void subMenuQuitar()
-            throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
-        clearScreen();
-        mostrarEstado();
-        System.out.println("Inserta la posición a quitar (o '1' para atrás):");
-        String input = in.nextLine().trim();
-        if (!input.equals("1")) {
-            cd.jugarScrabble(2, input);
-        }
-        menuPartida();
-    }
-
-    private static void subMenuCambiar()
-            throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
-        clearScreen();
-        mostrarEstado();
-        System.out.println("Inserta las fichas a cambiar (o '1' para atrás):");
-        String input = in.nextLine().trim();
-        if (!input.equals("1")) {
-            cd.jugarScrabble(5, input);
-        }
-        menuPartida();
-    }
-
-    private static void subMenuSalir() throws PartidaYaExistenteException, UsuarioNoEncontradoException, PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
-        System.out.println("1. Abandonar partida");
-        System.out.println("2. Guardar Partida");
-        System.out.println("3. Volver atrás");
-        System.out.print("Opción: ");
-        String opt = in.nextLine().trim();
-        switch (opt) {
-            case "1":
-                int num = cd.jugarScrabble(6, "");
-                System.out.println("Jugador " + num + " abandona.");
-                break;
-            case "2":
-                System.out.print("Nombre para guardar: ");
-                String n = in.nextLine().trim();
-                if (!n.isEmpty()) {
-                    cd.guardarPartida(n);
-                }
-                break;
-            case "3":
-                try {
-                    menuPartida();
-                } catch (Exception ignored) {
-                }
-                break;
-            default:
-                System.out.println("Opción no válida.");
-        }
-    }
-
     private static void menuJuegoPruebas() {
         System.out.println("1. Juego de Pruebas (Solo / Jugador VS IA) ");
         System.out.println("2. Juego de Pruebas (Duo / 2 Jugadores)");
@@ -357,211 +245,295 @@ public class DriverGestionJuego {
     }
 
     private static void juegoPruebas1() {
-        // Limpia pantalla
-        System.out.print("\033[H\033[2J");
-        System.out.println("=== Ejecutando juego de pruebas 1 ===\n");
-        String usuario = nombreJugador;
-        
-        System.out.println("Modo: 0 Judador vs Algoritmo ");
-        System.out.println("Idioma: Catalán ");
+        // Limpiar pantalla e iniciar juego de prueba 1
+        clearScreen();
+        System.out.println("=== Ejecutando Juego de Pruebas 1 ===\n");
+        System.out.println("Modo: 1 Jugador vs IA");
+        System.out.println("Idioma: Catalán");
+        String usuario = nombreJugador;  // Nombre del jugador humano
+
         try {
+            // 1. Crear partida 1 jugador vs IA en catalán
+            System.out.println("\nCreando partida...");
+            cd.iniciarPartida(0, usuario, "", "Catalan", 123L, false);
+            System.out.println("Partida creada correctamente.");
 
-            System.out.println("-> Creando partida...");
-            //Modo 1 Jugador
-            cd.iniciarPartida(0, nombreJugador, "", "Catalan", 123L, false);
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
+            // Mostrar estado inicial del tablero y fichas
+            System.out.println("\n--- Estado inicial de la partida ---");
+            System.out.println(" Puntos " + usuario + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             mostrarTablero();
-            System.out.println("\n\n--- Fichas Disponibles ---\n");
+            System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
 
-            System.out.println("-> Añadir ficha: " + "T");
-            cd.jugarScrabble(1, "T 7 7");
+            // 2. Añadir una ficha y mostrar tablero
+            System.out.println("\nAñadiendo ficha 'T' en posición (7,7)...");
+            try {
+                cd.jugarScrabble(1, "T 7 7");
+                System.out.println("Ficha 'T' añadida en (7,7).");
+            } catch (Exception e) {
+                System.out.println("Error al añadir ficha: " + e.getMessage());
+            }
             mostrarTablero();
 
-            System.out.println("-> Quitar ficha: " + "T");;
-            cd.jugarScrabble(2, "7 7");
+            // 3. Quitar la ficha añadida y mostrar tablero
+            System.out.println("\nQuitando ficha de (7,7)...");
+            try {
+                cd.jugarScrabble(2, "7 7");
+                System.out.println("Ficha removida de (7,7).");
+            } catch (Exception e) {
+                System.out.println("Error al quitar ficha: " + e.getMessage());
+            }
             mostrarTablero();
 
-            System.out.println("-> Añadiendo ficha...");
-            cd.jugarScrabble(1, "N 7 6");
-            System.out.println("-> Añadir ficha: " + "N");
-            cd.jugarScrabble(1, "A 7 5");
-            System.out.println("-> Añadir ficha: " + "A");
-            cd.jugarScrabble(1, "L 7 4");
-            System.out.println("-> Añadir ficha: " + "L");
-            cd.jugarScrabble(1, "G 7 3");
-            System.out.println("-> Añadir ficha: " + "G");
-            cd.jugarScrabble(1, "E 7 2");
-            System.out.println("-> Añadir ficha: " + "E");
-            cd.jugarScrabble(1, "R 7 1");
-            System.out.println("-> Añadir ficha: " + "R");
-            
-            System.out.println("-> Añadir ficha: " + "T");
-            cd.jugarScrabble(1, "0 7 7");
-            mostrarTablero();
-            System.out.println("-> Finalizando Turno. Resultado:" + "REGLANT");
-            cd.jugarScrabble(4, "");
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos Jugador 1: " + cd.getPuntosJugador1());
+            // 4. Colocar varias fichas para formar una palabra y finalizar el turno
+            System.out.println("\nColocando fichas para formar la palabra \"REGLANT\"...");
+            try {
+                cd.jugarScrabble(1, "N 7 6");
+                cd.jugarScrabble(1, "A 7 5");
+                cd.jugarScrabble(1, "L 7 4");
+                cd.jugarScrabble(1, "G 7 3");
+                cd.jugarScrabble(1, "E 7 2");
+                cd.jugarScrabble(1, "R 7 1");
+                cd.jugarScrabble(1, "T 7 7");  // Colocar la 'T' finalmente en el centro
+                System.out.println("Palabra formada: REGLANT");
+            } catch (Exception e) {
+                System.out.println("Error al colocar fichas: " + e.getMessage());
+            }
+            System.out.println("Finalizando turno del jugador...");
+            try {
+                cd.jugarScrabble(4, "");  // Acabar turno y puntuar palabra
+            } catch (Exception e) {
+                System.out.println("Error al finalizar turno: " + e.getMessage());
+            }
+
+            // Mostrar estado tras finalizar turno (puntuación actual y tablero, IA juega automáticamente)
+            System.out.println("\n--- Estado tras turno del Jugador 1 ---");
+            System.out.println(" Puntos " + usuario + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-            System.out.println("-> Turno del algoritmo...\n");
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
+            mostrarTablero();
+
+            // 5. Pasar turno y permitir que la IA juegue
+            System.out.println("\nPasando turno del jugador...");
+            try {
+                cd.jugarScrabble(3, "");  // Pasar turno (sin colocar ficha)
+                System.out.println("Turno pasado. (Ahora juega la IA).");
+            } catch (Exception e) {
+                System.out.println("Error al pasar turno: " + e.getMessage());
+            }
+            // Mostrar estado tras turno de la IA
+            System.out.println("\n--- Estado tras turno de la IA ---");
+            System.out.println(" Puntos " + usuario + ": " + cd.getPuntosJugador1());
             System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
             mostrarTablero();
-            System.out.println("\n\n--- Fichas Disponibles ---\n");
+            System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
 
-            System.out.println("-> Pasar turno..");
-            cd.jugarScrabble(3, "");
-            System.out.println("-> Turno del algoritmo...\n");
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
-            System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-            mostrarTablero();
-            System.out.println("\n\n--- Fichas Disponibles ---\n");
+            // 6. Cambiar fichas del jugador (ejemplo: R, I, E, E, S) y mostrar nuevas fichas
+            System.out.println("\nCambiando fichas [R, I, E, E, S] del jugador...");
+            try {
+                cd.jugarScrabble(5, "R I E E S");
+                System.out.println("Fichas cambiadas correctamente.");
+            } catch (Exception e) {
+                System.out.println("Error al cambiar fichas: " + e.getMessage());
+            }
+            System.out.println("\n--- Fichas tras el cambio ---");
             mostrarFichas();
 
-            System.out.println("-> Cambiar fichas. R, I, E, E, S");
-            cd.jugarScrabble(5, "0 3 E I 5");
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
-            System.out.println(" Puntos Jugador 2 (IA): " + cd.getPuntosJugador2());
-            mostrarTablero();
-            System.out.println("\n\n--- Fichas Disponibles ---\n");
-            mostrarFichas();
-
-            System.out.println("-> Guardar partida.");
-            cd.guardarPartida("PRUEBA_1Jugador_Catalan");
-            System.out.println("-> Se ha guardado la partida correctamente..");
-
+            // 7. Guardar la partida de prueba
+            System.out.println("\nGuardando partida de prueba...");
+            try {
+                cd.guardarPartida("PRUEBA_1Jugador_Catalan");
+                System.out.println("La partida se ha guardado correctamente.");
+            } catch (Exception e) {
+                System.out.println("Error al guardar la partida: " + e.getMessage());
+            }
         } catch (Exception e) {
+            // Captura de cualquier excepción no esperada durante el flujo de la prueba
+            System.out.println("** Error en Juego de Pruebas 1: " + e.getMessage() + " **");
         }
-    pause();
+        pause();
+
     }
 
     private static void juegoPruebas2() {
-        // Limpia pantalla
-        System.out.print("\033[H\033[2J");
-        System.out.println("=== Ejecutando juego de pruebas 2 ===\n");
+        // Limpiar pantalla e iniciar juego de prueba 2
+        clearScreen();
+        System.out.println("=== Ejecutando Juego de Pruebas 2 ===\n");
+        System.out.println("Modo: 2 Jugadores (Jugador vs Jugador)");
+        System.out.println("Idioma: Inglés");
         List<String> usuarios = Arrays.asList("Jordi", "Maria");
         String pwd = "123456";
-        boolean errores = false;
-        System.out.println("Juego de pruebas de Partida: ");
-        System.out.println("Modo: 1 Judador vs Jugador ");
-        System.out.println("Idioma: Catalán ");
+
         try {
-
-            System.out.println("-> Creando partida...");
-            //Modo 1 Jugador
+            // Registrar usuarios de prueba (si no existen) e iniciar sesión
+            for (String user : usuarios) {
+                try {
+                    cd.registrarJugador(user, pwd);
+                } catch (UsuarioYaRegistradoException e) {
+                    System.out.println("Aviso: " + e.getMessage());
+                }
+            }
+            // Iniciar partida 2 jugadores en inglés
+            System.out.println("\nCreando partida para " + usuarios.get(0) + " y " + usuarios.get(1) + "...");
             cd.iniciarPartida(1, usuarios.get(0), usuarios.get(1), "Ingles", 123L, false);
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
-            System.out.println(" Puntos" + usuarios.get(1) + ": " + cd.getPuntosJugador2());
+            System.out.println("Partida creada correctamente.");
+
+            // Mostrar estado inicial
+            System.out.println("\n--- Estado inicial de la partida ---");
+            System.out.println(" Puntos " + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos " + usuarios.get(1) + ": " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
 
-            System.out.println("-> Turno de " + usuarios.get(0));
-            System.out.println("-> Añadiendo fichas...");
-            cd.jugarScrabble(1, "H 7 3");
-            cd.jugarScrabble(1, "A 7 4");
-            cd.jugarScrabble(1, "N 7 5");
-            cd.jugarScrabble(1, "D 7 6");
-            cd.jugarScrabble(1, "L 7 7");
-            cd.jugarScrabble(1, "E 7 8");
-            cd.jugarScrabble(1, "S 7 9");
-            System.out.println("-> Finalizando Turno...");
-            cd.jugarScrabble(4, "");
+            // Turno 1: Jugador 1 coloca una palabra
+            System.out.println("\nTurno de " + usuarios.get(0) + " (Jugador 1)...");
+            System.out.println(usuarios.get(0) + " añade las fichas para formar \"HANDLES\"...");
+            try {
+                cd.jugarScrabble(1, "H 7 3");
+                cd.jugarScrabble(1, "A 7 4");
+                cd.jugarScrabble(1, "N 7 5");
+                cd.jugarScrabble(1, "D 7 6");
+                cd.jugarScrabble(1, "L 7 7");
+                cd.jugarScrabble(1, "E 7 8");
+                cd.jugarScrabble(1, "S 7 9");
+            } catch (Exception e) {
+                System.out.println("Error al añadir fichas: " + e.getMessage());
+            }
+            System.out.println("Finalizando turno de " + usuarios.get(0) + "...");
+            try {
+                cd.jugarScrabble(4, "");
+            } catch (Exception e) {
+                System.out.println("Error al finalizar turno: " + e.getMessage());
+            }
 
-            System.out.println("-> Turno de " + usuarios.get(1) + "\n");
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
-            System.out.println(" Puntos" + usuarios.get(1) + ": " + cd.getPuntosJugador2());
+            // Mostrar estado tras turno 1
+            System.out.println("\n--- Estado tras turno de " + usuarios.get(0) + " ---");
+            System.out.println(" Puntos " + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos " + usuarios.get(1) + ": " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
 
-            System.out.println("-> Añadiendo fichas...");
+            // Turno 2: Jugador 2 coloca una palabra
+            System.out.println("\nTurno de " + usuarios.get(1) + " (Jugador 2)...");
+            System.out.println(usuarios.get(1) + " añade las fichas para formar \"WIENIE\"...");
+            try {
+                cd.jugarScrabble(1, "W 6 8");
+                cd.jugarScrabble(1, "I 6 9");
+                cd.jugarScrabble(1, "E 6 10");
+                cd.jugarScrabble(1, "N 6 11");
+                cd.jugarScrabble(1, "I 6 12");
+                cd.jugarScrabble(1, "E 6 13");
+            } catch (Exception e) {
+                System.out.println("Error al añadir fichas: " + e.getMessage());
+            }
+            System.out.println("Finalizando turno de " + usuarios.get(1) + "...");
+            try {
+                cd.jugarScrabble(4, "");
+            } catch (Exception e) {
+                System.out.println("Error al finalizar turno: " + e.getMessage());
+            }
 
-            cd.jugarScrabble(1, "W 6 8");
-            cd.jugarScrabble(1, "I 6 9");
-            cd.jugarScrabble(1, "E 6 10");
-            cd.jugarScrabble(1, "N 6 11");
-            cd.jugarScrabble(1, "I 6 12");
-            cd.jugarScrabble(1, "E 6 13");
-
-            System.out.println("-> Finalizando Turno...");
-            cd.jugarScrabble(4, "");
-
-            System.out.println("-> Turno de " + usuarios.get(0) + "\n");
-            System.out.println("\n--- Tablero Actual ---");
-            System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
-            System.out.println(" Puntos" + usuarios.get(1) + ": " + cd.getPuntosJugador2());
+            // Mostrar estado tras turno 2
+            System.out.println("\n--- Estado tras turno de " + usuarios.get(1) + " ---");
+            System.out.println(" Puntos " + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+            System.out.println(" Puntos " + usuarios.get(1) + ": " + cd.getPuntosJugador2());
             mostrarTablero();
             System.out.println("\n--- Fichas Disponibles ---");
             mostrarFichas();
 
-            int fin = cd.jugarScrabble(6, "");
+            // Turno 3: Jugador 1 abandona la partida
+            System.out.println("\nTurno de " + usuarios.get(0) + " (Jugador 1)...");
+            System.out.println(usuarios.get(0) + " decide abandonar la partida.");
+            int fin;
+            try {
+                fin = cd.jugarScrabble(6, "");  // Jugador 1 (actual) abandona
+            } catch (Exception e) {
+                // Capturar error si ocurre al abandonar
+                System.out.println("Error al abandonar la partida: " + e.getMessage());
+                fin = 2;  // asumir abandono jugador1 si excepción no específica
+            }
+
+            // Mostrar puntuación final y resultado de la partida
             if (fin != 0) {
                 System.out.println("\n--- Puntuación final ---");
-                System.out.println(" Puntos" + usuarios.get(0) + ": " + cd.getPuntosJugador1());
-                System.out.println(" Puntos" + usuarios.get(1) + ": " + cd.getPuntosJugador2());
+                System.out.println(" Puntos " + usuarios.get(0) + ": " + cd.getPuntosJugador1());
+                System.out.println(" Puntos " + usuarios.get(1) + ": " + cd.getPuntosJugador2());
                 if (fin == 2) {
-                    System.out.println("-> Jugador 1 abandona..");
-                    System.out.println("-> Gana Jugador 2.");
+                    System.out.println("Jugador 1 (" + usuarios.get(0) + ") abandona la partida.");
+                    System.out.println("¡Jugador 2 (" + usuarios.get(1) + ") gana la partida!");
                 } else if (fin == 1) {
-                    System.out.println("-> Jugador 2 abandona..");
-                    System.out.println("-> Gana Jugador 1.");
-                }
-            }
-
-        } catch (Exception e) {
-        }
-    pause();
-    }
-
-    private static void juegoPruebas3() {
-        System.out.print("\033[H\033[2J");
-        System.out.println("=== Ejecutando juego de pruebas 3 ===\n");
-        String usuario = nombreJugador;
-        
-        System.out.println("Juego de pruebas de Partida: ");
-        System.out.println("Modo: 1 Judador vs Jugador ");
-        System.out.println("Idioma: Catalán ");
-
-        try {
-
-            System.out.println("-> Creando partida...");
-            //Modo 1 Jugador
-            cd.iniciarPartida(0, usuario, "", "CastellanoCorto", 123L, true);
-
-            for (int i = 0; i < 10; ++i) {
-                System.out.println("\n--- Tablero Actual ---");
-                System.out.println(" Puntos GLaDOS: " + cd.getPuntosJugador1());
-                System.out.println(" Puntos Skynet: " + cd.getPuntosJugador2());
-                mostrarTablero();
-                System.out.println("\n--- Fichas Disponibles ---");
-                mostrarFichas();
-                int fin = cd.jugarScrabble(7, "");
-                if (fin != 0) {
-                    System.out.println("\n--- Puntuación final ---");
-                    System.out.println(" Puntos" + usuario + ": " + cd.getPuntosJugador1());
-                    System.out.println(" Puntos Skynet: " + cd.getPuntosJugador2());
-                    if (fin == 2) {
-                        System.out.println("-> Jugador 1 abandona..");
-                        System.out.println("-> Gana Jugador 2.");
-                    } else if (fin == 1) {
-                        System.out.println("-> Jugador 2 abandona..");
-                        System.out.println("-> Gana Jugador 1.");
-                    }
+                    System.out.println("Jugador 2 (" + usuarios.get(1) + ") abandona la partida.");
+                    System.out.println("¡Jugador 1 (" + usuarios.get(0) + ") gana la partida!");
                 }
             }
         } catch (Exception e) {
+            System.out.println("** Error en Juego de Pruebas 2: " + e.getMessage() + " **");
         }
         pause();
     }
 
+    private static void juegoPruebas3() {
+        // Limpiar pantalla e iniciar juego de prueba 3
+        clearScreen();
+        System.out.println("=== Ejecutando Juego de Pruebas 3 ===\n");
+        System.out.println("Modo: IA vs IA (dos inteligencias artificiales)");
+        System.out.println("Idioma: Castellano");
+        String usuario = nombreJugador;  // Se usará como referencia a Jugador1 si es necesario
+        String nombreIA1 = "GLaDOS";
+        String nombreIA2 = "Skynet";
+
+        try {
+            // Crear partida en modo 1 Jugador vs IA pero activando simulación IA vs IA
+            System.out.println("\nCreando partida IA vs IA...");
+            cd.iniciarPartida(0, usuario, "", "CastellanoCorto", 123L, true);
+            System.out.println("Partida creada correctamente. (Jugadores IA: " + nombreIA1 + " vs " + nombreIA2 + ")");
+
+            // Simular varios turnos automáticos de las IAs
+            int turnosMax = 10;
+            int fin = 0;
+            int turnoActual = 1;
+            while (turnoActual <= turnosMax && fin == 0) {
+                System.out.println("\n--- Turno " + turnoActual + " ---");
+                System.out.println(" Puntos " + nombreIA1 + ": " + cd.getPuntosJugador1());
+                System.out.println(" Puntos " + nombreIA2 + ": " + cd.getPuntosJugador2());
+                mostrarTablero();
+                System.out.println("\n--- Fichas Disponibles (Jugador " + ((turnoActual % 2 == 1) ? "1" : "2") + ") ---");
+                mostrarFichas();
+                try {
+                    fin = cd.jugarScrabble(7, "");  // Ejecutar jugada automática de la IA
+                } catch (Exception e) {
+                    System.out.println("Error durante jugada automática: " + e.getMessage());
+                    fin = 1;  // terminar bucle por error, asumiendo abandono de Jugador 2
+                }
+                turnoActual++;
+            }
+
+            // Verificar cómo terminó la partida (por fin de juego o alcance de turnosMax)
+            if (fin != 0) {
+                System.out.println("\n--- Puntuación Final ---");
+                System.out.println(" Puntos " + nombreIA1 + ": " + cd.getPuntosJugador1());
+                System.out.println(" Puntos " + nombreIA2 + ": " + cd.getPuntosJugador2());
+                if (fin == 2) {
+                    System.out.println("Jugador 1 (" + nombreIA1 + ") abandona la partida.");
+                    System.out.println("¡Jugador 2 (" + nombreIA2 + ") gana la partida!");
+                } else if (fin == 1) {
+                    System.out.println("Jugador 2 (" + nombreIA2 + ") abandona la partida.");
+                    System.out.println("¡Jugador 1 (" + nombreIA1 + ") gana la partida!");
+                } else if (fin == 3) {
+                    System.out.println("La partida ha finalizado (sin fichas o sin movimientos posibles).");
+                    // En este caso podría determinarse el ganador por puntos, si aplica.
+                }
+            } else {
+                System.out.println("\nFin de la simulación de prueba tras " + turnosMax + " turnos.");
+                System.out.println("Puntos " + nombreIA1 + ": " + cd.getPuntosJugador1()
+                        + " | Puntos " + nombreIA2 + ": " + cd.getPuntosJugador2());
+            }
+        } catch (Exception e) {
+            System.out.println("** Error en Juego de Pruebas 3: " + e.getMessage() + " **");
+        }
+        pause();
+    }
 }

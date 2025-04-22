@@ -29,11 +29,11 @@ LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDD
 # Objetivo para compilar el código principal (no se toca)
 code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
-	jar cfv $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) . 
-	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionDiccionariosBolsas.jar -C $(CLASS_OUTPUT_MAIN) . 
-	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionPartidas.jar -C $(CLASS_OUTPUT_MAIN) . 
-	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar -C $(CLASS_OUTPUT_MAIN) . 
-	jar cfv $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cf $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionDiccionariosBolsas.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionPartidas.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar -C $(CLASS_OUTPUT_MAIN) . 
+	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) . 
 
 runcode_scrabble:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar Presentacion.Drivers.DriverScrabble
