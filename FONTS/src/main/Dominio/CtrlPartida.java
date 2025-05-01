@@ -1,11 +1,18 @@
 package Dominio;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
-import Dominio.Modelos.*;
-import Dominio.Excepciones.*;
+import Dominio.Excepciones.ComandoInvalidoException;
+import Dominio.Excepciones.PalabraInvalidaException;
+import Dominio.Modelos.Algoritmo;
+import Dominio.Modelos.Dawg;
+import Dominio.Modelos.Ficha;
+import Dominio.Modelos.Pair;
+import Dominio.Modelos.Partida;
+import Dominio.Modelos.Tablero;
+import Dominio.Modelos.Validador;
 
 /**
  * Controlador de la lógica para una partida de Scrabble.
@@ -261,7 +268,7 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
      * @throws PalabraInvalidaException si la validación de la palabra falla.
      */
 
-    public int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
+    private int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
 
         if (!pasar) {
             int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
@@ -299,7 +306,7 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
      * @param abandono {@code true} si el jugador abandona.
      * @return código del jugador ganador (1 o 2).
      */
-    public int finPartida(boolean abandono) {
+    private int finPartida(boolean abandono) {
         if (abandono) {
             if (partidaActual.getTurnoJugador()) {
                 return 2;

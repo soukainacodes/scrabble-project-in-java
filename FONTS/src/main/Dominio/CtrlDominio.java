@@ -7,9 +7,21 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import Dominio.Excepciones.*;
+import Dominio.Excepciones.BolsaNoEncontradaException;
+import Dominio.Excepciones.BolsaYaExistenteException;
+import Dominio.Excepciones.ComandoInvalidoException;
+import Dominio.Excepciones.DiccionarioNoEncontradoException;
+import Dominio.Excepciones.DiccionarioYaExistenteException;
+import Dominio.Excepciones.NoHayPartidaGuardadaException;
+import Dominio.Excepciones.PalabraInvalidaException;
+import Dominio.Excepciones.PartidaNoEncontradaException;
+import Dominio.Excepciones.PartidaYaExistenteException;
+import Dominio.Excepciones.PasswordInvalidaException;
+import Dominio.Excepciones.PuntuacionInvalidaException;
+import Dominio.Excepciones.RankingVacioException;
+import Dominio.Excepciones.UsuarioNoEncontradoException;
+import Dominio.Excepciones.UsuarioYaRegistradoException;
 import Dominio.Modelos.Celda;
-import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 import Dominio.Modelos.TipoBonificacion;
 import Persistencia.CtrlPersistencia;
@@ -53,10 +65,14 @@ public class CtrlDominio {
      * @throws UsuarioYaRegistradoException si el nombre ya existe en persistencia.
      */
     public void registrarJugador(String nombre, String password)
-            throws UsuarioYaRegistradoException {
-        Jugador j = new Jugador(nombre, password);
-        ctrlPersistencia.addJugador(j);
-        ctrlJugador.setJugadorActual(j);
+            throws UsuarioYaRegistradoException, UsuarioNoEncontradoException, PasswordInvalidaException {
+       
+        if(ctrlPersistencia.existeJugador(nombre)) {
+            throw new UsuarioYaRegistradoException(nombre); 
+        } 
+        ctrlPersistencia.addJugador(ctrlJugador.setNuevoJugador(nombre,password));
+        ctrlJugador.setJugador(ctrlPersistencia.getJugador(nombre), password);
+       
     }
 
     /**
@@ -69,14 +85,8 @@ public class CtrlDominio {
      */
     public void iniciarSesion(String nombre, String password)
             throws UsuarioNoEncontradoException, PasswordInvalidaException {
-        Jugador j = ctrlPersistencia.getJugador(nombre);
-        if (j == null) {
-            throw new UsuarioNoEncontradoException(nombre);
-        }
-        if (!j.validarPassword(password)) {
-            throw new PasswordInvalidaException();
-        }
-        ctrlJugador.setJugadorActual(j);
+       
+        ctrlJugador.setJugador(ctrlPersistencia.getJugador(nombre), password);
     }
 
     /**
@@ -101,8 +111,10 @@ public class CtrlDominio {
      * @return nombre de usuario activo, o {@code null} si no hay sesión.
      */
     public String getUsuarioActual() {
-        Jugador j = ctrlJugador.getJugadorActual();
-        return (j != null) ? j.getNombre() : null;
+        if(ctrlJugador.haySesion()){
+             return ctrlJugador.getJugadorActual().getNombre();
+        }
+       return null;
     }
 
     /**
@@ -111,8 +123,11 @@ public class CtrlDominio {
      * @return puntos del jugador, o 0 si no hay sesión.
      */
     public int getPuntosActual() {
-        Jugador j = ctrlJugador.getJugadorActual();
-        return (j != null) ? j.getPuntos() : 0;
+        
+        if(ctrlJugador.haySesion()){
+             return ctrlJugador.getJugadorActual().getPuntos();
+        }
+       return 0;
     }
 
     /**
@@ -125,9 +140,8 @@ public class CtrlDominio {
      */
     public void cambiarPassword(String antigua, String nueva)
             throws PasswordInvalidaException, UsuarioNoEncontradoException {
-        if (j != null) {
-            ctrlPersistencia.updateJugador(j);
-        }
+            ctrlJugador.cambiarPassword(antigua, nueva);
+     
     }
 
     /**
@@ -139,9 +153,9 @@ public class CtrlDominio {
      */
     public void eliminarUsuario(String password)
             throws PasswordInvalidaException, UsuarioNoEncontradoException {
-        Jugador j = ctrlJugador.getJugadorActual();
-        if (j != null) {
-            ctrlPersistencia.removeJugador(j.getNombre());
+     
+        if (ctrlJugador.haySesion()) {
+            ctrlPersistencia.removeJugador(ctrlJugador.getJugadorActual().getNombre());
         }
     }
 
@@ -205,15 +219,15 @@ public class CtrlDominio {
      * @throws BolsaNoEncontradaException       si no existe la bolsa.
      */
     public void iniciarPartida(int modo,
-                               String n1,
                                String n2,
                                String idDiccionario,
                                long seed,
                                boolean jugadorAlgoritmo)
-            throws DiccionarioNoEncontradoException, BolsaNoEncontradaException {
+            throws DiccionarioNoEncontradoException, BolsaNoEncontradaException,UsuarioNoEncontradoException, PasswordInvalidaException {
+       // iniciarSesion(n2,p2);
         List<String> dic = ctrlPersistencia.getDiccionario(idDiccionario);
         List<String> bolsa = ctrlPersistencia.getBolsa(idDiccionario);
-        ctrlPartida.crearPartida(modo, Arrays.asList(n1, n2), dic, bolsa, seed, jugadorAlgoritmo);
+        ctrlPartida.crearPartida(modo, Arrays.asList(ctrlJugador.getJugadorActual().getNombre(),n2), dic, bolsa, seed, jugadorAlgoritmo);
     }
 
     /**
@@ -230,10 +244,8 @@ public class CtrlDominio {
             throws PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
         int fin = ctrlPartida.jugarScrabble(modo, jugada);
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
-        Jugador j = ctrlJugador.getJugadorActual();
-        if (j != null) {
-            ctrlPersistencia.reportarPuntuacion(j.getNombre(), j.getPuntos());
-        }
+        ctrlPersistencia.reportarPuntuacion(ctrlJugador.getJugadorActual().getNombre(), ctrlJugador.getJugadorActual().getPuntos());
+        
         return fin;
     }
 

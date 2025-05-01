@@ -12,8 +12,10 @@ public class DriverGestionJuego {
 
     private static final Scanner in = new Scanner(System.in);
     private static final CtrlDominio cd = new CtrlDominio();
-    private static final String nombreJugador = "A";
-    private static final String contrasena = "A";
+    private static final String nombreJugador = "jotaro";
+    private static final String contrasena = "starplatinum";
+    private static final String nombreJugador2 = "dio";
+    private static final String contrasena2 = "muda123";
 
     private static String modo = "";
     private static String idioma = "";
@@ -32,7 +34,7 @@ public class DriverGestionJuego {
      *
      * @param args argumentos de línea de comandos (no utilizados)
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UsuarioNoEncontradoException, UsuarioNoEncontradoException, PasswordInvalidaException{
         iniciarSesionAutomatica();
 
         while (true) {
@@ -62,7 +64,7 @@ public class DriverGestionJuego {
      * Inicia sesión automática con un usuario de prueba.
      * Si el usuario ya existe, ignora la excepción.
      */
-    private static void iniciarSesionAutomatica() {
+    private static void iniciarSesionAutomatica() throws UsuarioNoEncontradoException, UsuarioNoEncontradoException, PasswordInvalidaException {
         try {
             cd.registrarJugador(nombreJugador, contrasena);
         } catch (UsuarioYaRegistradoException ignored) {}
@@ -101,8 +103,9 @@ public class DriverGestionJuego {
                     } else {
                         if (modo.equals("2 Jugadores")) {
                             try {
-                                cd.registrarJugador("Invitado", "Invitado");
-                            } catch (UsuarioYaRegistradoException ignored) {}
+                                cd.iniciarSesion(nombreJugador2, contrasena2);
+                            } catch (UsuarioNoEncontradoException ignored) {}
+                            catch (PasswordInvalidaException ignored) {}
                         }
                         iniciarPartida();
                         return;
@@ -122,7 +125,7 @@ public class DriverGestionJuego {
     private static void iniciarPartida() {
         try {
             cd.iniciarPartida(modo.equals("1 Jugador") ? 0 : 1, nombreJugador,
-                    modo.equals("1 Jugador") ? "" : "Invitado", idioma, 123L, false);
+                    modo.equals("1 Jugador") ? "Maquina" : nombreJugador2, idioma, 123L, false);
             menuPartida();
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

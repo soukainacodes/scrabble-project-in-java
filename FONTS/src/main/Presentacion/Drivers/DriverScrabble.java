@@ -1,9 +1,29 @@
 package Presentacion.Drivers;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeSet;
+
 import Dominio.CtrlDominio;
-import Dominio.Excepciones.*;
-import java.io.*;
-import java.util.*;
+import Dominio.Excepciones.BolsaNoEncontradaException;
+import Dominio.Excepciones.BolsaYaExistenteException;
+import Dominio.Excepciones.DiccionarioNoEncontradoException;
+import Dominio.Excepciones.DiccionarioYaExistenteException;
+import Dominio.Excepciones.NoHayPartidaGuardadaException;
+import Dominio.Excepciones.PartidaNoEncontradaException;
+import Dominio.Excepciones.PasswordInvalidaException;
+import Dominio.Excepciones.RankingVacioException;
+import Dominio.Excepciones.UsuarioNoEncontradoException;
+import Dominio.Excepciones.UsuarioYaRegistradoException;
 
 /**
  * Driver principal para gestionar y probar todas las funcionalidades del juego de Scrabble.
@@ -27,7 +47,7 @@ public class DriverScrabble {
      *
      * @param args argumentos de línea de comandos (no utilizados)
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException {
         while (true) {
             try {
                 if (!ctrl.haySesion()) menuPrincipal();
@@ -42,7 +62,7 @@ public class DriverScrabble {
      * Muestra el menú principal para usuarios no autenticados.
      * Permite iniciar sesión, registrarse o salir.
      */
-    private static void menuPrincipal() {
+    private static void menuPrincipal() throws UsuarioNoEncontradoException,PasswordInvalidaException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
         System.out.println("2. Registrarse");
@@ -63,7 +83,7 @@ public class DriverScrabble {
      *
      * @throws UsuarioNoEncontradoException si no se encuentra el usuario actual.
      */
-    private static void menuUsuario() throws UsuarioNoEncontradoException {
+    private static void menuUsuario() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Gestión de Cuenta");
         System.out.println("2. Gestión de Diccionarios y Bolsas");
@@ -203,7 +223,7 @@ public class DriverScrabble {
     /**
      * Registra un nuevo usuario en el sistema.
      */
-    private static void registrarse() {
+    private static void registrarse() throws UsuarioNoEncontradoException,PasswordInvalidaException {
         System.out.print("Nuevo usuario: ");
         String u = sc.nextLine().trim();
         System.out.print("Nueva contraseña: ");
@@ -211,7 +231,7 @@ public class DriverScrabble {
         try {
             ctrl.registrarJugador(u, p);
             System.out.println("Registrado '" + u + "'.");
-            ctrl.iniciarSesion(u, p);
+            //ctrl.iniciarSesion(u, p);
             System.out.println("Sesión iniciada como '" + u + "'.");
         } catch (UsuarioYaRegistradoException e) {
             System.out.println("ERROR: " + e.getMessage());
@@ -419,7 +439,7 @@ public class DriverScrabble {
      * Muestra el submenú de gestión de partidas.
      * Permite crear, cargar o ver ranking de partidas.
      */
-    private static void subMenuPartidas() {
+    private static void subMenuPartidas() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException{
         while (true) {
             System.out.println("\n=== GESTIÓN DE PARTIDAS ===");
             System.out.println("1. Crear nueva partida");
@@ -449,7 +469,7 @@ public class DriverScrabble {
     /**
      * Crea una nueva partida solicitando los datos necesarios al usuario.
      */
-    private static void crearPartida() {
+    private static void crearPartida() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException {
         try {
             System.out.println("\n--- Crear nueva partida ---");
             System.out.println("Selecciona modo:");
@@ -481,19 +501,30 @@ public class DriverScrabble {
             String jugador1 = ctrl.getUsuarioActual();
             String jugador2 = "";
             if (modo == 1) {
-                System.out.print("Nombre del segundo jugador: ");
-                jugador2 = sc.nextLine().trim();
+                System.out.print("1. Iniciar sesion: \n");
+                System.out.print("2. Registrar jugador: \n");
+
+                String opcion = sc.nextLine().trim();
+                System.out.print("Usuario: \n");
+                jugador2= sc.nextLine().trim();
                 if (jugador2.isEmpty()) { System.out.println("Nombre no válido."); return; }
-                try {
-                    System.out.print("Contraseña para '" + jugador2 + "': ");
-                    String pass2 = sc.nextLine().trim();
-                    ctrl.registrarJugador(jugador2, pass2);
+                if (jugador2.equals(jugador1)) { System.out.println("No te puedes añadir a ti mismo."); return; }
+                System.out.print("Contraseña: \n");
+                String password2 = sc.nextLine().trim();
+               if("1".equals(opcion)){
+                    ctrl.iniciarSesion(jugador2, password2);
+              } else if("2".equals(opcion)) {
+                 
+                    ctrl.registrarJugador(jugador2, password2);
                     System.out.println("Jugador '" + jugador2 + "' registrado.");
-                } catch (UsuarioYaRegistradoException ignored) {}
+               
+               }
+               else { System.out.println("Opción no válida."); return; }
+               
             }
 
             long seed = new Random().nextLong();
-            ctrl.iniciarPartida(modo, jugador1, jugador2, idDic, seed, false);
+            ctrl.iniciarPartida(modo, jugador2, idDic, seed, false);
             menuJuego();
         } catch (DiccionarioNoEncontradoException | BolsaNoEncontradaException e) {
             System.out.println("ERROR: " + e.getMessage());

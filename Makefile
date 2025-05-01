@@ -3,13 +3,13 @@ MAIN_PATH = \
 	./FONTS/src/main/Dominio/Excepciones/*.java \
     ./FONTS/src/main/Dominio/*.java \
 	./FONTS/src/main/Dominio/Modelos/*.java \
-	./FONTS/src/main/Presentacion/Drivers/*.java \
+	./FONTS/src/main/Presentacion/Drivers/DriverScrabble.java \
 	./FONTS/src/main/Persistencia/*.java \
 
 # Directorios de salida
 CLASS_OUTPUT_MAIN = ./EXE/main
 CLASS_OUTPUT_TEST = ./EXE/test
-
+DRIVERS_PATH = ./FONTS/src/main/Presentacion/Drivers/*.java 
 # Ruta a los archivos de test (ajústala si es necesario)
 TEST_PATH = ./FONTS/src/test/testsUnitarios/*.java
 
@@ -30,11 +30,14 @@ LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDD
 code:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) . 
+ 
+code_drivers:
+	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
+	javac -d $(CLASS_OUTPUT_MAIN) $(DRIVERS_PATH)
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionDiccionariosBolsas.jar -C $(CLASS_OUTPUT_MAIN) . 
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionPartidas.jar -C $(CLASS_OUTPUT_MAIN) . 
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar -C $(CLASS_OUTPUT_MAIN) . 
-	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) . 
-
+	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) .
 runcode_scrabble:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar Presentacion.Drivers.DriverScrabble
 

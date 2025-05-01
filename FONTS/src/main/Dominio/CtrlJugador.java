@@ -13,12 +13,17 @@ import Dominio.Modelos.Jugador;
  */
 public class CtrlJugador {
     private Jugador jugadorActual;
-
+    private Jugador segundoJugador;
     /**
      * Crea un controlador de jugador sin sesión iniciada.
      */
     public CtrlJugador() {
         this.jugadorActual = null;
+        this.segundoJugador = null;
+    }
+
+    public Jugador setNuevoJugador(String nombre, String password) {
+        return new Jugador(nombre,password);
     }
 
     /**
@@ -35,8 +40,10 @@ public class CtrlJugador {
      *
      * @param j el objeto {@link Jugador} que se convertirá en el jugador activo.
      */
-    public void setJugadorActual(Jugador j) {
-        this.jugadorActual = j;
+    public void setJugador(Jugador j, String password) throws PasswordInvalidaException{
+        if(j.getPassword() == null ? password != null : !j.getPassword().equals(password)) throw new PasswordInvalidaException();
+        if(this.jugadorActual == null) this.jugadorActual = j;
+        else this.segundoJugador = j;
     }
 
     /**
@@ -55,9 +62,14 @@ public class CtrlJugador {
         return jugadorActual;
     }
 
+    public void cambiarPassword(String antigua, String nueva) throws PasswordInvalidaException {
+        if(jugadorActual.getPassword() != antigua) {
+            throw new PasswordInvalidaException();
+        } 
+        else jugadorActual.setPassword(nueva);
+    }
 
-
-
+   
     /**
      * Actualiza la puntuación máxima del jugador activo si la nueva puntuación es mayor.
      *
