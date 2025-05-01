@@ -185,20 +185,6 @@ public class Dawg {
         return actual.palabraValidaHastaAqui;
     }
 
-    /**
-     * Comprueba si existe algún sufijo en el DAWG que comience con el prefijo dado.
-     *
-     * @param prefijo Prefijo a buscar.
-     * @return {@code true} si el prefijo es válido, {@code false} en caso contrario.
-     */
-    public boolean buscarPrefijo(String prefijo) {
-        Nodo actual = raiz;
-        for (String token : tokenizarPalabra(prefijo)) {
-            actual = actual.hijos.get(token);
-            if (actual == null) return false;
-        }
-        return true;
-    }
 
     /**
      * Obtiene el último nodo correspondiente a la palabra dada, sin validar existencia.

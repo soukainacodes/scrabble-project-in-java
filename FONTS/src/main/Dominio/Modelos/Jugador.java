@@ -81,37 +81,6 @@ public class Jugador {
         return this.password != null && this.password.equals(pass);
     }
 
-    /**
-     * Devuelve una representación en cadena del jugador (solo nombre y puntos).
-     *
-     * @return Texto con nombre y puntuación.
-     */
-    @Override
-    public String toString() {
-        return String.format("Jugador{name='%s', puntos=%d}", nombre, puntos);
-    }
 
-    /**
-     * Compara igualdad basándose en el nombre del jugador.
-     *
-     * @param obj Objeto a comparar.
-     * @return {@code true} si es otro Jugador con mismo nombre.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Jugador)) return false;
-        Jugador other = (Jugador) obj;
-        return nombre.equals(other.nombre);
-    }
-
-    /**
-     * Genera un código hash basado en el nombre del jugador.
-     *
-     * @return Código hash.
-     */
-    @Override
-    public int hashCode() {
-        return nombre != null ? nombre.hashCode() : 0;
-    }
+    
 }

@@ -113,7 +113,7 @@ public class DriverGestionUsuarios {
         }
 
         int puntos = ctrl.getPuntosActual();
-        int pos    = ctrl.getPosicion();
+        int pos    = ctrl.getPosicionActual();
 
         System.out.println("\n========================================");
         System.out.printf("   ¡ Bienvenido, %s !%n", u);
@@ -170,7 +170,7 @@ public class DriverGestionUsuarios {
         while (true) {
             String u      = ctrl.getUsuarioActual();
             int    puntos = ctrl.getPuntosActual();
-            int    pos    = ctrl.getPosicion();
+            int    pos    = ctrl.getPosicionActual();
 
             System.out.println("\n--- TU CUENTA ---");
             System.out.println("Usuario:  " + u);
@@ -264,7 +264,7 @@ public class DriverGestionUsuarios {
                 ctrl.iniciarSesion(nombre, pwd);
 
                 int puntos   = ctrl.getPuntosActual();
-                int posicion = ctrl.getPosicion();
+                int posicion = ctrl.getPosicionActual();
                 String posStr = posicion > 0 ? String.valueOf(posicion) : "Sin clasificar";
                 System.out.printf("%s    PUNTOS: %d  |  POSICIÓN: %s%n",
                                   nombre, puntos, posStr);

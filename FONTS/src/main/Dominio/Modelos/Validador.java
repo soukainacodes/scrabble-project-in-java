@@ -15,7 +15,6 @@ import Dominio.Excepciones.PalabraInvalidaException;
  */
 public class Validador {
 
-    private int contadorTurno;
     private Tablero tablero;
 
     private Dawg diccionario;

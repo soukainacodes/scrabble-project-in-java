@@ -5,9 +5,6 @@ package Dominio.Modelos;
  */
 public class Ficha {
 
-    /** Identificador único de la ficha (opcional). */
-    private int id;
-
     /** Letra que representa la ficha. */
     private String letra;
 
@@ -43,39 +40,5 @@ public class Ficha {
         return puntuacion;
     }
 
-    /**
-     * Devuelve una representación en cadena de la ficha.
-     *
-     * @return Texto con letra y puntuación, por ejemplo "A(1)".
-     */
-    @Override
-    public String toString() {
-        return letra + "(" + puntuacion + ")";
-    }
 
-    /**
-     * Compara igualdad basándose en letra y puntuación.
-     *
-     * @param obj Objeto a comparar.
-     * @return {@code true} si es otra Ficha con misma letra y puntuación.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof Ficha)) return false;
-        Ficha otra = (Ficha) obj;
-        return puntuacion == otra.puntuacion && letra.equals(otra.letra);
-    }
-
-    /**
-     * Genera un código hash basado en letra y puntuación.
-     *
-     * @return Código hash para uso en colecciones.
-     */
-    @Override
-    public int hashCode() {
-        int result = letra != null ? letra.hashCode() : 0;
-        result = 31 * result + puntuacion;
-        return result;
-    }
 }

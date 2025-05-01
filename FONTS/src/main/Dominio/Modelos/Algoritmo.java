@@ -480,7 +480,6 @@ public class Algoritmo {
                     vertical = true;
                 }
                 int puntos = 0;
-                int longitud = 0;
                 if (isFilled(before(pos))) {
                     Pair<Integer, Integer> scan_pos = before(pos);
                     String partial_word = getFicha(scan_pos);

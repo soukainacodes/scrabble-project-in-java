@@ -125,8 +125,6 @@ public class CtrlDominio {
      */
     public void cambiarPassword(String antigua, String nueva)
             throws PasswordInvalidaException, UsuarioNoEncontradoException {
-        ctrlJugador.cambiarPassword(antigua, nueva);
-        Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) {
             ctrlPersistencia.updateJugador(j);
         }
@@ -143,7 +141,6 @@ public class CtrlDominio {
             throws PasswordInvalidaException, UsuarioNoEncontradoException {
         Jugador j = ctrlJugador.getJugadorActual();
         if (j != null) {
-            ctrlJugador.eliminarJugador(password);
             ctrlPersistencia.removeJugador(j.getNombre());
         }
     }
@@ -177,14 +174,6 @@ public class CtrlDominio {
         }
     }
 
-    /**
-     * Alias para {@link #getPosicionActual()}, usado por drivers.
-     *
-     * @return posición del usuario activo, o -1 si no hay sesión o no figura.
-     */
-    public int getPosicion() {
-        return getPosicionActual();
-    }
 
     /**
      * Recupera la posición en ranking del usuario actualmente en sesión.

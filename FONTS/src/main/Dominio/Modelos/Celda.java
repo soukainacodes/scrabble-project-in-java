@@ -141,12 +141,5 @@ public class Celda {
         return !this.bonusUsada;
     }
 
-    /**
-     * Obtiene el multiplicador de la bonificación si está disponible, o 1 en caso contrario.
-     *
-     * @return Valor del multiplicador.
-     */
-    public int obtenerMultiplicador() {
-        return bonusDisponible() ? bonificacion.getMultiplicador() : 1;
-    }
+
 }

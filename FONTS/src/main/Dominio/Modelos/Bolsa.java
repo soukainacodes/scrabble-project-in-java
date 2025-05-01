@@ -19,11 +19,7 @@ public class Bolsa {
      */
     private List<Ficha> conjuntoDeFichas;
 
-    /**
-     * Idioma asociado a esta bolsa (por ejemplo, "ES" para español).
-     */
-    private String idioma;
-
+  
     /**
      * Construye una bolsa de fichas a partir de líneas de configuración.
      * Cada línea debe tener el formato: "Letra Cantidad Puntuacion".
@@ -32,7 +28,17 @@ public class Bolsa {
      */
     public Bolsa(List<String> lineasArchivo) {
         this.conjuntoDeFichas = new ArrayList<>();
-        inicializarBolsa(lineasArchivo);
+        for (String linea : lineasArchivo) {
+            String[] partes = linea.trim().split("\\s+");
+            if (partes.length == 3) {
+                String letra = partes[0];
+                int cantidad = Integer.parseInt(partes[1]);
+                int puntuacion = Integer.parseInt(partes[2]);
+                for (int i = 0; i < cantidad; i++) {
+                    this.conjuntoDeFichas.add(new Ficha(letra, puntuacion));
+                }
+            }
+        }
         Collections.shuffle(this.conjuntoDeFichas);
     }
 
@@ -45,17 +51,6 @@ public class Bolsa {
      */
     public Bolsa(List<String> lineasArchivo, long seed) {
         this.conjuntoDeFichas = new ArrayList<>();
-        inicializarBolsa(lineasArchivo);
-        Random random = new Random(seed);
-        Collections.shuffle(this.conjuntoDeFichas, random);
-    }
-
-    /**
-     * Inicializa la bolsa cargando fichas según las líneas de configuración.
-     *
-     * @param lineasArchivo Líneas con formato "Letra Cantidad Puntuacion".
-     */
-    private void inicializarBolsa(List<String> lineasArchivo) {
         for (String linea : lineasArchivo) {
             String[] partes = linea.trim().split("\\s+");
             if (partes.length == 3) {
@@ -67,28 +62,8 @@ public class Bolsa {
                 }
             }
         }
-    }
-
-    /**
-     * Devuelve el idioma asociado a esta bolsa.
-     *
-     * @return Código de idioma (p.ej., "ES").
-     */
-    public String getIdioma() {
-        return this.idioma;
-    }
-
-    /**
-     * Extrae y elimina una ficha aleatoria de la bolsa.
-     *
-     * @return Ficha extraída, o {@code null} si la bolsa está vacía.
-     */
-    public Ficha sacarFichaAleatoria() {
-        if (this.conjuntoDeFichas.isEmpty()) {
-            return null;
-        }
-        int index = (int) (Math.random() * this.conjuntoDeFichas.size());
-        return this.conjuntoDeFichas.remove(index);
+        Random random = new Random(seed);
+        Collections.shuffle(this.conjuntoDeFichas, random);
     }
 
     /**
@@ -108,16 +83,10 @@ public class Bolsa {
      *
      * @return {@code true} si no hay fichas en la bolsa, {@code false} en caso contrario.
      */
+
     public boolean isEmpty() {
         return this.conjuntoDeFichas.isEmpty();
     }
 
-    /**
-     * Devuelve el número de fichas restantes en la bolsa.
-     *
-     * @return Cantidad de fichas disponibles.
-     */
-    public int size() {
-        return this.conjuntoDeFichas.size();
-    }
+
 }

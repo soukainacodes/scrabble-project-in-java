@@ -92,7 +92,7 @@ public class DriverScrabble {
         while (true) {
             String user = ctrl.getUsuarioActual();
             int puntos = ctrl.getPuntosActual();
-            int pos = ctrl.getPosicion();
+            int pos = ctrl.getPosicionActual();
 
             System.out.println("\n--- TU CUENTA ---");
             System.out.println("Usuario:  " + user);
@@ -189,7 +189,7 @@ public class DriverScrabble {
         try {
             ctrl.iniciarSesion(u, p);
             int puntos = ctrl.getPuntosActual();
-            int pos = ctrl.getPosicion();
+            int pos = ctrl.getPosicionActual();
             System.out.println("\n========================================");
             System.out.printf("   ¡Bienvenido, %s!%n", u);
             System.out.printf("   Puntos: %d    ", puntos);

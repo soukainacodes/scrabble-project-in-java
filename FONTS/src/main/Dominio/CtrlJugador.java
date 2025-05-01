@@ -55,36 +55,8 @@ public class CtrlJugador {
         return jugadorActual;
     }
 
-    /**
-     * Cambia la contraseña del jugador activo.
-     *
-     * @param antigua la contraseña actual para validar la operación.
-     * @param nueva   la nueva contraseña a asignar.
-     * @throws PasswordInvalidaException si la contraseña antigua no coincide con la almacenada.
-     */
-    public void cambiarPassword(String antigua, String nueva)
-            throws PasswordInvalidaException {
-        if (jugadorActual == null) return;
-        if (!jugadorActual.validarPassword(antigua)) {
-            throw new PasswordInvalidaException();
-        }
-        jugadorActual.setPassword(nueva);
-    }
 
-    /**
-     * Elimina la cuenta del jugador activo y finaliza la sesión.
-     *
-     * @param password la contraseña para verificar la identidad del jugador.
-     * @throws PasswordInvalidaException si la contraseña proporcionada no es correcta.
-     */
-    public void eliminarJugador(String password)
-            throws PasswordInvalidaException {
-        if (jugadorActual == null) return;
-        if (!jugadorActual.validarPassword(password)) {
-            throw new PasswordInvalidaException();
-        }
-        clearSesion();
-    }
+
 
     /**
      * Actualiza la puntuación máxima del jugador activo si la nueva puntuación es mayor.
