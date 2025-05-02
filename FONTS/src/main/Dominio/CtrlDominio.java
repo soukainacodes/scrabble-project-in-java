@@ -1,6 +1,7 @@
 package Dominio;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import Dominio.Modelos.Celda;
 import Dominio.Modelos.Partida;
 import Dominio.Modelos.TipoBonificacion;
 import Persistencia.CtrlPersistencia;
+import Persistencia.CtrlPersistencia2;
 
 /**
  * Controlador principal del dominio que coordina la lógica de negocio,
@@ -35,15 +37,21 @@ import Persistencia.CtrlPersistencia;
  * de persistencia ({@link CtrlPersistencia}).
  */
 public class CtrlDominio {
-
+   
     /** Controlador de persistencia para acceso a datos (jugadores, diccionarios, partidas, etc.). */
     private final CtrlPersistencia ctrlPersistencia;
-
     /** Controlador de la sesión y datos del jugador activo. */
     private final CtrlJugador ctrlJugador;
 
     /** Controlador de la partida en curso. */
     private final CtrlPartida ctrlPartida;
+
+
+    //PRUEBA DE OBSERVER!!!
+    private final List<Observer> observers = new ArrayList<>();
+    private final CtrlPersistencia2 ctrlPersistencia2;
+
+
 
     /**
      * Construye una instancia de CtrlDominio, inicializando los controladores
@@ -51,8 +59,12 @@ public class CtrlDominio {
      */
     public CtrlDominio() {
         this.ctrlPersistencia = new CtrlPersistencia();
+        this.ctrlPersistencia2 = new CtrlPersistencia2();
         this.ctrlJugador      = new CtrlJugador();
         this.ctrlPartida      = new CtrlPartida();
+
+        //PRUEBA DE OBSERVER!!!
+        observers.add(this.ctrlPersistencia2);
     }
 
     // ─── Gestión de Usuarios ───────────────────────────────────────────────────
@@ -74,6 +86,13 @@ public class CtrlDominio {
         ctrlJugador.setJugador(ctrlPersistencia.getJugador(nombre), password);
        
     }
+
+        private void notifyScoreUpdated(String jugador, int puntos) {
+        for (Observer obs : observers) {
+            obs.onScoreUpdated(jugador, puntos);
+        }
+    }
+
 
     /**
      * Inicia sesión con credenciales existentes.
