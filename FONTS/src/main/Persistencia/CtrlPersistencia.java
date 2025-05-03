@@ -34,44 +34,60 @@ import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 
 /**
- * Controlador de persistencia de la aplicación.
- * Gestiona:
+ * Controlador de persistencia de la aplicación. Gestiona:
  * <ul>
- *   <li>Usuarios y su archivo de datos.</li>
- *   <li>Ranking de jugadores.</li>
- *   <li>Partidas guardadas en memoria.</li>
- *   <li>Diccionarios y bolsas de fichas desde recursos.</li>
+ * <li>Usuarios y su archivo de datos.</li>
+ * <li>Ranking de jugadores.</li>
+ * <li>Partidas guardadas en memoria.</li>
+ * <li>Diccionarios y bolsas de fichas desde recursos.</li>
  * </ul>
  */
 public class CtrlPersistencia {
-    /** Ruta al archivo de datos de usuarios. */
-    private static final String FILE_USUARIOS = "FONTS/src/main/Persistencia/Datos/usuarios.txt";
-    /** Ruta base de recursos de diccionarios y bolsas. */
-    private static final String BASE_RECURSOS = "FONTS/src/main/Recursos/Idiomas";
 
-    /** Mapa nombre->Jugador cargado desde disco. */
+    /**
+     * Ruta al archivo de datos de usuarios.
+     */
+    private static final String FILE_USUARIOS = "FONTS/src/main/Persistencia/Datos/usuarios.txt";
+    /**
+     * Ruta base de recursos de diccionarios y bolsas.
+     */
+    private static final String BASE_RECURSOS = "FONTS/src/main/Recursos/Idiomas";
+    private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
+    /**
+     * Mapa nombre->Jugador cargado desde disco.
+     */
     private final Map<String, Jugador> usuariosMap;
-    /** Conjunto ordenado de jugadores para el ranking (puntos desc, nombre asc). */
+    /**
+     * Conjunto ordenado de jugadores para el ranking (puntos desc, nombre asc).
+     */
     private final NavigableSet<Jugador> rankingSet;
-    /** Partidas guardadas en memoria (id->Partida). */
+    /**
+     * Partidas guardadas en memoria (id->Partida).
+     */
     private final Map<String, Partida> listaPartidas;
-    /** Identificador de la última partida guardada. */
+    /**
+     * Identificador de la última partida guardada.
+     */
     private String ultimaPartida;
 
-    /** Map de diccionario de palabras por ID de idioma. */
+    /**
+     * Map de diccionario de palabras por ID de idioma.
+     */
     private final Map<String, List<String>> diccionarios;
-    /** Map de líneas de bolsa por ID de idioma. */
+    /**
+     * Map de líneas de bolsa por ID de idioma.
+     */
     private final Map<String, List<String>> bolsas;
 
     /**
-     * Construye el controlador, cargando usuarios desde disco,
-     * inicializando ranking y recargando recursos de diccionarios y bolsas.
+     * Construye el controlador, cargando usuarios desde disco, inicializando
+     * ranking y recargando recursos de diccionarios y bolsas.
      */
     public CtrlPersistencia() {
         this.usuariosMap = cargarUsuariosDesdeDisco();
         this.rankingSet = new TreeSet<>(
                 Comparator.comparingInt(Jugador::getPuntos).reversed()
-                          .thenComparing(Jugador::getNombre)
+                        .thenComparing(Jugador::getNombre)
         );
         this.rankingSet.addAll(usuariosMap.values());
         this.listaPartidas = new HashMap<>();
@@ -82,13 +98,13 @@ public class CtrlPersistencia {
     }
 
     // ─── Usuarios ─────────────────────────────────────────────────────────────
-
     /**
      * Obtiene un jugador registrado por su nombre.
      *
      * @param nombre nombre de usuario buscado
      * @return el objeto Jugador correspondiente
-     * @throws UsuarioNoEncontradoException si no existe un usuario con dicho nombre
+     * @throws UsuarioNoEncontradoException si no existe un usuario con dicho
+     * nombre
      */
     public Jugador getJugador(String nombre) throws UsuarioNoEncontradoException {
         Jugador j = usuariosMap.get(nombre);
@@ -105,8 +121,9 @@ public class CtrlPersistencia {
      * @throws UsuarioYaRegistradoException si el nombre ya está en uso
      */
     public void addJugador(Jugador j) throws UsuarioYaRegistradoException {
-        if (usuariosMap.containsKey(j.getNombre()))
+        if (usuariosMap.containsKey(j.getNombre())) {
             throw new UsuarioYaRegistradoException(j.getNombre());
+        }
         usuariosMap.put(j.getNombre(), j);
         rankingSet.add(j);
         guardarUsuariosEnDisco();
@@ -122,7 +139,27 @@ public class CtrlPersistencia {
         return usuariosMap.containsKey(nombre);
     }
 
-    
+    public static void escribirListaEnNuevoArchivo(List<String> datos) {
+
+        String nombreArchivo = "partida_" + datos.get(0) + ".txt";
+        String directorioDestino = PARTIDAS;
+
+        if (!directorioDestino.endsWith(System.getProperty("file.separator"))) {
+            directorioDestino += System.getProperty("file.separator");
+        }
+
+        String rutaCompleta = directorioDestino + nombreArchivo;
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaCompleta))) {
+            for (String linea : datos) {
+                writer.write(linea);
+                writer.newLine();
+            }
+            System.out.println("Archivo creado exitosamente en: " + rutaCompleta);
+        } catch (IOException e) {
+            System.err.println("[EscrituraArchivo] Error al escribir en el archivo: " + e.getMessage());
+        }
+    }
 
     /**
      * Actualiza los datos de un jugador y reordena el ranking.
@@ -144,7 +181,8 @@ public class CtrlPersistencia {
      * Elimina un jugador y actualiza la persistencia.
      *
      * @param nombre nombre del jugador a eliminar
-     * @throws UsuarioNoEncontradoException si no existe un usuario con ese nombre
+     * @throws UsuarioNoEncontradoException si no existe un usuario con ese
+     * nombre
      */
     public void removeJugador(String nombre) throws UsuarioNoEncontradoException {
         Jugador j = usuariosMap.remove(nombre);
@@ -156,10 +194,10 @@ public class CtrlPersistencia {
     }
 
     /**
-     * Reporta una nueva puntuación para un jugador,
-     * y actualiza el ranking si supera su récord.
+     * Reporta una nueva puntuación para un jugador, y actualiza el ranking si
+     * supera su récord.
      *
-     * @param nombre       nombre del jugador
+     * @param nombre nombre del jugador
      * @param nuevosPuntos nueva puntuación
      * @throws PuntuacionInvalidaException si la puntuación es negativa
      */
@@ -178,7 +216,6 @@ public class CtrlPersistencia {
     }
 
     // ─── Ranking ─────────────────────────────────────────────────────────────
-
     /**
      * Devuelve el ranking de jugadores con puntos positivos.
      *
@@ -207,30 +244,32 @@ public class CtrlPersistencia {
     public int getPosition(String nombre) {
         int pos = 1;
         for (Jugador j : rankingSet) {
-            if (j.getNombre().equals(nombre))
+            if (j.getNombre().equals(nombre)) {
                 return pos;
-            if (j.getPuntos() > 0)
+            }
+            if (j.getPuntos() > 0) {
                 pos++;
+            }
         }
         throw new NoSuchElementException("Usuario no encontrado: " + nombre);
     }
 
     // ─── Partidas ────────────────────────────────────────────────────────────
-
     /**
      * Guarda una partida en memoria y marca como última.
      *
-     * @param id      identificador único de la partida
+     * @param id identificador único de la partida
      * @param partida objeto Partida a almacenar
      * @throws PartidaYaExistenteException si ya existe una partida con ese ID
      */
-    public void guardarPartida(String id, Partida partida)
+    public void guardarPartida(String id, List<String> partida)
             throws PartidaYaExistenteException {
         if (listaPartidas.containsKey(id)) {
             throw new PartidaYaExistenteException(id);
         }
-        listaPartidas.put(id, partida);
+        //  listaPartidas.put(id, partida);
         ultimaPartida = id;
+        escribirListaEnNuevoArchivo(partida);
     }
 
     /**
@@ -240,12 +279,14 @@ public class CtrlPersistencia {
      * @return la instancia de Partida
      * @throws PartidaNoEncontradaException si no existe dicho ID
      */
-    public Partida cargarPartida(String id) throws PartidaNoEncontradaException {
-        Partida p = listaPartidas.get(id);
-        if (p == null) {
+    public List<String> cargarPartida(String id) throws PartidaNoEncontradaException {
+        String directorioPartidas = PARTIDAS;
+        String rutaArchivo = PARTIDAS + "partida_" + id + ".txt";
+        try {
+            return leerArchivoTexto(rutaArchivo);
+        } catch (Exception e) {
             throw new PartidaNoEncontradaException(id);
         }
-        return p;
     }
 
     /**
@@ -287,14 +328,14 @@ public class CtrlPersistencia {
     }
 
     // ─── Diccionarios y Bolsas ───────────────────────────────────────────────
-
     /**
      * Carga desde disco todos los recursos de idiomas disponibles.
      */
     private void cargarRecursosDesdeDisco() {
         File base = new File(BASE_RECURSOS);
-        if (!base.isDirectory())
+        if (!base.isDirectory()) {
             return;
+        }
         for (File dir : Objects.requireNonNull(base.listFiles(File::isDirectory))) {
             String id = dir.getName();
             try {
@@ -366,10 +407,10 @@ public class CtrlPersistencia {
     /**
      * Añade un nuevo diccionario y lo persiste en disco.
      *
-     * @param id        identificador del idioma
-     * @param palabras  lista de palabras a guardar
+     * @param id identificador del idioma
+     * @param palabras lista de palabras a guardar
      * @throws DiccionarioYaExistenteException si el ID ya existe
-     * @throws IOException                    si hay error de E/S
+     * @throws IOException si hay error de E/S
      */
     public void addDiccionario(String id, List<String> palabras)
             throws DiccionarioYaExistenteException, IOException {
@@ -392,10 +433,10 @@ public class CtrlPersistencia {
     /**
      * Añade una nueva bolsa de fichas y la persiste en disco.
      *
-     * @param id        identificador del idioma
+     * @param id identificador del idioma
      * @param bolsaData mapa letra -> [cantidad, valor]
      * @throws BolsaYaExistenteException si el ID ya existe
-     * @throws IOException               si hay error de E/S
+     * @throws IOException si hay error de E/S
      */
     public void addBolsa(String id, Map<String, int[]> bolsaData)
             throws BolsaYaExistenteException, IOException {
@@ -420,13 +461,13 @@ public class CtrlPersistencia {
      *
      * @param id identificador del idioma
      * @throws DiccionarioNoEncontradoException si el diccionario no existe
-     * @throws BolsaNoEncontradaException       si la bolsa no existe
-     * @throws IOException                      si ocurre error de E/S al borrar
+     * @throws BolsaNoEncontradaException si la bolsa no existe
+     * @throws IOException si ocurre error de E/S al borrar
      */
     public void removeIdiomaCompleto(String id)
             throws DiccionarioNoEncontradoException,
-                   BolsaNoEncontradaException,
-                   IOException {
+            BolsaNoEncontradaException,
+            IOException {
         if (!diccionarios.containsKey(id)) {
             throw new DiccionarioNoEncontradoException(
                     String.format("No existe ningún diccionario con ID '%s'.", id));
@@ -451,7 +492,6 @@ public class CtrlPersistencia {
     }
 
     // ─── Helpers de E/S ─────────────────────────────────────────────────────
-
     /**
      * Lee todas las líneas no vacías de un archivo de texto.
      *
@@ -464,8 +504,9 @@ public class CtrlPersistencia {
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
             for (String l; (l = br.readLine()) != null;) {
                 l = l.trim();
-                if (!l.isEmpty())
+                if (!l.isEmpty()) {
                     out.add(l);
+                }
             }
         }
         return out;
@@ -488,18 +529,21 @@ public class CtrlPersistencia {
     /**
      * Carga usuarios desde el archivo de disco.
      *
-     * @return mapa nombre->Jugador con datos cargados o vacío si no existe archivo
+     * @return mapa nombre->Jugador con datos cargados o vacío si no existe
+     * archivo
      */
     private Map<String, Jugador> cargarUsuariosDesdeDisco() {
         Map<String, Jugador> mapa = new HashMap<>();
         File f = new File(FILE_USUARIOS);
-        if (!f.exists())
+        if (!f.exists()) {
             return mapa;
+        }
         try (BufferedReader r = new BufferedReader(new FileReader(f))) {
             for (String línea; (línea = r.readLine()) != null;) {
                 String[] t = línea.trim().split(" ");
-                if (t.length < 3)
+                if (t.length < 3) {
                     continue;
+                }
                 String nombre = t[0], pass = t[1];
                 int puntos = Integer.parseInt(t[2]);
                 Jugador j = new Jugador(nombre, pass);

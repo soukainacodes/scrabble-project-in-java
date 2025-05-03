@@ -2,9 +2,10 @@ package Dominio.Modelos;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
-
 /**
  * Representa una bolsa de fichas para el juego de Scrabble.
  * <p>
@@ -88,5 +89,33 @@ public class Bolsa {
         return this.conjuntoDeFichas.isEmpty();
     }
 
+      public List<String> toListString() {
+        List<String> bolsaList = new ArrayList<>();
+        Map<String, Integer> conteoLetras = new HashMap<>(); // Para contar las letras
+        Map<String, Integer> puntuacionLetras = new HashMap<>(); //Para almacenar la puntuacion de la letra
+
+        for (Ficha ficha : conjuntoDeFichas) {
+            String letra = ficha.getLetra();
+            int puntuacion = ficha.getPuntuacion();
+
+            // Contar la frecuencia de cada letra
+            if (conteoLetras.containsKey(letra)) {
+                conteoLetras.put(letra, conteoLetras.get(letra) + 1);
+            } else {
+                conteoLetras.put(letra, 1);
+                puntuacionLetras.put(letra, puntuacion); // Guarda la puntuacion de la letra
+            }
+        }
+
+        // Crear la lista de strings con el formato "Letra Cantidad Puntuacion"
+        for (Map.Entry<String, Integer> entry : conteoLetras.entrySet()) {
+            String letra = entry.getKey();
+            int cantidad = entry.getValue();
+            int puntuacion = puntuacionLetras.get(letra); // Obtiene la puntuacion de la letra.
+            String fichaString = String.format("%s %d %d", letra, cantidad, puntuacion);
+            bolsaList.add(fichaString);
+        }
+        return bolsaList;
+    }
 
 }

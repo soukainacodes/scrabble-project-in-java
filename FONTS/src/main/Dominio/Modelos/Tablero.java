@@ -1,5 +1,8 @@
 package Dominio.Modelos;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Representa el tablero de Scrabble de tamaño fijo 15x15.
  * Cada celda puede tener una bonificación de letra o palabra.
@@ -24,9 +27,9 @@ public class Tablero {
      * Crea y asigna cada celda del tablero con su correspondiente bonificación.
      */
     private void inicializarTablero() {
-        for (int i = 0; i < TAMANO; i++) {
-            for (int j = 0; j < TAMANO; j++) {
-                celdas[i][j] = new Celda(asignarBonificacion(i, j));
+        for (int fila = 0; fila < TAMANO; fila++) {
+            for (int columna = 0; columna < TAMANO; columna++) {
+                celdas[fila][columna] = new Celda(asignarBonificacion(fila, columna));
             }
         }
     }
@@ -139,4 +142,23 @@ public class Tablero {
     public boolean esCentroDelTablero(int fila, int columna) {
         return fila == TAMANO/2 && columna == TAMANO/2;
     }
+
+   
+    public List<String> toListString(){
+        List<String> tableroList = new ArrayList<>();
+        String celdaString = "";
+        for (int fila = 0; fila < TAMANO; fila++) {
+            for (int columna= 0; columna < TAMANO; columna++) {
+                if(getFicha(fila,columna) != null){
+                    celdaString += getFicha(fila,columna).getLetra() + " " + 
+                                     Integer.toString(fila) + " " + 
+                                     Integer.toString(columna);
+                    tableroList.add(celdaString);
+                    celdaString = ""; 
+                }
+            }
+        }
+        return tableroList;
+    }
+
 }

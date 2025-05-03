@@ -51,7 +51,7 @@ public class CtrlDominio {
     private final List<Observer> observers = new ArrayList<>();
     private final CtrlPersistencia2 ctrlPersistencia2;
 
-
+    private final DataConverter dc;
 
     /**
      * Construye una instancia de CtrlDominio, inicializando los controladores
@@ -62,8 +62,8 @@ public class CtrlDominio {
         this.ctrlPersistencia2 = new CtrlPersistencia2();
         this.ctrlJugador      = new CtrlJugador();
         this.ctrlPartida      = new CtrlPartida();
-
-        //PRUEBA DE OBSERVER!!!
+        this.dc = new DataConverter();
+        //PRUEBA DE OBSERVER!!! 
         observers.add(this.ctrlPersistencia2);
     }
 
@@ -303,7 +303,8 @@ public class CtrlDominio {
      */
     public void guardarPartida(String id) throws PartidaYaExistenteException {
         Partida p = ctrlPartida.guardarPartida();
-        ctrlPersistencia.guardarPartida(id, p);
+        
+        ctrlPersistencia.guardarPartida(id, dc.partidaToStringList(p, id));
     }
 
     /**
@@ -313,8 +314,8 @@ public class CtrlDominio {
      * @throws PartidaNoEncontradaException si no existe la partida.
      */
     public void cargarPartida(String id) throws PartidaNoEncontradaException {
-        Partida p = ctrlPersistencia.cargarPartida(id);
-        ctrlPartida.cargarPartida(p);
+      //  Partida p = ctrlPersistencia.cargarPartida(id);
+      //  ctrlPartida.cargarPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)));
     }
 
     /**

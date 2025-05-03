@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class Partida {
 
+    private String idPartida;
     /** Fichas del jugador 1 en mano. */
     private List<Ficha> fichasJugador1;
     /** Fichas del jugador 2 en mano. */
@@ -51,7 +52,7 @@ public class Partida {
         // Inicializar tablero y estado
         this.tablero = new Tablero();
         this.contadorTurno = 0;
-        this.turnoJugador = true;
+        this.turnoJugador = true; //Empieza jugador 1
         this.coordenadasPalabra = new ArrayList<>();
         // Repartir 7 fichas alternando turnos
         for (int i = 0; i < 14; i++) {
@@ -60,6 +61,31 @@ public class Partida {
         }
     }
 
+    public Partida(List<String> bolsaTexto, List<String> tableroTexto){
+        this.fichasJugador1 = new ArrayList<>();
+        this.fichasJugador2 = new ArrayList<>();
+        this.puntosJugador1 = 0;
+        this.puntosJugador2 = 0;
+
+        this.bolsa = new Bolsa(bolsaTexto);
+        //this.tablero = new Tablero(tableroTexto);
+        this.coordenadasPalabra = new ArrayList<>();
+    }
+    
+    public void setIdPartida(String id){
+        this.idPartida = id;
+    }
+
+    public void setFichasJugador1(String fichas){
+        String[] fichasString = fichas.trim().split(" ");
+        
+        for(int letra = 0;letra < fichasString.length ; letra+=2){
+            Ficha ficha = new Ficha(fichasString[letra],Integer.parseInt(fichasString[letra+1]));
+            fichasJugador1.add(ficha);    
+        }
+    }
+
+    
     /**
      * Obtiene el tablero de la partida.
      *
@@ -68,6 +94,37 @@ public class Partida {
     public Tablero getTablero() {
         return tablero;
     }
+
+    /**
+     * Obtiene la bolsa de la partida.
+     *
+     * @return Bolsa actual.
+     */
+    public Bolsa getBolsa(){
+        return bolsa;
+    }
+
+    public String getJugador1() {
+        return jugador1;
+    }
+
+     public String getJugador2() {
+        return jugador2;
+    }
+
+
+    public void setJugador1(String jugador){
+        this.jugador1 = jugador;
+    }
+
+    public void setJugador2(String jugador){
+        this.jugador2 = jugador;
+    }
+
+
+
+
+
 
     /**
      * Obtiene el contador de turnos jugados.
@@ -81,6 +138,10 @@ public class Partida {
     /** Incrementa el contador de turno en uno. */
     public void aumentarContador() {
         contadorTurno++;
+    }
+
+    public void setContadorTurno(int contador){
+        contadorTurno = contador;
     }
 
     /**
@@ -253,7 +314,7 @@ public class Partida {
     public List<String> obtenerFichas() {
         List<String> letras = new ArrayList<>();
         List<Ficha> mano = turnoJugador ? fichasJugador1 : fichasJugador2;
-        for (Ficha f : mano) letras.add(f.getLetra());
+        for (Ficha f : mano) letras.add(f.getLetra() + " " + Integer.toString(f.getPuntuacion()));
         return letras;
     }
 
