@@ -19,12 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.lang.ClassNotFoundException;
-
-
 import Dominio.Excepciones.BolsaNoEncontradaException;
 import Dominio.Excepciones.BolsaYaExistenteException;
 import Dominio.Excepciones.DiccionarioNoEncontradoException;
@@ -59,18 +53,17 @@ public class CtrlPersistencia {
      */
     private static final String BASE_RECURSOS = "FONTS/src/main/Recursos/Idiomas";
     private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
+
     /**
-     * Mapa nombre->Jugador cargado desde disco.
+     * Mapa nombre->[password, puntos] cargado desde disco.
      */
-    private final Map<String, Jugador> usuariosMap;
+    private final Map<String, String[]> usuariosMap;
+
     /**
      * Conjunto ordenado de jugadores para el ranking (puntos desc, nombre asc).
      */
-    private final NavigableSet<Jugador> rankingSet;
-    /**
-     * Partidas guardadas en memoria (id->Partida).
-     */
-    private final Map<String, Partida> listaPartidas;
+    private final NavigableSet<Map.Entry<String, Integer>> rankingSet;
+
     /**
      * Identificador de la última partida guardada.
      */
@@ -85,10 +78,6 @@ public class CtrlPersistencia {
      */
     private final Map<String, List<String>> bolsas;
 
-
-
-
-
     /**
      * Construye el controlador, cargando usuarios desde disco, inicializando
      * ranking y recargando recursos de diccionarios y bolsas.
@@ -96,11 +85,11 @@ public class CtrlPersistencia {
     public CtrlPersistencia() {
         this.usuariosMap = cargarUsuariosDesdeDisco();
         this.rankingSet = new TreeSet<>(
-                Comparator.comparingInt(Jugador::getPuntos).reversed()
-                        .thenComparing(Jugador::getNombre)
-        );
-        this.rankingSet.addAll(usuariosMap.values());
-        this.listaPartidas = new HashMap<>();
+                Comparator.comparingInt((Map.Entry<String, Integer> e) -> e.getValue()).reversed()
+                        .thenComparing(Map.Entry::getKey));
+        this.rankingSet.addAll(usuariosMap.entrySet().stream()
+                .map(e -> Map.entry(e.getKey(), Integer.parseInt(e.getValue()[1])))
+                .collect(Collectors.toList()));
         this.diccionarios = new HashMap<>();
         this.bolsas = new HashMap<>();
         this.ultimaPartida = null;
@@ -114,28 +103,28 @@ public class CtrlPersistencia {
      * @param nombre nombre de usuario buscado
      * @return el objeto Jugador correspondiente
      * @throws UsuarioNoEncontradoException si no existe un usuario con dicho
-     * nombre
+     *                                      nombre
      */
-    public Jugador getJugador(String nombre) throws UsuarioNoEncontradoException {
-        Jugador j = usuariosMap.get(nombre);
-        if (j == null) {
+    public String getJugador(String nombre) throws UsuarioNoEncontradoException {
+        if (!usuariosMap.containsKey(nombre)) {
             throw new UsuarioNoEncontradoException(nombre);
         }
-        return j;
+        return nombre;
     }
 
     /**
      * Añade un nuevo jugador y persiste el cambio en disco.
      *
-     * @param j jugador a añadir
+     * @param nombre   nombre del jugador
+     * @param password contraseña del jugador
      * @throws UsuarioYaRegistradoException si el nombre ya está en uso
      */
-    public void addJugador(Jugador j) throws UsuarioYaRegistradoException {
-        if (usuariosMap.containsKey(j.getNombre())) {
-            throw new UsuarioYaRegistradoException(j.getNombre());
+    public void addJugador(String nombre, String password) throws UsuarioYaRegistradoException {
+        if (usuariosMap.containsKey(nombre)) {
+            throw new UsuarioYaRegistradoException(nombre);
         }
-        usuariosMap.put(j.getNombre(), j);
-        rankingSet.add(j);
+        usuariosMap.put(nombre, new String[] { password, "0" });
+        rankingSet.add(Map.entry(nombre, 0));
         guardarUsuariosEnDisco();
     }
 
@@ -172,18 +161,28 @@ public class CtrlPersistencia {
     }
 
     /**
-     * Actualiza los datos de un jugador y reordena el ranking.
+     * Actualiza los puntos de un jugador y persiste el cambio en disco.
      *
-     * @param j jugador con datos actualizados
-     * @throws UsuarioNoEncontradoException si el jugador no está registrado
+     * @param nombre       nombre del jugador
+     * @param nuevosPuntos nuevos puntos del jugador
+     * @throws UsuarioNoEncontradoException si no existe un usuario con dicho
+     *                                      nombre
      */
-    public void updateJugador(Jugador j) throws UsuarioNoEncontradoException {
-        if (!usuariosMap.containsKey(j.getNombre())) {
-            throw new UsuarioNoEncontradoException(j.getNombre());
+    public void updateJugador(String nombre, int nuevosPuntos) throws UsuarioNoEncontradoException {
+        if (!usuariosMap.containsKey(nombre)) {
+            throw new UsuarioNoEncontradoException(nombre);
         }
-        rankingSet.remove(j);
-        usuariosMap.put(j.getNombre(), j);
-        rankingSet.add(j);
+
+        // Actualizar los puntos en el mapa
+        String[] datosUsuario = usuariosMap.get(nombre);
+        datosUsuario[1] = String.valueOf(nuevosPuntos);
+        usuariosMap.put(nombre, datosUsuario);
+
+        // Actualizar el ranking
+        rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
+        rankingSet.add(Map.entry(nombre, nuevosPuntos));
+
+        // Guardar los cambios en disco
         guardarUsuariosEnDisco();
     }
 
@@ -191,15 +190,19 @@ public class CtrlPersistencia {
      * Elimina un jugador y actualiza la persistencia.
      *
      * @param nombre nombre del jugador a eliminar
-     * @throws UsuarioNoEncontradoException si no existe un usuario con ese
-     * nombre
+     * @throws UsuarioNoEncontradoException si no existe un usuario con ese nombre
      */
     public void removeJugador(String nombre) throws UsuarioNoEncontradoException {
-        Jugador j = usuariosMap.remove(nombre);
-        if (j == null) {
+        // Eliminar al jugador del mapa de usuarios
+        String[] datosUsuario = usuariosMap.remove(nombre);
+        if (datosUsuario == null) {
             throw new UsuarioNoEncontradoException(nombre);
         }
-        rankingSet.remove(j);
+
+        // Eliminar al jugador del ranking
+        rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
+
+        // Guardar los cambios en disco
         guardarUsuariosEnDisco();
     }
 
@@ -207,7 +210,7 @@ public class CtrlPersistencia {
      * Reporta una nueva puntuación para un jugador, y actualiza el ranking si
      * supera su récord.
      *
-     * @param nombre nombre del jugador
+     * @param nombre       nombre del jugador
      * @param nuevosPuntos nueva puntuación
      * @throws PuntuacionInvalidaException si la puntuación es negativa
      */
@@ -216,12 +219,23 @@ public class CtrlPersistencia {
         if (nuevosPuntos < 0) {
             throw new PuntuacionInvalidaException(nuevosPuntos);
         }
-        Jugador j = usuariosMap.get(nombre);
-        if (j != null && nuevosPuntos > j.getPuntos()) {
-            rankingSet.remove(j);
-            j.setPuntos(nuevosPuntos);
-            rankingSet.add(j);
-            guardarUsuariosEnDisco();
+
+        // Verificar si el jugador existe en el mapa
+        String[] datosUsuario = usuariosMap.get(nombre);
+        if (datosUsuario != null) {
+            int puntosActuales = Integer.parseInt(datosUsuario[1]);
+            if (nuevosPuntos > puntosActuales) {
+                // Actualizar los puntos en el mapa
+                datosUsuario[1] = String.valueOf(nuevosPuntos);
+                usuariosMap.put(nombre, datosUsuario);
+
+                // Actualizar el ranking
+                rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
+                rankingSet.add(Map.entry(nombre, nuevosPuntos));
+
+                // Guardar los cambios en disco
+                guardarUsuariosEnDisco();
+            }
         }
     }
 
@@ -235,8 +249,7 @@ public class CtrlPersistencia {
     public List<Map.Entry<String, Integer>> obtenerRanking()
             throws RankingVacioException {
         List<Map.Entry<String, Integer>> ranking = rankingSet.stream()
-                .filter(j -> j.getPuntos() > 0)
-                .map(j -> Map.entry(j.getNombre(), j.getPuntos()))
+                .filter(entry -> entry.getValue() > 0) // Filtrar jugadores con puntos > 0
                 .collect(Collectors.toList());
         if (ranking.isEmpty()) {
             throw new RankingVacioException();
@@ -253,11 +266,11 @@ public class CtrlPersistencia {
      */
     public int getPosition(String nombre) {
         int pos = 1;
-        for (Jugador j : rankingSet) {
-            if (j.getNombre().equals(nombre)) {
+        for (Map.Entry<String, Integer> entry : rankingSet) {
+            if (entry.getKey().equals(nombre)) {
                 return pos;
             }
-            if (j.getPuntos() > 0) {
+            if (entry.getValue() > 0) {
                 pos++;
             }
         }
@@ -265,20 +278,27 @@ public class CtrlPersistencia {
     }
 
     // ─── Partidas ────────────────────────────────────────────────────────────
+
     /**
      * Guarda una partida en memoria y marca como última.
      *
-     * @param id identificador único de la partida
-     * @param partida objeto Partida a almacenar
+     * @param id      identificador único de la partida
+     * @param partida lista de datos de la partida
      * @throws PartidaYaExistenteException si ya existe una partida con ese ID
      */
     public void guardarPartida(String id, List<String> partida)
             throws PartidaYaExistenteException {
-        if (listaPartidas.containsKey(id)) {
+        File archivoPartida = new File(PARTIDAS + "partida_" + id + ".txt");
+
+        // Verificar si el archivo ya existe
+        if (archivoPartida.exists()) {
             throw new PartidaYaExistenteException(id);
         }
-        //  listaPartidas.put(id, partida);
+
+        // Actualizar la última partida
         ultimaPartida = id;
+
+        // Escribir la partida en un nuevo archivo
         escribirListaEnNuevoArchivo(partida);
     }
 
@@ -290,7 +310,6 @@ public class CtrlPersistencia {
      * @throws PartidaNoEncontradaException si no existe dicho ID
      */
     public List<String> cargarPartida(String id) throws PartidaNoEncontradaException {
-        String directorioPartidas = PARTIDAS;
         String rutaArchivo = PARTIDAS + "partida_" + id + ".txt";
         try {
             return leerArchivoTexto(rutaArchivo);
@@ -302,23 +321,54 @@ public class CtrlPersistencia {
     /**
      * Carga la última partida guardada en memoria.
      *
-     * @return la última Partida almacenada
+     * @return lista de líneas de la última partida almacenada
      * @throws NoHayPartidaGuardadaException si no hay ninguna partida reciente
      */
-    public Partida cargarUltimaPartida() throws NoHayPartidaGuardadaException {
-        if (ultimaPartida == null || !listaPartidas.containsKey(ultimaPartida)) {
+    public List<String> cargarUltimaPartida() throws NoHayPartidaGuardadaException {
+        if (ultimaPartida == null) {
             throw new NoHayPartidaGuardadaException();
         }
-        return listaPartidas.get(ultimaPartida);
+
+        String rutaArchivo = PARTIDAS + "partida_" + ultimaPartida + ".txt";
+        File archivoPartida = new File(rutaArchivo);
+
+        // Verificar si el archivo de la última partida existe
+        if (!archivoPartida.exists()) {
+            throw new NoHayPartidaGuardadaException();
+        }
+
+        try {
+            // Leer y devolver las líneas del archivo
+            return leerArchivoTexto(rutaArchivo);
+        } catch (IOException e) {
+            throw new NoHayPartidaGuardadaException();
+        }
     }
 
     /**
      * Devuelve un mapa no modificable de todas las partidas guardadas.
      *
-     * @return mapa id->Partida
+     * @return mapa id->contenido de la partida como lista de líneas
      */
-    public Map<String, Partida> getListaPartidas() {
-        return Collections.unmodifiableMap(listaPartidas);
+    public Map<String, List<String>> getListaPartidas() {
+        Map<String, List<String>> partidas = new HashMap<>();
+        File directorioPartidas = new File(PARTIDAS);
+
+        // Verificar si el directorio de partidas existe
+        if (directorioPartidas.exists() && directorioPartidas.isDirectory()) {
+            for (File archivo : Objects.requireNonNull(directorioPartidas.listFiles())) {
+                if (archivo.isFile() && archivo.getName().startsWith("partida_")) {
+                    String id = archivo.getName().replace("partida_", "").replace(".txt", "");
+                    try {
+                        partidas.put(id, leerArchivoTexto(archivo.getPath()));
+                    } catch (IOException e) {
+                        System.err.println("[Persistencia] Error al leer la partida: " + archivo.getName());
+                    }
+                }
+            }
+        }
+
+        return Collections.unmodifiableMap(partidas);
     }
 
     /**
@@ -328,10 +378,20 @@ public class CtrlPersistencia {
      * @throws PartidaNoEncontradaException si no existe el ID
      */
     public void removePartida(String id) throws PartidaNoEncontradaException {
-        if (!listaPartidas.containsKey(id)) {
+        String rutaArchivo = PARTIDAS + "partida_" + id + ".txt";
+        File archivoPartida = new File(rutaArchivo);
+
+        // Verificar si el archivo existe
+        if (!archivoPartida.exists()) {
             throw new PartidaNoEncontradaException(id);
         }
-        listaPartidas.remove(id);
+
+        // Eliminar el archivo
+        if (!archivoPartida.delete()) {
+            throw new PartidaNoEncontradaException("No se pudo eliminar la partida con ID: " + id);
+        }
+
+        // Actualizar la última partida si corresponde
         if (id.equals(ultimaPartida)) {
             ultimaPartida = null;
         }
@@ -417,10 +477,10 @@ public class CtrlPersistencia {
     /**
      * Añade un nuevo diccionario y lo persiste en disco.
      *
-     * @param id identificador del idioma
+     * @param id       identificador del idioma
      * @param palabras lista de palabras a guardar
      * @throws DiccionarioYaExistenteException si el ID ya existe
-     * @throws IOException si hay error de E/S
+     * @throws IOException                     si hay error de E/S
      */
     public void addDiccionario(String id, List<String> palabras)
             throws DiccionarioYaExistenteException, IOException {
@@ -443,10 +503,10 @@ public class CtrlPersistencia {
     /**
      * Añade una nueva bolsa de fichas y la persiste en disco.
      *
-     * @param id identificador del idioma
+     * @param id        identificador del idioma
      * @param bolsaData mapa letra -> [cantidad, valor]
      * @throws BolsaYaExistenteException si el ID ya existe
-     * @throws IOException si hay error de E/S
+     * @throws IOException               si hay error de E/S
      */
     public void addBolsa(String id, Map<String, int[]> bolsaData)
             throws BolsaYaExistenteException, IOException {
@@ -471,8 +531,8 @@ public class CtrlPersistencia {
      *
      * @param id identificador del idioma
      * @throws DiccionarioNoEncontradoException si el diccionario no existe
-     * @throws BolsaNoEncontradaException si la bolsa no existe
-     * @throws IOException si ocurre error de E/S al borrar
+     * @throws BolsaNoEncontradaException       si la bolsa no existe
+     * @throws IOException                      si ocurre error de E/S al borrar
      */
     public void removeIdiomaCompleto(String id)
             throws DiccionarioNoEncontradoException,
@@ -527,23 +587,32 @@ public class CtrlPersistencia {
      */
     private void guardarUsuariosEnDisco() {
         try (BufferedWriter w = new BufferedWriter(new FileWriter(FILE_USUARIOS))) {
-            for (Jugador j : usuariosMap.values()) {
-                w.write(j.getNombre() + " " + j.getPassword() + " " + j.getPuntos());
+            for (Map.Entry<String, String[]> entry : usuariosMap.entrySet()) {
+                String nombre = entry.getKey();
+                String[] datos = entry.getValue();
+                String password = datos[0];
+                String puntos = datos[1];
+                w.write(nombre + " " + password + " " + puntos);
                 w.newLine();
             }
         } catch (IOException e) {
             System.err.println("[Persistencia] Error guardando usuarios: " + e.getMessage());
         }
     }
-
     /**
      * Carga usuarios desde el archivo de disco.
      *
      * @return mapa nombre->Jugador con datos cargados o vacío si no existe
-     * archivo
+     *         archivo
      */
-    private Map<String, Jugador> cargarUsuariosDesdeDisco() {
-        Map<String, Jugador> mapa = new HashMap<>();
+    /**
+     * Carga usuarios desde el archivo de disco.
+     *
+     * @return mapa nombre->[password, puntos] con datos cargados o vacío si no
+     *         existe archivo
+     */
+    private Map<String, String[]> cargarUsuariosDesdeDisco() {
+        Map<String, String[]> mapa = new HashMap<>();
         File f = new File(FILE_USUARIOS);
         if (!f.exists()) {
             return mapa;
@@ -554,13 +623,11 @@ public class CtrlPersistencia {
                 if (t.length < 3) {
                     continue;
                 }
-                String nombre = t[0], pass = t[1];
-                int puntos = Integer.parseInt(t[2]);
-                Jugador j = new Jugador(nombre, pass);
-                j.setPuntos(puntos);
-                mapa.put(nombre, j);
+                String nombre = t[0], password = t[1];
+                String puntos = t[2];
+                mapa.put(nombre, new String[] { password, puntos });
             }
-        } catch (IOException | NumberFormatException e) {
+        } catch (IOException e) {
             System.err.println("[Persistencia] Error cargando usuarios: " + e.getMessage());
         }
         return mapa;

@@ -73,17 +73,21 @@ public class CtrlDominio {
      * @throws UsuarioYaRegistradoException si el nombre ya existe en persistencia.
      */
     public void registrarJugador(String nombre, String password)
-            throws UsuarioYaRegistradoException, UsuarioNoEncontradoException, PasswordInvalidaException {
-       
-        if(ctrlPersistencia.existeJugador(nombre)) {
-            throw new UsuarioYaRegistradoException(nombre); 
-        } 
-        ctrlPersistencia.addJugador(ctrlJugador.setNuevoJugador(nombre,password));
-        ctrlJugador.setJugador(ctrlPersistencia.getJugador(nombre), password);
-       
-    }
+        throws UsuarioYaRegistradoException, UsuarioNoEncontradoException, PasswordInvalidaException {
 
-        /**
+        // Verificar si el jugador ya existe en persistencia
+        if (ctrlPersistencia.existeJugador(nombre)) {
+            throw new UsuarioYaRegistradoException(nombre);
+        }
+
+        // Registrar el jugador en persistencia
+        ctrlPersistencia.addJugador(nombre, password);
+
+        // Establecer la sesión del jugador
+        ctrlJugador.setJugador(nombre, password);
+    }
+    
+    /**
      * Inicia sesión con credenciales existentes.
      *
      * @param nombre   nombre de usuario registrado.
@@ -311,7 +315,11 @@ public class CtrlDominio {
      * @throws NoHayPartidaGuardadaException si no hay partidas previas.
      */
     public void cargarUltimaPartida() throws NoHayPartidaGuardadaException {
-        ctrlPartida.cargarPartida(ctrlPersistencia.cargarUltimaPartida());
+        // Obtener los datos de la última partida desde persistencia
+        List<String> datosUltimaPartida = ctrlPersistencia.cargarUltimaPartida();
+
+        // Convertir los datos simples a una estructura manejable por CtrlPartida
+        // ctrlPartida.cargarPartida(dc.stringListToPartida(datosUltimaPartida));
     }
 
     /**

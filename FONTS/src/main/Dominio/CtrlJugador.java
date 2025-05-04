@@ -38,12 +38,25 @@ public class CtrlJugador {
     /**
      * Establece el jugador actual en sesión.
      *
-     * @param j el objeto {@link Jugador} que se convertirá en el jugador activo.
+     * @param nombre el nombre del jugador.
+     * @param password la contraseña del jugador.
+     * @throws PasswordInvalidaException si la contraseña es inválida.
      */
-    public void setJugador(Jugador j, String password) throws PasswordInvalidaException{
-        if(j.getPassword() == null ? password != null : !j.getPassword().equals(password)) throw new PasswordInvalidaException();
-        if(this.jugadorActual == null) this.jugadorActual = j;
-        else this.segundoJugador = j;
+    public void setJugador(String nombre, String password) throws PasswordInvalidaException {
+        // Crear un nuevo objeto Jugador con el nombre y la contraseña proporcionados
+        Jugador j = new Jugador(nombre, password);
+
+        // Validar la contraseña
+        if (j.getPassword() == null ? password != null : !j.getPassword().equals(password)) {
+            throw new PasswordInvalidaException();
+        }
+
+        // Asignar el jugador actual o el segundo jugador
+        if (this.jugadorActual == null) {
+            this.jugadorActual = j;
+        } else {
+            this.segundoJugador = j;
+        }
     }
 
     /**
