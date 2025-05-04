@@ -22,11 +22,9 @@ import Dominio.Excepciones.PuntuacionInvalidaException;
 import Dominio.Excepciones.RankingVacioException;
 import Dominio.Excepciones.UsuarioNoEncontradoException;
 import Dominio.Excepciones.UsuarioYaRegistradoException;
-import Dominio.Modelos.Celda;
 import Dominio.Modelos.Partida;
-import Dominio.Modelos.TipoBonificacion;
 import Persistencia.CtrlPersistencia;
-import Persistencia.CtrlPersistencia2;
+
 
 /**
  * Controlador principal del dominio que coordina la lógica de negocio,
@@ -47,9 +45,10 @@ public class CtrlDominio {
     private final CtrlPartida ctrlPartida;
 
 
+
+
     //PRUEBA DE OBSERVER!!!
     private final List<Observer> observers = new ArrayList<>();
-    private final CtrlPersistencia2 ctrlPersistencia2;
 
     private final DataConverter dc;
 
@@ -59,15 +58,12 @@ public class CtrlDominio {
      */
     public CtrlDominio() {
         this.ctrlPersistencia = new CtrlPersistencia();
-        this.ctrlPersistencia2 = new CtrlPersistencia2();
         this.ctrlJugador      = new CtrlJugador();
         this.ctrlPartida      = new CtrlPartida();
         this.dc = new DataConverter();
-        //PRUEBA DE OBSERVER!!! 
-        observers.add(this.ctrlPersistencia2);
     }
 
-    // ─── Gestión de Usuarios ───────────────────────────────────────────────────
+    // ─── Gestión de Jugadores ───────────────────────────────────────────────────
 
     /**
      * Registra un nuevo jugador en el sistema y establece su sesión.
@@ -87,14 +83,7 @@ public class CtrlDominio {
        
     }
 
-        private void notifyScoreUpdated(String jugador, int puntos) {
-        for (Observer obs : observers) {
-            obs.onScoreUpdated(jugador, puntos);
-        }
-    }
-
-
-    /**
+        /**
      * Inicia sesión con credenciales existentes.
      *
      * @param nombre   nombre de usuario registrado.
@@ -302,9 +291,7 @@ public class CtrlDominio {
      * @throws PartidaYaExistenteException si ya existe una partida con ese id.
      */
     public void guardarPartida(String id) throws PartidaYaExistenteException {
-        Partida p = ctrlPartida.guardarPartida();
-        
-        ctrlPersistencia.guardarPartida(id, dc.partidaToStringList(p, id));
+        ctrlPersistencia.guardarPartida(id, dc.partidaToStringList(ctrlPartida.guardarPartida(), id));
     }
 
     /**
@@ -324,8 +311,7 @@ public class CtrlDominio {
      * @throws NoHayPartidaGuardadaException si no hay partidas previas.
      */
     public void cargarUltimaPartida() throws NoHayPartidaGuardadaException {
-        Partida p = ctrlPersistencia.cargarUltimaPartida();
-        ctrlPartida.cargarPartida(p);
+        ctrlPartida.cargarPartida(ctrlPersistencia.cargarUltimaPartida());
     }
 
     /**
@@ -366,11 +352,9 @@ public class CtrlDominio {
      * @return cadena con letra o null si vacía.
      */
     public String getLetraCelda(int fila, int col) {
-        Celda cel = ctrlPartida.obtenerTablero().getCelda(fila, col);
-        return cel.getFicha() != null
-                ? (cel.getFicha().getPuntuacion() == 0 ? "#" : cel.getFicha().getLetra())
-                : null;
+        return ctrlPartida.obtenerTablero().getLetraCelda(fila, col);
     }
+    
 
     /**
      * Obtiene el código de bonificación de celda para presentación.
@@ -380,18 +364,9 @@ public class CtrlDominio {
      * @return abreviatura de bonificación (DL, TL, DP, TP) o espacios.
      */
     public String getBonusCelda(int fila, int col) {
-        Celda cel = ctrlPartida.obtenerTablero().getCelda(fila, col);
-        if (!cel.bonusDisponible() && cel.getBonificacion() != TipoBonificacion.NINGUNA) {
-            return "US";
-        }
-        return switch (cel.getBonificacion()) {
-            case DOBLE_LETRA   -> "DL";
-            case TRIPLE_LETRA  -> "TL";
-            case DOBLE_PALABRA -> "DP";
-            case TRIPLE_PALABRA-> "TP";
-            default            -> "  ";
-        };
+        return ctrlPartida.obtenerTablero().getBonusCelda(fila, col);
     }
+    
 
     // ─── Gestión de Diccionarios y Bolsas ───────────────────────────────────────
 

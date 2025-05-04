@@ -161,4 +161,46 @@ public class Tablero {
         return tableroList;
     }
 
+    /**
+     * Devuelve la letra de la celda en la posición dada.
+     *
+     * @param fila    Índice de fila.
+     * @param col     Índice de columna.
+     * @return Letra de la ficha o null si no hay ficha o posición inválida.
+     */
+    public String getLetraCelda(int fila, int col) {
+        Celda cel = celdas[fila][col];
+        if (cel.estaOcupada()) {
+            Ficha f = cel.getFicha();
+            // si puntuación 0, devolvemos “#”, si no la propia letra
+            return f.getPuntuacion() == 0 ? "#" : f.getLetra();
+        }
+        return null;
+    }
+
+
+
+    /**
+     * Devuelve la bonificación de la celda en la posición dada.
+     *
+     * @param fila    Índice de fila.
+     * @param col     Índice de columna.
+     * @return Tipo de bonificación como String (DL, TL, DP, TP o US).
+     */
+    public String getBonusCelda(int fila, int col) {
+        Celda cel = getCelda(fila, col);
+        // si la bonificación ya fue usada y no es NINGUNA
+        if (!cel.bonusDisponible() && cel.getBonificacion() != TipoBonificacion.NINGUNA) {
+            return "US";
+        }
+        // según el tipo de bonificación
+        return switch (cel.getBonificacion()) {
+            case DOBLE_LETRA    -> "DL";
+            case TRIPLE_LETRA   -> "TL";
+            case DOBLE_PALABRA  -> "DP";
+            case TRIPLE_PALABRA -> "TP";
+            default             -> "  ";
+        };
+    }
+
 }

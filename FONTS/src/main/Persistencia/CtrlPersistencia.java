@@ -19,6 +19,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.lang.ClassNotFoundException;
+
+
 import Dominio.Excepciones.BolsaNoEncontradaException;
 import Dominio.Excepciones.BolsaYaExistenteException;
 import Dominio.Excepciones.DiccionarioNoEncontradoException;
@@ -78,6 +84,10 @@ public class CtrlPersistencia {
      * Map de líneas de bolsa por ID de idioma.
      */
     private final Map<String, List<String>> bolsas;
+
+
+
+
 
     /**
      * Construye el controlador, cargando usuarios desde disco, inicializando
