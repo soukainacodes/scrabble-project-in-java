@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import javax.tools.JavaFileObject;
+
 import Dominio.Excepciones.BolsaNoEncontradaException;
 import Dominio.Excepciones.BolsaYaExistenteException;
 import Dominio.Excepciones.DiccionarioNoEncontradoException;
@@ -126,6 +128,216 @@ public class CtrlPersistencia {
         usuariosMap.put(nombre, new String[] { password, "0" });
         rankingSet.add(Map.entry(nombre, 0));
         guardarUsuariosEnDisco();
+    }
+
+    public static String partidaListToJson(List<String> partidaData) {
+        // Paso 1: Leer datos básicos de la partida
+        String gameId = partidaData.get(0);
+        int turnCounter = Integer.parseInt(partidaData.get(1));
+        int currentTurn = Integer.parseInt(partidaData.get(2));
+
+        // Paso 2: Leer datos del jugador 1
+        String player1Name = partidaData.get(3);
+        int player1Points = Integer.parseInt(partidaData.get(4));
+        String tiles1Str = partidaData.get(5);
+
+        // Paso 3: Leer datos del jugador 2
+        String player2Name = partidaData.get(6);
+        if (player2Name.isEmpty()) {
+            player2Name = "IA"; // Nombre "IA" si estaba vacío (jugador automático)
+        }
+        int player2Points = Integer.parseInt(partidaData.get(7));
+        String tiles2Str = partidaData.get(8);
+
+        // Paso 4: Leer datos de la bolsa
+        int bagCount = Integer.parseInt(partidaData.get(9));
+        List<String> bagList = new ArrayList<>();
+        int index = 10;
+        for (int i = 0; i < bagCount; i++) {
+            bagList.add(partidaData.get(index + i));
+        }
+
+        // Paso 5: Leer datos del tablero
+        index += bagCount;
+        int boardCount = Integer.parseInt(partidaData.get(index));
+        List<String> boardList = new ArrayList<>();
+        index += 1;
+        for (int i = 0; i < boardCount; i++) {
+            boardList.add(partidaData.get(index + i));
+        }
+
+        // Construir el JSON manualmente
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append("{\n");
+        jsonBuilder.append("  \"gameId\": \"").append(gameId).append("\",\n");
+        jsonBuilder.append("  \"turnCounter\": ").append(turnCounter).append(",\n");
+        jsonBuilder.append("  \"currentTurn\": ").append(currentTurn).append(",\n");
+
+        // Jugadores
+        jsonBuilder.append("  \"players\": [\n");
+        jsonBuilder.append("    {\n");
+        jsonBuilder.append("      \"name\": \"").append(player1Name).append("\",\n");
+        jsonBuilder.append("      \"points\": ").append(player1Points).append(",\n");
+        jsonBuilder.append("      \"tiles\": [");
+        for (int i = 0; i < tiles1Str.length(); i++) {
+            jsonBuilder.append("\"").append(tiles1Str.charAt(i)).append("\"");
+            if (i < tiles1Str.length() - 1) {
+                jsonBuilder.append(", ");
+            }
+        }
+        jsonBuilder.append("]\n");
+        jsonBuilder.append("    },\n");
+        jsonBuilder.append("    {\n");
+        jsonBuilder.append("      \"name\": \"").append(player2Name).append("\",\n");
+        jsonBuilder.append("      \"points\": ").append(player2Points).append(",\n");
+        jsonBuilder.append("      \"tiles\": [");
+        for (int i = 0; i < tiles2Str.length(); i++) {
+            jsonBuilder.append("\"").append(tiles2Str.charAt(i)).append("\"");
+            if (i < tiles2Str.length() - 1) {
+                jsonBuilder.append(", ");
+            }
+        }
+        jsonBuilder.append("]\n");
+        jsonBuilder.append("    }\n");
+        jsonBuilder.append("  ],\n");
+
+        // Bolsa
+        jsonBuilder.append("  \"bag\": [\n");
+        for (int i = 0; i < bagList.size(); i++) {
+            jsonBuilder.append("    \"").append(bagList.get(i)).append("\"");
+            if (i < bagList.size() - 1) {
+                jsonBuilder.append(",");
+            }
+            jsonBuilder.append("\n");
+        }
+        jsonBuilder.append("  ],\n");
+
+        // Tablero
+        jsonBuilder.append("  \"board\": [\n");
+        for (int i = 0; i < boardList.size(); i++) {
+            jsonBuilder.append("    \"").append(boardList.get(i)).append("\"");
+            if (i < boardList.size() - 1) {
+                jsonBuilder.append(",");
+            }
+            jsonBuilder.append("\n");
+        }
+        jsonBuilder.append("  ]\n");
+
+        jsonBuilder.append("}");
+
+        return jsonBuilder.toString();
+    }
+
+    /**
+     * Carga una partida desde un archivo JSON y la convierte en una lista de
+     * Strings.
+     *
+     * @param id identificador único de la partida
+     * @return lista de Strings que representa los datos de la partida
+     * @throws PartidaNoEncontradaException si no existe el archivo JSON de la
+     *                                      partida
+     */
+    public List<String> jsonToPartidaList(String id) throws PartidaNoEncontradaException {
+        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
+        File archivoPartida = new File(rutaArchivo);
+
+        // Verificar si el archivo existe
+        if (!archivoPartida.exists()) {
+            throw new PartidaNoEncontradaException(id);
+        }
+
+        // Leer el contenido del archivo JSON
+        StringBuilder jsonContent = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(archivoPartida))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                jsonContent.append(linea);
+            }
+        } catch (IOException e) {
+            throw new PartidaNoEncontradaException("Error al leer el archivo JSON de la partida: " + id);
+        }
+
+        // Convertir el JSON a una lista de Strings
+        List<String> partidaData = new ArrayList<>();
+        try {
+            // Parsear el JSON manualmente
+            String json = jsonContent.toString();
+            json = json.replaceAll("\\s+", ""); // Eliminar espacios en blanco innecesarios
+
+            // Extraer datos básicos
+            String gameId = extraerValorJson(json, "gameId");
+            String turnCounter = extraerValorJson(json, "turnCounter");
+            String currentTurn = extraerValorJson(json, "currentTurn");
+
+            partidaData.add(gameId);
+            partidaData.add(turnCounter);
+            partidaData.add(currentTurn);
+
+            // Extraer datos de los jugadores
+            String playersJson = extraerSeccionJson(json, "players");
+            String[] players = playersJson.split("\\},\\{");
+
+            for (String player : players) {
+                String name = extraerValorJson(player, "name");
+                String points = extraerValorJson(player, "points");
+                String tiles = extraerSeccionJson(player, "tiles").replace("[", "").replace("]", "").replace("\"", "");
+                partidaData.add(name);
+                partidaData.add(points);
+                partidaData.add(tiles);
+            }
+
+            // Extraer datos de la bolsa
+            String bagJson = extraerSeccionJson(json, "bag");
+            String[] bagEntries = bagJson.split(",");
+            partidaData.add(String.valueOf(bagEntries.length));
+            for (String bagEntry : bagEntries) {
+                partidaData.add(bagEntry.replace("\"", "").trim());
+            }
+
+            // Extraer datos del tablero
+            String boardJson = extraerSeccionJson(json, "board");
+            String[] boardEntries = boardJson.split(",");
+            partidaData.add(String.valueOf(boardEntries.length));
+            for (String boardEntry : boardEntries) {
+                partidaData.add(boardEntry.replace("\"", "").trim());
+            }
+
+        } catch (Exception e) {
+            throw new PartidaNoEncontradaException("Error al procesar el archivo JSON de la partida: " + id);
+        }
+
+        return partidaData;
+    }
+
+    /**
+     * Extrae un valor de una clave en un JSON simple.
+     *
+     * @param json  el JSON como String
+     * @param clave la clave cuyo valor se desea extraer
+     * @return el valor asociado a la clave
+     */
+    private String extraerValorJson(String json, String clave) {
+        String claveConFormato = "\"" + clave + "\":";
+        int inicio = json.indexOf(claveConFormato) + claveConFormato.length();
+        int fin = json.indexOf(",", inicio);
+        if (fin == -1) {
+            fin = json.indexOf("}", inicio);
+        }
+        return json.substring(inicio, fin).replace("\"", "").trim();
+    }
+
+    /**
+     * Extrae una sección de un JSON como String.
+     *
+     * @param json  el JSON como String
+     * @param clave la clave de la sección que se desea extraer
+     * @return la sección del JSON como String
+     */
+    private String extraerSeccionJson(String json, String clave) {
+        String claveConFormato = "\"" + clave + "\":[";
+        int inicio = json.indexOf(claveConFormato) + claveConFormato.length();
+        int fin = json.indexOf("]", inicio);
+        return json.substring(inicio, fin + 1).trim();
     }
 
     /**
@@ -280,17 +492,18 @@ public class CtrlPersistencia {
     // ─── Partidas ────────────────────────────────────────────────────────────
 
     /**
-     * Guarda una partida en memoria y marca como última.
+     * Guarda una partida en formato JSON y marca como última.
      *
      * @param id      identificador único de la partida
-     * @param partida lista de datos de la partida
+     * @param partida lista de datos de la partida generada por DataConverter
      * @throws PartidaYaExistenteException si ya existe una partida con ese ID
      */
-    public void guardarPartida(String id, List<String> partida)
-            throws PartidaYaExistenteException {
-        File archivoPartida = new File(PARTIDAS + "partida_" + id + ".txt");
+    public void guardarPartida(String id, List<String> partida) throws PartidaYaExistenteException {
+        String nombreArchivo = "partida_" + id + ".json";
+        String rutaArchivo = PARTIDAS + nombreArchivo;
 
         // Verificar si el archivo ya existe
+        File archivoPartida = new File(rutaArchivo);
         if (archivoPartida.exists()) {
             throw new PartidaYaExistenteException(id);
         }
@@ -298,8 +511,16 @@ public class CtrlPersistencia {
         // Actualizar la última partida
         ultimaPartida = id;
 
-        // Escribir la partida en un nuevo archivo
-        escribirListaEnNuevoArchivo(partida);
+        // Convertir la lista de datos a JSON
+        String jsonPartida = partidaListToJson(partida);
+
+        // Escribir el JSON en un archivo
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
+            writer.write(jsonPartida);
+            System.out.println("Partida guardada exitosamente en: " + rutaArchivo);
+        } catch (IOException e) {
+            System.err.println("[Persistencia] Error al guardar la partida: " + e.getMessage());
+        }
     }
 
     /**
@@ -599,6 +820,7 @@ public class CtrlPersistencia {
             System.err.println("[Persistencia] Error guardando usuarios: " + e.getMessage());
         }
     }
+
     /**
      * Carga usuarios desde el archivo de disco.
      *
