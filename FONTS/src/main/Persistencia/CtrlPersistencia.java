@@ -3,9 +3,12 @@ package Persistencia;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,19 +20,21 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import Dominio.Excepciones.BolsaNoEncontradaException;
-import Dominio.Excepciones.BolsaYaExistenteException;
-import Dominio.Excepciones.DiccionarioNoEncontradoException;
-import Dominio.Excepciones.DiccionarioYaExistenteException;
-import Dominio.Excepciones.NoHayPartidaGuardadaException;
-import Dominio.Excepciones.PartidaNoEncontradaException;
-import Dominio.Excepciones.PartidaYaExistenteException;
-import Dominio.Excepciones.PuntuacionInvalidaException;
-import Dominio.Excepciones.RankingVacioException;
-import Dominio.Excepciones.UsuarioNoEncontradoException;
-import Dominio.Excepciones.UsuarioYaRegistradoException;
+import Dominio.Excepciones.*;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 /**
  * Controlador de persistencia de la aplicación. Gestiona:
@@ -51,11 +56,12 @@ public class CtrlPersistencia {
      */
     private static final String BASE_RECURSOS = "FONTS/src/main/Recursos/Idiomas";
     private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
+    private static final Path FILE_JUGADORES = Paths.get("FONTS/src/main/Persistencia/Datos/Jugadores/jugadores.json");
 
     /**
      * Mapa nombre->[password, puntos] cargado desde disco.
      */
-    private final Map<String, String[]> usuariosMap;
+    private final Map<String, String[]> jugadores;
 
     /**
      * Conjunto ordenado de jugadores para el ranking (puntos desc, nombre asc).
@@ -81,76 +87,157 @@ public class CtrlPersistencia {
      * ranking y recargando recursos de diccionarios y bolsas.
      */
     public CtrlPersistencia() {
-        this.usuariosMap = cargarUsuariosDesdeDisco();
+        this.jugadores = cargarUsuariosDesdeDisco();
         this.rankingSet = new TreeSet<>(
                 Comparator.comparingInt((Map.Entry<String, Integer> e) -> e.getValue()).reversed()
                         .thenComparing(Map.Entry::getKey));
-        this.rankingSet.addAll(usuariosMap.entrySet().stream()
+        this.rankingSet.addAll(jugadores.entrySet().stream()
                 .map(e -> Map.entry(e.getKey(), Integer.parseInt(e.getValue()[1])))
                 .collect(Collectors.toList()));
         this.diccionarios = new HashMap<>();
         this.bolsas = new HashMap<>();
         this.ultimaPartida = null;
-        cargarRecursosDesdeDisco();
+        // cargarRecursosDesdeDisco();
     }
 
-    // ─── Usuarios ─────────────────────────────────────────────────────────────
-    /**
-     * Obtiene un jugador registrado por su nombre.
-     *
-     * @param nombre nombre de usuario buscado
-     * @return el objeto Jugador correspondiente
-     * @throws UsuarioNoEncontradoException si no existe un usuario con dicho
-     *                                      nombre
-     */
-    public String getJugador(String nombre) throws UsuarioNoEncontradoException {
-        if (!usuariosMap.containsKey(nombre)) {
-            throw new UsuarioNoEncontradoException(nombre);
+    // ─── Jugadores ─────────────────────────────────────────────────────────────
+
+    public boolean existeJugador(String username) {
+        if (!Files.exists(FILE_JUGADORES)) {
+            return false;
         }
-        return nombre;
-    }
-
-    /**
-     * Añade un nuevo jugador y persiste el cambio en disco.
-     *
-     * @param nombre   nombre del jugador
-     * @param password contraseña del jugador
-     * @throws UsuarioYaRegistradoException si el nombre ya está en uso
-     */
-    public void addJugador(String nombre, String password) throws UsuarioYaRegistradoException {
-        if (usuariosMap.containsKey(nombre)) {
-            throw new UsuarioYaRegistradoException(nombre);
+        try (Stream<String> lines = Files.lines(FILE_JUGADORES, StandardCharsets.UTF_8)) {
+            return lines.anyMatch(line -> line.contains("\"username\":\"" + username + "\""));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        usuariosMap.put(nombre, new String[] { password, "0" });
-        rankingSet.add(Map.entry(nombre, 0));
-        guardarUsuariosEnDisco();
     }
 
+    public void anadirJugador(String username, String password) throws IOException, UsuarioYaRegistradoException {
+        if (existeJugador(username)) {
+            throw new UsuarioYaRegistradoException(username);
+        }
+
+        File f = FILE_JUGADORES.toFile();
+
+        // 1) Construye el JSON del nuevo jugador (sin espacios extras)
+        byte[] nuevo = String.format(
+                "{\"username\":\"%s\",\"password\":\"%s\",\"maxpoints\":0}",
+                username, password).getBytes(StandardCharsets.UTF_8);
+
+        // 2) Si no existe o está vacío, hacemos el bootstrap completo:
+        // {"jugadores":[ <nuevo> ]}
+        if (!f.exists() || f.length() == 0) {
+            try (FileOutputStream out = new FileOutputStream(f)) {
+                out.write("{\"jugadores\":[".getBytes(StandardCharsets.UTF_8));
+                out.write(nuevo);
+                out.write("]}".getBytes(StandardCharsets.UTF_8));
+            }
+            return;
+        }
+
+        // 3) En caso contrario, abrimos en modo lectura/escritura y añadimos:
+        // buscamos la posición justo antes de "]}" (2 bytes al final)
+        try (RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
+            long len = raf.length();
+            // pos = inicio de "]}":
+            long pos = len - 2;
+            raf.seek(pos);
+
+            // sobrescribimos "]}" con ",<nuevo>]}"
+            raf.writeByte(','); // la coma que separa objetos
+            raf.write(nuevo); // tu nuevo objeto
+            raf.writeBytes("]}"); // restauramos el cierre del JSON
+        }
+    }
+
+    public void eliminarJugador(String user) throws UsuarioNoEncontradoException {
+        try {
+            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
+            String regex = "(?m)(,?\\s*\\{[^}]*\"username\":\""
+                    + Pattern.quote(user)
+                    + "\"[^}]*\\})(?=\\s*,|\\s*\\])";
+            String updated = txt.replaceFirst(regex, "");
+            if (updated.equals(txt)) {
+                throw new UsuarioNoEncontradoException(user);
+            }
+            Files.writeString(
+                    FILE_JUGADORES,
+                    updated,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Error accediendo a jugadores.json", e);
+        }
+    }
+
+    public void actualizarContrasena(String user, String newPass)
+            throws UsuarioNoEncontradoException {
+        try {
+            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
+            // Regex que captura el valor actual de "password" dentro del bloque del usuario
+            String regex = "(\"username\":\"" + Pattern.quote(user) + "\"[\\s\\S]*?\"password\":\")[^\"]*(\")";
+            String updated = txt.replaceAll(regex, "$1" + Matcher.quoteReplacement(newPass) + "$2");
+            if (updated.equals(txt)) {
+                throw new UsuarioNoEncontradoException(user);
+            }
+            Files.writeString(FILE_JUGADORES, updated, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void actualizarPuntuacion(String user, int pts)
+            throws UsuarioNoEncontradoException {
+        try {
+            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
+            // Regex que captura el número tras "maxpoints":
+            String regex = "(\"username\":\"" + Pattern.quote(user) + "\"[\\s\\S]*?\"maxpoints\":)\\d+";
+            String updated = txt.replaceAll(regex, "$1" + pts);
+            if (updated.equals(txt)) {
+                throw new UsuarioNoEncontradoException(user);
+            }
+            Files.writeString(FILE_JUGADORES, updated, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public int getPuntuacion(String user) throws UsuarioNoEncontradoException {
+        try {
+            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
+            String regex = "\"username\":\"" + Pattern.quote(user) + "\"[\\s\\S]*?\"maxpoints\":(\\d+)";
+            Matcher m = Pattern.compile(regex).matcher(txt);
+            if (m.find()) {
+                return Integer.parseInt(m.group(1));
+            }
+            throw new UsuarioNoEncontradoException(user);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+
+    
     public static String partidaListToJson(List<String> partidaData) {
-        int cont = 0;
-        for(String s: partidaData){
-
-            System.out.println(cont + " " + s);
-            cont++;
-        }
         // Paso 1: Leer datos básicos de la partida
-        String gameId = partidaData.get(0); 
+        String gameId = partidaData.get(0);
         int turnCounter = Integer.parseInt(partidaData.get(1));
         int currentTurn = Integer.parseInt(partidaData.get(2));
-        System.out.println("Hasta aqui no hay error 1 ");
+
         // Paso 2: Leer datos del jugador 1
         String player1Name = partidaData.get(3);
-        int player1Points = Integer.parseInt(partidaData.get(5));
-        String tiles1Str[] = partidaData.get(7).trim().split(" ");  
-        System.out.println("Hasta aqui no hay error 2");
+        int player1Points = Integer.parseInt(partidaData.get(4));
+        String tiles1Str = partidaData.get(5);
+
         // Paso 3: Leer datos del jugador 2
-        String player2Name = partidaData.get(4);
+        String player2Name = partidaData.get(6);
         if (player2Name.isEmpty()) {
             player2Name = "IA"; // Nombre "IA" si estaba vacío (jugador automático)
         }
-        int player2Points = Integer.parseInt(partidaData.get(6));
-        String tiles2Str[] = partidaData.get(8).trim().split(" ");
-        System.out.println("Hasta aqui no hay error 3");
+        int player2Points = Integer.parseInt(partidaData.get(7));
+        String tiles2Str = partidaData.get(8);
+
         // Paso 4: Leer datos de la bolsa
         int bagCount = Integer.parseInt(partidaData.get(9));
         List<String> bagList = new ArrayList<>();
@@ -158,17 +245,16 @@ public class CtrlPersistencia {
         for (int i = 0; i < bagCount; i++) {
             bagList.add(partidaData.get(index + i));
         }
-        
+
         // Paso 5: Leer datos del tablero
         index += bagCount;
         int boardCount = Integer.parseInt(partidaData.get(index));
-        System.out.println("Hasta aqui no hay error 4 " + boardCount);
         List<String> boardList = new ArrayList<>();
-        //index += 1;
+        index += 1;
         for (int i = 0; i < boardCount; i++) {
             boardList.add(partidaData.get(index + i));
         }
-        System.out.println("Hasta aqui no hay error 5");
+
         // Construir el JSON manualmente
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("{\n");
@@ -182,9 +268,9 @@ public class CtrlPersistencia {
         jsonBuilder.append("      \"name\": \"").append(player1Name).append("\",\n");
         jsonBuilder.append("      \"points\": ").append(player1Points).append(",\n");
         jsonBuilder.append("      \"tiles\": [");
-        for (int i = 0; i < tiles1Str.length; i++) {
-            jsonBuilder.append("\"").append(tiles1Str[i]).append("\"");
-            if (i < tiles1Str.length - 1) {
+        for (int i = 0; i < tiles1Str.length(); i++) {
+            jsonBuilder.append("\"").append(tiles1Str.charAt(i)).append("\"");
+            if (i < tiles1Str.length() - 1) {
                 jsonBuilder.append(", ");
             }
         }
@@ -194,9 +280,9 @@ public class CtrlPersistencia {
         jsonBuilder.append("      \"name\": \"").append(player2Name).append("\",\n");
         jsonBuilder.append("      \"points\": ").append(player2Points).append(",\n");
         jsonBuilder.append("      \"tiles\": [");
-        for (int i = 0; i < tiles2Str.length; i++) {
-            jsonBuilder.append("\"").append(tiles2Str[i]).append("\"");
-            if (i < tiles2Str.length - 1) {
+        for (int i = 0; i < tiles2Str.length(); i++) {
+            jsonBuilder.append("\"").append(tiles2Str.charAt(i)).append("\"");
+            if (i < tiles2Str.length() - 1) {
                 jsonBuilder.append(", ");
             }
         }
@@ -343,16 +429,6 @@ public class CtrlPersistencia {
         return json.substring(inicio, fin + 1).trim();
     }
 
-    /**
-     * Verifica la existencia de un usuario.
-     *
-     * @param nombre nombre de usuario
-     * @return true si existe, false en caso contrario
-     */
-    public boolean existeJugador(String nombre) {
-        return usuariosMap.containsKey(nombre);
-    }
-
     public static void escribirListaEnNuevoArchivo(List<String> datos) {
 
         String nombreArchivo = "partida_" + datos.get(0) + ".txt";
@@ -384,14 +460,14 @@ public class CtrlPersistencia {
      *                                      nombre
      */
     public void updateJugador(String nombre, int nuevosPuntos) throws UsuarioNoEncontradoException {
-        if (!usuariosMap.containsKey(nombre)) {
+        if (!jugadores.containsKey(nombre)) {
             throw new UsuarioNoEncontradoException(nombre);
         }
 
         // Actualizar los puntos en el mapa
-        String[] datosUsuario = usuariosMap.get(nombre);
+        String[] datosUsuario = jugadores.get(nombre);
         datosUsuario[1] = String.valueOf(nuevosPuntos);
-        usuariosMap.put(nombre, datosUsuario);
+        jugadores.put(nombre, datosUsuario);
 
         // Actualizar el ranking
         rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
@@ -409,7 +485,7 @@ public class CtrlPersistencia {
      */
     public void removeJugador(String nombre) throws UsuarioNoEncontradoException {
         // Eliminar al jugador del mapa de usuarios
-        String[] datosUsuario = usuariosMap.remove(nombre);
+        String[] datosUsuario = jugadores.remove(nombre);
         if (datosUsuario == null) {
             throw new UsuarioNoEncontradoException(nombre);
         }
@@ -436,13 +512,13 @@ public class CtrlPersistencia {
         }
 
         // Verificar si el jugador existe en el mapa
-        String[] datosUsuario = usuariosMap.get(nombre);
+        String[] datosUsuario = jugadores.get(nombre);
         if (datosUsuario != null) {
             int puntosActuales = Integer.parseInt(datosUsuario[1]);
             if (nuevosPuntos > puntosActuales) {
                 // Actualizar los puntos en el mapa
                 datosUsuario[1] = String.valueOf(nuevosPuntos);
-                usuariosMap.put(nombre, datosUsuario);
+                jugadores.put(nombre, datosUsuario);
 
                 // Actualizar el ranking
                 rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
@@ -504,7 +580,7 @@ public class CtrlPersistencia {
     public void guardarPartida(String id, List<String> partida) throws PartidaYaExistenteException {
         String nombreArchivo = "partida_" + id + ".json";
         String rutaArchivo = PARTIDAS + nombreArchivo;
-        
+
         // Verificar si el archivo ya existe
         File archivoPartida = new File(rutaArchivo);
         if (archivoPartida.exists()) {
@@ -516,10 +592,9 @@ public class CtrlPersistencia {
 
         // Convertir la lista de datos a JSON
         String jsonPartida = partidaListToJson(partida);
-        System.out.println(jsonPartida);
+
         // Escribir el JSON en un archivo
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
-            
             writer.write(jsonPartida);
             System.out.println("Partida guardada exitosamente en: " + rutaArchivo);
         } catch (IOException e) {
@@ -812,7 +887,7 @@ public class CtrlPersistencia {
      */
     private void guardarUsuariosEnDisco() {
         try (BufferedWriter w = new BufferedWriter(new FileWriter(FILE_USUARIOS))) {
-            for (Map.Entry<String, String[]> entry : usuariosMap.entrySet()) {
+            for (Map.Entry<String, String[]> entry : jugadores.entrySet()) {
                 String nombre = entry.getKey();
                 String[] datos = entry.getValue();
                 String password = datos[0];

@@ -1,0 +1,6 @@
+{
+    "jugadores": [
+      { "username":"player1","password":"password123","maxpoints":0 },
+      { "username":"player2","password":"mypassword","maxpoints":0 }
+    ]
+  }

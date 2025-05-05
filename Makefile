@@ -26,11 +26,22 @@ OBJENESIS_JAR = ./FONTS/src/test/lib/objenesis-3.3.jar
 # Agrupar todas las dependencias en una variable (para Unix; en Windows usa ; como separador)
 LIBS = $(JUNIT_JAR):$(HAMCREST_JAR):$(MOCKITO_JAR):$(BYTE_BUDDY_JAR):$(BYTE_BUDDY_AGENT_JAR):$(OBJENESIS_JAR)
 
-# Objetivo para compilar el código principal (no se toca)
+
+CLASSPATH=.:FONTS/src/main/Persistencia/json-20231013.jar
+
+# Path to the JSON library
+JSON_JAR = ./FONTS/src/main/Persistencia/json-20231013.jar
+
+# Compilar el código principal y empaquetar en un JAR
 code:
-	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
-	jar cf $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) . 
- 
+	javac -cp ./FONTS/src/main/Persistencia/json-20231013.jar -d ./EXE/main \
+        ./FONTS/src/main/Dominio/Excepciones/*.java \
+        ./FONTS/src/main/Dominio/*.java \
+        ./FONTS/src/main/Dominio/Modelos/*.java \
+        ./FONTS/src/main/Presentacion/Drivers/DriverScrabble.java \
+        ./FONTS/src/main/Persistencia/*.java
+	jar cf $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) .
+
 code_drivers:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
 	javac -d $(CLASS_OUTPUT_MAIN) $(DRIVERS_PATH)

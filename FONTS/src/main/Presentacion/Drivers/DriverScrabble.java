@@ -82,8 +82,9 @@ public class DriverScrabble {
      * Permite gestionar cuenta, diccionarios, partidas o cerrar sesión.
      *
      * @throws UsuarioNoEncontradoException si no se encuentra el usuario actual.
+     * @throws IOException 
      */
-    private static void menuUsuario() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException {
+    private static void menuUsuario() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException, IOException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Gestión de Cuenta");
         System.out.println("2. Gestión de Diccionarios y Bolsas");
@@ -438,8 +439,9 @@ public class DriverScrabble {
     /**
      * Muestra el submenú de gestión de partidas.
      * Permite crear, cargar o ver ranking de partidas.
+     * @throws IOException 
      */
-    private static void subMenuPartidas() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException{
+    private static void subMenuPartidas() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException, IOException{
         while (true) {
             System.out.println("\n=== GESTIÓN DE PARTIDAS ===");
             System.out.println("1. Crear nueva partida");
@@ -468,8 +470,9 @@ public class DriverScrabble {
 
     /**
      * Crea una nueva partida solicitando los datos necesarios al usuario.
+     * @throws IOException 
      */
-    private static void crearPartida() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException {
+    private static void crearPartida() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException, IOException {
         try {
             System.out.println("\n--- Crear nueva partida ---");
             System.out.println("Selecciona modo:");

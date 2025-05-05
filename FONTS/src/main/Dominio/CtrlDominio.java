@@ -70,9 +70,10 @@ public class CtrlDominio {
      * @param nombre   nombre único de usuario.
      * @param password contraseña del usuario.
      * @throws UsuarioYaRegistradoException si el nombre ya existe en persistencia.
+     * @throws IOException 
      */
     public void registrarJugador(String nombre, String password)
-        throws UsuarioYaRegistradoException, UsuarioNoEncontradoException, PasswordInvalidaException {
+        throws UsuarioYaRegistradoException, UsuarioNoEncontradoException, PasswordInvalidaException, IOException {
 
         // Verificar si el jugador ya existe en persistencia
         if (ctrlPersistencia.existeJugador(nombre)) {
@@ -80,7 +81,7 @@ public class CtrlDominio {
         }
 
         // Registrar el jugador en persistencia
-        ctrlPersistencia.addJugador(nombre, password);
+        ctrlPersistencia.anadirJugador(nombre, password);
 
         // Establecer la sesión del jugador
         ctrlJugador.setJugador(nombre, password);
@@ -97,7 +98,7 @@ public class CtrlDominio {
     public void iniciarSesion(String nombre, String password)
             throws UsuarioNoEncontradoException, PasswordInvalidaException {
        
-        ctrlJugador.setJugador(ctrlPersistencia.getJugador(nombre), password);
+        ctrlJugador.setJugador(nombre, password);
     }
 
     /**
