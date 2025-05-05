@@ -47,7 +47,7 @@ class DataConverter {
         for (String fichaBolsa : bolsa) {
             s.add(fichaBolsa);
         }
-        s.add("");
+        
         List<String> tablero = partida.getTablero().toListString();
         s.add(Integer.toString(tablero.size()));
         for (String fichaTablero : tablero) {

@@ -305,7 +305,7 @@ public class CtrlDominio {
      */
     public void cargarPartida(String id) throws PartidaNoEncontradaException {
       //  Partida p = ctrlPersistencia.cargarPartida(id);
-      //  ctrlPartida.cargarPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)));
+        ctrlPartida.cargarPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)));
     }
 
     /**

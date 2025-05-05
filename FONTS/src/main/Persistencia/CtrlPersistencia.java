@@ -127,27 +127,30 @@ public class CtrlPersistencia {
     }
 
     public static String partidaListToJson(List<String> partidaData) {
+        int cont = 0;
         for(String s: partidaData){
-            System.out.println(s);
+
+            System.out.println(cont + " " + s);
+            cont++;
         }
         // Paso 1: Leer datos básicos de la partida
-        String gameId = partidaData.get(0);
+        String gameId = partidaData.get(0); 
         int turnCounter = Integer.parseInt(partidaData.get(1));
         int currentTurn = Integer.parseInt(partidaData.get(2));
-
+        System.out.println("Hasta aqui no hay error 1 ");
         // Paso 2: Leer datos del jugador 1
         String player1Name = partidaData.get(3);
-        int player1Points = Integer.parseInt(partidaData.get(4));
-        String tiles1Str = partidaData.get(5);
-
+        int player1Points = Integer.parseInt(partidaData.get(5));
+        String tiles1Str[] = partidaData.get(7).trim().split(" ");  
+        System.out.println("Hasta aqui no hay error 2");
         // Paso 3: Leer datos del jugador 2
-        String player2Name = partidaData.get(6);
+        String player2Name = partidaData.get(4);
         if (player2Name.isEmpty()) {
             player2Name = "IA"; // Nombre "IA" si estaba vacío (jugador automático)
         }
-        int player2Points = Integer.parseInt(partidaData.get(7));
-        String tiles2Str = partidaData.get(8);
-
+        int player2Points = Integer.parseInt(partidaData.get(6));
+        String tiles2Str[] = partidaData.get(8).trim().split(" ");
+        System.out.println("Hasta aqui no hay error 3");
         // Paso 4: Leer datos de la bolsa
         int bagCount = Integer.parseInt(partidaData.get(9));
         List<String> bagList = new ArrayList<>();
@@ -155,16 +158,17 @@ public class CtrlPersistencia {
         for (int i = 0; i < bagCount; i++) {
             bagList.add(partidaData.get(index + i));
         }
-
+        
         // Paso 5: Leer datos del tablero
         index += bagCount;
         int boardCount = Integer.parseInt(partidaData.get(index));
+        System.out.println("Hasta aqui no hay error 4 " + boardCount);
         List<String> boardList = new ArrayList<>();
-        index += 1;
+        //index += 1;
         for (int i = 0; i < boardCount; i++) {
             boardList.add(partidaData.get(index + i));
         }
-
+        System.out.println("Hasta aqui no hay error 5");
         // Construir el JSON manualmente
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("{\n");
@@ -178,9 +182,9 @@ public class CtrlPersistencia {
         jsonBuilder.append("      \"name\": \"").append(player1Name).append("\",\n");
         jsonBuilder.append("      \"points\": ").append(player1Points).append(",\n");
         jsonBuilder.append("      \"tiles\": [");
-        for (int i = 0; i < tiles1Str.length(); i++) {
-            jsonBuilder.append("\"").append(tiles1Str.charAt(i)).append("\"");
-            if (i < tiles1Str.length() - 1) {
+        for (int i = 0; i < tiles1Str.length; i++) {
+            jsonBuilder.append("\"").append(tiles1Str[i]).append("\"");
+            if (i < tiles1Str.length - 1) {
                 jsonBuilder.append(", ");
             }
         }
@@ -190,9 +194,9 @@ public class CtrlPersistencia {
         jsonBuilder.append("      \"name\": \"").append(player2Name).append("\",\n");
         jsonBuilder.append("      \"points\": ").append(player2Points).append(",\n");
         jsonBuilder.append("      \"tiles\": [");
-        for (int i = 0; i < tiles2Str.length(); i++) {
-            jsonBuilder.append("\"").append(tiles2Str.charAt(i)).append("\"");
-            if (i < tiles2Str.length() - 1) {
+        for (int i = 0; i < tiles2Str.length; i++) {
+            jsonBuilder.append("\"").append(tiles2Str[i]).append("\"");
+            if (i < tiles2Str.length - 1) {
                 jsonBuilder.append(", ");
             }
         }
