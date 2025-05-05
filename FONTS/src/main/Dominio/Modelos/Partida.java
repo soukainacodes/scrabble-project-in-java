@@ -61,12 +61,12 @@ public class Partida {
         }
     }
 
-    public Partida(List<String> bolsaTexto, List<String> tableroTexto){
+    public Partida(String id,List<String> bolsaTexto, List<String> tableroTexto, List<String> Jugadores){
         this.fichasJugador1 = new ArrayList<>();
         this.fichasJugador2 = new ArrayList<>();
         this.puntosJugador1 = 0;
         this.puntosJugador2 = 0;
-
+        this.idPartida = id;
         this.bolsa = new Bolsa(bolsaTexto);
         //this.tablero = new Tablero(tableroTexto);
         this.coordenadasPalabra = new ArrayList<>();
@@ -304,6 +304,15 @@ public class Partida {
      */
     public boolean isBolsaEmpty() {
         return bolsa.isEmpty();
+    }
+
+    public void setFichas(List<Ficha> fichas){
+        if(turnoJugador) {
+            fichasJugador1 = fichas;
+        }
+        else {
+            fichasJugador2 = fichas;
+        }
     }
 
     /**

@@ -20,7 +20,7 @@ public class Ficha {
     public Ficha(String letra, int puntuacion) {
         this.letra = letra;
         this.puntuacion = puntuacion;
-    }
+    }   
 
     /**
      * Obtiene la letra de la ficha.

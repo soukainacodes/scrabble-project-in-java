@@ -22,7 +22,6 @@ import Dominio.Excepciones.PuntuacionInvalidaException;
 import Dominio.Excepciones.RankingVacioException;
 import Dominio.Excepciones.UsuarioNoEncontradoException;
 import Dominio.Excepciones.UsuarioYaRegistradoException;
-import Dominio.Modelos.Partida;
 import Persistencia.CtrlPersistencia;
 
 
@@ -295,7 +294,7 @@ public class CtrlDominio {
      * @throws PartidaYaExistenteException si ya existe una partida con ese id.
      */
     public void guardarPartida(String id) throws PartidaYaExistenteException {
-        ctrlPersistencia.guardarPartida(id, dc.partidaToStringList(ctrlPartida.guardarPartida(), id));
+       ctrlPersistencia.guardarPartida(id, dc.partidaToStringList(ctrlPartida.guardarPartida(), id));
     }
 
     /**

@@ -19,8 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.tools.JavaFileObject;
-
 import Dominio.Excepciones.BolsaNoEncontradaException;
 import Dominio.Excepciones.BolsaYaExistenteException;
 import Dominio.Excepciones.DiccionarioNoEncontradoException;
@@ -32,8 +30,6 @@ import Dominio.Excepciones.PuntuacionInvalidaException;
 import Dominio.Excepciones.RankingVacioException;
 import Dominio.Excepciones.UsuarioNoEncontradoException;
 import Dominio.Excepciones.UsuarioYaRegistradoException;
-import Dominio.Modelos.Jugador;
-import Dominio.Modelos.Partida;
 
 /**
  * Controlador de persistencia de la aplicación. Gestiona:
@@ -131,6 +127,9 @@ public class CtrlPersistencia {
     }
 
     public static String partidaListToJson(List<String> partidaData) {
+        for(String s: partidaData){
+            System.out.println(s);
+        }
         // Paso 1: Leer datos básicos de la partida
         String gameId = partidaData.get(0);
         int turnCounter = Integer.parseInt(partidaData.get(1));
@@ -501,7 +500,7 @@ public class CtrlPersistencia {
     public void guardarPartida(String id, List<String> partida) throws PartidaYaExistenteException {
         String nombreArchivo = "partida_" + id + ".json";
         String rutaArchivo = PARTIDAS + nombreArchivo;
-
+        
         // Verificar si el archivo ya existe
         File archivoPartida = new File(rutaArchivo);
         if (archivoPartida.exists()) {
@@ -513,9 +512,10 @@ public class CtrlPersistencia {
 
         // Convertir la lista de datos a JSON
         String jsonPartida = partidaListToJson(partida);
-
+        System.out.println(jsonPartida);
         // Escribir el JSON en un archivo
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
+            
             writer.write(jsonPartida);
             System.out.println("Partida guardada exitosamente en: " + rutaArchivo);
         } catch (IOException e) {
