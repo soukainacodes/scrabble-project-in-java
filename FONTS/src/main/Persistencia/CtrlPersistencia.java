@@ -97,7 +97,7 @@ public class CtrlPersistencia {
         this.diccionarios = new HashMap<>();
         this.bolsas = new HashMap<>();
         this.ultimaPartida = null;
-        // cargarRecursosDesdeDisco();
+         cargarRecursosDesdeDisco();
     }
 
     // ─── Jugadores ─────────────────────────────────────────────────────────────
@@ -227,17 +227,17 @@ public class CtrlPersistencia {
 
         // Paso 2: Leer datos del jugador 1
         String player1Name = partidaData.get(3);
-        int player1Points = Integer.parseInt(partidaData.get(4));
-        String tiles1Str = partidaData.get(5);
-
+        int player1Points = Integer.parseInt(partidaData.get(5));
+        String tiles1Str[] = partidaData.get(7).trim().split(" ");
+       
         // Paso 3: Leer datos del jugador 2
-        String player2Name = partidaData.get(6);
+        String player2Name = partidaData.get(4);
         if (player2Name.isEmpty()) {
             player2Name = "IA"; // Nombre "IA" si estaba vacío (jugador automático)
         }
-        int player2Points = Integer.parseInt(partidaData.get(7));
-        String tiles2Str = partidaData.get(8);
-
+        int player2Points = Integer.parseInt(partidaData.get(6));
+        String tiles2Str[] = partidaData.get(8).trim().split(" ");
+      
         // Paso 4: Leer datos de la bolsa
         int bagCount = Integer.parseInt(partidaData.get(9));
         List<String> bagList = new ArrayList<>();
@@ -245,7 +245,7 @@ public class CtrlPersistencia {
         for (int i = 0; i < bagCount; i++) {
             bagList.add(partidaData.get(index + i));
         }
-
+      
         // Paso 5: Leer datos del tablero
         index += bagCount;
         int boardCount = Integer.parseInt(partidaData.get(index));
@@ -254,7 +254,7 @@ public class CtrlPersistencia {
         for (int i = 0; i < boardCount; i++) {
             boardList.add(partidaData.get(index + i));
         }
-
+       
         // Construir el JSON manualmente
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("{\n");
@@ -268,9 +268,9 @@ public class CtrlPersistencia {
         jsonBuilder.append("      \"name\": \"").append(player1Name).append("\",\n");
         jsonBuilder.append("      \"points\": ").append(player1Points).append(",\n");
         jsonBuilder.append("      \"tiles\": [");
-        for (int i = 0; i < tiles1Str.length(); i++) {
-            jsonBuilder.append("\"").append(tiles1Str.charAt(i)).append("\"");
-            if (i < tiles1Str.length() - 1) {
+        for (int i = 0; i < tiles1Str.length; i++) {
+            jsonBuilder.append("\"").append(tiles1Str[i]).append("\"");
+            if (i < tiles1Str.length - 1) {
                 jsonBuilder.append(", ");
             }
         }
@@ -280,9 +280,9 @@ public class CtrlPersistencia {
         jsonBuilder.append("      \"name\": \"").append(player2Name).append("\",\n");
         jsonBuilder.append("      \"points\": ").append(player2Points).append(",\n");
         jsonBuilder.append("      \"tiles\": [");
-        for (int i = 0; i < tiles2Str.length(); i++) {
-            jsonBuilder.append("\"").append(tiles2Str.charAt(i)).append("\"");
-            if (i < tiles2Str.length() - 1) {
+        for (int i = 0; i < tiles2Str.length; i++) {
+            jsonBuilder.append("\"").append(tiles2Str[i]).append("\"");
+            if (i < tiles2Str.length - 1) {
                 jsonBuilder.append(", ");
             }
         }
@@ -327,14 +327,14 @@ public class CtrlPersistencia {
      *                                      partida
      */
     public List<String> jsonToPartidaList(String id) throws PartidaNoEncontradaException {
-        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
+        String rutaArchivo = PARTIDAS + "partida_" + id;
         File archivoPartida = new File(rutaArchivo);
-
+        System.out.println("Ruta:" + rutaArchivo);
         // Verificar si el archivo existe
         if (!archivoPartida.exists()) {
             throw new PartidaNoEncontradaException(id);
         }
-
+        System.out.println("fadfad");
         // Leer el contenido del archivo JSON
         StringBuilder jsonContent = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(archivoPartida))) {
@@ -374,7 +374,7 @@ public class CtrlPersistencia {
                 partidaData.add(points);
                 partidaData.add(tiles);
             }
-
+            System.out.println("Paso 1");
             // Extraer datos de la bolsa
             String bagJson = extraerSeccionJson(json, "bag");
             String[] bagEntries = bagJson.split(",");
@@ -382,7 +382,7 @@ public class CtrlPersistencia {
             for (String bagEntry : bagEntries) {
                 partidaData.add(bagEntry.replace("\"", "").trim());
             }
-
+             System.out.println("Paso 2");
             // Extraer datos del tablero
             String boardJson = extraerSeccionJson(json, "board");
             String[] boardEntries = boardJson.split(",");
@@ -390,11 +390,11 @@ public class CtrlPersistencia {
             for (String boardEntry : boardEntries) {
                 partidaData.add(boardEntry.replace("\"", "").trim());
             }
-
+             System.out.println("Paso 3");
         } catch (Exception e) {
             throw new PartidaNoEncontradaException("Error al procesar el archivo JSON de la partida: " + id);
         }
-
+            System.out.println(partidaData);
         return partidaData;
     }
 
@@ -610,9 +610,9 @@ public class CtrlPersistencia {
      * @throws PartidaNoEncontradaException si no existe dicho ID
      */
     public List<String> cargarPartida(String id) throws PartidaNoEncontradaException {
-        String rutaArchivo = PARTIDAS + "partida_" + id + ".txt";
+    
         try {
-            return leerArchivoTexto(rutaArchivo);
+            return jsonToPartidaList(id);
         } catch (Exception e) {
             throw new PartidaNoEncontradaException(id);
         }
@@ -729,6 +729,7 @@ public class CtrlPersistencia {
      * @return conjunto de IDs de diccionarios
      */
     public Set<String> getDiccionarioIDs() {
+        System.out.println(diccionarios.keySet());
         return diccionarios.keySet();
     }
 
