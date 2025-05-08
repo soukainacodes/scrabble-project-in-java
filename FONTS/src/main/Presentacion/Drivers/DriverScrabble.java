@@ -61,8 +61,9 @@ public class DriverScrabble {
     /**
      * Muestra el menú principal para usuarios no autenticados.
      * Permite iniciar sesión, registrarse o salir.
+     * @throws IOException 
      */
-    private static void menuPrincipal() throws UsuarioNoEncontradoException,PasswordInvalidaException {
+    private static void menuPrincipal() throws UsuarioNoEncontradoException,PasswordInvalidaException, IOException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
         System.out.println("2. Registrarse");
@@ -108,8 +109,9 @@ public class DriverScrabble {
      * Permite cambiar contraseña, ver ranking, eliminar perfil o volver.
      *
      * @throws UsuarioNoEncontradoException si no se encuentra el usuario actual.
+     * @throws IOException 
      */
-    private static void subMenuCuenta() throws UsuarioNoEncontradoException {
+    private static void subMenuCuenta() throws UsuarioNoEncontradoException, IOException {
         while (true) {
             String user = ctrl.getUsuarioActual();
             int puntos = ctrl.getPuntosActual();
@@ -169,8 +171,9 @@ public class DriverScrabble {
      * Muestra el ranking global de jugadores.
      *
      * @throws RankingVacioException si no hay jugadores en el ranking.
+     * @throws IOException 
      */
-    private static void verRanking() throws RankingVacioException {
+    private static void verRanking() throws RankingVacioException, IOException {
         System.out.println("\n--- RANKING GLOBAL ---");
         var lista = ctrl.obtenerRanking();
         for (int i = 0; i < lista.size(); i++) {
@@ -181,8 +184,9 @@ public class DriverScrabble {
 
     /**
      * Elimina el perfil del usuario actual tras confirmación.
+     * @throws IOException 
      */
-    private static void eliminarPerfil() {
+    private static void eliminarPerfil() throws IOException {
         System.out.print("¿Seguro que desea eliminar su cuenta? (s/n): ");
         String r = sc.nextLine().trim().toLowerCase();
         if (!r.equals("s") && !r.equals("si")) {
@@ -201,8 +205,9 @@ public class DriverScrabble {
 
     /**
      * Inicia sesión con un usuario existente.
+     * @throws IOException 
      */
-    private static void iniciarSesion() {
+    private static void iniciarSesion() throws IOException {
         System.out.print("Usuario: ");
         String u = sc.nextLine().trim();
         System.out.print("Password: ");

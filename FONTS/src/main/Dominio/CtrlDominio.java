@@ -162,12 +162,13 @@ public class CtrlDominio {
      * @param password contraseña para verificar identidad.
      * @throws PasswordInvalidaException     si la contraseña no coincide.
      * @throws UsuarioNoEncontradoException  si no hay jugador activo.
+     * @throws IOException 
      */
     public void eliminarUsuario(String password)
-            throws PasswordInvalidaException, UsuarioNoEncontradoException {
+            throws PasswordInvalidaException, UsuarioNoEncontradoException, IOException {
      
         if (ctrlJugador.haySesion()) {
-            ctrlPersistencia.removeJugador(ctrlJugador.getJugadorActual().getNombre());
+            ctrlPersistencia.eliminarJugador(ctrlJugador.getJugadorActual().getNombre());
         }
     }
 
@@ -178,10 +179,11 @@ public class CtrlDominio {
      *
      * @return lista de pares (nombre, puntuación) ordenada.
      * @throws RankingVacioException si no hay datos de ranking.
+     * @throws IOException 
      */
     public List<Map.Entry<String,Integer>> obtenerRanking()
-            throws RankingVacioException {
-        return ctrlPersistencia.obtenerRanking();
+            throws RankingVacioException, IOException {
+        return ctrlPersistencia.generarRanking();
     }
 
     /**
@@ -190,11 +192,12 @@ public class CtrlDominio {
      * @param nombre nombre de usuario.
      * @return posición (1-based) en el ranking.
      * @throws UsuarioNoEncontradoException si el jugador no figura.
+     * @throws IOException 
      */
-    public int getPosition(String nombre)
-            throws UsuarioNoEncontradoException {
+    public int obtenerPosicion(String nombre)
+            throws UsuarioNoEncontradoException, IOException {
         try {
-            return ctrlPersistencia.getPosition(nombre);
+            return ctrlPersistencia.obtenerPosicion(nombre);
         } catch (NoSuchElementException e) {
             throw new UsuarioNoEncontradoException(nombre);
         }
@@ -205,12 +208,13 @@ public class CtrlDominio {
      * Recupera la posición en ranking del usuario actualmente en sesión.
      *
      * @return posición (1-based), o -1 si no hay sesión o no figura.
+     * @throws IOException 
      */
-    public int getPosicionActual() {
+    public int getPosicionActual() throws IOException {
         String nombre = getUsuarioActual();
         if (nombre == null) return -1;
         try {
-            return getPosition(nombre);
+            return ctrlPersistencia.obtenerPosicion(nombre);
         } catch (UsuarioNoEncontradoException e) {
             return -1;
         }
@@ -251,12 +255,13 @@ public class CtrlDominio {
      * @throws PuntuacionInvalidaException si la puntuación es inválida.
      * @throws ComandoInvalidoException    si el comando es malformado.
      * @throws PalabraInvalidaException    si la palabra no es válida.
+     * @throws UsuarioNoEncontradoException 
      */
     public int jugarScrabble(int modo, String jugada)
-            throws PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException {
+            throws PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException, UsuarioNoEncontradoException {
         int fin = ctrlPartida.jugarScrabble(modo, jugada);
         ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
-        ctrlPersistencia.reportarPuntuacion(ctrlJugador.getJugadorActual().getNombre(), ctrlJugador.getJugadorActual().getPuntos());
+        ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual().getNombre(), ctrlJugador.getJugadorActual().getPuntos());
         
         return fin;
     }

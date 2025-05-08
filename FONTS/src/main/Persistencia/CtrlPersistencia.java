@@ -58,16 +58,7 @@ public class CtrlPersistencia {
     private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
     private static final Path FILE_JUGADORES = Paths.get("FONTS/src/main/Persistencia/Datos/Jugadores/jugadores.json");
 
-    /**
-     * Mapa nombre->[password, puntos] cargado desde disco.
-     */
-    private final Map<String, String[]> jugadores;
-
-    /**
-     * Conjunto ordenado de jugadores para el ranking (puntos desc, nombre asc).
-     */
-    private final NavigableSet<Map.Entry<String, Integer>> rankingSet;
-
+    
     /**
      * Identificador de la última partida guardada.
      */
@@ -87,30 +78,21 @@ public class CtrlPersistencia {
      * ranking y recargando recursos de diccionarios y bolsas.
      */
     public CtrlPersistencia() {
-        this.jugadores = cargarUsuariosDesdeDisco();
-        this.rankingSet = new TreeSet<>(
-                Comparator.comparingInt((Map.Entry<String, Integer> e) -> e.getValue()).reversed()
-                        .thenComparing(Map.Entry::getKey));
-        this.rankingSet.addAll(jugadores.entrySet().stream()
-                .map(e -> Map.entry(e.getKey(), Integer.parseInt(e.getValue()[1])))
-                .collect(Collectors.toList()));
+        
         this.diccionarios = new HashMap<>();
         this.bolsas = new HashMap<>();
         this.ultimaPartida = null;
-         cargarRecursosDesdeDisco();
+        cargarRecursosDesdeDisco();
     }
 
     // ─── Jugadores ─────────────────────────────────────────────────────────────
 
     public boolean existeJugador(String username) {
-        if (!Files.exists(FILE_JUGADORES)) {
-            return false;
-        }
-        try (Stream<String> lines = Files.lines(FILE_JUGADORES, StandardCharsets.UTF_8)) {
-            return lines.anyMatch(line -> line.contains("\"username\":\"" + username + "\""));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        // Define la ruta del directorio del jugador
+        File userDir = new File("FONTS/src/main/Persistencia/Datos/Jugadores/" + username);
+        
+        // Comprueba si la carpeta del jugador existe
+        return userDir.exists() && userDir.isDirectory();
     }
 
     public void anadirJugador(String username, String password) throws IOException, UsuarioYaRegistradoException {
@@ -118,107 +100,204 @@ public class CtrlPersistencia {
             throw new UsuarioYaRegistradoException(username);
         }
 
-        File f = FILE_JUGADORES.toFile();
+        // Crear el directorio del jugador y sus padres si no existen
+        Path userDir = Paths.get("FONTS/src/main/Persistencia/Datos/Jugadores", username);
+        Files.createDirectories(userDir);
 
-        // 1) Construye el JSON del nuevo jugador (sin espacios extras)
-        byte[] nuevo = String.format(
-                "{\"username\":\"%s\",\"password\":\"%s\",\"maxpoints\":0}",
-                username, password).getBytes(StandardCharsets.UTF_8);
+        // Crear el archivo JSON del jugador
+        Path userFile = userDir.resolve(username + ".json");
+        JSONObject jugadorJson = new JSONObject();
+        jugadorJson.put("username", username);
+        jugadorJson.put("password", password);
+        jugadorJson.put("maxpoints", 0);
 
-        // 2) Si no existe o está vacío, hacemos el bootstrap completo:
-        // {"jugadores":[ <nuevo> ]}
-        if (!f.exists() || f.length() == 0) {
-            try (FileOutputStream out = new FileOutputStream(f)) {
-                out.write("{\"jugadores\":[".getBytes(StandardCharsets.UTF_8));
-                out.write(nuevo);
-                out.write("]}".getBytes(StandardCharsets.UTF_8));
-            }
-            return;
-        }
-
-        // 3) En caso contrario, abrimos en modo lectura/escritura y añadimos:
-        // buscamos la posición justo antes de "]}" (2 bytes al final)
-        try (RandomAccessFile raf = new RandomAccessFile(f, "rw")) {
-            long len = raf.length();
-            // pos = inicio de "]}":
-            long pos = len - 2;
-            raf.seek(pos);
-
-            // sobrescribimos "]}" con ",<nuevo>]}"
-            raf.writeByte(','); // la coma que separa objetos
-            raf.write(nuevo); // tu nuevo objeto
-            raf.writeBytes("]}"); // restauramos el cierre del JSON
+        // Escribir el JSON en el archivo
+        try (BufferedWriter writer = Files.newBufferedWriter(userFile, StandardCharsets.UTF_8)) {
+            writer.write(jugadorJson.toString(4));
         }
     }
 
-    public void eliminarJugador(String user) throws UsuarioNoEncontradoException {
-        try {
-            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
-            String regex = "(?m)(,?\\s*\\{[^}]*\"username\":\""
-                    + Pattern.quote(user)
-                    + "\"[^}]*\\})(?=\\s*,|\\s*\\])";
-            String updated = txt.replaceFirst(regex, "");
-            if (updated.equals(txt)) {
-                throw new UsuarioNoEncontradoException(user);
-            }
-            Files.writeString(
-                    FILE_JUGADORES,
-                    updated,
-                    StandardCharsets.UTF_8,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Error accediendo a jugadores.json", e);
-        }
-    }
-
-    public void actualizarContrasena(String user, String newPass)
-            throws UsuarioNoEncontradoException {
-        try {
-            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
-            // Regex que captura el valor actual de "password" dentro del bloque del usuario
-            String regex = "(\"username\":\"" + Pattern.quote(user) + "\"[\\s\\S]*?\"password\":\")[^\"]*(\")";
-            String updated = txt.replaceAll(regex, "$1" + Matcher.quoteReplacement(newPass) + "$2");
-            if (updated.equals(txt)) {
-                throw new UsuarioNoEncontradoException(user);
-            }
-            Files.writeString(FILE_JUGADORES, updated, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void actualizarPuntuacion(String user, int pts)
-            throws UsuarioNoEncontradoException {
-        try {
-            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
-            // Regex que captura el número tras "maxpoints":
-            String regex = "(\"username\":\"" + Pattern.quote(user) + "\"[\\s\\S]*?\"maxpoints\":)\\d+";
-            String updated = txt.replaceAll(regex, "$1" + pts);
-            if (updated.equals(txt)) {
-                throw new UsuarioNoEncontradoException(user);
-            }
-            Files.writeString(FILE_JUGADORES, updated, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public int getPuntuacion(String user) throws UsuarioNoEncontradoException {
-        try {
-            String txt = Files.readString(FILE_JUGADORES, StandardCharsets.UTF_8);
-            String regex = "\"username\":\"" + Pattern.quote(user) + "\"[\\s\\S]*?\"maxpoints\":(\\d+)";
-            Matcher m = Pattern.compile(regex).matcher(txt);
-            if (m.find()) {
-                return Integer.parseInt(m.group(1));
-            }
-            throw new UsuarioNoEncontradoException(user);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-
+    public void eliminarJugador(String username) throws UsuarioNoEncontradoException, IOException {
+        // Define la ruta de la carpeta del jugador
+        File userDir = new File("FONTS/src/main/Persistencia/Datos/Jugadores/" + username);
     
+        // Verifica si la carpeta existe
+        if (!userDir.exists() || !userDir.isDirectory()) {
+            throw new UsuarioNoEncontradoException(username);
+        }
+    
+        // Elimina la carpeta y su contenido
+        File[] archivos = userDir.listFiles();
+        if (archivos != null) {
+            for (File archivo : archivos) {
+                if (!archivo.delete()) {
+                    throw new IOException("No se pudo eliminar el archivo: " + archivo.getName());
+                }
+            }
+        }
+    
+        // Elimina la carpeta del jugador
+        if (!userDir.delete()) {
+            throw new IOException("No se pudo eliminar la carpeta del jugador: " + username);
+        }
+    }
+
+    public void actualizarContrasena(String username, String newPass) throws UsuarioNoEncontradoException {
+        // Define la ruta del archivo JSON del jugador
+        Path userFile = Paths.get("FONTS/src/main/Persistencia/Datos/Jugadores", username, username + ".json");
+    
+        // Verifica si el archivo existe
+        if (!Files.exists(userFile)) {
+            throw new UsuarioNoEncontradoException(username);
+        }
+    
+        try {
+            // Leer el contenido del archivo JSON
+            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
+            JSONObject jugadorJson = new JSONObject(contenido);
+    
+            // Actualizar la contraseña
+            jugadorJson.put("password", newPass);
+    
+            // Escribir el archivo JSON actualizado
+            Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
+        }
+    }
+
+    public void actualizarPuntuacion(String username, int pts) throws UsuarioNoEncontradoException, PuntuacionInvalidaException {
+        // Verificar que la puntuación no sea negativa
+        if (pts < 0) {
+            throw new PuntuacionInvalidaException(pts);
+        }
+    
+        // Obtener la puntuación actual utilizando getPuntuacion
+        int maxpointsActual = getPuntuacion(username);
+    
+        // Actualizar la puntuación solo si el nuevo valor es mayor
+        if (pts > maxpointsActual) {
+            // Define la ruta del archivo JSON del jugador
+            Path userFile = Paths.get("FONTS/src/main/Persistencia/Datos/Jugadores", username, username + ".json");
+    
+            try {
+                // Leer el contenido del archivo JSON
+                String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
+                JSONObject jugadorJson = new JSONObject(contenido);
+    
+                // Actualizar la puntuación
+                jugadorJson.put("maxpoints", pts);
+    
+                // Escribir el archivo JSON actualizado
+                Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+            } catch (IOException e) {
+                throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
+            }
+        }
+    }
+
+    public int getPuntuacion(String username) throws UsuarioNoEncontradoException {
+        // Define la ruta del archivo JSON del jugador
+        Path userFile = Paths.get("FONTS/src/main/Persistencia/Datos/Jugadores", username, username + ".json");
+    
+        // Verifica si el archivo existe
+        if (!Files.exists(userFile)) {
+            throw new UsuarioNoEncontradoException(username);
+        }
+    
+        try {
+            // Leer el contenido del archivo JSON
+            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
+            JSONObject jugadorJson = new JSONObject(contenido);
+    
+            // Obtener la puntuación
+            return jugadorJson.getInt("maxpoints");
+        } catch (IOException e) {
+            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
+        }
+    }
+
+    //------------------------------RANKING----------------------------------
+
+    /**
+     * Carga los usuarios desde el archivo de texto y devuelve un mapa de
+     * jugadores.
+     *
+     * @return mapa de jugadores con nombre como clave y [password, puntos] como
+     *         valor
+     */
+    public List<Map.Entry<String, Integer>> generarRanking() throws IOException {
+        // Ruta base donde están los directorios de los jugadores
+        Path jugadoresDir = Paths.get("FONTS/src/main/Persistencia/Datos/Jugadores");
+    
+        // Lista para almacenar los pares (nombre, puntuación)
+        List<Map.Entry<String, Integer>> ranking = new ArrayList<>();
+    
+        // Verificar si el directorio de jugadores existe
+        if (Files.exists(jugadoresDir) && Files.isDirectory(jugadoresDir)) {
+            // Recorrer los directorios de los jugadores
+            try (Stream<Path> paths = Files.list(jugadoresDir)) {
+                paths.filter(Files::isDirectory).forEach(dir -> {
+                    // Obtener el archivo JSON del jugador
+                    Path userFile = dir.resolve(dir.getFileName() + ".json");
+                    if (Files.exists(userFile)) {
+                        try {
+                            // Leer el contenido del archivo JSON
+                            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
+                            JSONObject jugadorJson = new JSONObject(contenido);
+    
+                            // Obtener el nombre y la puntuación del jugador
+                            String username = jugadorJson.getString("username");
+                            int maxpoints = jugadorJson.getInt("maxpoints");
+    
+                            // Añadir al ranking
+                            ranking.add(Map.entry(username, maxpoints));
+                        } catch (IOException e) {
+                            System.err.println("Error al procesar el archivo de jugador: " + userFile);
+                        }
+                    }
+                });
+            }
+        }
+    
+        // Ordenar el ranking por puntuación descendente y luego por nombre ascendente
+        ranking.sort((e1, e2) -> {
+            int cmp = Integer.compare(e2.getValue(), e1.getValue()); // Ordenar por puntuación (descendente)
+            if (cmp == 0) {
+                return e1.getKey().compareTo(e2.getKey()); // Si hay empate, ordenar por nombre (ascendente)
+            }
+            return cmp;
+        });
+    
+        return ranking;
+    }
+
+    /**
+     * Obtiene la posición de un jugador en el ranking.
+     *
+     * @param name el nombre del jugador
+     * @return la posición del jugador en el ranking (1-indexed)
+     * @throws UsuarioNoEncontradoException si el jugador no está en el ranking
+     * @throws IOException si ocurre un error al generar el ranking
+     */
+    public int obtenerPosicion(String name) throws UsuarioNoEncontradoException, IOException {
+        // Generar el ranking
+        List<Map.Entry<String, Integer>> ranking = generarRanking();
+    
+        // Recorrer el ranking para encontrar la posición del jugador
+        for (int i = 0; i < ranking.size(); i++) {
+            if (ranking.get(i).getKey().equals(name)) {
+                return i + 1; // Las posiciones empiezan en 1
+            }
+        }
+    
+        // Si no se encuentra el jugador, lanzar una excepción
+        throw new UsuarioNoEncontradoException("El jugador no fue encontrado en el ranking: " + name);
+    }
+
+
+
+
     public static String partidaListToJson(List<String> partidaData) {
         // Paso 1: Leer datos básicos de la partida
         String gameId = partidaData.get(0);
@@ -451,122 +530,7 @@ public class CtrlPersistencia {
         }
     }
 
-    /**
-     * Actualiza los puntos de un jugador y persiste el cambio en disco.
-     *
-     * @param nombre       nombre del jugador
-     * @param nuevosPuntos nuevos puntos del jugador
-     * @throws UsuarioNoEncontradoException si no existe un usuario con dicho
-     *                                      nombre
-     */
-    public void updateJugador(String nombre, int nuevosPuntos) throws UsuarioNoEncontradoException {
-        if (!jugadores.containsKey(nombre)) {
-            throw new UsuarioNoEncontradoException(nombre);
-        }
 
-        // Actualizar los puntos en el mapa
-        String[] datosUsuario = jugadores.get(nombre);
-        datosUsuario[1] = String.valueOf(nuevosPuntos);
-        jugadores.put(nombre, datosUsuario);
-
-        // Actualizar el ranking
-        rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
-        rankingSet.add(Map.entry(nombre, nuevosPuntos));
-
-        // Guardar los cambios en disco
-        guardarUsuariosEnDisco();
-    }
-
-    /**
-     * Elimina un jugador y actualiza la persistencia.
-     *
-     * @param nombre nombre del jugador a eliminar
-     * @throws UsuarioNoEncontradoException si no existe un usuario con ese nombre
-     */
-    public void removeJugador(String nombre) throws UsuarioNoEncontradoException {
-        // Eliminar al jugador del mapa de usuarios
-        String[] datosUsuario = jugadores.remove(nombre);
-        if (datosUsuario == null) {
-            throw new UsuarioNoEncontradoException(nombre);
-        }
-
-        // Eliminar al jugador del ranking
-        rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
-
-        // Guardar los cambios en disco
-        guardarUsuariosEnDisco();
-    }
-
-    /**
-     * Reporta una nueva puntuación para un jugador, y actualiza el ranking si
-     * supera su récord.
-     *
-     * @param nombre       nombre del jugador
-     * @param nuevosPuntos nueva puntuación
-     * @throws PuntuacionInvalidaException si la puntuación es negativa
-     */
-    public void reportarPuntuacion(String nombre, int nuevosPuntos)
-            throws PuntuacionInvalidaException {
-        if (nuevosPuntos < 0) {
-            throw new PuntuacionInvalidaException(nuevosPuntos);
-        }
-
-        // Verificar si el jugador existe en el mapa
-        String[] datosUsuario = jugadores.get(nombre);
-        if (datosUsuario != null) {
-            int puntosActuales = Integer.parseInt(datosUsuario[1]);
-            if (nuevosPuntos > puntosActuales) {
-                // Actualizar los puntos en el mapa
-                datosUsuario[1] = String.valueOf(nuevosPuntos);
-                jugadores.put(nombre, datosUsuario);
-
-                // Actualizar el ranking
-                rankingSet.removeIf(entry -> entry.getKey().equals(nombre));
-                rankingSet.add(Map.entry(nombre, nuevosPuntos));
-
-                // Guardar los cambios en disco
-                guardarUsuariosEnDisco();
-            }
-        }
-    }
-
-    // ─── Ranking ─────────────────────────────────────────────────────────────
-    /**
-     * Devuelve el ranking de jugadores con puntos positivos.
-     *
-     * @return lista de pares (nombre, puntos) ordenada
-     * @throws RankingVacioException si no hay jugadores con >0 puntos
-     */
-    public List<Map.Entry<String, Integer>> obtenerRanking()
-            throws RankingVacioException {
-        List<Map.Entry<String, Integer>> ranking = rankingSet.stream()
-                .filter(entry -> entry.getValue() > 0) // Filtrar jugadores con puntos > 0
-                .collect(Collectors.toList());
-        if (ranking.isEmpty()) {
-            throw new RankingVacioException();
-        }
-        return ranking;
-    }
-
-    /**
-     * Obtiene la posición 1-based de un jugador en el ranking.
-     *
-     * @param nombre nombre del jugador
-     * @return posición en el ranking
-     * @throws NoSuchElementException si el jugador no está en el ranking
-     */
-    public int getPosition(String nombre) {
-        int pos = 1;
-        for (Map.Entry<String, Integer> entry : rankingSet) {
-            if (entry.getKey().equals(nombre)) {
-                return pos;
-            }
-            if (entry.getValue() > 0) {
-                pos++;
-            }
-        }
-        throw new NoSuchElementException("Usuario no encontrado: " + nombre);
-    }
 
     // ─── Partidas ────────────────────────────────────────────────────────────
 
@@ -883,55 +847,7 @@ public class CtrlPersistencia {
         return out;
     }
 
-    /**
-     * Persiste todos los usuarios actuales en el archivo de disco.
-     */
-    private void guardarUsuariosEnDisco() {
-        try (BufferedWriter w = new BufferedWriter(new FileWriter(FILE_USUARIOS))) {
-            for (Map.Entry<String, String[]> entry : jugadores.entrySet()) {
-                String nombre = entry.getKey();
-                String[] datos = entry.getValue();
-                String password = datos[0];
-                String puntos = datos[1];
-                w.write(nombre + " " + password + " " + puntos);
-                w.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println("[Persistencia] Error guardando usuarios: " + e.getMessage());
-        }
-    }
+   
 
-    /**
-     * Carga usuarios desde el archivo de disco.
-     *
-     * @return mapa nombre->Jugador con datos cargados o vacío si no existe
-     *         archivo
-     */
-    /**
-     * Carga usuarios desde el archivo de disco.
-     *
-     * @return mapa nombre->[password, puntos] con datos cargados o vacío si no
-     *         existe archivo
-     */
-    private Map<String, String[]> cargarUsuariosDesdeDisco() {
-        Map<String, String[]> mapa = new HashMap<>();
-        File f = new File(FILE_USUARIOS);
-        if (!f.exists()) {
-            return mapa;
-        }
-        try (BufferedReader r = new BufferedReader(new FileReader(f))) {
-            for (String línea; (línea = r.readLine()) != null;) {
-                String[] t = línea.trim().split(" ");
-                if (t.length < 3) {
-                    continue;
-                }
-                String nombre = t[0], password = t[1];
-                String puntos = t[2];
-                mapa.put(nombre, new String[] { password, puntos });
-            }
-        } catch (IOException e) {
-            System.err.println("[Persistencia] Error cargando usuarios: " + e.getMessage());
-        }
-        return mapa;
-    }
+    
 }
