@@ -3,7 +3,7 @@ MAIN_PATH = \
 	./FONTS/src/main/Dominio/Excepciones/*.java \
     ./FONTS/src/main/Dominio/*.java \
 	./FONTS/src/main/Dominio/Modelos/*.java \
-	./FONTS/src/main/Presentacion/Drivers/DriverScrabble.java \
+	./FONTS/src/main/Presentacion/* \
 	./FONTS/src/main/Persistencia/*.java \
 
 # Directorios de salida
@@ -37,10 +37,14 @@ code:
 	javac -cp ./FONTS/src/main/Persistencia/json-20231013.jar -d ./EXE/main \
         ./FONTS/src/main/Dominio/Excepciones/*.java \
         ./FONTS/src/main/Dominio/*.java \
+		./FONTS/src/main/*.java \
         ./FONTS/src/main/Dominio/Modelos/*.java \
-        ./FONTS/src/main/Presentacion/Drivers/DriverScrabble.java \
+		./FONTS/src/main/Presentacion/*.java \
+		./FONTS/src/main/Presentacion/Vistas/*.java \
         ./FONTS/src/main/Persistencia/*.java
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) .
+	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .
+	jar cf $(CLASS_OUTPUT_MAIN)/ListarFuentes.jar -C $(CLASS_OUTPUT_MAIN) .
 
 code_drivers:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
@@ -49,12 +53,16 @@ code_drivers:
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionPartidas.jar -C $(CLASS_OUTPUT_MAIN) . 
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar -C $(CLASS_OUTPUT_MAIN) . 
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) .
+	
 runcode_scrabble:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar Presentacion.Drivers.DriverScrabble
 
 runcode_juego:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar  Presentacion.Drivers.DriverGestionJuego
-
+runcode_main:
+	java -cp $(CLASS_OUTPUT_MAIN)/Main.jar  main.Main
+lista:
+	java -cp $(CLASS_OUTPUT_MAIN)/ListarFuentes.jar  main.ListarFuentes
 runcode_usuarios:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar Presentacion.Drivers.DriverGestionUsuarios
 
