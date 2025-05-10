@@ -318,8 +318,9 @@ public class CtrlDominio {
      * Carga la última partida guardada automáticamente.
      *
      * @throws NoHayPartidaGuardadaException si no hay partidas previas.
+     * @throws PartidaNoEncontradaException 
      */
-    public void cargarUltimaPartida() throws NoHayPartidaGuardadaException {
+    public void cargarUltimaPartida() throws NoHayPartidaGuardadaException, PartidaNoEncontradaException {
         // Obtener los datos de la última partida desde persistencia
         List<String> datosUltimaPartida = ctrlPersistencia.cargarUltimaPartida();
 
@@ -332,8 +333,8 @@ public class CtrlDominio {
      *
      * @return conjunto de nombres de partidas disponibles.
      */
-    public Set<String> obtenerNombresPartidasGuardadas() {
-        return ctrlPersistencia.getListaPartidas().keySet();
+    public List<String> obtenerNombresPartidasGuardadas() {
+        return ctrlPersistencia.listarPartidasNoAcabadas();
     }
 
     /**

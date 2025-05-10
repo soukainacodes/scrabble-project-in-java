@@ -84,8 +84,9 @@ public class DriverScrabble {
      *
      * @throws UsuarioNoEncontradoException si no se encuentra el usuario actual.
      * @throws IOException 
+     * @throws PartidaNoEncontradaException 
      */
-    private static void menuUsuario() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException, IOException {
+    private static void menuUsuario() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException, IOException, PartidaNoEncontradaException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Gestión de Cuenta");
         System.out.println("2. Gestión de Diccionarios y Bolsas");
@@ -445,8 +446,9 @@ public class DriverScrabble {
      * Muestra el submenú de gestión de partidas.
      * Permite crear, cargar o ver ranking de partidas.
      * @throws IOException 
+     * @throws PartidaNoEncontradaException 
      */
-    private static void subMenuPartidas() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException, IOException{
+    private static void subMenuPartidas() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,PasswordInvalidaException, IOException, PartidaNoEncontradaException{
         while (true) {
             System.out.println("\n=== GESTIÓN DE PARTIDAS ===");
             System.out.println("1. Crear nueva partida");
@@ -541,8 +543,9 @@ public class DriverScrabble {
 
     /**
      * Carga la última partida guardada.
+     * @throws PartidaNoEncontradaException 
      */
-    private static void cargarUltimaPartida() {
+    private static void cargarUltimaPartida() throws PartidaNoEncontradaException {
         try {
             ctrl.cargarUltimaPartida();
             System.out.println("Partida cargada.");

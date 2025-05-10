@@ -1,5 +1,7 @@
 import org.json.JSONObject;
 
+import org.json.JSONArray;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -7,6 +9,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class Persistencia {
+
+    private String ultimaPartida;
 
     public boolean existeJugador(String username) {
         File userDir = new File("FONTS/src/main/Persistencia/Datos/Jugadores/" + username);
@@ -161,94 +165,256 @@ public class Persistencia {
         throw new UsuarioNoEncontradoException("El jugador no fue encontrado en el ranking: " + name);
     }
 
-    public static void main(String[] args) {
-        Persistencia persistencia = new Persistencia();
+    public static String partidaListToJson(List<String> partidaData) {
+        // Usamos un JSONObject directamente ya que el orden no importa
+        JSONObject partidaJson = new JSONObject();
 
-        try {
-            System.out.println("=== Test de Gestión de Jugadores ===\n");
+        // 0. Partida acabada
+        partidaJson.put("partida_acabada", partidaData.get(0));
 
-            // Test 1: Añadir jugadores
-            System.out.println("1. Añadiendo jugadores...");
-            persistencia.anadirJugador("player1", "password123");
-            System.out.println("Jugador player1 añadido.");
-            persistencia.anadirJugador("player2", "password456");
-            System.out.println("Jugador player2 añadido.");
-            persistencia.anadirJugador("player3", "password789");
-            System.out.println("Jugador player3 añadido.\n");
+        // 1. nombre_partida
+        partidaJson.put("nombre_partida", partidaData.get(1));
 
-            // Test 2: Verificar existencia
-            System.out.println("2. Verificando existencia de jugadores...");
-            System.out.println("¿Existe player1? " + persistencia.existeJugador("player1"));
-            System.out.println("¿Existe player4? " + persistencia.existeJugador("player4") + "\n");
+        // 2. numero_turnos
+        partidaJson.put("numero_turnos", Integer.parseInt(partidaData.get(2)));
 
-            // Test 3: Actualizar puntuaciones
-            System.out.println("3. Actualizando puntuaciones...");
-            persistencia.actualizarPuntuacion("player1", 100);
-            System.out.println("Puntuación de player1 actualizada a 100");
-            persistencia.actualizarPuntuacion("player2", 150);
-            System.out.println("Puntuación de player2 actualizada a 150");
-            persistencia.actualizarPuntuacion("player3", 75);
-            System.out.println("Puntuación de player3 actualizada a 75\n");
+        // 3. turno_jugador
+        partidaJson.put("turno_jugador", Integer.parseInt(partidaData.get(3)));
 
-            // Test 4: Obtener puntuaciones
-            System.out.println("4. Obteniendo puntuaciones...");
-            System.out.println("Puntuación de player1: " + persistencia.getPuntuacion("player1"));
-            System.out.println("Puntuación de player2: " + persistencia.getPuntuacion("player2"));
-            System.out.println("Puntuación de player3: " + persistencia.getPuntuacion("player3") + "\n");
+        // 4. jugador_1
+        partidaJson.put("jugador_1", partidaData.get(4));
 
-            // Test 5: Actualizar contraseña
-            System.out.println("5. Actualizando contraseña...");
-            persistencia.actualizarContrasena("player1", "newpassword123");
-            System.out.println("Contraseña de player1 actualizada.\n");
+        // 5. jugador_2
+        partidaJson.put("jugador_2", partidaData.get(5));
 
-            // Test 6: Generar ranking
-            System.out.println("6. Generando ranking...");
-            List<Map.Entry<String, Integer>> ranking = persistencia.generarRanking();
-            System.out.println("Ranking actual:");
-            for (int i = 0; i < ranking.size(); i++) {
-                System.out.printf("%d. %s: %d puntos%n",
-                        i + 1,
-                        ranking.get(i).getKey(),
-                        ranking.get(i).getValue());
-            }
-            System.out.println();
+        // 6. puntos_jugador_1
+        partidaJson.put("puntos_jugador_1", Integer.parseInt(partidaData.get(6)));
 
-            // Test 7: Obtener posición en el ranking
-            System.out.println("7. Obteniendo posiciones en el ranking...");
-            System.out.println("Posición de player1: " + persistencia.obtenerPosicion("player1"));
-            System.out.println("Posición de player2: " + persistencia.obtenerPosicion("player2"));
-            System.out.println("Posición de player3: " + persistencia.obtenerPosicion("player3") + "\n");
+        // 7. puntos_jugador_2
+        partidaJson.put("puntos_jugador_2", Integer.parseInt(partidaData.get(7)));
 
-            // Test 8: Eliminar jugador
-            System.out.println("8. Eliminando jugador...");
-            persistencia.eliminarJugador("player2");
-            System.out.println("Jugador player2 eliminado.");
-            System.out.println("¿Existe player2? " + persistencia.existeJugador("player2") + "\n");
+        // 8. fichas_jugador_1
+        JSONArray fichasJugador1 = parseFichas(partidaData.get(8));
+        partidaJson.put("fichas_jugador_1", fichasJugador1);
 
-            // Test 9: Generar ranking final
-            System.out.println("9. Ranking final después de eliminar player2:");
-            ranking = persistencia.generarRanking();
-            for (int i = 0; i < ranking.size(); i++) {
-                System.out.printf("%d. %s: %d puntos%n",
-                        i + 1,
-                        ranking.get(i).getKey(),
-                        ranking.get(i).getValue());
-            }
+        // 9. fichas_jugador_2
+        JSONArray fichasJugador2 = parseFichas(partidaData.get(9));
+        partidaJson.put("fichas_jugador_2", fichasJugador2);
 
-        } catch (UsuarioYaRegistradoException e) {
-            System.err.println("Error: " + e.getMessage());
-        } catch (UsuarioNoEncontradoException e) {
-            System.err.println("Error: " + e.getMessage());
-        } catch (PuntuacionInvalidaException e) {
-            System.err.println("Error: " + e.getMessage());
+        // 10. fichas_restantes
+        int numFichasRestantes = Integer.parseInt(partidaData.get(10));
+        JSONArray fichasRestantes = new JSONArray();
+        for (int i = 11; i < 11 + numFichasRestantes; i++) {
+            fichasRestantes.put(partidaData.get(i)); // Añadimos la ficha como una cadena
+        }
+        partidaJson.put("bolsa", fichasRestantes);
+
+        // 11. posiciones_tablero
+        int numFichasUsadas = Integer.parseInt(partidaData.get(11 + numFichasRestantes));
+        JSONArray posicionesTablero = new JSONArray();
+        for (int i = 11 + numFichasRestantes + 1; i < partidaData.size(); i++) {
+            posicionesTablero.put(partidaData.get(i)); // Añadimos la posición como una cadena
+        }
+        partidaJson.put("posiciones_tablero", posicionesTablero);
+
+        // Retornamos el JSON como una cadena con formato bonito
+        return partidaJson.toString(2); // Formateo bonito del JSON
+    }
+
+    public static List<String> jsonToPartidaList(String partidaJson) {
+        // Inicializamos la lista que contendrá los datos de la partida
+        List<String> partidaData = new ArrayList<>();
+
+        // Convertimos el JSON a un JSONObject
+        JSONObject partida = new JSONObject(partidaJson);
+
+        // Extraemos los valores en el orden exacto que hemos establecido
+        partidaData.add(String.valueOf(partida.getInt("partida_acabada"))); // 0. partida_acabada
+        partidaData.add(partida.getString("nombre_partida")); // 1. nombre_partida
+        partidaData.add(String.valueOf(partida.getInt("numero_turnos"))); // 2. numero_turnos
+        partidaData.add(String.valueOf(partida.getInt("turno_jugador"))); // 3. turno_jugador
+        partidaData.add(partida.getString("jugador_1")); // 4. jugador_1
+        partidaData.add(partida.getString("jugador_2")); // 5. jugador_2
+        partidaData.add(String.valueOf(partida.getInt("puntos_jugador_1"))); // 6. puntos_jugador_1
+        partidaData.add(String.valueOf(partida.getInt("puntos_jugador_2"))); // 7. puntos_jugador_2
+
+        // 8. fichas_jugador_1
+        JSONArray fichasJugador1 = partida.getJSONArray("fichas_jugador_1");
+        partidaData.add(parseFichasToString(fichasJugador1));
+
+        // 9. fichas_jugador_2
+        JSONArray fichasJugador2 = partida.getJSONArray("fichas_jugador_2");
+        partidaData.add(parseFichasToString(fichasJugador2));
+
+        // 10. fichas_restantes
+        JSONArray fichasRestantes = partida.getJSONArray("bolsa");
+        partidaData.add(String.valueOf(fichasRestantes.length())); // Añadimos el número de fichas restantes
+        for (int i = 0; i < fichasRestantes.length(); i++) {
+            partidaData.add(fichasRestantes.getString(i)); // Añadimos cada ficha restante
+        }
+
+        // 11. posiciones_tablero
+        JSONArray posicionesTablero = partida.getJSONArray("posiciones_tablero");
+        partidaData.add(String.valueOf(posicionesTablero.length())); // Añadimos el número de fichas restantes
+        for (int i = 0; i < posicionesTablero.length(); i++) {
+            partidaData.add(posicionesTablero.getString(i)); // Añadimos cada posición del tablero
+        }
+
+        return partidaData;
+    }
+
+    // Función para parsear las fichas de un jugador como cadenas "T 1", "Q 5".
+    private static JSONArray parseFichas(String fichaData) {
+        JSONArray fichas = new JSONArray();
+        String[] fichaArray = fichaData.split(" ");
+        for (int i = 0; i < fichaArray.length; i += 2) {
+            fichas.put(fichaArray[i] + " " + fichaArray[i + 1]); // Guardamos la ficha como una cadena
+        }
+        return fichas;
+    }
+
+    // Función auxiliar para convertir las fichas de un jugador de JSONArray a String
+    private static String parseFichasToString(JSONArray fichas) {
+        StringBuilder fichasStr = new StringBuilder();
+        for (int i = 0; i < fichas.length(); i++) {
+            fichasStr.append(fichas.getString(i)).append(" ");
+        }
+        return fichasStr.toString().trim();
+    }
+
+
+    public void guardarPartida(String id, List<String> partida) throws PartidaYaExistenteException {
+        String nombreArchivo = "partida_" + id + ".json";
+        String rutaArchivo = nombreArchivo;
+
+        // Actualizar la última partida
+        ultimaPartida = id;
+
+        // Convertir la lista de datos a JSON
+        String jsonPartida = partidaListToJson(partida);
+
+        // Escribir el JSON en un archivo
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
+            writer.write(jsonPartida);
+            System.out.println("Partida guardada exitosamente en: " + rutaArchivo);
         } catch (IOException e) {
-            System.err.println("Error de E/S: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Error inesperado: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("[Persistencia] Error al guardar la partida: " + e.getMessage());
         }
     }
+
+    public static void main(String[] args) {
+            Persistencia persistencia = new Persistencia();
+            Path partidaTxtPath = Paths.get("partida_definitiva.txt");
+            Path partidaJsonPath = Paths.get("partida_definitiva.json");
+            Path testPartidaTxtPath = Paths.get("test_partida.txt"); // Path for the new .txt file
+    
+            try {
+                System.out.println("=== Test de Conversión de partida_definitiva.txt a JSON y guardado ===\n");
+    
+                if (Files.exists(partidaTxtPath)) {
+                    // Read all lines from the .txt file into a List<String>
+                    List<String> partidaData = Files.readAllLines(partidaTxtPath, StandardCharsets.UTF_8);
+    
+                    if (partidaData.isEmpty()) {
+                        System.err.println("El archivo partida_definitiva.txt está vacío.");
+                        return;
+                    }
+    
+                    System.out.println("Contenido de partida_definitiva.txt (línea por línea):");
+                    for (int i = 0; i < partidaData.size(); i++) {
+                        System.out.println("Línea " + i + ": " + partidaData.get(i));
+                    }
+                    System.out.println("\n--- Fin del contenido del archivo ---\n");
+    
+                    // Convert the List<String> to a JSON string
+                    String jsonOutput = Persistencia.partidaListToJson(partidaData);
+    
+                    System.out.println("JSON generado a partir de partida_definitiva.txt:");
+                    System.out.println(jsonOutput);
+    
+                    // Guardar el JSON en un nuevo archivo
+                    try (BufferedWriter writer = Files.newBufferedWriter(partidaJsonPath, StandardCharsets.UTF_8)) {
+                        writer.write(jsonOutput);
+                        System.out.println("\nJSON guardado exitosamente en: " + partidaJsonPath.toAbsolutePath());
+                    } catch (IOException e) {
+                        System.err.println("Error al guardar el archivo JSON: " + e.getMessage());
+                        e.printStackTrace();
+                        return; // Salir si no se pudo guardar el JSON
+                    }
+    
+                    // === Nueva sección: Convertir JSON de vuelta a TXT y guardar ===
+                    System.out.println("\n=== Test de Conversión de " + partidaJsonPath.getFileName() + " a TXT y guardado ===\n");
+                    try {
+                        // Leer el contenido del archivo JSON generado
+                        String jsonInput = Files.readString(partidaJsonPath, StandardCharsets.UTF_8);
+    
+                        // Convertir el JSON string a List<String>
+                        List<String> partidaDataFromJson = Persistencia.jsonToPartidaList(jsonInput);
+    
+                        System.out.println("Contenido de " + testPartidaTxtPath.getFileName() + " (generado desde JSON):");
+                        for (int i = 0; i < partidaDataFromJson.size(); i++) {
+                            System.out.println("Línea " + i + ": " + partidaDataFromJson.get(i));
+                        }
+    
+                        // Guardar la List<String> en test_partida.txt
+                        try (BufferedWriter writer = Files.newBufferedWriter(testPartidaTxtPath, StandardCharsets.UTF_8)) {
+                            for (String line : partidaDataFromJson) {
+                                writer.write(line);
+                                writer.newLine();
+                            }
+                            System.out.println("\nArchivo " + testPartidaTxtPath.getFileName() + " guardado exitosamente en: " + testPartidaTxtPath.toAbsolutePath());
+                        } catch (IOException e) {
+                            System.err.println("Error al guardar el archivo " + testPartidaTxtPath.getFileName() + ": " + e.getMessage());
+                            e.printStackTrace();
+                        }
+    
+                    } catch (IOException e) {
+                        System.err.println("Error de E/S al leer el archivo " + partidaJsonPath.getFileName() + ": " + e.getMessage());
+                        e.printStackTrace();
+                    } catch (org.json.JSONException e) {
+                        System.err.println("Error al parsear el JSON desde " + partidaJsonPath.getFileName() + ": " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                    // === Fin de la nueva sección ===
+    
+                } else {
+                    System.err.println("Error: El archivo partida_definitiva.txt no se encontró en "
+                            + partidaTxtPath.toAbsolutePath());
+                }
+    
+            } catch (IOException e) {
+                System.err.println("Error de E/S al leer el archivo partida_definitiva.txt: " + e.getMessage());
+                e.printStackTrace();
+            } catch (org.json.JSONException e) {
+                System.err.println("Error al generar el JSON: " + e.getMessage());
+                e.printStackTrace();
+            } catch (IndexOutOfBoundsException e) {
+                System.err.println(
+                        "Error: El formato de partida_definitiva.txt no coincide con el esperado por partidaListToJson. "
+                                + e.getMessage());
+                e.printStackTrace();
+            } catch (NumberFormatException e) {
+                System.err.println("Error: No se pudo convertir un número en partida_definitiva.txt. " + e.getMessage());
+                e.printStackTrace();
+            } catch (Exception e) {
+                System.err.println("Error inesperado: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Clases de excepciones
 class UsuarioYaRegistradoException extends Exception {
@@ -266,5 +432,11 @@ class UsuarioNoEncontradoException extends Exception {
 class PuntuacionInvalidaException extends Exception {
     public PuntuacionInvalidaException(int puntuacion) {
         super("Puntuación inválida: " + puntuacion);
+    }
+}
+
+class PartidaYaExistenteException extends Exception   {
+    public PartidaYaExistenteException(String id) {
+        super(String.format("Ya existe una partida con ID '%s'.", id));
     }
 }

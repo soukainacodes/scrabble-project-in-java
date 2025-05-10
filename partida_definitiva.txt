@@ -1,4 +1,4 @@
-acabada
+1
 definitiva
 22
 1
@@ -79,4 +79,3 @@ X 8 2
 E 9 2
 O 10 2
 S 11 2
-
