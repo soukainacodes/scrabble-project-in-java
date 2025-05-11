@@ -34,6 +34,7 @@ JSON_JAR = ./FONTS/src/main/Persistencia/json-20231013.jar
 
 # Compilar el código principal y empaquetar en un JAR
 code:
+	make clean
 	javac -cp ./FONTS/src/main/Persistencia/json-20231013.jar -d ./EXE/main \
         ./FONTS/src/main/Dominio/Excepciones/*.java \
         ./FONTS/src/main/Dominio/*.java \
@@ -41,6 +42,7 @@ code:
         ./FONTS/src/main/Dominio/Modelos/*.java \
 		./FONTS/src/main/Presentacion/*.java \
 		./FONTS/src/main/Presentacion/Vistas/*.java \
+		./FONTS/src/main/Presentacion/Drivers/*.java \
         ./FONTS/src/main/Persistencia/*.java
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) .
 	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .

@@ -3,18 +3,8 @@ package Presentacion;
 
 import Dominio.*;
 import Presentacion.Vistas.*;
-import javax.swing.UIManager;
 import java.awt.Font;
-import javax.swing.SwingUtilities; // si usas invokeLater
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.Box;
+import javax.swing.UIManager;
 
 public class CtrlPresentacion {
 
@@ -24,9 +14,19 @@ public class CtrlPresentacion {
         vistaPrincipal();
     }
     public static void vistaPrincipal() {
-           UIManager.put("Label.font",  new Font("Droid Sans Fallback", Font.BOLD, 23));
-    UIManager.put("Button.font", new Font("Tahoma", Font.PLAIN, 16));
-        VistaMenuPrincipal vMP = new VistaMenuPrincipal();
+Font fuenteGlobal = new Font("Arial", Font.PLAIN, 24);
+
+// Aplicar la fuente global
+UIManager.put("Button.font", fuenteGlobal);
+UIManager.put("Label.font", fuenteGlobal);
+UIManager.put("TextField.font", fuenteGlobal);
+UIManager.put("PasswordField.font", fuenteGlobal);
+UIManager.put("ComboBox.font", fuenteGlobal);
+UIManager.put("CheckBox.font", fuenteGlobal);
+UIManager.put("RadioButton.font", fuenteGlobal);
+UIManager.put("Menu.font", fuenteGlobal);
+UIManager.put("MenuItem.font", fuenteGlobal);
+        VistaLogin vMP = new VistaLogin();
 
     }   
 

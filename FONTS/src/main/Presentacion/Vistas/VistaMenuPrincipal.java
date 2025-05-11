@@ -1,72 +1,88 @@
-
 package Presentacion.Vistas;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileSystemView;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 import java.awt.*;
-public class VistaMenuPrincipal extends JFrame {
+import javax.swing.*;
 
-    private final JLabel titolVista = new JLabel(" こんにちは世");
-    private final JButton iniciarSesionButton = new JButton("Iniciar Sesión");
-    private final JButton registrarseButton = new JButton("Registrarse");
-    private final JButton salirButton = new JButton("Salir");
-      
+public class VistaMenuPrincipal extends JPanel {
+
+    public static final String BIENVENIDA = "BIENVENIDA";
+    // Puedes añadir más keys aquí para otras vistas:
+    public static final String OTRA = "OTRA";
+
+    private final JPanel panelMenuIzquierdo;
+    private final JButton botonToggleMenu;
+    private final JPanel cards;
+    private boolean menuVisible = true;
+
     public VistaMenuPrincipal() {
-   //   UIManager.put("Label.font",  new Font("Arial", Font.BOLD, 23));
-      
-    setTitle("안녕하세요");     
-    setSize(500, 300);
-    setLocationRelativeTo(null);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBackground(new Color(255, 248, 230));
+        setLayout(new BorderLayout());
 
-    // Fijar tamaño preferido a los botones
-    Dimension tamBoton = new Dimension(150, 40);
-    iniciarSesionButton.setPreferredSize(tamBoton);
-    registrarseButton.setPreferredSize(tamBoton);
-    salirButton.setPreferredSize(tamBoton);
+        // --- Panel lateral completo (WEST) ---
+        panelMenuIzquierdo = new JPanel(new BorderLayout());
+        panelMenuIzquierdo.setBackground(getBackground());
+        panelMenuIzquierdo.setPreferredSize(new Dimension(200, 0));
+        panelMenuIzquierdo.setBorder(
+            BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(220, 220, 220))
+        );
 
-    // Panel con GridBagLayout
-    JPanel panel = new JPanel(new GridBagLayout());
-    panel.setBackground(Color.PINK);
+        // 1) Botón de toggle en la cabecera del lateral
+        botonToggleMenu = new JButton("✖");
+        botonToggleMenu.setFont(new Font("Arial", Font.BOLD, 24));
+        botonToggleMenu.setFocusPainted(false);
+        botonToggleMenu.setBorderPainted(false);
+        botonToggleMenu.setContentAreaFilled(false);
+        botonToggleMenu.setBackground(getBackground());
+        botonToggleMenu.addActionListener(e -> toggleMenu());
 
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.insets = new Insets(10, 40, 10, 40); // Margen: top, left, bottom, right
-    gbc.gridx = 0;
-    gbc.anchor = GridBagConstraints.NORTH;    // Alinea arriba
+        JPanel cabeceraMenu = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        cabeceraMenu.setBackground(getBackground());
+        cabeceraMenu.add(botonToggleMenu);
 
-    // Título: permite expansión horizontal
-    gbc.gridy   = 0;
-    gbc.fill    = GridBagConstraints.HORIZONTAL;
-    gbc.weightx = 1;
-    gbc.weighty = 0;
-    panel.add(titolVista, gbc);
+        panelMenuIzquierdo.add(cabeceraMenu, BorderLayout.NORTH);
+        panelMenuIzquierdo.add(new VistaMenuLateral(), BorderLayout.CENTER);
+        
+        add(panelMenuIzquierdo, BorderLayout.WEST);
 
-    // Botones: SIN expansión, tamaño fijo
-    gbc.fill    = GridBagConstraints.NONE;
-    gbc.weightx = 0;
+        // --- Contenedor de pantallas (CardLayout) ---
+        cards = new JPanel(new CardLayout());
+        // Añadimos la pantalla de bienvenida
+        cards.add(new VistaPantallaPrincipal(), BIENVENIDA);
+        // Ejemplo de otra pantalla
+        cards.add(new JPanel(){{
+            setBackground(getBackground());
+            add(new JLabel("Pantalla Secundaria"));
+        }}, OTRA);
 
-    gbc.gridy = 1;
-    panel.add(iniciarSesionButton, gbc);
+        // --- Wrapper para centrar y fijar ancho ---
+        JPanel centroWrapper = new JPanel(new GridBagLayout());
+        centroWrapper.setBackground(getBackground());
+        // Limitamos el ancho máximo de las tarjetas
+        cards.setMaximumSize(new Dimension(360, Integer.MAX_VALUE));
 
-    gbc.gridy = 2;
-    panel.add(registrarseButton, gbc);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.VERTICAL;
+        centroWrapper.add(cards, gbc);
 
-    gbc.gridy = 3;
-    panel.add(salirButton, gbc);
+        add(centroWrapper, BorderLayout.CENTER);
+    }
 
-    // Relleno para empujar los botones hacia arriba
-    gbc.gridy   = 4;
-    gbc.weighty = 1;
-    panel.add(Box.createVerticalGlue(), gbc);
+    private void toggleMenu() {
+        if (menuVisible) {
+            remove(panelMenuIzquierdo);
+            botonToggleMenu.setText("☰");
+        } else {
+            add(panelMenuIzquierdo, BorderLayout.WEST);
+            botonToggleMenu.setText("✖");
+        }
+        menuVisible = !menuVisible;
+        revalidate();
+        repaint();
+    }
 
-    setContentPane(panel);
-    setVisible(true);
-}
-
-
+    /** Muestra la tarjeta cuyo identificador sea `clave`. */
+    public void muestraCard(String clave) {
+        CardLayout cl = (CardLayout) cards.getLayout();
+        cl.show(cards, clave);
+    }
 }
