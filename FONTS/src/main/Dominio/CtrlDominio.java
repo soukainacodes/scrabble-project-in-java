@@ -1,29 +1,13 @@
 package Dominio;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
-import Dominio.Excepciones.BolsaNoEncontradaException;
-import Dominio.Excepciones.BolsaYaExistenteException;
-import Dominio.Excepciones.ComandoInvalidoException;
-import Dominio.Excepciones.DiccionarioNoEncontradoException;
-import Dominio.Excepciones.DiccionarioYaExistenteException;
-import Dominio.Excepciones.NoHayPartidaGuardadaException;
-import Dominio.Excepciones.PalabraInvalidaException;
-import Dominio.Excepciones.PartidaNoEncontradaException;
-import Dominio.Excepciones.PartidaYaExistenteException;
-import Dominio.Excepciones.PasswordInvalidaException;
-import Dominio.Excepciones.PuntuacionInvalidaException;
-import Dominio.Excepciones.RankingVacioException;
-import Dominio.Excepciones.UsuarioNoEncontradoException;
-import Dominio.Excepciones.UsuarioYaRegistradoException;
+import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
-
 
 /**
  * Controlador principal del dominio que coordina la lógica de negocio,
@@ -34,20 +18,15 @@ import Persistencia.CtrlPersistencia;
  * de persistencia ({@link CtrlPersistencia}).
  */
 public class CtrlDominio {
-   
-    /** Controlador de persistencia para acceso a datos (jugadores, diccionarios, partidas, etc.). */
+
+    /** Controlador de persistencia para acceso a datos (jugadores, partidas y recursos). */
     private final CtrlPersistencia ctrlPersistencia;
-    /** Controlador de la sesión y datos del jugador activo. */
+    
+    /** Controlador de la sesión del jugador activo. */
     private final CtrlJugador ctrlJugador;
 
     /** Controlador de la partida en curso. */
     private final CtrlPartida ctrlPartida;
-
-
-
-
-    //PRUEBA DE OBSERVER!!!
-    private final List<Observer> observers = new ArrayList<>();
 
     private final DataConverter dc;
 
@@ -57,118 +36,64 @@ public class CtrlDominio {
      */
     public CtrlDominio() {
         this.ctrlPersistencia = new CtrlPersistencia();
-        this.ctrlJugador      = new CtrlJugador();
-        this.ctrlPartida      = new CtrlPartida();
+        this.ctrlJugador = new CtrlJugador();
+        this.ctrlPartida = new CtrlPartida();
         this.dc = new DataConverter();
     }
 
     // ─── Gestión de Jugadores ───────────────────────────────────────────────────
 
-    /**
-     * Registra un nuevo jugador en el sistema y establece su sesión.
-     *
-     * @param nombre   nombre único de usuario.
-     * @param password contraseña del usuario.
-     * @throws UsuarioYaRegistradoException si el nombre ya existe en persistencia.
-     * @throws IOException 
-     */
-    public void registrarJugador(String nombre, String password)
-        throws UsuarioYaRegistradoException, UsuarioNoEncontradoException, PasswordInvalidaException, IOException {
-
-        // Verificar si el jugador ya existe en persistencia
-        if (ctrlPersistencia.existeJugador(nombre)) {
-            throw new UsuarioYaRegistradoException(nombre);
-        }
-
-        // Registrar el jugador en persistencia
+    public void registrarJugador(String nombre, String password) throws IOException, UsuarioYaRegistradoException {
         ctrlPersistencia.anadirJugador(nombre, password);
-
-        // Establecer la sesión del jugador
-        ctrlJugador.setJugador(nombre, password);
     }
+
     
-    /**
-     * Inicia sesión con credenciales existentes.
-     *
-     * @param nombre   nombre de usuario registrado.
-     * @param password contraseña asociada.
-     * @throws UsuarioNoEncontradoException  si no existe el usuario.
-     * @throws PasswordInvalidaException     si la contraseña no coincide.
-     */
-    public void iniciarSesion(String nombre, String password)
-            throws UsuarioNoEncontradoException, PasswordInvalidaException {
-       
-        ctrlJugador.setJugador(nombre, password);
+    public void iniciarSesion(String nombre, String password) throws UsuarioNoEncontradoException
+    {
+        if (ctrlPersistencia.existeJugador(nombre) && !ctrlJugador.haySesion() && ctrlPersistencia.verificarContrasena(nombre, password))
+        {
+            ctrlJugador.setJugadorActual(nombre);;
+        }
     }
 
-    /**
-     * Cierra la sesión activa del jugador.
-     */
+
     public void cerrarSesion() {
         ctrlJugador.clearSesion();
     }
 
-    /**
-     * Indica si hay un jugador con sesión iniciada.
-     *
-     * @return {@code true} si hay sesión activa, {@code false} en caso contrario.
-     */
+    
     public boolean haySesion() {
         return ctrlJugador.haySesion();
     }
 
-    /**
-     * Obtiene el nombre del jugador actualmente en sesión.
-     *
-     * @return nombre de usuario activo, o {@code null} si no hay sesión.
-     */
+    
     public String getUsuarioActual() {
-        if(ctrlJugador.haySesion()){
-             return ctrlJugador.getJugadorActual().getNombre();
-        }
-       return null;
-    }
-
-    /**
-     * Recupera la puntuación acumulada del jugador activo.
-     *
-     * @return puntos del jugador, o 0 si no hay sesión.
-     */
-    public int getPuntosActual() {
+        if (ctrlJugador.haySesion())  return ctrlJugador.getJugadorActual().getNombre();
         
-        if(ctrlJugador.haySesion()){
-             return ctrlJugador.getJugadorActual().getPuntos();
-        }
-       return 0;
+        return null;
     }
 
-    /**
-     * Cambia la contraseña del jugador activo y actualiza en persistencia.
-     *
-     * @param antigua contraseña actual para validar.
-     * @param nueva   nueva contraseña a asignar.
-     * @throws PasswordInvalidaException     si la antigua no es correcta.
-     * @throws UsuarioNoEncontradoException  si no hay jugador activo.
-     */
-    public void cambiarPassword(String antigua, String nueva)
-            throws PasswordInvalidaException, UsuarioNoEncontradoException {
-            ctrlJugador.cambiarPassword(antigua, nueva);
-     
-    }
+    
+    public int getPuntosActual() throws UsuarioNoEncontradoException {
 
-    /**
-     * Elimina la cuenta del jugador activo y borra datos en persistencia.
-     *
-     * @param password contraseña para verificar identidad.
-     * @throws PasswordInvalidaException     si la contraseña no coincide.
-     * @throws UsuarioNoEncontradoException  si no hay jugador activo.
-     * @throws IOException 
-     */
-    public void eliminarUsuario(String password)
-            throws PasswordInvalidaException, UsuarioNoEncontradoException, IOException {
-     
         if (ctrlJugador.haySesion()) {
+            return ctrlPersistencia.obtenerPuntuacion(ctrlJugador.getJugadorActual().getNombre());
+        }
+        return 0;
+    }
+
+    
+    public void cambiarPassword(String antigua, String nueva) throws UsuarioNoEncontradoException{
+        if (ctrlJugador.haySesion()) 
+            ctrlPersistencia.actualizarContrasena(ctrlJugador.getJugadorActual().getNombre(), nueva);
+        
+    }
+    
+
+    public void eliminarUsuario(String password) throws UsuarioNoEncontradoException, IOException   {
+        if (ctrlJugador.haySesion() && ctrlPersistencia.verificarContrasena(ctrlJugador.getJugadorActual().getNombre(), password)) {
             ctrlPersistencia.eliminarJugador(ctrlJugador.getJugadorActual().getNombre());
+            ctrlJugador.clearSesion();
         }
     }
 
@@ -179,9 +104,9 @@ public class CtrlDominio {
      *
      * @return lista de pares (nombre, puntuación) ordenada.
      * @throws RankingVacioException si no hay datos de ranking.
-     * @throws IOException 
+     * @throws IOException
      */
-    public List<Map.Entry<String,Integer>> obtenerRanking()
+    public List<Map.Entry<String, Integer>> obtenerRanking()
             throws RankingVacioException, IOException {
         return ctrlPersistencia.generarRanking();
     }
@@ -192,7 +117,7 @@ public class CtrlDominio {
      * @param nombre nombre de usuario.
      * @return posición (1-based) en el ranking.
      * @throws UsuarioNoEncontradoException si el jugador no figura.
-     * @throws IOException 
+     * @throws IOException
      */
     public int obtenerPosicion(String nombre)
             throws UsuarioNoEncontradoException, IOException {
@@ -203,22 +128,7 @@ public class CtrlDominio {
         }
     }
 
-
-    /**
-     * Recupera la posición en ranking del usuario actualmente en sesión.
-     *
-     * @return posición (1-based), o -1 si no hay sesión o no figura.
-     * @throws IOException 
-     */
-    public int getPosicionActual() throws IOException {
-        String nombre = getUsuarioActual();
-        if (nombre == null) return -1;
-        try {
-            return ctrlPersistencia.obtenerPosicion(nombre);
-        } catch (UsuarioNoEncontradoException e) {
-            return -1;
-        }
-    }
+   
 
     // ─── Partida / Scrabble ──────────────────────────────────────────────────────
 
@@ -233,17 +143,33 @@ public class CtrlDominio {
      * @param jugadorAlgoritmo {@code true} si jugador 2 es IA.
      * @throws DiccionarioNoEncontradoException si no existe el diccionario.
      * @throws BolsaNoEncontradaException       si no existe la bolsa.
+     * @throws IOException
      */
     public void iniciarPartida(int modo,
-                               String n2,
-                               String idDiccionario,
-                               long seed,
-                               boolean jugadorAlgoritmo)
-            throws DiccionarioNoEncontradoException, BolsaNoEncontradaException,UsuarioNoEncontradoException, PasswordInvalidaException {
-       // iniciarSesion(n2,p2);
-        List<String> dic = ctrlPersistencia.getDiccionario(idDiccionario);
-        List<String> bolsa = ctrlPersistencia.getBolsa(idDiccionario);
-        ctrlPartida.crearPartida(modo, Arrays.asList(ctrlJugador.getJugadorActual().getNombre(),n2), dic, bolsa, seed, jugadorAlgoritmo);
+            String n2,
+            String idDiccionario,
+            long seed,
+            boolean jugadorAlgoritmo)
+            throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, UsuarioNoEncontradoException,
+            PasswordInvalidaException, IOException {
+
+        List<String> dic = ctrlPersistencia.obtenerDiccionario(idDiccionario);
+        List<String> bolsa = ctrlPersistencia.obtenerBolsa(idDiccionario);
+
+        if (modo == 0) {
+            ctrlJugador.setSegundoJugador("propAI");
+            n2 = "propAI";
+            ctrlPartida.crearPartida(modo, Arrays.asList(ctrlJugador.getJugadorActual().getNombre(), n2), dic, bolsa, seed,
+                jugadorAlgoritmo);
+
+        }
+        else 
+        {
+            ctrlPartida.crearPartida(modo, Arrays.asList(ctrlJugador.getJugadorActual().getNombre(), n2), dic, bolsa, seed,
+                jugadorAlgoritmo);
+        }
+        
+
     }
 
     /**
@@ -252,17 +178,21 @@ public class CtrlDominio {
      * @param modo   código de acción de Scrabble.
      * @param jugada parámetros de jugada.
      * @return valor de fin de turno o fin de partida.
-     * @throws PuntuacionInvalidaException si la puntuación es inválida.
-     * @throws ComandoInvalidoException    si el comando es malformado.
-     * @throws PalabraInvalidaException    si la palabra no es válida.
-     * @throws UsuarioNoEncontradoException 
+     * @throws PuntuacionInvalidaException  si la puntuación es inválida.
+     * @throws ComandoInvalidoException     si el comando es malformado.
+     * @throws PalabraInvalidaException     si la palabra no es válida.
+     * @throws UsuarioNoEncontradoException
      */
     public int jugarScrabble(int modo, String jugada)
-            throws PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException, UsuarioNoEncontradoException {
+            throws PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException,
+            UsuarioNoEncontradoException {
+
         int fin = ctrlPartida.jugarScrabble(modo, jugada);
-        ctrlJugador.actualizarPuntuacion(ctrlPartida.getPuntosJugador1());
-        ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual().getNombre(), ctrlJugador.getJugadorActual().getPuntos());
         
+        // Actualiza la puntuación del jugador activo y openente
+        ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual().getNombre(),ctrlPartida.getPuntosJugador1());
+        ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getSegundoJugador().getNombre(),ctrlPartida.getPuntosJugador2());
+
         return fin;
     }
 
@@ -297,10 +227,15 @@ public class CtrlDominio {
      * Guarda la partida actual en persistencia con un identificador.
      *
      * @param id nombre de la partida a crear.
-     * @throws PartidaYaExistenteException si ya existe una partida con ese id.
+     * @throws PartidaYaExistenteException  si ya existe una partida con ese id.
+     * @throws UsuarioNoEncontradoException
      */
-    public void guardarPartida(String id) throws PartidaYaExistenteException {
-       ctrlPersistencia.guardarPartida(id, dc.partidaToStringList(ctrlPartida.guardarPartida(), id));
+    public void guardarPartida(String id) throws PartidaYaExistenteException, UsuarioNoEncontradoException {
+        ctrlPersistencia.guardarPartida(ctrlJugador.getJugadorActual().getNombre(), id,
+                dc.partidaToStringList(ctrlPartida.guardarPartida(), id));
+        ctrlPersistencia.guardarPartida(ctrlJugador.getSegundoJugador().getNombre(), id,
+                dc.partidaToStringList(ctrlPartida.guardarPartida(), id));
+
     }
 
     /**
@@ -310,7 +245,7 @@ public class CtrlDominio {
      * @throws PartidaNoEncontradaException si no existe la partida.
      */
     public void cargarPartida(String id) throws PartidaNoEncontradaException {
-      //  Partida p = ctrlPersistencia.cargarPartida(id);
+        // Partida p = ctrlPersistencia.cargarPartida(id);
         ctrlPartida.cargarPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)));
     }
 
@@ -318,14 +253,15 @@ public class CtrlDominio {
      * Carga la última partida guardada automáticamente.
      *
      * @throws NoHayPartidaGuardadaException si no hay partidas previas.
-     * @throws PartidaNoEncontradaException 
+     * @throws PartidaNoEncontradaException
+     * @throws UsuarioNoEncontradoException
      */
-    public void cargarUltimaPartida() throws NoHayPartidaGuardadaException, PartidaNoEncontradaException {
+    public void cargarUltimaPartida()
+            throws NoHayPartidaGuardadaException, PartidaNoEncontradaException, UsuarioNoEncontradoException {
         // Obtener los datos de la última partida desde persistencia
-        List<String> datosUltimaPartida = ctrlPersistencia.cargarUltimaPartida();
-
-        // Convertir los datos simples a una estructura manejable por CtrlPartida
-        // ctrlPartida.cargarPartida(dc.stringListToPartida(datosUltimaPartida));
+        String ultimaPartida = ctrlPersistencia.obtenerUltimaPartida(getUsuarioActual());
+        List<String> datosUltimaPartida = ctrlPersistencia.cargarPartida(ultimaPartida);
+        ctrlPartida.cargarPartida(dc.stringListToPartida(datosUltimaPartida));
     }
 
     /**
@@ -344,7 +280,7 @@ public class CtrlDominio {
      * @throws PartidaNoEncontradaException si no existe la partida.
      */
     public void eliminarPartidaGuardada(String id) throws PartidaNoEncontradaException {
-        ctrlPersistencia.removePartida(id);
+        ctrlPersistencia.eliminarPartida(id);
     }
 
     // ─── Auxiliares de Presentación ────────────────────────────────────────────
@@ -368,51 +304,41 @@ public class CtrlDominio {
     public String getLetraCelda(int fila, int col) {
         return ctrlPartida.obtenerTablero().getLetraCelda(fila, col);
     }
-    
 
     /**
      * Obtiene el código de bonificación de celda para presentación.
      *
      * @param fila fila de la celda.
-     * @param col columna de la celda.
+     * @param col  columna de la celda.
      * @return abreviatura de bonificación (DL, TL, DP, TP) o espacios.
      */
     public String getBonusCelda(int fila, int col) {
         return ctrlPartida.obtenerTablero().getBonusCelda(fila, col);
     }
-    
 
     // ─── Gestión de Diccionarios y Bolsas ───────────────────────────────────────
 
     /**
-     * Lista los IDs de diccionarios cargados.
+     * Recupera la lista de recursos (diccionarios y bolsas) disponibles.
      *
-     * @return conjunto de IDs disponibles.
+     * @return lista de identificadores de recursos.
      */
-    public Set<String> obtenerIDsDiccionarios() {
-        return ctrlPersistencia.getDiccionarioIDs();
-    }
-
-    /**
-     * Lista los IDs de bolsas cargadas.
-     *
-     * @return conjunto de IDs disponibles.
-     */
-    public Set<String> obtenerIDsBolsas() {
-        return ctrlPersistencia.getBolsaIDs();
+    public List<String> obtenerRecursos() {
+        return ctrlPersistencia.listarRecursos();
     }
 
     /**
      * Crea un diccionario persistente con lista de palabras.
      *
-     * @param id        identificador del idioma.
-     * @param palabras  lista de palabras a almacenar.
-     * @throws IOException si falla la escritura en disco.
+     * @param id       identificador del idioma.
+     * @param palabras lista de palabras a almacenar.
+     * @throws IOException                     si falla la escritura en disco.
      * @throws DiccionarioYaExistenteException si ya existe el ID.
+     * @throws RecursoExistenteException
      */
     public void crearDiccionario(String id, List<String> palabras)
-            throws IOException, DiccionarioYaExistenteException {
-        ctrlPersistencia.addDiccionario(id, palabras);
+            throws IOException, DiccionarioYaExistenteException, RecursoExistenteException {
+        ctrlPersistencia.crearDiccionario(id, palabras);
     }
 
     /**
@@ -420,25 +346,27 @@ public class CtrlDominio {
      *
      * @param id    identificador del idioma.
      * @param datos mapa de letra->[cantidad,puntuación].
-     * @throws IOException si falla la escritura en disco.
+     * @throws IOException               si falla la escritura en disco.
      * @throws BolsaYaExistenteException si ya existe el ID.
+     * @throws RecursoExistenteException
      */
-    public void crearBolsa(String id, Map<String,int[]> datos)
-            throws IOException, BolsaYaExistenteException {
-        ctrlPersistencia.addBolsa(id, datos);
+    public void crearBolsa(String id, Map<String, int[]> datos)
+            throws IOException, RecursoExistenteException {
+        ctrlPersistencia.crearBolsa(id, datos);
     }
 
     /**
      * Elimina completamente un idioma (diccionario+bolsa) de persistencia.
      *
      * @param id identificador del idioma.
-     * @throws IOException si falla la eliminación de archivos.
-     * @throws DiccionarioNoEncontradoException si no existe el diccionario.
+     * @throws IOException                      si falla la eliminación de archivos.
      * @throws BolsaNoEncontradaException       si no existe la bolsa.
+     * @throws DiccionarioNoEncontradoException 
      */
-    public void eliminarIdiomaCompleto(String id)
-            throws IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException {
-        ctrlPersistencia.removeIdiomaCompleto(id);
+    public void eliminarRecurso(String id)
+            throws IOException, RecursoNoExistenteException,
+            BolsaNoEncontradaException, DiccionarioNoEncontradoException {
+        ctrlPersistencia.eliminarRecurso(id);
     }
 
     /**
@@ -447,13 +375,10 @@ public class CtrlDominio {
      * @param id identificador del diccionario.
      * @return lista de palabras.
      * @throws DiccionarioNoEncontradoException si no existe el ID.
+     * @throws IOException
      */
-    public List<String> getDiccionario(String id) throws DiccionarioNoEncontradoException {
-        try {
-            return ctrlPersistencia.getDiccionario(id);
-        } catch (DiccionarioNoEncontradoException e) {
-            throw new DiccionarioNoEncontradoException();
-        }
+    public List<String> obtenerDiccionario(String id) throws DiccionarioNoEncontradoException, IOException {
+        return ctrlPersistencia.obtenerDiccionario(id);
     }
 
     /**
@@ -462,12 +387,9 @@ public class CtrlDominio {
      * @param id identificador de la bolsa.
      * @return lista de líneas con configuración de fichas.
      * @throws BolsaNoEncontradaException si no existe el ID.
+     * @throws IOException
      */
-    public List<String> getBolsa(String id) throws BolsaNoEncontradaException {
-        try {
-            return ctrlPersistencia.getBolsa(id);
-        } catch (BolsaNoEncontradaException e) {
-            throw new BolsaNoEncontradaException();
-        }
+    public List<String> obtenerBolsa(String id) throws BolsaNoEncontradaException, IOException {
+        return ctrlPersistencia.obtenerBolsa(id);
     }
 }

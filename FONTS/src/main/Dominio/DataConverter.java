@@ -4,19 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Dominio.Modelos.Ficha;
-import Dominio.Modelos.Jugador;
 import Dominio.Modelos.Partida;
 
 class DataConverter {
 
-    // convierte un Jugador a lista de Strings
-    public List<String> jugadorToStringList(Jugador jugador) {
-        List<String> s = new ArrayList<>();
-        s.add(jugador.getNombre());
-        s.add(jugador.getPassword());
-        s.add(Integer.toString(jugador.getPuntos()));
-        return s;
-    }
+
 
 // convierte una Partida a lista de Strings
     public List<String> partidaToStringList(Partida partida, String nombrePartida) {
@@ -57,12 +49,6 @@ class DataConverter {
         return s;
     }
 
-// reconstruye un Jugador a partir de una lista de Strings
-    public Jugador stringListToJugador(List<String> s) {
-        Jugador j = new Jugador(s.get(0), s.get(1));
-        j.setPuntos(Integer.parseInt(s.get(2)));
-        return j;
-    }
 
 // reconstruye una Partida a partir de una lista de Strings
     public Partida stringListToPartida(List<String> strings) {

@@ -1,101 +1,105 @@
 package Dominio;
 
-import Dominio.Excepciones.PasswordInvalidaException;
-import Dominio.Excepciones.PuntuacionInvalidaException;
+
 import Dominio.Modelos.Jugador;
 
+
 /**
- * Controlador de jugador que gestiona la sesión y los datos del jugador activo,
- * sin implicar detalles de persistencia.
- * <p>
- * Permite iniciar y cerrar sesión, cambiar la contraseña,
- * eliminar al jugador activo y actualizar su puntuación máxima.
+ * Controlador de Jugador.
+ * Este controlador gestiona la sesión del jugador actual y el segundo jugador.
+ * 
  */
 public class CtrlJugador {
-    private Jugador jugadorActual;
-    private Jugador segundoJugador;
+
     /**
-     * Crea un controlador de jugador sin sesión iniciada.
+     * Jugador actual.
+     * Este jugador representa la sesión iniciada en el juego.
+     */
+    private Jugador jugadorActual;
+
+
+    /**
+     * Segundo jugador.
+     * Este jugador representa al segundo jugador en el juego.
+     */ 
+    private Jugador segundoJugador;
+
+
+
+    /**
+     * Constructor de CtrlJugador.
+     * Inicializa el jugador actual y el segundo jugador a null.
      */
     public CtrlJugador() {
         this.jugadorActual = null;
         this.segundoJugador = null;
     }
 
-    public Jugador setNuevoJugador(String nombre, String password) {
-        return new Jugador(nombre,password);
-    }
 
     /**
-     * Comprueba si hay un jugador con sesión iniciada.
-     *
-     * @return {@code true} si existe un jugador activo, {@code false} en caso contrario.
+     * Establece el jugador actual.
+     * 
+     * @param nombre Nombre del jugador.
+     * @param password Contraseña del jugador.
      */
-    public boolean haySesion() {
-        return jugadorActual != null;
+    public void setJugadorActual(String nombre) {
+        this.jugadorActual = new Jugador(nombre);
     }
 
+
     /**
-     * Establece el jugador actual en sesión.
-     *
-     * @param nombre el nombre del jugador.
-     * @param password la contraseña del jugador.
-     * @throws PasswordInvalidaException si la contraseña es inválida.
+     * Establece el segundo jugador.
+     * 
+     * @param nombre Nombre del segundo jugador.
      */
-    public void setJugador(String nombre, String password) throws PasswordInvalidaException {
-        // Crear un nuevo objeto Jugador con el nombre y la contraseña proporcionados
-        Jugador j = new Jugador(nombre, password);
-
-        // Validar la contraseña
-        if (j.getPassword() == null ? password != null : !j.getPassword().equals(password)) {
-            throw new PasswordInvalidaException();
-        }
-
-        // Asignar el jugador actual o el segundo jugador
-        if (this.jugadorActual == null) {
-            this.jugadorActual = j;
-        } else {
-            this.segundoJugador = j;
-        }
+    public void setSegundoJugador(String nombre) {
+        this.segundoJugador = new Jugador(nombre);
     }
 
+    
     /**
-     * Finaliza la sesión actual, dejando sin jugador activo.
-     */
-    public void clearSesion() {
-        this.jugadorActual = null;
-    }
-
-    /**
-     * Obtiene el jugador actualmente en sesión.
-     *
-     * @return el {@link Jugador} activo, o {@code null} si no hay sesión iniciada.
+     * Obtiene el jugador actual.
+     * 
+     * @return Jugador actual.
      */
     public Jugador getJugadorActual() {
         return jugadorActual;
     }
 
-    public void cambiarPassword(String antigua, String nueva) throws PasswordInvalidaException {
-        if(jugadorActual.getPassword() != antigua) {
-            throw new PasswordInvalidaException();
-        } 
-        else jugadorActual.setPassword(nueva);
+
+    /**
+     * Obtiene el segundo jugador.
+     * 
+     * @return Segundo jugador.
+     */
+    public Jugador getSegundoJugador()
+    {
+        return segundoJugador;
     }
 
-   
+
+    
     /**
-     * Actualiza la puntuación máxima del jugador activo si la nueva puntuación es mayor.
-     *
-     * @param nuevosPuntos la puntuación obtenida a comprobar.
-     * @throws PuntuacionInvalidaException si la puntuación proporcionada es negativa.
+     * Verifica si hay una sesión activa.
+     * 
+     * @return true si hay una sesión activa, false en caso contrario.
      */
-    public void actualizarPuntuacion(int nuevosPuntos)
-            throws PuntuacionInvalidaException {
-        if (nuevosPuntos < 0) {
-            throw new PuntuacionInvalidaException(nuevosPuntos);
-        }
-        if (jugadorActual != null && nuevosPuntos > jugadorActual.getPuntos()) {
-            jugadorActual.setPuntos(nuevosPuntos);
-        }
+    public boolean haySesion() {
+        return jugadorActual != null;
     }
+
+
+
+   /**
+    * Limpia la sesión del jugador actual y el segundo jugador.
+    * Esto se utiliza para cerrar la sesión y reiniciar el estado del controlador.
+    */
+    public void clearSesion() {
+        this.jugadorActual = null;
+        this.segundoJugador = null;
+    }
+
+
+
+ 
 }

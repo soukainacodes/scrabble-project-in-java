@@ -1,6 +1,8 @@
 import org.json.JSONObject;
 
-import org.json.JSONArray;
+import Dominio.Excepciones.PuntuacionInvalidaException;
+import Dominio.Excepciones.UsuarioNoEncontradoException;
+
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -273,7 +275,9 @@ public class Persistencia {
         return fichas;
     }
 
-    // Función auxiliar para convertir las fichas de un jugador de JSONArray a String
+    // Función auxiliar para convertir las fichas de un jugador de JSONArray a
+    //
+    // String
     private static String parseFichasToString(JSONArray fichas) {
         StringBuilder fichasStr = new StringBuilder();
         for (int i = 0; i < fichas.length(); i++) {
@@ -282,6 +286,22 @@ public class Persistencia {
         return fichasStr.toString().trim();
     }
 
+    public boolean existePartida(String id) {
+        // Verifica si el archivo de la partida existe
+        File partidaFile = new File(PARTIDAS + "partida_" + id + ".json");
+        return partidaFile.exists();
+    }
+
+    public boolean esPartidaAcabada(String id) {
+        try {
+            // Leemos el archivo y parseamos directamente el JSON
+            String content = new String(Files.readAllBytes(Paths.get(PARTIDAS + "partida_" + id + ".json")));
+            return new JSONObject(content).getBoolean("partida_acabada");
+        } catch (Exception e) {
+            System.err.println("[Persistencia] Error al leer la partida: " + e.getMessage());
+            return false;
+        }
+    }
 
     public void guardarPartida(String id, List<String> partida) throws PartidaYaExistenteException {
         String nombreArchivo = "partida_" + id + ".json";
@@ -302,141 +322,62 @@ public class Persistencia {
         }
     }
 
-    public static void main(String[] args) {
-            Persistencia persistencia = new Persistencia();
-            Path partidaTxtPath = Paths.get("partida_definitiva.txt");
-            Path partidaJsonPath = Paths.get("partida_definitiva.json");
-            Path testPartidaTxtPath = Paths.get("test_partida.txt"); // Path for the new .txt file
-    
-            try {
-                System.out.println("=== Test de Conversión de partida_definitiva.txt a JSON y guardado ===\n");
-    
-                if (Files.exists(partidaTxtPath)) {
-                    // Read all lines from the .txt file into a List<String>
-                    List<String> partidaData = Files.readAllLines(partidaTxtPath, StandardCharsets.UTF_8);
-    
-                    if (partidaData.isEmpty()) {
-                        System.err.println("El archivo partida_definitiva.txt está vacío.");
-                        return;
+    public List<String> cargarPartida(String id) throws PartidaNoEncontradaException {
+        // Verifica si la partida existe
+        if (!existePartida(id)) {
+            throw new PartidaNoEncontradaException(id);
+        }
+
+        // Carga el archivo de la partida
+        String rutaArchivo = "partida_" + id + ".json";
+        try {
+            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
+            return jsonToPartidaList(contenido);
+        } catch (IOException e) {
+            throw new PartidaNoEncontradaException(id);
+        }
+    }
+
+    public List<String> cargarUltimaPartida() throws PartidaNoEncontradaException {
+        // Verifica si hay una última partida guardada
+        if (ultimaPartida == null) {
+            throw new PartidaNoEncontradaException(ultimaPartida);
+        }
+
+        // Carga la última partida
+        return cargarPartida(ultimaPartida);
+    }
+
+    public void eliminarPartida(String id) throws PartidaNoEncontradaException {
+        // Verifica si la partida existe
+        if (!existePartida(id)) {
+            throw new PartidaNoEncontradaException(id);
+        }
+
+        // Elimina el archivo de la partida
+        File partidaFile = new File("partida_" + id + ".json");
+        if (partidaFile.delete()) {
+            System.out.println("Partida eliminada: " + partidaFile.getPath());
+        } else {
+            System.out.println("No se pudo eliminar la partida.");
+        }
+    }
+
+    public List<String> listarPartidasNoAcabadas() throws PartidaNoEncontradaException {
+        List<String> partidasNoAcabadas = new ArrayList<>();
+        File dir = new File("/mnt/c/Users/souka/Desktop/PROP_Entrega1_Vinent_Mahboub");
+
+        if (dir.isDirectory()) {
+            for (File file : Objects.requireNonNull(dir.listFiles())) {
+                if (file.getName().endsWith(".json")) {
+                    String id = file.getName().replace("partida_", "").replace(".json", "");
+                    // Verificamos si la partida no está acabada
+                    if (!esPartidaAcabada(id)) {
+                        partidasNoAcabadas.add(id); // Si no está acabada, la agregamos a la lista
                     }
-    
-                    System.out.println("Contenido de partida_definitiva.txt (línea por línea):");
-                    for (int i = 0; i < partidaData.size(); i++) {
-                        System.out.println("Línea " + i + ": " + partidaData.get(i));
-                    }
-                    System.out.println("\n--- Fin del contenido del archivo ---\n");
-    
-                    // Convert the List<String> to a JSON string
-                    String jsonOutput = Persistencia.partidaListToJson(partidaData);
-    
-                    System.out.println("JSON generado a partir de partida_definitiva.txt:");
-                    System.out.println(jsonOutput);
-    
-                    // Guardar el JSON en un nuevo archivo
-                    try (BufferedWriter writer = Files.newBufferedWriter(partidaJsonPath, StandardCharsets.UTF_8)) {
-                        writer.write(jsonOutput);
-                        System.out.println("\nJSON guardado exitosamente en: " + partidaJsonPath.toAbsolutePath());
-                    } catch (IOException e) {
-                        System.err.println("Error al guardar el archivo JSON: " + e.getMessage());
-                        e.printStackTrace();
-                        return; // Salir si no se pudo guardar el JSON
-                    }
-    
-                    // === Nueva sección: Convertir JSON de vuelta a TXT y guardar ===
-                    System.out.println("\n=== Test de Conversión de " + partidaJsonPath.getFileName() + " a TXT y guardado ===\n");
-                    try {
-                        // Leer el contenido del archivo JSON generado
-                        String jsonInput = Files.readString(partidaJsonPath, StandardCharsets.UTF_8);
-    
-                        // Convertir el JSON string a List<String>
-                        List<String> partidaDataFromJson = Persistencia.jsonToPartidaList(jsonInput);
-    
-                        System.out.println("Contenido de " + testPartidaTxtPath.getFileName() + " (generado desde JSON):");
-                        for (int i = 0; i < partidaDataFromJson.size(); i++) {
-                            System.out.println("Línea " + i + ": " + partidaDataFromJson.get(i));
-                        }
-    
-                        // Guardar la List<String> en test_partida.txt
-                        try (BufferedWriter writer = Files.newBufferedWriter(testPartidaTxtPath, StandardCharsets.UTF_8)) {
-                            for (String line : partidaDataFromJson) {
-                                writer.write(line);
-                                writer.newLine();
-                            }
-                            System.out.println("\nArchivo " + testPartidaTxtPath.getFileName() + " guardado exitosamente en: " + testPartidaTxtPath.toAbsolutePath());
-                        } catch (IOException e) {
-                            System.err.println("Error al guardar el archivo " + testPartidaTxtPath.getFileName() + ": " + e.getMessage());
-                            e.printStackTrace();
-                        }
-    
-                    } catch (IOException e) {
-                        System.err.println("Error de E/S al leer el archivo " + partidaJsonPath.getFileName() + ": " + e.getMessage());
-                        e.printStackTrace();
-                    } catch (org.json.JSONException e) {
-                        System.err.println("Error al parsear el JSON desde " + partidaJsonPath.getFileName() + ": " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                    // === Fin de la nueva sección ===
-    
-                } else {
-                    System.err.println("Error: El archivo partida_definitiva.txt no se encontró en "
-                            + partidaTxtPath.toAbsolutePath());
                 }
-    
-            } catch (IOException e) {
-                System.err.println("Error de E/S al leer el archivo partida_definitiva.txt: " + e.getMessage());
-                e.printStackTrace();
-            } catch (org.json.JSONException e) {
-                System.err.println("Error al generar el JSON: " + e.getMessage());
-                e.printStackTrace();
-            } catch (IndexOutOfBoundsException e) {
-                System.err.println(
-                        "Error: El formato de partida_definitiva.txt no coincide con el esperado por partidaListToJson. "
-                                + e.getMessage());
-                e.printStackTrace();
-            } catch (NumberFormatException e) {
-                System.err.println("Error: No se pudo convertir un número en partida_definitiva.txt. " + e.getMessage());
-                e.printStackTrace();
-            } catch (Exception e) {
-                System.err.println("Error inesperado: " + e.getMessage());
-                e.printStackTrace();
             }
         }
-}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Clases de excepciones
-class UsuarioYaRegistradoException extends Exception {
-    public UsuarioYaRegistradoException(String username) {
-        super("El usuario ya está registrado: " + username);
-    }
-}
-
-class UsuarioNoEncontradoException extends Exception {
-    public UsuarioNoEncontradoException(String username) {
-        super("El usuario no fue encontrado: " + username);
-    }
-}
-
-class PuntuacionInvalidaException extends Exception {
-    public PuntuacionInvalidaException(int puntuacion) {
-        super("Puntuación inválida: " + puntuacion);
-    }
-}
-
-class PartidaYaExistenteException extends Exception   {
-    public PartidaYaExistenteException(String id) {
-        super(String.format("Ya existe una partida con ID '%s'.", id));
-    }
+// Closing brace for the Persistencia class
 }
