@@ -11,13 +11,13 @@ class DataConverter {
 
 
 // convierte una Partida a lista de Strings
-    public List<String> partidaToStringList(Partida partida, String nombrePartida) {
+    public List<String> partidaToStringList(Partida partida, String jugadorActual, String segundoJugador, String nombrePartida) {
         List<String> s = new ArrayList<>();
         s.add(nombrePartida);
         s.add(Integer.toString(partida.getContadorTurno()));
         s.add(partida.getTurnoJugador() ? "1" : "0");
-        s.add(partida.getJugador1());
-        s.add(partida.getJugador2());
+        s.add(jugadorActual);
+        s.add(segundoJugador);
         s.add(Integer.toString(partida.getPuntosJugador1()));
         s.add(Integer.toString(partida.getPuntosJugador2()));
         String fichas = "";

@@ -62,8 +62,8 @@ public class CtrlJugador {
      * 
      * @return Jugador actual.
      */
-    public Jugador getJugadorActual() {
-        return jugadorActual;
+    public String getJugadorActual() {
+        return jugadorActual.getNombre();
     }
 
 
@@ -72,9 +72,9 @@ public class CtrlJugador {
      * 
      * @return Segundo jugador.
      */
-    public Jugador getSegundoJugador()
+    public String getSegundoJugador()
     {
-        return segundoJugador;
+        return segundoJugador.getNombre();
     }
 
 

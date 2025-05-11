@@ -1,5 +1,6 @@
 {
     "password": "grup425",
-    "maxpoints": 0,
-    "username": "propAI"
+    "maxpuntos": 100,
+    "nombre": "propAI",
+    "ultimaPartidaGuardada": ""
 }

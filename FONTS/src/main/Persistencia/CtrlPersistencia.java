@@ -50,7 +50,7 @@ public class CtrlPersistencia {
     /**
      * Ruta de los recursos, partidas y jugadores.
      */
-    private static final String RECURSOS = "FONTS/src/main/Persistencia/Datos/Idiomas/";
+    private static final String RECURSOS = "FONTS/src/main/Persistencia/Datos/Recursos/";
     private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
     private static final String JUGADORES = "FONTS/src/main/Persistencia/Datos/Jugadores/";
 
@@ -58,7 +58,7 @@ public class CtrlPersistencia {
 
     /**
      * Constructor de la clase CtrlPersistencia.
-     */
+    */
     public CtrlPersistencia() {
 
     }
@@ -77,7 +77,8 @@ public class CtrlPersistencia {
         return userDir.exists() && userDir.isDirectory();
     }
 
-        /**
+
+    /**
      * Registra un nuevo jugador en el sistema.
      * 
      * @param username Nombre de usuario único del jugador
@@ -111,6 +112,8 @@ public class CtrlPersistencia {
         }
     }
     
+
+
     /**
      * Elimina un jugador del sistema y todos sus archivos asociados.
      * 
@@ -449,10 +452,9 @@ public class CtrlPersistencia {
      * @param username Nombre de usuario del jugador
      * @param id ID de la partida
      * @param partida Datos de la partida
-     * @throws PartidaYaExistenteException Si la partida ya existe
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
-    public void guardarPartida(String username, String id, List<String> partida) throws PartidaYaExistenteException, UsuarioNoEncontradoException {
+    public void guardarPartida(String username, String id, List<String> partida) throws UsuarioNoEncontradoException {
         String nombreArchivo = "partida_" + id + ".json";
         String rutaArchivo = PARTIDAS + nombreArchivo;
 
@@ -487,8 +489,6 @@ public class CtrlPersistencia {
             throw new PartidaNoEncontradaException(id);
         }
     }
-
-
 
     public void eliminarPartida(String id) throws PartidaNoEncontradaException {
         // Verifica si la partida existe

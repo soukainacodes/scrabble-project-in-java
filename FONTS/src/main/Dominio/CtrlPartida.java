@@ -62,10 +62,9 @@ public class CtrlPartida {
      * @param jugadorAlgoritmo {@code true} si el jugador 2 es IA.
      */
 
-    public void crearPartida(int modo, List<String> players, List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, boolean jugadorAlgoritmo) {
+    public void crearPartida(int modo, String id,  List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, boolean jugadorAlgoritmo) {
         this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
-
-        this.partidaActual = new Partida(players, lineasArchivoBolsa, seed);
+        this.partidaActual = new Partida(id, lineasArchivoBolsa, seed);
         this.finTurno = false;
         this.jugadorAlgoritmo = jugadorAlgoritmo;
         if (modo == 0) {
@@ -74,12 +73,10 @@ public class CtrlPartida {
         } else {
             this.isAlgoritmo = false;
         }
-
     }
 
- /**
+    /**
      * Obtiene las fichas actuales del jugador activo.
-     *
      * @return lista de cadenas con las fichas en mano.
      */
     public List<String> obtenerFichas() {
@@ -91,7 +88,7 @@ public class CtrlPartida {
      *
      * @param partida instancia de {@link Partida} a restaurar.
      */
-    public void cargarPartida(Partida partida) {
+    public void setPartida(Partida partida) {
         this.partidaActual = partida;
     }
 
@@ -100,7 +97,7 @@ public class CtrlPartida {
      *
      * @return la {@link Partida} en curso.
      */
-    public Partida guardarPartida() {
+    public Partida getPartida() {
         return partidaActual;
     }
 

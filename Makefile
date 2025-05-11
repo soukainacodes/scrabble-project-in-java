@@ -44,7 +44,7 @@ code:
 		./FONTS/src/main/Presentacion/Vistas/*.java \
 		./FONTS/src/main/Presentacion/Drivers/*.java \
         ./FONTS/src/main/Persistencia/*.java
-	jar cf $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar -C $(CLASS_OUTPUT_MAIN) .
+	jar cf $(CLASS_OUTPUT_MAIN)/Driver.jar -C $(CLASS_OUTPUT_MAIN) .
 	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .
 	jar cf $(CLASS_OUTPUT_MAIN)/ListarFuentes.jar -C $(CLASS_OUTPUT_MAIN) .
 
@@ -57,7 +57,7 @@ code_drivers:
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) .
 	
 runcode_scrabble:
-	java -cp $(CLASS_OUTPUT_MAIN)/DriverScrabble.jar Presentacion.Drivers.DriverScrabble
+	java -cp $(CLASS_OUTPUT_MAIN)/Driver.jar Presentacion.Drivers.Driver
 
 runcode_juego:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar  Presentacion.Drivers.DriverGestionJuego

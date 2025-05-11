@@ -19,8 +19,6 @@ public class Partida {
     private int puntosJugador1;
     /** Puntos acumulados del jugador 2. */
     private int puntosJugador2;
-    /** Nombres de los jugadores. */
-    private String jugador1, jugador2;
     /** Turno actual: {@code true} para jugador 1, {@code false} para jugador 2. */
     private boolean turnoJugador;
     /** Bolsa común de fichas para la partida. */
@@ -39,13 +37,12 @@ public class Partida {
      * @param lineasArchivoBolsa Líneas de configuración para la bolsa.
      * @param seed             Semilla para barajar la bolsa (0 para aleatorio).
      */
-    public Partida(List<String> jugadores, List<String> lineasArchivoBolsa, long seed) {
+    public Partida(String id, List<String> lineasArchivoBolsa, long seed) {
+        this.idPartida = id;
         this.fichasJugador1 = new ArrayList<>();
         this.fichasJugador2 = new ArrayList<>();
         this.puntosJugador1 = 0;
         this.puntosJugador2 = 0;
-        this.jugador1 = jugadores.get(0);
-        this.jugador2 = jugadores.get(1);
         // Inicializar bolsa
         if (seed != 0) this.bolsa = new Bolsa(lineasArchivoBolsa, seed);
         else this.bolsa = new Bolsa(lineasArchivoBolsa);
@@ -104,23 +101,9 @@ public class Partida {
         return bolsa;
     }
 
-    public String getJugador1() {
-        return jugador1;
-    }
-
-     public String getJugador2() {
-        return jugador2;
-    }
 
 
-    public void setJugador1(String jugador){
-        this.jugador1 = jugador;
-    }
-
-    public void setJugador2(String jugador){
-        this.jugador2 = jugador;
-    }
-
+   
 
 
 

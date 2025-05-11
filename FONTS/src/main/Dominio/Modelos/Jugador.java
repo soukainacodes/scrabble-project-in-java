@@ -36,7 +36,5 @@ public class Jugador {
         this.nombre = nombre;
     }
 
-   
-
-    
+ 
 }

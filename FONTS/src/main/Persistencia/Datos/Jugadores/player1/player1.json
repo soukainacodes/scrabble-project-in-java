@@ -1,5 +1,6 @@
 {
     "password": "newpassword123",
-    "maxpoints": 100,
-    "username": "player1"
+    "maxpuntos": 100,
+    "nombre": "player1",
+    "ultimaPartidaGuardada": ""
 }
