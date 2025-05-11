@@ -178,28 +178,32 @@ public class CtrlPersistencia {
     }
 
     /**
-     * Actualiza la contraseña de un jugador.
+     * Actualiza la contraseña de un jugador si la contraseña actual es correcta.
      * 
      * @param username Nombre de usuario del jugador
+     * @param currentPass Contraseña actual del jugador
      * @param newPass Nueva contraseña del jugador
      * @throws UsuarioNoEncontradoException Si el jugador no existe
+     * @throws IllegalArgumentException Si la contraseña actual es incorrecta
      */
-    public void actualizarContrasena(String username, String newPass) throws UsuarioNoEncontradoException {
+    public void actualizarContrasena(String username, String currentPass, String newPass) 
+            throws UsuarioNoEncontradoException {
+        // Verificar la contraseña actual
+        if (!verificarContrasena(username, currentPass)) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+        }
+        
         // Define la ruta del archivo JSON del jugador
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
-        // Verifica si el archivo existe
-        if (!Files.exists(userFile)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
+        
         try {
             // Leer el contenido del archivo JSON
             String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
-
+    
             // Actualizar la contraseña
             jugadorJson.put("password", newPass);
-
+    
             // Escribir el archivo JSON actualizado
             Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
                     StandardOpenOption.TRUNCATE_EXISTING);
@@ -295,7 +299,7 @@ public class CtrlPersistencia {
             JSONObject jugadorJson = new JSONObject(contenido);
 
             // Obtener la puntuación
-            return jugadorJson.getInt("maxpoints");
+            return jugadorJson.getInt("maxpuntos");
         } catch (IOException e) {
             throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
         }
@@ -357,10 +361,10 @@ public class CtrlPersistencia {
 
                             // Obtener el nombre y la puntuación del jugador
                             String username = jugadorJson.getString("nombre");
-                            int maxpoints = jugadorJson.getInt("maxpuntos");
+                            int maxpuntos = jugadorJson.getInt("maxpuntos");
 
                             // Añadir al ranking
-                            ranking.add(Map.entry(username, maxpoints));
+                            ranking.add(Map.entry(username, maxpuntos));
                         } catch (IOException e) {
                             System.err.println("Error al procesar el archivo de jugador: " + userFile);
                         }
@@ -454,12 +458,13 @@ public class CtrlPersistencia {
      * @param partida Datos de la partida
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
-    public void guardarPartida(String username, String id, List<String> partida) throws UsuarioNoEncontradoException {
+    public void guardarPartida(String username, String segundoJugador, String id, List<String> partida) throws UsuarioNoEncontradoException {
         String nombreArchivo = "partida_" + id + ".json";
         String rutaArchivo = PARTIDAS + nombreArchivo;
 
         // Actualizar la última partida
         actualizarUltimaPartida(username, id);
+        actualizarUltimaPartida(segundoJugador, id);
 
         // Convertir la lista de datos a JSON
         String jsonPartida = partidaListToJson(partida);
@@ -542,6 +547,7 @@ public class CtrlPersistencia {
         return idiomas;
     }
 
+    
     public List<String> obtenerDiccionario(String id) throws IOException {
         List<String> palabras = new ArrayList<>();
         File diccionarioFile = new File(RECURSOS + id, id + "_diccionario.txt");
@@ -564,11 +570,28 @@ public class CtrlPersistencia {
         return bolsa;
     }
 
-    public void crearDiccionario(String id, List<String> palabras) throws IOException, RecursoExistenteException {
+    public void crearRecurso(String id, List<String> palabras, Map<String, int[]> bolsaData)
+            throws IOException, RecursoExistenteException {
         // Verifica si el recurso ya existe
         if (existeRecurso(id)) {
             throw new RecursoExistenteException(id);
         }
+
+        // Crea el directorio del recurso si no existe
+        File dir = new File(RECURSOS, id);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("No se pudo crear el directorio: " + dir.getPath());
+        }
+
+        // Crea el archivo del diccionario
+        crearDiccionario(id, palabras);
+
+        // Crea el archivo de la bolsa
+        crearBolsa(id, bolsaData);
+    }
+
+    public void crearDiccionario(String id, List<String> palabras) throws IOException, RecursoExistenteException {
+       
 
         // Crea el directorio del recurso si no existe
         File dir = new File(RECURSOS, id);
@@ -587,11 +610,6 @@ public class CtrlPersistencia {
     }
 
     public void crearBolsa(String id, Map<String, int[]> bolsaData) throws IOException, RecursoExistenteException {
-        // Verifica si el recurso ya existe
-        if (!existeRecurso(id)) {
-            throw new RecursoExistenteException(id);
-        }
-
         // Crea el archivo de la bolsa
         File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(bolsaFile))) {

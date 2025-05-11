@@ -11,6 +11,8 @@ import java.util.List;
 public class Partida {
 
     private String idPartida;
+
+    private int partidaAcabada = 0;
     /** Fichas del jugador 1 en mano. */
     private List<Ficha> fichasJugador1;
     /** Fichas del jugador 2 en mano. */
@@ -39,6 +41,7 @@ public class Partida {
      */
     public Partida(String id, List<String> lineasArchivoBolsa, long seed) {
         this.idPartida = id;
+        this.partidaAcabada = 0;
         this.fichasJugador1 = new ArrayList<>();
         this.fichasJugador2 = new ArrayList<>();
         this.puntosJugador1 = 0;
@@ -58,14 +61,25 @@ public class Partida {
         }
     }
 
-    public Partida(String id,List<String> bolsaTexto, List<String> tableroTexto, List<String> Jugadores){
+        public Partida(String id, List<String> bolsaTexto, List<String> tableroTexto, List<String> Jugadores){
         this.fichasJugador1 = new ArrayList<>();
         this.fichasJugador2 = new ArrayList<>();
         this.puntosJugador1 = 0;
         this.puntosJugador2 = 0;
         this.idPartida = id;
         this.bolsa = new Bolsa(bolsaTexto);
-        //this.tablero = new Tablero(tableroTexto);
+        
+        // Initialize the board
+        this.tablero = new Tablero();
+        // Process board positions
+        for (String posicion : tableroTexto) {
+            String[] parts = posicion.split(" ");
+            String letra = parts[0];
+            int x = Integer.parseInt(parts[1]);
+            int y = Integer.parseInt(parts[2]);
+            tablero.ponerFicha(new Ficha(letra, 0), x, y); // Adjust if your method needs different params
+        }
+        
         this.coordenadasPalabra = new ArrayList<>();
     }
     
@@ -337,6 +351,14 @@ public class Partida {
         else puntosJugador2 = puntos;
     }
 
+    public void setPuntosJugador1(int puntos) {
+        this.puntosJugador1 = puntos;
+    }
+
+    public void setPuntosJugador2(int puntos) {
+        this.puntosJugador2 = puntos;
+    }
+
     /**
      * Obtiene la puntuación de jugador1.
      *
@@ -362,5 +384,29 @@ public class Partida {
      */
     public List<Ficha> getFichasJugador() {
         return turnoJugador ? fichasJugador1 : fichasJugador2;
+    }
+
+
+
+    public void setPartidaAcabada(){
+            this.partidaAcabada = 1;
+    }
+
+    /**
+     * Obtiene el estado de la partida.
+     * @return {@code 0} si en curso, {@code 1} si acabada.
+     */
+    public int getPartidaAcabada(){
+        return partidaAcabada;
+    }
+
+
+    /**
+     * Obtiene el ID de la partida.
+     *
+     * @return ID de la partida.
+     */ 
+    public String getIdPartida() {
+        return idPartida;
     }
 }

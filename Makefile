@@ -57,7 +57,7 @@ code_drivers:
 	jar cf $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar -C $(CLASS_OUTPUT_MAIN) .
 	
 runcode_scrabble:
-	java -cp $(CLASS_OUTPUT_MAIN)/Driver.jar Presentacion.Drivers.Driver
+	java -cp $(CLASS_OUTPUT_MAIN)/Driver.jar:./FONTS/src/main/Persistencia/json-20231013.jar Presentacion.Drivers.Driver
 
 runcode_juego:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar  Presentacion.Drivers.DriverGestionJuego

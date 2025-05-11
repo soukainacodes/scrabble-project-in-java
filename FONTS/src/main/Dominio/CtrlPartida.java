@@ -351,4 +351,15 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         return partidaActual.getTablero();
     }
 
+     public void setPartidaAcabada() {
+        this.partidaActual.setPartidaAcabada();
+     }
+       
+
+    public String getId() {
+        return partidaActual.getIdPartida();
+    }
+
+
+
 }

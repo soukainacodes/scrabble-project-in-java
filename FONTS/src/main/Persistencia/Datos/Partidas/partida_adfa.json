@@ -1,20 +1,19 @@
 {
-  "gameId": "adfa",
-  "turnCounter": 8,
-  "currentTurn": 1,
-  "players": [
-    {
-      "name": "dio",
-      "points": 0,
-      "tiles": ["Ñ", " ", "8", " ", "C", " ", "3", " ", "N", " ", "1", " ", "N", " ", "1", " ", "T", " ", "1", " ", "A", " ", "1", " ", "I", " ", "1", " "]
-    },
-    {
-      "name": "IA",
-      "points": 40,
-      "tiles": ["D", "2", "#", "0", "RR", "8", "D", "2", "N", "1", "N", "1", "L", "1"]
-    }
+  "puntos_jugador_1": 0,
+  "nombre_partida": "adfa",
+  "puntos_jugador_2": 40,
+  "posiciones_tablero": [
+    "N 5 5",
+    "X 6 4",
+    "I 6 5",
+    "P 7 5",
+    "CH 7 6",
+    "S 7 7",
+    "Y 8 4"
   ],
-  "bag": [
+  "partida_acabada": "0",
+  "turno_jugador": 1,
+  "bolsa": [
     "LL 1 8",
     "A 10 1",
     "B 2 3",
@@ -39,14 +38,25 @@
     "V 1 4",
     "Z 1 10"
   ],
-  "board": [
-    "8",
-    "N 5 5",
-    "X 6 4",
-    "I 6 5",
-    "P 7 5",
-    "CH 7 6",
-    "S 7 7",
-    "Y 8 4"
-  ]
+  "fichas_jugador_2": [
+    "D 2",
+    "# 0",
+    "RR 8",
+    "D 2",
+    "N 1",
+    "N 1",
+    "L 1"
+  ],
+  "jugador_1": "dio",
+  "jugador_2": "IA",
+  "fichas_jugador_1": [
+    "Ñ 8",
+    "C 3",
+    "N 1",
+    "N 1",
+    "T 1",
+    "A 1",
+    "I 1"
+  ],
+  "numero_turnos": 8
 }

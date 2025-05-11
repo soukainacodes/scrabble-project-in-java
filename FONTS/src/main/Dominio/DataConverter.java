@@ -8,11 +8,11 @@ import Dominio.Modelos.Partida;
 
 class DataConverter {
 
-
-
-// convierte una Partida a lista de Strings
-    public List<String> partidaToStringList(Partida partida, String jugadorActual, String segundoJugador, String nombrePartida) {
+    // convierte una Partida a lista de Strings
+    public List<String> partidaToStringList(Partida partida, String jugadorActual, String segundoJugador,
+            String nombrePartida) {
         List<String> s = new ArrayList<>();
+        s.add(Integer.toString(partida.getPartidaAcabada()));
         s.add(nombrePartida);
         s.add(Integer.toString(partida.getContadorTurno()));
         s.add(partida.getTurnoJugador() ? "1" : "0");
@@ -39,7 +39,7 @@ class DataConverter {
         for (String fichaBolsa : bolsa) {
             s.add(fichaBolsa);
         }
-        
+
         List<String> tablero = partida.getTablero().toListString();
         s.add(Integer.toString(tablero.size()));
         for (String fichaTablero : tablero) {
@@ -49,41 +49,61 @@ class DataConverter {
         return s;
     }
 
-
-// reconstruye una Partida a partir de una lista de Strings
+        // reconstruye una Partida a partir de una lista de Strings
     public Partida stringListToPartida(List<String> strings) {
         List<String> jugadores = new ArrayList<>();
-        jugadores.add(strings.get(3));
         jugadores.add(strings.get(4));
-
-        List<String> bolsa = strings.subList(11, 11 + Integer.parseInt(strings.get(10)));
-        List<String> tablero = strings.subList(Integer.parseInt(strings.get(10)), 11 + Integer.parseInt(strings.get(10)));
+        jugadores.add(strings.get(5));
+    
+        // Calculate indices properly
+        int bolsaStartIndex = 11;
+        int bolsaSize = Integer.parseInt(strings.get(10));
+    
+        // Get the bag tiles
+        List<String> bolsa = strings.subList(bolsaStartIndex, bolsaStartIndex + bolsaSize);
+    
+        // Calculate where the board positions start
+        int tableroStartIndex = bolsaStartIndex + bolsaSize + 1; // +1 for the tablero size field
+        int tableroSize = Integer.parseInt(strings.get(bolsaStartIndex + bolsaSize));
+    
+        // Get the board positions
+        List<String> tablero = strings.subList(tableroStartIndex, tableroStartIndex + tableroSize);
+    
         Partida partida = new Partida(strings.get(1), jugadores, bolsa, tablero);
-
-        partida.setContadorTurno(Integer.parseInt(strings.get(1)));
-        partida.setTurnoJugador(true);
-
-        partida.setPuntos(Integer.parseInt(strings.get(5)));
-        String[] fichasString = strings.get(7).trim().split(" ");
+    
+        // Set the counter and turn from saved values
+        partida.setContadorTurno(Integer.parseInt(strings.get(2)));
+        partida.setTurnoJugador(strings.get(3).equals("1"));
+        
+        // Set player points directly instead of using setPuntos
+        partida.setPuntosJugador1(Integer.parseInt(strings.get(6)));
+        partida.setPuntosJugador2(Integer.parseInt(strings.get(7)));
+        
+        // Load player 1's tiles
+        partida.setTurnoJugador(true); // Set to player 1 for loading tiles
+        String[] fichasString = strings.get(8).trim().split(" ");
         List<Ficha> fichas = new ArrayList<>();
         for (int contadorFicha = 0; contadorFicha < fichasString.length; contadorFicha += 2) {
             Ficha ficha = new Ficha(fichasString[contadorFicha], Integer.parseInt(fichasString[contadorFicha + 1]));
             fichas.add(ficha);
         }
-
         partida.setFichas(fichas);
-        partida.cambiarTurnoJugador();
-        partida.setPuntos(Integer.parseInt(strings.get(6)));
-
-
-        fichasString = strings.get(8).trim().split(" ");
+        
+        // Load player 2's tiles
+        partida.setTurnoJugador(false); // Set to player 2 for loading tiles
+        fichasString = strings.get(9).trim().split(" ");
         fichas = new ArrayList<>();
         for (int contadorFicha = 0; contadorFicha < fichasString.length; contadorFicha += 2) {
             Ficha ficha = new Ficha(fichasString[contadorFicha], Integer.parseInt(fichasString[contadorFicha + 1]));
             fichas.add(ficha);
         }
-
-         return partida;
+        partida.setFichas(fichas);
+        
+        // Restore the correct turn
+        partida.setTurnoJugador(strings.get(3).equals("1"));
+        
+        return partida;
     }
-
 }
+
+
