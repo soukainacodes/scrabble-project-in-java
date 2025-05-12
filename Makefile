@@ -46,7 +46,7 @@ code:
         ./FONTS/src/main/Persistencia/*.java
 	jar cf $(CLASS_OUTPUT_MAIN)/Driver.jar -C $(CLASS_OUTPUT_MAIN) .
 	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .
-	jar cf $(CLASS_OUTPUT_MAIN)/ListarFuentes.jar -C $(CLASS_OUTPUT_MAIN) .
+	jar cf $(CLASS_OUTPUT_MAIN)/UITablero.jar -C $(CLASS_OUTPUT_MAIN) .
 
 code_drivers:
 	javac -d $(CLASS_OUTPUT_MAIN) $(MAIN_PATH)
@@ -63,14 +63,13 @@ runcode_juego:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar  Presentacion.Drivers.DriverGestionJuego
 runcode_main:
 	java -cp $(CLASS_OUTPUT_MAIN)/Main.jar  main.Main
-lista:
-	java -cp $(CLASS_OUTPUT_MAIN)/ListarFuentes.jar  main.ListarFuentes
 runcode_usuarios:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar Presentacion.Drivers.DriverGestionUsuarios
 
 runcode_partidas:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionPartidas.jar Presentacion.Drivers.DriverGestionPartidas
-
+runcode_game:
+	java -cp $(CLASS_OUTPUT_MAIN)/UITablero.jar Presentacion.Vistas.VistaScrabble
 runcode_diccionarios_bolsas:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionDiccionariosBolsas.jar Presentacion.Drivers.DriverGestionDiccionariosBolsas
 

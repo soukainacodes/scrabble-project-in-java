@@ -22,7 +22,7 @@ public class VistaLogin extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout()); // Centrar todo
 
-        Color fondoColor = new Color(255,242,218,255); // color crema
+        Color fondoColor = new Color(255, 242, 218, 255); // color crema
         getContentPane().setBackground(fondoColor);
 
         JPanel tarjeta = new JPanel();
@@ -89,11 +89,15 @@ public class VistaLogin extends JFrame {
         ActionListener vistaMenuPrincipal = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                VistaMenuPrincipal vmp = new VistaMenuPrincipal();
-                setSize(700, 600);
-                setContentPane(vmp);
+                VistaScrabble vmp = new VistaScrabble();
+
                 revalidate();
                 repaint();
+
+                setContentPane(vmp);
+                setLocationRelativeTo(null);
+                pack();
+
             }
         };
         botonEntrar.addActionListener(vistaMenuPrincipal);

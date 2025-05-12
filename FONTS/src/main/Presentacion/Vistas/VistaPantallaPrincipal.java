@@ -15,11 +15,11 @@ public class VistaPantallaPrincipal extends JPanel {
         titulo.setForeground(new Color(20, 40, 80));
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(titulo);
-        
+
         add(Box.createVerticalStrut(10));
 
         JLabel puntuacion = new JLabel("Tu puntuación máxima es X");
-        puntuacion.setFont(new Font("Arial", Font.PLAIN, 16));
+        puntuacion.setFont(new Font("Arial", Font.PLAIN, 18));
         puntuacion.setForeground(new Color(60, 80, 100));
         puntuacion.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(puntuacion);
@@ -27,7 +27,7 @@ public class VistaPantallaPrincipal extends JPanel {
         add(Box.createVerticalStrut(5));
 
         JLabel ranking = new JLabel("Estás en la posición X en el Ranking");
-        ranking.setFont(new Font("Arial", Font.PLAIN, 16));
+       ranking.setFont(new Font("Arial", Font.PLAIN, 18));
         ranking.setForeground(new Color(60, 80, 100));
         ranking.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(ranking);
@@ -54,7 +54,7 @@ public class VistaPantallaPrincipal extends JPanel {
             }
         };
         b.setForeground(Color.WHITE);
-        b.setFont(new Font("Arial", Font.BOLD, 16));
+      //  b.setFont(new Font("Arial", Font.BOLD, 16));
         b.setFocusPainted(false);
         b.setContentAreaFilled(false);
         b.setBorderPainted(false);
@@ -67,7 +67,7 @@ public class VistaPantallaPrincipal extends JPanel {
     private JButton crearBotonBlanco(String texto) {
         JButton b = new JButton(texto);
         b.setForeground(new Color(20, 40, 80));
-        b.setFont(new Font("Arial", Font.BOLD, 16));
+       // b.setFont(new Font("Arial", Font.BOLD, 16));
         b.setFocusPainted(false);
         b.setBackground(new Color(255, 248, 230));
         b.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 2));
