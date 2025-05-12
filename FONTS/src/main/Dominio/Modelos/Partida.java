@@ -12,6 +12,8 @@ public class Partida {
 
     private String idPartida;
 
+    private String recursoPartida;
+
     private int partidaAcabada = 0;
     /** Fichas del jugador 1 en mano. */
     private List<Ficha> fichasJugador1;
@@ -61,7 +63,7 @@ public class Partida {
         }
     }
 
-        public Partida(String id, List<String> bolsaTexto, List<String> tableroTexto, List<String> Jugadores){
+        public Partida(String id, List<String> bolsaTexto, List<String> tableroTexto){
         this.fichasJugador1 = new ArrayList<>();
         this.fichasJugador2 = new ArrayList<>();
         this.puntosJugador1 = 0;
@@ -73,11 +75,13 @@ public class Partida {
         this.tablero = new Tablero();
         // Process board positions
         for (String posicion : tableroTexto) {
-            String[] parts = posicion.split(" ");
+           
+            String[] parts = posicion.split(" ");        
             String letra = parts[0];
-            int x = Integer.parseInt(parts[1]);
-            int y = Integer.parseInt(parts[2]);
-            tablero.ponerFicha(new Ficha(letra, 0), x, y); // Adjust if your method needs different params
+            int puntuacion = Integer.parseInt(parts[1]);
+            int x = Integer.parseInt(parts[2]);
+            int y = Integer.parseInt(parts[3]);
+            tablero.ponerFicha(new Ficha(letra, puntuacion), x, y); // Adjust if your method needs different params
         }
         
         this.coordenadasPalabra = new ArrayList<>();
@@ -113,6 +117,15 @@ public class Partida {
      */
     public Bolsa getBolsa(){
         return bolsa;
+    }
+
+
+    public String getRecursoPartida(){
+        return recursoPartida;
+    }
+
+    public void setRecursoPartida(String recurso){
+        recursoPartida = recurso;
     }
 
 
@@ -203,6 +216,9 @@ public class Partida {
         Ficha f = tablero.quitarFicha(x, y);
         if (f != null) {
             coordenadasPalabra.remove(Pair.createPair(x, y));
+            if(f.getPuntuacion() == 0) {
+                f = new Ficha("#", 0);
+            }
             setFicha(f);
             return true;
         }

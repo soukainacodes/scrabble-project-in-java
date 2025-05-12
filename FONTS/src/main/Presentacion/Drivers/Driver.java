@@ -475,13 +475,13 @@ public class Driver {
                         fin = ctrl.jugarScrabble(3, "");
                         if (fin != 0)
                             return;
-                        ctrl.jugarScrabble(7, "");
+                        //ctrl.jugarScrabble(7, "");
                         break;
                     case "5":
                         fin = ctrl.jugarScrabble(4, "");
                         if (fin != 0)
                             return;
-                        ctrl.jugarScrabble(7, "");
+                      //  ctrl.jugarScrabble(7, "");
                         break;
                     case "6":
                         System.out.print("Guardar ID: ");

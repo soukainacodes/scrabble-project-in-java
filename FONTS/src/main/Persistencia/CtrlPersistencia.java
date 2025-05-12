@@ -359,12 +359,12 @@ public class CtrlPersistencia {
                             String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
                             JSONObject jugadorJson = new JSONObject(contenido);
 
-                            // Obtener el nombre y la puntuación del jugador
-                            String username = jugadorJson.getString("nombre");
-                            int maxpuntos = jugadorJson.getInt("maxpuntos");
-
-                            // Añadir al ranking
-                            ranking.add(Map.entry(username, maxpuntos));
+                            if (jugadorJson.getInt("maxpuntos") > 0) {
+                                String username = jugadorJson.getString("nombre");
+                                int maxpuntos = jugadorJson.getInt("maxpuntos");
+                                // Añadir al ranking
+                                ranking.add(Map.entry(username, maxpuntos));
+                            }
                         } catch (IOException e) {
                             System.err.println("Error al procesar el archivo de jugador: " + userFile);
                         }
@@ -451,6 +451,27 @@ public class CtrlPersistencia {
     }
 
 
+    public String obtenerRecursoPartida(String id)
+    {
+        // Verifica si la partida existe
+        if (!existePartida(id)) {
+            return null;
+        }
+
+        // Carga el archivo de la partida
+        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
+        try {
+            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
+            JSONObject partidaJson = new JSONObject(contenido);
+
+            System.out.println("El recurso de la partida es: " + partidaJson.getString("recurso"));
+            return partidaJson.getString("recurso");
+        } catch (IOException e) {
+            System.err.println("[Persistencia] Error al cargar el recurso de la partida: " + e.getMessage());
+            return null;
+        }
+    }
+
     /**
      * Guarda una partida en el sistema.
      * @param username Nombre de usuario del jugador
@@ -510,17 +531,30 @@ public class CtrlPersistencia {
         }
     }
 
-    public List<String> listarPartidasNoAcabadas() {
+        public List<String> listarPartidasNoAcabadas(String jugadorActual) {
         List<String> partidasNoAcabadas = new ArrayList<>();
         File dir = new File(PARTIDAS);
-
+    
         if (dir.isDirectory()) {
             for (File file : Objects.requireNonNull(dir.listFiles())) {
                 if (file.getName().endsWith(".json")) {
                     String id = file.getName().replace("partida_", "").replace(".json", "");
-                    // Verificamos si la partida no está acabada
-                    if (!esPartidaAcabada(id)) {
-                        partidasNoAcabadas.add(id); // Si no está acabada, la agregamos a la lista
+                    
+                    try {
+                        // Verificamos si la partida no está acabada
+                        if (!esPartidaAcabada(id)) {
+                            // Leer el archivo JSON para verificar si el jugador actual es jugador_1
+                            String content = Files.readString(Paths.get(PARTIDAS + file.getName()), 
+                                                             StandardCharsets.UTF_8);
+                            JSONObject partidaJson = new JSONObject(content);
+                            
+                            // Verificar si el jugador actual es el jugador_1
+                            if (partidaJson.getString("jugador_1").equals(jugadorActual)) {
+                                partidasNoAcabadas.add(id);
+                            }
+                        }
+                    } catch (IOException e) {
+                        System.err.println("[Persistencia] Error al procesar partida " + id + ": " + e.getMessage());
                     }
                 }
             }
@@ -727,6 +761,9 @@ public class CtrlPersistencia {
         }
         partidaJson.put("posiciones_tablero", posicionesTablero);
 
+        // 12. recurso
+        partidaJson.put("recurso", partidaData.get(partidaData.size() - 1)); // Último elemento es el recurso
+
         // Retornamos el JSON como una cadena con formato bonito
         return partidaJson.toString(2); // Formateo bonito del JSON
     }
@@ -770,6 +807,8 @@ public class CtrlPersistencia {
             partidaData.add(posicionesTablero.getString(i)); // Añadimos cada posición del tablero
         }
 
+        // 12. recurso
+        partidaData.add(partida.getString("recurso")); // Último elemento es el recurso
         return partidaData;
     }
 

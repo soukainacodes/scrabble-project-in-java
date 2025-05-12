@@ -188,18 +188,26 @@ public class CtrlDominio {
 
         int fin = ctrlPartida.jugarScrabble(modo, id);
         
+        
+
+        ctrlPersistencia.guardarPartida(
+            ctrlJugador.getJugadorActual(), 
+            ctrlJugador.getSegundoJugador(), 
+            ctrlPartida.getId(), 
+            dc.partidaToStringList(
+                ctrlPartida.getPartida(), 
+                ctrlJugador.getJugadorActual(), 
+                ctrlJugador.getSegundoJugador(), 
+                ctrlPartida.getId()));
+
+
         // Actualiza la puntuación del jugador activo y openente
         if (fin != 0) {
+            System.out.println("Fin de partida es " + fin);
+            System.out.println("Puntos jugador 2: " + ctrlPartida.getPuntosJugador2());
             ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual(),ctrlPartida.getPuntosJugador1());
             ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getSegundoJugador(),ctrlPartida.getPuntosJugador2());
-            ctrlPartida.setPartidaAcabada();
         }
-
-        ctrlPersistencia.guardarPartida(ctrlJugador.getJugadorActual(), ctrlJugador.getSegundoJugador(), 
-        ctrlPartida.getId(), 
-        dc.partidaToStringList(ctrlPartida.getPartida(), ctrlJugador.getJugadorActual(), 
-            ctrlJugador.getSegundoJugador(), ctrlPartida.getId()));
-
         return fin;
     }
 
@@ -261,10 +269,10 @@ public class CtrlDominio {
      *
      * @param id identificador de la partida.
      * @throws PartidaNoEncontradaException si no existe la partida.
+     * @throws IOException 
      */
-    public void cargarPartida(String id) throws PartidaNoEncontradaException {
-        // Partida p = ctrlPersistencia.cargarPartida(id);
-        ctrlPartida.setPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)));
+    public void cargarPartida(String id) throws PartidaNoEncontradaException, IOException {
+        ctrlPartida.setPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)), ctrlPersistencia.obtenerDiccionario(ctrlPersistencia.obtenerRecursoPartida(id)), ctrlPersistencia.obtenerBolsa(ctrlPersistencia.obtenerRecursoPartida(id)));
     }
 
     /**
@@ -273,13 +281,21 @@ public class CtrlDominio {
      * @throws NoHayPartidaGuardadaException si no hay partidas previas.
      * @throws PartidaNoEncontradaException
      * @throws UsuarioNoEncontradoException
+     * @throws IOException 
      */
-    public void cargarUltimaPartida()
-            throws NoHayPartidaGuardadaException, PartidaNoEncontradaException, UsuarioNoEncontradoException {
+        public void cargarUltimaPartida() 
+            throws NoHayPartidaGuardadaException, PartidaNoEncontradaException, UsuarioNoEncontradoException, IOException {
         // Obtener los datos de la última partida desde persistencia
         String ultimaPartida = ctrlPersistencia.obtenerUltimaPartida(getUsuarioActual());
+        
+        if (ultimaPartida == null) {
+            throw new NoHayPartidaGuardadaException();
+        }
+        
         List<String> datosUltimaPartida = ctrlPersistencia.cargarPartida(ultimaPartida);
-        ctrlPartida.setPartida(dc.stringListToPartida(datosUltimaPartida));
+        ctrlPartida.setPartida(dc.stringListToPartida(datosUltimaPartida), 
+            ctrlPersistencia.obtenerDiccionario(ctrlPersistencia.obtenerRecursoPartida(ultimaPartida)), 
+            ctrlPersistencia.obtenerBolsa(ctrlPersistencia.obtenerRecursoPartida(ultimaPartida)));
     }
 
     /**
@@ -288,7 +304,7 @@ public class CtrlDominio {
      * @return conjunto de nombres de partidas disponibles.
      */
     public List<String> obtenerNombresPartidasGuardadas() {
-        return ctrlPersistencia.listarPartidasNoAcabadas();
+        return ctrlPersistencia.listarPartidasNoAcabadas(ctrlJugador.getJugadorActual());
     }
 
     /**
@@ -334,6 +350,10 @@ public class CtrlDominio {
         return ctrlPartida.obtenerTablero().getBonusCelda(fila, col);
     }
 
+
+
+
+
     // ─── Gestión de Diccionarios y Bolsas ───────────────────────────────────────
 
     /**
@@ -354,8 +374,6 @@ public class CtrlDominio {
         ctrlPersistencia.crearRecurso(id, diccionario, bolsa);
 
     }
-
-
 
 
     /**

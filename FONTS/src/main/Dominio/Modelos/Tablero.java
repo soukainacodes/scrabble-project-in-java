@@ -151,6 +151,7 @@ public class Tablero {
             for (int columna= 0; columna < TAMANO; columna++) {
                 if(getFicha(fila,columna) != null){
                     celdaString += getFicha(fila,columna).getLetra() + " " + 
+                                     Integer.toString(getFicha(fila,columna).getPuntuacion()) + " " +
                                      Integer.toString(fila) + " " + 
                                      Integer.toString(columna);
                     tableroList.add(celdaString);

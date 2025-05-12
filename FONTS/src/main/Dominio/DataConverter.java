@@ -21,7 +21,9 @@ class DataConverter {
         s.add(Integer.toString(partida.getPuntosJugador1()));
         s.add(Integer.toString(partida.getPuntosJugador2()));
         String fichas = "";
+        boolean turno1  =false;
         if (!partida.getTurnoJugador()) {
+            turno1 = true;
             partida.cambiarTurnoJugador();
         }
         for (String f : partida.obtenerFichas()) {
@@ -45,6 +47,12 @@ class DataConverter {
         for (String fichaTablero : tablero) {
             s.add(fichaTablero);
         }
+        if(!turno1){
+            partida.cambiarTurnoJugador();
+        }
+
+        // Añadir al final el id del recurso usado (bolsa + diccionario)
+        s.add(partida.getRecursoPartida());
 
         return s;
     }
@@ -68,8 +76,7 @@ class DataConverter {
     
         // Get the board positions
         List<String> tablero = strings.subList(tableroStartIndex, tableroStartIndex + tableroSize);
-    
-        Partida partida = new Partida(strings.get(1), jugadores, bolsa, tablero);
+        Partida partida = new Partida(strings.get(1), bolsa, tablero);
     
         // Set the counter and turn from saved values
         partida.setContadorTurno(Integer.parseInt(strings.get(2)));
@@ -101,6 +108,9 @@ class DataConverter {
         
         // Restore the correct turn
         partida.setTurnoJugador(strings.get(3).equals("1"));
+
+        // 
+        partida.setRecursoPartida(strings.get(strings.size() - 1));
         
         return partida;
     }

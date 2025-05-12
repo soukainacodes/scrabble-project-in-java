@@ -88,7 +88,8 @@ public class CtrlPartida {
      *
      * @param partida instancia de {@link Partida} a restaurar.
      */
-    public void setPartida(Partida partida) {
+    public void setPartida(Partida partida, List<String> diccionario, List<String> bolsa) {
+        this.dawg = new Dawg(bolsa, diccionario);
         this.partidaActual = partida;
     }
 
@@ -170,10 +171,12 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
             for (Pair<Integer, Integer> p : partidaActual.getCoordenadasPalabras()) {
                 partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
             }
+           
             return finTurno(true, true);
         }
 
         case 4:
+         
             return finTurno(false, true);
 
         case 5: {
@@ -266,7 +269,6 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
      */
 
     private int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
-
         if (!pasar) {
             int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
@@ -279,9 +281,12 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
 
         partidaActual.bloquearCeldas();
         partidaActual.coordenadasClear();
+        
         partidaActual.cambiarTurnoJugador();
         partidaActual.aumentarContador();
+
         if (!partidaActual.recuperarFichas() && partidaActual.getListSize() == 0) {
+
             return finPartida(false);
         }
 
@@ -291,7 +296,9 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
             if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty() && partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) {
                 return finPartida(false);
             }
+           
             finTurno(true, false);
+           
         }
         return 0;
     }
@@ -304,6 +311,7 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
      * @return código del jugador ganador (1 o 2).
      */
     private int finPartida(boolean abandono) {
+        partidaActual.setPartidaAcabada();
         if (abandono) {
             if (partidaActual.getTurnoJugador()) {
                 return 2;
@@ -321,6 +329,8 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         } else {
             return 2;
         }
+
+
     }
 
     /**
@@ -358,6 +368,12 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
 
     public String getId() {
         return partidaActual.getIdPartida();
+    }
+
+    public void setRecursoPartida(String recurso, List<String> diccionario, List<String> bolsa) {
+        this.partidaActual.setRecursoPartida(recurso);
+        this.dawg = new Dawg(bolsa, diccionario);
+
     }
 
 
