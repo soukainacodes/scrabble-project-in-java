@@ -177,6 +177,36 @@ public class CtrlPersistencia {
         }
     }
 
+
+    public void actualizarNombre(String username, String newUsername) throws UsuarioNoEncontradoException, UsuarioYaRegistradoException {
+        // Verifica si el jugador existe
+        if (!existeJugador(username)) {
+            throw new UsuarioNoEncontradoException(username);
+        }
+
+        if (existeJugador(newUsername)) {
+            throw new UsuarioYaRegistradoException(newUsername);
+        }
+
+        // Define la ruta del archivo JSON del jugador
+        Path userFile = Paths.get(JUGADORES + username, username + ".json");
+
+        try {
+            // Leer el contenido del archivo JSON
+            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
+            JSONObject jugadorJson = new JSONObject(contenido);
+
+            // Actualizar el nombre de usuario
+            jugadorJson.put("nombre", newUsername);
+
+            // Escribir el archivo JSON actualizado
+            Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
+        }
+    }
+
     /**
      * Actualiza la contraseña de un jugador si la contraseña actual es correcta.
      * 
@@ -285,6 +315,13 @@ public class CtrlPersistencia {
 
     public int obtenerPuntuacion(String username) throws UsuarioNoEncontradoException {
         // Define la ruta del archivo JSON del jugador
+    
+        // Verifica si el jugador existe
+        if (!existeJugador(username)) {
+            throw new UsuarioNoEncontradoException(username);
+        }
+
+
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
 
 
@@ -651,6 +688,46 @@ public class CtrlPersistencia {
                 String ficha = entry.getKey();
                 int[] valores = entry.getValue();
                 writer.write(ficha + " " + valores[0] + " " + valores[1]);
+                writer.newLine();
+            }
+        }
+    }
+ 
+    public void modificarRecurso(String id, List<String> palabras, Map<String, int[]> bolsaData)
+            throws IOException, RecursoNoExistenteException {
+        // Verifica si el recurso existe
+        if (!existeRecurso(id)) {
+            throw new IOException("El recurso no existe: " + id);
+        }
+
+        // Modifica el diccionario
+        modificarDiccionario(id, palabras);
+
+        // Modifica la bolsa
+        modificarBolsa(id, bolsaData);
+    }
+
+    public void modificarBolsa(String id, Map<String, int[]> bolsaData)
+            throws IOException{ 
+        
+        // Crea el archivo de la bolsa
+        File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(bolsaFile))) {
+            for (Map.Entry<String, int[]> entry : bolsaData.entrySet()) {
+                String ficha = entry.getKey();
+                int[] valores = entry.getValue();
+                writer.write(ficha + " " + valores[0] + " " + valores[1]);
+                writer.newLine();
+            }
+        }
+    }
+
+    public void modificarDiccionario(String id, List<String> palabras)
+            throws IOException { 
+        File diccionarioFile = new File(RECURSOS + id, id + "_diccionario.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(diccionarioFile))) {
+            for (String palabra : palabras) {
+                writer.write(palabra);
                 writer.newLine();
             }
         }

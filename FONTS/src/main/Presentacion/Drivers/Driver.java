@@ -86,7 +86,7 @@ public class Driver {
     }
 
     // --- Cuenta ----------------------------------------------------------------
-    private static void subMenuCuenta() throws UsuarioNoEncontradoException, IOException {
+        private static void subMenuCuenta() throws IOException, UsuarioNoEncontradoException {
         while (true) {
             String u = ctrl.getUsuarioActual();
             int pts = ctrl.getPuntosActual();
@@ -102,31 +102,64 @@ public class Driver {
             System.out.println(pos > 0 ? "Posición: " + pos : "Posición: Sin clasificar");
             
             System.out.println("1. Cambiar contraseña");
-            System.out.println("2. Ver ranking");
-            System.out.println("3. Eliminar perfil");
-            System.out.println("4. Volver");
+            System.out.println("2. Cambiar nombre de usuario"); // New option
+            System.out.println("3. Ver ranking");
+            System.out.println("4. Eliminar perfil");
+            System.out.println("5. Volver");
             System.out.print("Opción: ");
             switch (sc.nextLine().trim()) {
                 case "1":
                     cambiarPassword();
                     break;
                 case "2":
+                    cambiarNombre();
+                    break;
+                case "3":
                     try {
                         verRanking();
                     } catch (RankingVacioException e) {
                         System.out.println("Ranking vacío.");
                     }
                     break;
-                case "3":
+                case "4":
                     borrarCuenta();
                     return;
-                case "4":
+                case "5":
                     return;
                 default:
                     System.out.println("Opción no válida.");
             }
         }
     }
+
+
+        private static void cambiarNombre() {
+        try {
+            String currentName = ctrl.getUsuarioActual();
+            System.out.println("Nombre actual: " + currentName);
+            System.out.print("Nuevo nombre: ");
+            String newName = sc.nextLine().trim();
+            
+            if (newName.isEmpty()) {
+                System.out.println("ERROR: El nuevo nombre no puede estar vacío.");
+                return;
+            }
+            
+            if (newName.equals(currentName)) {
+                System.out.println("ERROR: El nuevo nombre es idéntico al actual.");
+                return;
+            }
+            
+            System.out.print("Confirmar con tu contraseña: ");
+            String password = sc.nextLine().trim();
+            
+            ctrl.cambiarNombre(newName, password);
+            System.out.println("Nombre de usuario actualizado a: " + newName);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
 
     private static void cambiarPassword() throws UsuarioNoEncontradoException {
         System.out.print("Antigua: ");
@@ -189,13 +222,14 @@ public class Driver {
     }
 
     // --- Recursos --------------------------------------------------------------
-    private static void subMenuRecursos() {
+        private static void subMenuRecursos() {
         while (true) {
             System.out.println("\n=== RECURSOS ===");
             System.out.println("1. Listar");
             System.out.println("2. Añadir");
-            System.out.println("3. Eliminar");
-            System.out.println("4. Volver");
+            System.out.println("3. Modificar"); // Add this new option
+            System.out.println("4. Eliminar");  // Renumber this
+            System.out.println("5. Volver");    // Renumber this
             System.out.print("Opción: ");
             switch (sc.nextLine().trim()) {
                 case "1":
@@ -205,9 +239,12 @@ public class Driver {
                     addRecursos();
                     break;
                 case "3":
-                    delRecursos();
+                    modifyRecursos(); // Add this new case
                     break;
                 case "4":
+                    delRecursos();
+                    break;
+                case "5":
                     return;
                 default:
                     System.out.println("Opción no válida.");
@@ -302,6 +339,98 @@ public class Driver {
             ctrl.crearRecurso(id, palabras, bolsa);
             System.out.println("Recurso '" + id + "' creado.");
 
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+        private static void modifyRecursos() {
+        System.out.print("ID recurso a modificar: ");
+        String id = sc.nextLine().trim();
+    
+        if (id.isEmpty()) {
+            System.out.println("ERROR: El ID del recurso no puede estar vacío.");
+            return;
+        }
+    
+        try {
+            // Check if resource exists
+            List<String> recursos = ctrl.obtenerRecursos();
+            if (!recursos.contains(id)) {
+                System.out.println("ERROR: El recurso '" + id + "' no existe.");
+                return;
+            }
+    
+            // Solicitar el diccionario
+            System.out.println("Para modificar el diccionario:");
+            System.out.println("1. Introducir ruta de fichero");
+            System.out.println("2. Introducir palabras manualmente");
+            System.out.println("3. Mantener diccionario actual");
+            System.out.print("Opción: ");
+            String opcionDic = sc.nextLine().trim();
+    
+            List<String> palabras = new ArrayList<>();
+            if (opcionDic.equals("1")) {
+                System.out.print("Fichero diccionario (ruta): ");
+                String rutaDiccionario = sc.nextLine().trim();
+                palabras = leeTexto(rutaDiccionario);
+            } else if (opcionDic.equals("2")) {
+                System.out.println("Introduce palabras (línea vacía para terminar):");
+                String palabra;
+                while (!(palabra = sc.nextLine().trim()).isEmpty()) {
+                    palabras.add(palabra);
+                }
+            } else if (opcionDic.equals("3")) {
+                // Mantener diccionario actual - obtenerlo del sistema
+                palabras = ctrl.obtenerDiccionario(id);
+            } else {
+                System.out.println("Opción no válida, manteniendo diccionario actual.");
+                palabras = ctrl.obtenerDiccionario(id);
+            }
+    
+            // Solicitar la bolsa
+            System.out.println("Para modificar la bolsa:");
+            System.out.println("1. Introducir ruta de fichero");
+            System.out.println("2. Introducir valores manualmente");
+            System.out.println("3. Mantener bolsa actual");
+            System.out.print("Opción: ");
+            String opcionBolsa = sc.nextLine().trim();
+    
+            Map<String, int[]> bolsa = new LinkedHashMap<>();
+            if (opcionBolsa.equals("1")) {
+                System.out.print("Fichero bolsa (ruta): ");
+                String rutaBolsa = sc.nextLine().trim();
+                bolsa = leeBolsa(rutaBolsa);
+            } else if (opcionBolsa.equals("2")) {
+                System.out.println("Introduce fichas en formato 'letra cantidad valor' (línea vacía para terminar):");
+                String linea;
+                while (!(linea = sc.nextLine().trim()).isEmpty()) {
+                    String[] partes = linea.split("\\s+");
+                    if (partes.length >= 3) {
+                        try {
+                            bolsa.put(partes[0], new int[] {
+                                    Integer.parseInt(partes[1]),
+                                    Integer.parseInt(partes[2])
+                            });
+                        } catch (NumberFormatException e) {
+                            System.out.println("Formato incorrecto. Use: letra cantidad valor");
+                        }
+                    } else {
+                        System.out.println("Formato incorrecto. Use: letra cantidad valor");
+                    }
+                }
+            } else if (opcionBolsa.equals("3")) {
+                // Mantener bolsa actual - obtenerla del sistema
+                bolsa = ctrl.obtenerBolsa(id);
+            } else {
+                System.out.println("Opción no válida, manteniendo bolsa actual.");
+                bolsa = ctrl.obtenerBolsa(id);
+            }
+    
+            // Modificar el recurso
+            ctrl.modificarRecurso(id, palabras, bolsa);
+            System.out.println("Recurso '" + id + "' modificado correctamente.");
+    
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
         }

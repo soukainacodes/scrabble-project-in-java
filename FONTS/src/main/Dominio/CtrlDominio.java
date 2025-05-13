@@ -1,6 +1,7 @@
 package Dominio;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -98,9 +99,15 @@ public class CtrlDominio {
     public void cambiarPassword(String antigua, String nueva) throws UsuarioNoEncontradoException{
         if (ctrlJugador.haySesion()) 
             ctrlPersistencia.actualizarContrasena(ctrlJugador.getJugadorActual(), antigua, nueva);
-        
     }
     
+
+    public void cambiarNombre(String nuevoNombre, String password) throws UsuarioNoEncontradoException, IOException, UsuarioYaRegistradoException {
+        if (ctrlJugador.haySesion() && ctrlPersistencia.verificarContrasena(ctrlJugador.getJugadorActual(), password)) {
+            ctrlPersistencia.actualizarNombre(ctrlJugador.getJugadorActual(), nuevoNombre);
+            ctrlJugador.setJugadorActual(nuevoNombre);
+        }
+    }
 
     public void eliminarUsuario(String password) 
         throws UsuarioNoEncontradoException, IOException   {
@@ -351,9 +358,6 @@ public class CtrlDominio {
     }
 
 
-
-
-
     // ─── Gestión de Diccionarios y Bolsas ───────────────────────────────────────
 
     /**
@@ -367,13 +371,38 @@ public class CtrlDominio {
 
 
     public void crearRecurso(String id , List<String> diccionario, Map<String, int[]> bolsa)
-            throws IOException, RecursoExistenteException {
+            throws IOException, RecursoExistenteException, FormatoDiccionarioInvalidoException, FormatoBolsaInvalidoException {
         if (ctrlPersistencia.existeRecurso(id)) {
             throw new RecursoExistenteException(id);
         }
+
+        validarFormatoBolsa(bolsa);
+        validarFormatoDiccionario(diccionario);
         ctrlPersistencia.crearRecurso(id, diccionario, bolsa);
 
     }
+
+    /**
+     * Modifica un recurso existente (diccionario+bolsa) en persistencia.
+     *
+     * @param id identificador del idioma.
+     * @throws IOException                      si falla la modificación de archivos.
+     * @throws BolsaNoEncontradaException       si no existe la bolsa.
+     * @throws DiccionarioNoEncontradoException 
+     * @throws FormatoDiccionarioInvalidoException 
+     * @throws FormatoBolsaInvalidoException 
+     */
+    public void modificarRecurso(String id, List<String> diccionario, Map<String, int[]> bolsa)
+            throws IOException, RecursoNoExistenteException,
+            BolsaNoEncontradaException, DiccionarioNoEncontradoException, FormatoDiccionarioInvalidoException, FormatoBolsaInvalidoException {
+        validarFormatoBolsa(bolsa);
+        validarFormatoDiccionario(diccionario);
+        ctrlPersistencia.modificarRecurso(id, diccionario, bolsa);
+    }
+
+
+    
+
 
 
     /**
@@ -409,8 +438,99 @@ public class CtrlDominio {
      * @return lista de líneas con configuración de fichas.
      * @throws BolsaNoEncontradaException si no existe el ID.
      * @throws IOException
+     * @throws FormatoBolsaInvalidoException 
      */
-    public List<String> obtenerBolsa(String id) throws BolsaNoEncontradaException, IOException {
-        return ctrlPersistencia.obtenerBolsa(id);
+    public Map<String, int[]> obtenerBolsa(String id) throws BolsaNoEncontradaException, IOException {
+        // Get the raw list of strings from persistence
+        List<String> bolsaList = ctrlPersistencia.obtenerBolsa(id);
+        
+        // Convert to a map format
+        Map<String, int[]> bolsaMap = new LinkedHashMap<>();
+        for (String linea : bolsaList) {
+            String[] partes = linea.split("\\s+");
+            if (partes.length >= 3) {
+                bolsaMap.put(partes[0], new int[] {
+                    Integer.parseInt(partes[1]),
+                    Integer.parseInt(partes[2])
+                });
+            }
+        }
+        
+        return bolsaMap;
     }
+
+    /**
+     * Valida que un diccionario cumpla con el formato requerido:
+     * - Cada línea contiene una palabra
+     * - Todas las palabras están en mayúsculas
+     * - No contiene acentos
+     * - Está ordenado alfabéticamente
+     * 
+     * @param diccionario Lista de palabras a validar
+     * @throws FormatoDiccionarioInvalidoException si el diccionario no cumple con algún requisito
+     */
+    public void validarFormatoDiccionario(List<String> diccionario)
+        throws FormatoDiccionarioInvalidoException {
+        if (diccionario == null || diccionario.isEmpty()) {
+            throw new FormatoDiccionarioInvalidoException();
+        }
+        
+        String palabraAnterior = null;
+        
+        for (String palabra : diccionario) {
+            // Verifica si la palabra es nula o vacía
+            if (palabra == null || palabra.trim().isEmpty()) {
+                throw new FormatoDiccionarioInvalidoException();
+            }
+            
+            // Verifica si la palabra está en mayúsculas
+            if (!palabra.equals(palabra.toUpperCase())) {
+                throw new FormatoDiccionarioInvalidoException();
+            }
+            
+            // Verifica si la palabra contiene solo caracteres válidos (sin acentos)
+            if (!palabra.matches("^[A-Z]*$")) {
+                throw new FormatoDiccionarioInvalidoException();
+            }
+            
+            // Verifica orden alfabético
+            if (palabraAnterior != null && palabra.compareTo(palabraAnterior) <= 0) {
+                throw new FormatoDiccionarioInvalidoException();
+            }
+            
+            palabraAnterior = palabra;
+        }
+    }
+
+
+    void validarFormatoBolsa(Map<String, int[]> bolsa)
+        throws FormatoBolsaInvalidoException {
+        if (bolsa == null || bolsa.isEmpty()) {
+            throw new FormatoBolsaInvalidoException();
+        }
+        
+        for (Map.Entry<String, int[]> entry : bolsa.entrySet()) {
+            String letra = entry.getKey();
+            int[] valores = entry.getValue();
+            
+            // Verifica si la letra es nula o vacía
+            if (letra == null || letra.trim().isEmpty()) {
+                throw new FormatoBolsaInvalidoException();
+            }
+            
+            // Verifica si la letra está en mayúsculas
+            if (!letra.equals(letra.toUpperCase())) {
+                throw new FormatoBolsaInvalidoException();
+            }
+            
+            // Verifica si los valores son válidos
+            if (valores == null || valores.length != 2 || valores[0] < 0 || valores[1] < 0) {
+                throw new FormatoBolsaInvalidoException();
+            }
+        }
+    }
+
+
+
+
 }

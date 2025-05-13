@@ -109,7 +109,8 @@ class DataConverter {
         // Restore the correct turn
         partida.setTurnoJugador(strings.get(3).equals("1"));
 
-        // 
+        // Que recurso usa la partida
+        // El recurso es el último elemento de la lista
         partida.setRecursoPartida(strings.get(strings.size() - 1));
         
         return partida;
