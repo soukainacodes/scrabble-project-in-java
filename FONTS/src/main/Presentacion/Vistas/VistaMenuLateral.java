@@ -10,6 +10,7 @@ public class VistaMenuLateral extends JPanel {
 
     private JButton botonVerCuenta;
     private JButton botonJugar;
+    private JButton botonRecursos;
 
     public VistaMenuLateral() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -36,8 +37,8 @@ public class VistaMenuLateral extends JPanel {
         add(botonRanking);
         add(Box.createVerticalStrut(20));
 
-        JButton botonDiccionarios = crearBotonMenu("Recursos");
-        add(botonDiccionarios);
+        botonRecursos = crearBotonMenu("Recursos");
+        add(botonRecursos);
         add(Box.createVerticalStrut(20));
 
         JButton botonAddJugador = crearBotonMenu("Añadir Jugador");
@@ -88,6 +89,6 @@ public class VistaMenuLateral extends JPanel {
     }
 
         public void addVistaRecursos(ActionListener l) {
-        botonJugar.addActionListener(l);
+        botonRecursos.addActionListener(l);
     }
 }

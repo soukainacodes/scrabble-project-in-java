@@ -2,6 +2,10 @@ package Presentacion.Vistas;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
 
 public class VistaRecursos extends JPanel {
 
@@ -10,7 +14,7 @@ public class VistaRecursos extends JPanel {
     private static final Color FG_TITLE  = new Color(40, 50, 60);
     private static final Color FG_SUB    = new Color(80, 90, 100);
     private static final Color BORDER    = new Color(220, 220, 220);
-
+    private JButton botonAdd;
     public VistaRecursos() {
         setLayout(new BorderLayout());
         setBackground(BG);
@@ -71,10 +75,18 @@ public class VistaRecursos extends JPanel {
         // Panel de botones al final
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         botones.setBackground(BG);
-
-        botones.add(crearBotonBlanco("Añadir Recurso"));
+        botonAdd = crearBotonBlanco("Añadir Recurso");
+        botones.add(botonAdd);
         botones.add(crearBotonBlanco("Eliminar Recurso"));
+          ActionListener vistaAddRecurso = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                VistaExplorador vmp = new VistaExplorador();
+                vmp.setVisible(true);
 
+            }
+        };
+        botonAdd.addActionListener(vistaAddRecurso);
         content.add(botones);
 
         // Pegamos content en el wrapper
@@ -92,16 +104,8 @@ public class VistaRecursos extends JPanel {
         boton.setPreferredSize(new Dimension(160, 40));
         return boton;
     }
-
-    // Para pruebas rápidas
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame f = new JFrame("VistaRecursos Demo");
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            f.getContentPane().add(new VistaRecursos());
-            f.pack();
-            f.setLocationRelativeTo(null);
-            f.setVisible(true);
-        });
+    
+    public void addAddRecursos(ActionListener l){
+        botonAdd.addActionListener(l);
     }
 }

@@ -6,6 +6,7 @@ public class VistaMenuPrincipal extends JPanel {
 
     public static final String BIENVENIDA = "BIENVENIDA";
     public static final String OTRA = "OTRA";
+    public static final String RECURSOS = "RECURSOS";
     private final VistaMenuLateral menuLateral;
    
     private final JPanel panelMenuIzquierdo;
@@ -40,12 +41,12 @@ public class VistaMenuPrincipal extends JPanel {
         panelMenuIzquierdo.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(220, 220, 220)));
         panelMenuIzquierdo.add(menuLateral, BorderLayout.CENTER);
         add(panelMenuIzquierdo, BorderLayout.WEST);
-
+      
         // --- Contenedor de pantallas (CardLayout) ---
         cards = new JPanel(new CardLayout());
         cards.add(new VistaPantallaPrincipal(), BIENVENIDA);
        cards.add(new VistaCuenta(), OTRA);
-
+       cards.add( new VistaRecursos(), RECURSOS);
         // --- Wrapper para centrar y fijar ancho ---
         JPanel centroWrapper = new JPanel(new GridBagLayout());
         centroWrapper.setBackground(getBackground());
@@ -57,6 +58,8 @@ public class VistaMenuPrincipal extends JPanel {
 
         menuLateral.addVerCuentaListener(e -> muestraCard(OTRA));
         menuLateral.addJugarListener(e -> muestraCard(BIENVENIDA));
+        menuLateral.addVistaRecursos (e -> muestraCard(RECURSOS));
+        
     }
     
     
