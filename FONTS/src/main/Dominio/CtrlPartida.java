@@ -216,7 +216,7 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         }
 
         case 6:
-            return finPartida(false);
+            return finPartida(true);
 
         case 7:
             if (!jugadorAlgoritmo) {

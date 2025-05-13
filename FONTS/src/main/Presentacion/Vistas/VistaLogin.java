@@ -89,7 +89,7 @@ public class VistaLogin extends JFrame {
         ActionListener vistaMenuPrincipal = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                VistaScrabble vmp = new VistaScrabble();
+                VistaMenuPrincipal vmp = new VistaMenuPrincipal();
 
                 revalidate();
                 repaint();

@@ -13,7 +13,7 @@ public class VistaMenuLateral extends JPanel {
 
     public VistaMenuLateral() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(new Color(255, 248, 230)); // color crema
+        setBackground(new Color(255, 248, 230)); // color crema 
 
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(220, 220, 220))); // línea separadora
 
@@ -22,7 +22,7 @@ public class VistaMenuLateral extends JPanel {
         add(Box.createVerticalStrut(30));
 
         // --- Botones de menú ---
-        String[] opciones = {"Ver Cuenta", "Ranking", "Diccionarios", "Añadir Jugador", "Cerrar Sesión"};
+      //  String[] opciones = {"Ver Cuenta", "Ranking", "Diccionarios", "Añadir Jugador", "Cerrar Sesión"};
 
         botonVerCuenta = crearBotonMenu("Ver Cuenta");
         add(botonVerCuenta);
@@ -36,12 +36,12 @@ public class VistaMenuLateral extends JPanel {
         add(botonRanking);
         add(Box.createVerticalStrut(20));
 
-        JButton botonDiccionarios = crearBotonMenu("Diccionarios");
+        JButton botonDiccionarios = crearBotonMenu("Recursos");
         add(botonDiccionarios);
         add(Box.createVerticalStrut(20));
 
         JButton botonAddJugador = crearBotonMenu("Añadir Jugador");
-        add(botonDiccionarios);
+        add(botonAddJugador);
         add(Box.createVerticalStrut(20));
 
         JButton botonCerrarSesion = crearBotonMenu("Cerrar Sesión");
@@ -84,6 +84,10 @@ public class VistaMenuLateral extends JPanel {
     }
 
     public void addJugarListener(ActionListener l) {
+        botonJugar.addActionListener(l);
+    }
+
+        public void addVistaRecursos(ActionListener l) {
         botonJugar.addActionListener(l);
     }
 }
