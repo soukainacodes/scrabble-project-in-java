@@ -1,22 +1,19 @@
 package Presentacion.Vistas;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
-
-public class VistaRecursos extends JPanel {
+import javax.swing.*;
+public class VistaCargarPartida extends JPanel {
 
     private static final int CONTENT_WIDTH = 360;
-    private static final Color BG = new Color(238,238,238,255);
+    private static final Color BG = new Color(255, 248, 230);
     private static final Color FG_TITLE = new Color(40, 50, 60);
     private static final Color FG_SUB = new Color(80, 90, 100);
     private static final Color BORDER = new Color(220, 220, 220);
-    private JButton botonAdd;
+    private JButton botonCargar;
 
-    public VistaRecursos() {
+    public VistaCargarPartida() {
+
         setLayout(new BorderLayout());
         setBackground(BG);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -38,17 +35,7 @@ public class VistaRecursos extends JPanel {
         titulo.setForeground(FG_TITLE);
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(titulo);
-
         content.add(Box.createVerticalStrut(8));
-
-        // Subtítulo
-        JLabel subtitulo = new JLabel("Lista de Recursos");
-        subtitulo.setFont(new Font("Arial", Font.PLAIN, 16));
-        subtitulo.setForeground(FG_SUB);
-        subtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(subtitulo);
-
-        content.add(Box.createVerticalStrut(20));
 
         // Lista dentro de un JScrollPane
         DefaultListModel<String> model = new DefaultListModel<>();
@@ -73,24 +60,10 @@ public class VistaRecursos extends JPanel {
 
         content.add(Box.createVerticalStrut(20));
 
-        // Panel de botones al final
-        JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-        botones.setBackground(BG);
-        botonAdd = crearBotonBlanco("Añadir Recurso");
-        botones.add(botonAdd);
-        botones.add(crearBotonBlanco("Eliminar Recurso"));
-        ActionListener vistaAddRecurso = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                VistaExplorador vmp = new VistaExplorador();
-                vmp.setVisible(true);
+        botonCargar = crearBotonBlanco("Cargar Partida");
 
-            }
-        };
-        botonAdd.addActionListener(vistaAddRecurso);
-        content.add(botones);
+        content.add(botonCargar);
 
-        // Pegamos content en el wrapper
         wrapper.add(content);
         add(wrapper, BorderLayout.CENTER);
     }
@@ -106,7 +79,8 @@ public class VistaRecursos extends JPanel {
         return boton;
     }
 
-    public void addAddRecursos(ActionListener l) {
-        botonAdd.addActionListener(l);
+    public void jugarPartida(ActionListener l) {
+        botonCargar.addActionListener(l);
     }
+
 }

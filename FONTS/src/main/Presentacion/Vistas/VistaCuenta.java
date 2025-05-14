@@ -1,12 +1,12 @@
 package Presentacion.Vistas;
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class VistaCuenta extends JPanel {
 
     public static final int CONTENT_WIDTH = 360;
-    private static final Color BG = new Color(255, 248, 230);
+    private static final Color BG = new Color(230,230,241,255);
     private static final Color FG = new Color(20, 40, 80);
     private static final Color BORDER = new Color(220, 220, 220);
 
@@ -25,8 +25,7 @@ public class VistaCuenta extends JPanel {
         content.setMaximumSize(new Dimension(CONTENT_WIDTH, Integer.MAX_VALUE));
 
         // Añadimos hueco, título y botones
-       // content.add(Box.createVerticalStrut(30));
-
+        // content.add(Box.createVerticalStrut(30));
         JLabel titulo = new JLabel("Cuenta");
         titulo.setFont(new Font("Arial", Font.BOLD, 24));
         titulo.setForeground(FG);
@@ -44,30 +43,28 @@ public class VistaCuenta extends JPanel {
 
         // Pegamos el content en el wrapper centrado
         wrapper.add(content);
-       add(wrapper);
+        add(wrapper);
     }
 
     private JButton crearBotonBlanco(String texto) {
         JButton boton = new JButton(texto) {
 
-              @Override
+            @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                GradientPaint gp = new GradientPaint(0, 0,new Color(86, 99, 243), getWidth(), 0, new Color(86, 232, 243));
+                GradientPaint gp = new GradientPaint(0, 0, new Color(86, 99, 243), getWidth(), 0, new Color(86, 232, 243));
                 g2.setPaint(gp);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
                 super.paintComponent(g);
             }
         };
 
-        
-
         boton.setFont(new Font("Arial", Font.BOLD, 20));
-       boton.setForeground(FG);
+        boton.setForeground(FG);
         boton.setFocusPainted(false);
         boton.setContentAreaFilled(false);
-       // boton.setBackground(Color.WHITE);
+        // boton.setBackground(Color.WHITE);
         boton.setOpaque(true);
         boton.setBorderPainted(false);
         //boton.setBorder(BorderFactory.createLineBorder(BORDER, 2));

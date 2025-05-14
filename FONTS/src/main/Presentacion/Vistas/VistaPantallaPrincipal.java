@@ -1,25 +1,27 @@
 package Presentacion.Vistas;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class VistaPantallaPrincipal extends JPanel {
-
+    private JButton botonCrearPartida;
+    private JButton botonCargarPartida;
     public VistaPantallaPrincipal() {
-        setBackground(new Color(255, 248, 230));
+       // setBackground(new Color(255, 248, 230));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         add(Box.createVerticalStrut(30));
 
         JLabel titulo = new JLabel("Bienvenido [Usuario]");
-        titulo.setFont(new Font("Arial", Font.BOLD, 24));
-        titulo.setForeground(new Color(20, 40, 80));
+        titulo.setFont(new Font("", Font.BOLD, 24));
+         titulo.setForeground(new Color(60, 80, 100));
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(titulo);
 
         add(Box.createVerticalStrut(10));
 
         JLabel puntuacion = new JLabel("Tu puntuación máxima es X");
-        puntuacion.setFont(new Font("Arial", Font.PLAIN, 18));
+        puntuacion.setFont(new Font("", Font.PLAIN, 18));
         puntuacion.setForeground(new Color(60, 80, 100));
         puntuacion.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(puntuacion);
@@ -27,18 +29,22 @@ public class VistaPantallaPrincipal extends JPanel {
         add(Box.createVerticalStrut(5));
 
         JLabel ranking = new JLabel("Estás en la posición X en el Ranking");
-       ranking.setFont(new Font("Arial", Font.PLAIN, 18));
+       ranking.setFont(new Font("", Font.PLAIN, 18));
         ranking.setForeground(new Color(60, 80, 100));
         ranking.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(ranking);
 
         add(Box.createVerticalStrut(30));
 
-        add(crearBotonDegradado("Nueva Partida"));
+        botonCrearPartida = crearBotonDegradado("Nueva Partida");
+        botonCargarPartida = crearBotonBlanco("Cargar Partida");
+
+        add(botonCrearPartida);
         add(Box.createVerticalStrut(15));
         add(crearBotonBlanco("Última Partida"));
         add(Box.createVerticalStrut(15));
-        add(crearBotonBlanco("Cargar Partida"));
+        add( botonCargarPartida);
+
     }
 
     private JButton crearBotonDegradado(String texto) {
@@ -75,4 +81,13 @@ public class VistaPantallaPrincipal extends JPanel {
         b.setAlignmentX(Component.CENTER_ALIGNMENT);
         return b;
     }
+
+    public void addVistaCrearPartida(ActionListener l) {
+        botonCrearPartida.addActionListener(l);
+    }
+
+    public void addVistaCargarPartida(ActionListener l) {
+        botonCargarPartida.addActionListener(l);
+    }
+
 }

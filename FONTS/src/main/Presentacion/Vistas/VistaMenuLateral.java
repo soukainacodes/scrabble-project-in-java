@@ -11,10 +11,11 @@ public class VistaMenuLateral extends JPanel {
     private JButton botonVerCuenta;
     private JButton botonJugar;
     private JButton botonRecursos;
-
+    private  JButton botonRanking;
+    private JButton botonCerrarSesion;
     public VistaMenuLateral() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(new Color(255, 248, 230)); // color crema 
+        setBackground(new Color(238,238,238,255)); // color crema 
 
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(220, 220, 220))); // línea separadora
 
@@ -23,8 +24,7 @@ public class VistaMenuLateral extends JPanel {
         add(Box.createVerticalStrut(30));
 
         // --- Botones de menú ---
-      //  String[] opciones = {"Ver Cuenta", "Ranking", "Diccionarios", "Añadir Jugador", "Cerrar Sesión"};
-
+       
         botonVerCuenta = crearBotonMenu("Ver Cuenta");
         add(botonVerCuenta);
         add(Box.createVerticalStrut(20));
@@ -33,7 +33,7 @@ public class VistaMenuLateral extends JPanel {
         add(botonJugar);
         add(Box.createVerticalStrut(20));
 
-        JButton botonRanking = crearBotonMenu("Ranking");
+        botonRanking = crearBotonMenu("Ranking");
         add(botonRanking);
         add(Box.createVerticalStrut(20));
 
@@ -41,14 +41,10 @@ public class VistaMenuLateral extends JPanel {
         add(botonRecursos);
         add(Box.createVerticalStrut(20));
 
-        JButton botonAddJugador = crearBotonMenu("Añadir Jugador");
-        add(botonAddJugador);
-        add(Box.createVerticalStrut(20));
 
-        JButton botonCerrarSesion = crearBotonMenu("Cerrar Sesión");
+        botonCerrarSesion = crearBotonMenu("Cerrar Sesión");
         add(botonCerrarSesion);
         add(Box.createVerticalStrut(20));
-
 
     }
 
@@ -79,7 +75,6 @@ public class VistaMenuLateral extends JPanel {
         return boton;
     }
 
-
     public void addVerCuentaListener(ActionListener l) {
         botonVerCuenta.addActionListener(l);
     }
@@ -88,7 +83,15 @@ public class VistaMenuLateral extends JPanel {
         botonJugar.addActionListener(l);
     }
 
-        public void addVistaRecursos(ActionListener l) {
+    public void addVistaRecursos(ActionListener l) {
         botonRecursos.addActionListener(l);
+    }
+
+    public void addVistaRanking(ActionListener l) {
+        botonRanking.addActionListener(l);
+    }
+
+    public void cerrarSesion(ActionListener l) {
+        botonCerrarSesion.addActionListener(l);
     }
 }

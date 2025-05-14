@@ -2,20 +2,24 @@ package Presentacion.Vistas;
 
 import java.awt.*;
 import javax.swing.*;
+
 public class VistaMenuPrincipal extends JPanel {
 
     public static final String BIENVENIDA = "BIENVENIDA";
     public static final String OTRA = "OTRA";
     public static final String RECURSOS = "RECURSOS";
+
     private final VistaMenuLateral menuLateral;
-   
+    private final VistaPantallaPrincipal pantallaPrincipal;
+    private final VistaCrearPartida crearPartida;
+    private final VistaCargarPartida cargarPartida;
     private final JPanel panelMenuIzquierdo;
     private final JButton botonToggleMenu;
     private final JPanel cards;
     private boolean menuVisible = true;
 
     public VistaMenuPrincipal() {
-        setBackground(new Color(255, 248, 230));
+        setBackground(new Color(238,238,238,255));
         setLayout(new BorderLayout());
 
         // --- BOTÓN TOGGLE siempre visible en la cabecera ---
@@ -41,12 +45,20 @@ public class VistaMenuPrincipal extends JPanel {
         panelMenuIzquierdo.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(220, 220, 220)));
         panelMenuIzquierdo.add(menuLateral, BorderLayout.CENTER);
         add(panelMenuIzquierdo, BorderLayout.WEST);
-      
+
         // --- Contenedor de pantallas (CardLayout) ---
+        pantallaPrincipal = new VistaPantallaPrincipal();
+        crearPartida = new VistaCrearPartida();
+        cargarPartida = new VistaCargarPartida();
+        
         cards = new JPanel(new CardLayout());
-        cards.add(new VistaPantallaPrincipal(), BIENVENIDA);
-       cards.add(new VistaCuenta(), OTRA);
-       cards.add( new VistaRecursos(), RECURSOS);
+        
+        cards.add(pantallaPrincipal, BIENVENIDA);
+        cards.add(new VistaCuenta(), OTRA);
+        cards.add(new VistaRecursos(), RECURSOS);
+        cards.add(new VistaRanking(), "RANKING");
+        cards.add(crearPartida, "CREARPARTIDA");
+        cards.add(cargarPartida, "CARGARPARTIDA"); 
         // --- Wrapper para centrar y fijar ancho ---
         JPanel centroWrapper = new JPanel(new GridBagLayout());
         centroWrapper.setBackground(getBackground());
@@ -58,11 +70,48 @@ public class VistaMenuPrincipal extends JPanel {
 
         menuLateral.addVerCuentaListener(e -> muestraCard(OTRA));
         menuLateral.addJugarListener(e -> muestraCard(BIENVENIDA));
-        menuLateral.addVistaRecursos (e -> muestraCard(RECURSOS));
-        
+        menuLateral.addVistaRecursos(e -> muestraCard(RECURSOS));
+        menuLateral.addVistaRanking(e -> muestraCard("RANKING"));
+        menuLateral.cerrarSesion(e -> cerrarSesion());
+        pantallaPrincipal.addVistaCrearPartida(e -> muestraCard("CREARPARTIDA"));
+        pantallaPrincipal.addVistaCargarPartida(e -> muestraCard("CARGARPARTIDA"));
+
+        crearPartida.jugarPartida(e -> jugarPartida());
+        cargarPartida.jugarPartida(e -> jugarPartida());
+
     }
-    
-    
+
+   
+
+    private void jugarPartida() {
+        // Limpia todo el contenido de este panel
+        removeAll();
+
+        // Cambiamos el layout para que VistaScrabble ocupe todo el espacio
+        setLayout(new BorderLayout());
+
+        // Instanciamos y añadimos la vista del tablero
+        VistaScrabble vs = new VistaScrabble();
+        add(vs, BorderLayout.CENTER);
+
+        // Refrescamos la UI
+        revalidate();
+        repaint();
+
+    }
+
+    private void cerrarSesion() {
+        // Abrir la ventana de login
+        VistaLogin login = new VistaLogin();
+        login.setVisible(true);
+
+        // Cerrar la ventana actual que contiene este panel
+        Window ventana = SwingUtilities.getWindowAncestor(this);
+        if (ventana != null) {
+            ventana.dispose();
+        }
+    }
+
     private void toggleMenu() {
         if (menuVisible) {
             remove(panelMenuIzquierdo);
@@ -81,5 +130,3 @@ public class VistaMenuPrincipal extends JPanel {
         cl.show(cards, clave);
     }
 }
-
-

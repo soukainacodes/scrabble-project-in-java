@@ -17,7 +17,7 @@ public class VistaExplorador extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 200);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(new Color(255, 248, 230));
+        getContentPane().setBackground(new Color(238,238,238,255));
         setLayout(new GridBagLayout());
 
         JButton btnAbrirExplorador = new JButton("Abrir Archivo…");
@@ -31,7 +31,7 @@ public class VistaExplorador extends JFrame {
                 chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 chooser.setAcceptAllFileFilterUsed(false);
                 chooser.addChoosableFileFilter(
-                    new FileNameExtensionFilter("Archivos de texto (*.txt)", "txt")
+                        new FileNameExtensionFilter("Archivos de texto (*.txt)", "txt")
                 );
 
                 int resultado = chooser.showOpenDialog(VistaExplorador.this);

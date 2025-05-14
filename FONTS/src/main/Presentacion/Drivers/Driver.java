@@ -34,7 +34,7 @@ public class Driver {
         }
     }
 
-    private static void menuPrincipal() throws UsuarioNoEncontradoException, PasswordInvalidaException, IOException {
+    private static void menuPrincipal() throws IOException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
         System.out.println("2. Registrarse");

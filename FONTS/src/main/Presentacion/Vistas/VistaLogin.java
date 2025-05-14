@@ -1,7 +1,6 @@
 package Presentacion.Vistas;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
@@ -15,14 +14,18 @@ public class VistaLogin extends JFrame {
     private JButton botonEntrar;
     private boolean iniciarSeleccionado = true;
 
+
+    private String nombre;
+    private String password;
     public VistaLogin() {
+
         setTitle("SCRABBLE");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(450, 550);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout()); // Centrar todo
 
-        Color fondoColor = new Color(255, 242, 218, 255); // color crema
+        Color fondoColor = new Color(238, 238, 238, 255); // color crema
         getContentPane().setBackground(fondoColor);
 
         JPanel tarjeta = new JPanel();
@@ -86,21 +89,8 @@ public class VistaLogin extends JFrame {
         botonEntrar.setAlignmentX(Component.CENTER_ALIGNMENT);
         botonEntrar.setPreferredSize(new Dimension(200, 45));
         botonEntrar.setMaximumSize(new Dimension(200, 45));
-        ActionListener vistaMenuPrincipal = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                VistaMenuPrincipal vmp = new VistaMenuPrincipal();
-
-                revalidate();
-                repaint();
-
-                setContentPane(vmp);
-                setLocationRelativeTo(null);
-                pack();
-
-            }
-        };
-        botonEntrar.addActionListener(vistaMenuPrincipal);
+      
+        //botonEntrar.addActionListener(vistaMenuPrincipal);
         // --- Agregando componentes ---
         tarjeta.add(panelBotones);
         tarjeta.add(Box.createVerticalStrut(20)); // Espacio más pequeño aquí
@@ -118,6 +108,11 @@ public class VistaLogin extends JFrame {
         add(tarjeta); // Añadir tarjeta centrada
 
         setVisible(true);
+
+    }
+
+    public void addVistaPrincipal(ActionListener l) {
+        botonEntrar.addActionListener(l);
     }
 
     private JButton crearBotonSelector(String texto, boolean seleccionado) {
@@ -171,6 +166,14 @@ public class VistaLogin extends JFrame {
             g2d.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
             g2d.dispose();
         }
+    }
+
+    public String getNombre() {
+        return campoUsuario.getText();
+    }
+
+    public char[] getPassword() {
+        return campoContrasena.getPassword();
     }
 
 }
