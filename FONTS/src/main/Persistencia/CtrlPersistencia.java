@@ -178,32 +178,52 @@ public class CtrlPersistencia {
     }
 
 
+    /**
+     * Actualiza el nombre de usuario de un jugador en el sistema.
+     * @param username Nombre de usuario actual
+     * @param newUsername Nuevo nombre de usuario
+     * @throws UsuarioNoEncontradoException Si el jugador no existe
+     * @throws UsuarioYaRegistradoException Si el nuevo nombre ya está en uso
+     */
     public void actualizarNombre(String username, String newUsername) throws UsuarioNoEncontradoException, UsuarioYaRegistradoException {
         // Verifica si el jugador existe
         if (!existeJugador(username)) {
             throw new UsuarioNoEncontradoException(username);
         }
 
+        // Verifica si el nuevo nombre ya está en uso
         if (existeJugador(newUsername)) {
             throw new UsuarioYaRegistradoException(newUsername);
         }
 
-        // Define la ruta del archivo JSON del jugador
-        Path userFile = Paths.get(JUGADORES + username, username + ".json");
+        // Define las rutas relevantes
+        Path oldUserDir = Paths.get(JUGADORES + username);
+        Path oldUserFile = oldUserDir.resolve(username + ".json");
+        Path newUserDir = Paths.get(JUGADORES + newUsername);
+        Path newUserFile = newUserDir.resolve(newUsername + ".json");
 
         try {
             // Leer el contenido del archivo JSON
-            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
+            String contenido = Files.readString(oldUserFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
 
-            // Actualizar el nombre de usuario
+            // Actualizar el nombre de usuario en el JSON
             jugadorJson.put("nombre", newUsername);
 
-            // Escribir el archivo JSON actualizado
-            Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
-                    StandardOpenOption.TRUNCATE_EXISTING);
+            // Crear el nuevo directorio si no existe
+            Files.createDirectories(newUserDir);
+
+            // Escribir el archivo JSON con el nuevo nombre
+            Files.writeString(newUserFile, jugadorJson.toString(4), StandardCharsets.UTF_8);
+
+            // Eliminar el archivo antiguo
+            Files.delete(oldUserFile);
+
+            // Eliminar el directorio antiguo (debe estar vacío)
+            Files.delete(oldUserDir);
+            
         } catch (IOException e) {
-            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
+            throw new UncheckedIOException("Error al actualizar el nombre del jugador: " + username, e);
         }
     }
 
@@ -520,10 +540,6 @@ public class CtrlPersistencia {
         String nombreArchivo = "partida_" + id + ".json";
         String rutaArchivo = PARTIDAS + nombreArchivo;
 
-        // Actualizar la última partida
-        actualizarUltimaPartida(username, id);
-        actualizarUltimaPartida(segundoJugador, id);
-
         // Convertir la lista de datos a JSON
         String jsonPartida = partidaListToJson(partida);
 
@@ -534,6 +550,16 @@ public class CtrlPersistencia {
         } catch (IOException e) {
             System.err.println("[Persistencia] Error al guardar la partida: " + e.getMessage());
         }
+
+
+        // Actualizar la última partida
+        if (esPartidaAcabada(id))
+        {
+            actualizarUltimaPartida(username, id);
+            actualizarUltimaPartida(segundoJugador, id);
+        }
+        
+
     }
 
     

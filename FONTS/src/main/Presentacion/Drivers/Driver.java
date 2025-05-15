@@ -526,7 +526,7 @@ public class Driver {
             }
         }
         long seed = new Random().nextLong();
-        ctrl.iniciarPartida(pid, otro, did, seed, false);
+        ctrl.iniciarPartida(pid, otro, did, seed, true);
         menuJuego();
     }
 
@@ -585,7 +585,7 @@ public class Driver {
             System.out.println("P1: " + ctrl.getPuntosJugador1() + "  P2: " + ctrl.getPuntosJugador2());
             mostrarTablero();
             System.out.println("Fichas: " + ctrl.obtenerFichas());
-            System.out.println("1.Añadir 2.Quitar 3.Cambiar 4.Pasar 5.Finir 6.Guardar 7.Abandonar");
+            System.out.println("1.Añadir 2.Quitar 3.Cambiar 4.Pasar 5.Finir 6.Abandonar 7.Ayuda");            
             System.out.print("Opción: ");
             String opt = sc.nextLine().trim();
             try {
@@ -604,21 +604,20 @@ public class Driver {
                         fin = ctrl.jugarScrabble(3, "");
                         if (fin != 0)
                             return;
-                        //ctrl.jugarScrabble(7, "");
                         break;
                     case "5":
                         fin = ctrl.jugarScrabble(4, "");
                         if (fin != 0)
                             return;
-                      //  ctrl.jugarScrabble(7, "");
                         break;
                     case "6":
-                        System.out.print("Guardar ID: ");
-                        ctrl.salirPartida(sc.nextLine().trim());
-                        break;
-                    case "7":
                         ctrl.jugarScrabble(6, "");
                         return;
+                    case "7":
+                        fin = ctrl.jugarScrabble(7, "");
+                        if (fin != 0)
+                            return;
+                        break;
                     default:
                         System.out.println("Opción no válida.");
                 }
