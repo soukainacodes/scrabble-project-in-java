@@ -83,6 +83,7 @@ public class VistaPantallaPrincipal extends JPanel {
     }
 
     public void addVistaCrearPartida(ActionListener l) {
+        System.out.println("Boton pulsado");
         botonCrearPartida.addActionListener(l);
     }
 

@@ -27,7 +27,8 @@ public class CtrlPresentacion {
     private boolean sesionIniciada = false;
 
     public CtrlPresentacion() {
-        vistaPrincipal();
+        configuracion();
+        crearVistaLogin();
     }
 
     private void configuracion() {
@@ -43,18 +44,12 @@ public class CtrlPresentacion {
         UIManager.put("MenuItem.font", fuenteGlobal);
     }
 
-    private void vistaPrincipal() {
-
-        configuracion();
-
-    }
-
     private void crearVistaLogin() {
         vLogin = new VistaLogin();
         if (!sesionIniciada) {
             vLogin.addVistaPrincipal(e -> crearVistaMenuPrincipal());
         } else {
-           // vLogin.addVistaPrincipal(e -> crearVistaMenuPrincipal());
+            // vLogin.addVistaPrincipal(e -> crearVistaMenuPrincipal());
         }
 
     }
@@ -66,6 +61,14 @@ public class CtrlPresentacion {
         System.out.println(password);
         try {
             ctrlDominio.iniciarSesion(usuario, password);
+            vMenuPrincipal = new VistaMenuPrincipal();
+            crearVistaMenuLateral();
+            crearVistaPantallaPrincipal();
+            vLogin.revalidate();
+            vLogin.repaint();
+            vLogin.setContentPane(vMenuPrincipal);
+            vLogin.setLocationRelativeTo(null);
+            vLogin.pack();
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
@@ -75,11 +78,64 @@ public class CtrlPresentacion {
 
     //VISTAS
     private void crearVistaMenuLateral() {
+        vMenuLateral = new VistaMenuLateral();
+        vMenuPrincipal.addMenuLateral(vMenuLateral);
 
+        vPantallaPrincipal = new VistaPantallaPrincipal();
+
+        vCuenta = new VistaCuenta();
+        vRanking = new VistaRanking();
+        vRecursos = new VistaRecursos();
+
+        //Esto no se si deberia ir aqui
+        vCargarPartida = new VistaCargarPartida();
+        vCrearPartida = new VistaCrearPartida();
+
+        vMenuPrincipal.addCard("PRINCIPAL", vPantallaPrincipal);
+        vMenuPrincipal.addCard("CUENTA", vCuenta);
+        vMenuPrincipal.addCard("RANKING", vRanking);
+        vMenuPrincipal.addCard("CARGARPARTIDA", vCargarPartida);
+
+        vMenuPrincipal.addCard("CREARPARTIDA", vCrearPartida);
+
+        vMenuLateral.addVerCuentaListener(e -> vMenuPrincipal.muestraCard("CUENTA"));
+        vMenuLateral.addJugarListener(e -> vMenuPrincipal.muestraCard("PRINCIPAL"));
+        vMenuLateral.addVistaRecursos(e -> vMenuPrincipal.muestraCard("RECURSOS"));
+        vMenuLateral.addVistaRanking(e -> vMenuPrincipal.muestraCard("RANKING"));
+        vMenuLateral.cerrarSesion(e -> cerrarSesion());
+
+        vPantallaPrincipal.addVistaCrearPartida(e -> vMenuPrincipal.muestraCard("CREARPARTIDA"));
+        vPantallaPrincipal.addVistaCargarPartida(e -> vMenuPrincipal.muestraCard("CARGARPARTIDA"));
+       // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
+        vCrearPartida.jugarPartida(e -> jugarPartida());
+        vCargarPartida.jugarPartida(e -> jugarPartida());
+        //    crearPartida.jugarPartida(e -> jugarPartida());
+        //  cargarPartida.jugarPartida(e -> jugarPartida());
+        //  vMenuLateral.addJugarListener(e -> muestraCard(BIENVENIDA));
+        //  vMenuLateral.addVistaRecursos(e -> muestraCard(RECURSOS));
+        //  vMenuLateral.addVistaRanking(e -> muestraCard("RANKING"));
+        //  vMenuLateral.cerrarSesion(e -> cerrarSesion());
+    }
+
+    private void cerrarSesion() {
+
+        ctrlDominio.cerrarSesion();
+        vLogin.dispose();
+        crearVistaLogin();
+
+    }
+
+    private void jugarPartida() {
+
+        vScrabble = new VistaScrabble();
+        vMenuPrincipal.jugarPartida(vScrabble);
     }
 
     private void crearVistaPantallaPrincipal() {
 
+        //   vMenuPrincipal.addCard("BIENVENIDA", vPantallaPrincipal);
+        //   vMenuPrincipal.addCard("BIENVENIDA", vPantallaPrincipal);
+        //   vMenuPrincipal.addCard("BIENVENIDA", vPantallaPrincipal);
     }
     //Vistas del menu principal
 
@@ -91,7 +147,7 @@ public class CtrlPresentacion {
 
     }
 
-    //Vistas del menu principal
+    //Vistas del menu lateral
     private void crearVistaCuenta() {
 
     }
