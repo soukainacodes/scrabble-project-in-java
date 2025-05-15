@@ -13,7 +13,7 @@ public class VistaLogin extends JFrame {
     private JPasswordField campoContrasena;
     private JButton botonEntrar;
     private boolean iniciarSeleccionado = true;
-
+    private JLabel error;
 
     private String nombre;
     private String password;
@@ -27,7 +27,10 @@ public class VistaLogin extends JFrame {
 
         Color fondoColor = new Color(238, 238, 238, 255); // color crema
         getContentPane().setBackground(fondoColor);
-
+        error = new JLabel("");
+        error.setForeground(Color.RED);
+        error.setFont(new Font("Arial", Font.PLAIN, 12));
+        error.setAlignmentX(Component.CENTER_ALIGNMENT);
         JPanel tarjeta = new JPanel();
         tarjeta.setPreferredSize(new Dimension(320, 500)); // Antes era 450
         tarjeta.setBackground(fondoColor);
@@ -102,6 +105,7 @@ public class VistaLogin extends JFrame {
         tarjeta.add(Box.createVerticalStrut(5));
         tarjeta.add(campoContrasena);
         tarjeta.add(Box.createVerticalStrut(20)); // Un poco menos aquí
+        tarjeta.add(error);
         tarjeta.add(botonEntrar);
         tarjeta.add(Box.createVerticalGlue()); // 👈 Esto empuja todo hacia arriba
 
@@ -113,6 +117,10 @@ public class VistaLogin extends JFrame {
 
     public void addVistaPrincipal(ActionListener l) {
         botonEntrar.addActionListener(l);
+    }
+
+    public void setError(String texto){
+        error.setText(texto);
     }
 
     private JButton crearBotonSelector(String texto, boolean seleccionado) {

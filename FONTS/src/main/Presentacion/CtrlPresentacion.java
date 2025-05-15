@@ -1,10 +1,13 @@
 package Presentacion;
 
 import Dominio.CtrlDominio;
+import Dominio.Excepciones.*;
 import Presentacion.Vistas.*;
 import java.awt.Font;
 import javax.swing.UIManager;
-
+import java.util.List;
+import java.io.IOException;
+import java.util.Map;
 public class CtrlPresentacion {
 
     private CtrlDominio ctrlDominio = new CtrlDominio();
@@ -71,7 +74,8 @@ public class CtrlPresentacion {
             vLogin.pack();
 
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+          //  System.err.println("Error: " + e.getMessage());
+            vLogin.setError(e.getMessage());
         }
 
     }
@@ -94,6 +98,7 @@ public class CtrlPresentacion {
         vMenuPrincipal.addCard("PRINCIPAL", vPantallaPrincipal);
         vMenuPrincipal.addCard("CUENTA", vCuenta);
         vMenuPrincipal.addCard("RANKING", vRanking);
+        vMenuPrincipal.addCard("RECURSOS", vRecursos);
         vMenuPrincipal.addCard("CARGARPARTIDA", vCargarPartida);
 
         vMenuPrincipal.addCard("CREARPARTIDA", vCrearPartida);
@@ -133,9 +138,6 @@ public class CtrlPresentacion {
 
     private void crearVistaPantallaPrincipal() {
 
-        //   vMenuPrincipal.addCard("BIENVENIDA", vPantallaPrincipal);
-        //   vMenuPrincipal.addCard("BIENVENIDA", vPantallaPrincipal);
-        //   vMenuPrincipal.addCard("BIENVENIDA", vPantallaPrincipal);
     }
     //Vistas del menu principal
 
@@ -151,8 +153,17 @@ public class CtrlPresentacion {
     private void crearVistaCuenta() {
 
     }
-
-    private void crearVistaRanking() {
+    private void crearVistaRanking() throws IOException {
+        try{
+              var list = ctrlDominio.obtenerRanking();
+        vRanking.setLista(list);
+        vMenuPrincipal.muestraCard("RECURSOS");
+        }
+         catch (RankingVacioException e) {
+                        System.out.println("Ranking vacío.");
+                    }
+                    
+      
 
     }
 
