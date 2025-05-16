@@ -610,8 +610,7 @@ public class CtrlPersistencia {
                             JSONObject partidaJson = new JSONObject(content);
                             
                             // Verificar si el jugador actual es el jugador_1
-                            if (partidaJson.getString("jugador_1").equals(jugadorActual) 
-                                    || partidaJson.getString("jugador_2").equals(jugadorActual)) {
+                            if (partidaJson.getString("jugador_1").equals(jugadorActual)) {
                                 partidasNoAcabadas.add(id);
                             }
                         }
@@ -934,6 +933,41 @@ public class CtrlPersistencia {
             fichasStr.append(fichas.getString(i)).append(" ");
         }
         return fichasStr.toString().trim();
+    }
+
+    public String obtenerJugadorActual(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
+        // Verifica si la partida existe
+        if (!existePartida(id)) {
+            throw new PartidaNoEncontradaException(id);
+        }
+
+        // Carga el archivo de la partida
+        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
+        try {
+            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)), StandardCharsets.UTF_8);
+            JSONObject partidaJson = new JSONObject(contenido);
+
+            return partidaJson.getString("jugador_1");
+        } catch (IOException e) {
+            throw new UsuarioNoEncontradoException();
+        }
+    }
+
+        public String obtenerSegundoJugador(String id)  throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
+        // Verifica si la partida existe
+        if (!existePartida(id)) {
+            throw new PartidaNoEncontradaException(id);
+        }   
+        // Carga el archivo de la partida
+        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
+        try {
+            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)), StandardCharsets.UTF_8);
+            JSONObject partidaJson = new JSONObject(contenido);
+
+            return partidaJson.getString("jugador_2");
+        } catch (IOException e) {
+            throw new UsuarioNoEncontradoException();
+        }
     }
 
 }

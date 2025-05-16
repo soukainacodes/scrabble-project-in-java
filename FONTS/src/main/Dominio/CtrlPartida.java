@@ -390,6 +390,11 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         this.algoritmo = null;
     }
     
+    public void activarAlgoritmo() {
+        this.isAlgoritmo = true;
+        this.jugadorAlgoritmo = true;
+        this.algoritmo = new Algoritmo();
+    }
 
 
 

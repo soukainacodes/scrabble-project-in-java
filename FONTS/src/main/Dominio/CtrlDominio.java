@@ -350,8 +350,9 @@ public class CtrlDominio {
      * @param id identificador de la partida.
      * @throws PartidaNoEncontradaException si no existe la partida.
      * @throws IOException 
+     * @throws UsuarioNoEncontradoException 
      */
-    public void cargarPartida(String id) throws PartidaNoEncontradaException, IOException {
+    public void cargarPartida(String id) throws PartidaNoEncontradaException, IOException, UsuarioNoEncontradoException {
         if (!ctrlPersistencia.existePartida(id)) {
             throw new PartidaNoEncontradaException(id);
         }
@@ -360,6 +361,15 @@ public class CtrlDominio {
         System.out.println("Datos de la partida: " + ctrlPersistencia.cargarPartida(id));
 
         ctrlPartida.setPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)), ctrlPersistencia.obtenerDiccionario(ctrlPersistencia.obtenerRecursoPartida(id)), ctrlPersistencia.obtenerBolsa(ctrlPersistencia.obtenerRecursoPartida(id)));
+        ctrlJugador.setJugadorActual(ctrlPersistencia.obtenerJugadorActual(id));
+        ctrlJugador.setSegundoJugador(ctrlPersistencia.obtenerSegundoJugador(id));
+        System.out.println("Estoy aqui 2!");
+        System.out.println("El jugador actual es: " + ctrlJugador.getJugadorActual());
+        System.out.println("El segundo jugador es: " + ctrlJugador.getSegundoJugador());
+        if ("propAI".equals(ctrlJugador.getSegundoJugador())) {
+            System.out.println("El algoritmo se activa");
+            ctrlPartida.activarAlgoritmo();
+        }
     }
 
     /**
