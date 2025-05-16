@@ -75,16 +75,29 @@ class DataConverter {
         int tableroSize = Integer.parseInt(strings.get(bolsaStartIndex + bolsaSize));
     
         // Get the board positions
-        List<String> tablero = strings.subList(tableroStartIndex, tableroStartIndex + tableroSize);
+        List<String> tablero = new ArrayList<>();
+        for (int i = 0; i < tableroSize; i++) {
+            String position = strings.get(tableroStartIndex + i);
+            if (position.equals("null")) {
+                tablero.add(null); // Convert the "null" string back to a real null
+            } else {
+                tablero.add(position);
+            }
+        }
+        System.out.println("llega a index 0");
         Partida partida = new Partida(strings.get(1), bolsa, tablero);
-    
         // Set the counter and turn from saved values
+        System.out.println("llega a index 1");
+
         partida.setContadorTurno(Integer.parseInt(strings.get(2)));
+        System.out.println("llega a index 2");
         partida.setTurnoJugador(strings.get(3).equals("1"));
         
         // Set player points directly instead of using setPuntos
         partida.setPuntosJugador1(Integer.parseInt(strings.get(6)));
         partida.setPuntosJugador2(Integer.parseInt(strings.get(7)));
+
+        System.out.println("llega a index 6 y 7");
         
         // Load player 1's tiles
         partida.setTurnoJugador(true); // Set to player 1 for loading tiles
@@ -94,6 +107,7 @@ class DataConverter {
             Ficha ficha = new Ficha(fichasString[contadorFicha], Integer.parseInt(fichasString[contadorFicha + 1]));
             fichas.add(ficha);
         }
+        System.out.println("llega a index 8");
         partida.setFichas(fichas);
         
         // Load player 2's tiles
@@ -104,14 +118,17 @@ class DataConverter {
             Ficha ficha = new Ficha(fichasString[contadorFicha], Integer.parseInt(fichasString[contadorFicha + 1]));
             fichas.add(ficha);
         }
+        System.out.println("llega a index 9");
         partida.setFichas(fichas);
         
         // Restore the correct turn
         partida.setTurnoJugador(strings.get(3).equals("1"));
+        System.out.println("llega a index 3");
 
         // Que recurso usa la partida
         // El recurso es el último elemento de la lista
         partida.setRecursoPartida(strings.get(strings.size() - 1));
+        System.out.println("llega a index recurso");
         
         return partida;
     }

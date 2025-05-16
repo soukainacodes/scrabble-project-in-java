@@ -84,6 +84,7 @@ public class CtrlDominio {
 
     public void cerrarSesion() {
         ctrlJugador.clearSesion();
+        ctrlPartida.clearPartida();
     }
 
     
@@ -196,9 +197,11 @@ public class CtrlDominio {
             boolean jugadorAlgoritmo
             )
             throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, UsuarioNoEncontradoException,
-            PasswordInvalidaException, IOException, UltimaPartidaNoExistenteException {
+            PasswordInvalidaException, IOException, UltimaPartidaNoExistenteException, PartidaYaExistenteException {
 
-        
+        if (ctrlPersistencia.existePartida(id)) {
+            throw new PartidaYaExistenteException(id);
+        }
 
         List<String> dic = ctrlPersistencia.obtenerDiccionario(idDiccionario);
         List<String> bolsa = ctrlPersistencia.obtenerBolsa(idDiccionario);
@@ -349,6 +352,13 @@ public class CtrlDominio {
      * @throws IOException 
      */
     public void cargarPartida(String id) throws PartidaNoEncontradaException, IOException {
+        if (!ctrlPersistencia.existePartida(id)) {
+            throw new PartidaNoEncontradaException(id);
+        }
+        System.out.println("Estoy aqui 1!");
+
+        System.out.println("Datos de la partida: " + ctrlPersistencia.cargarPartida(id));
+
         ctrlPartida.setPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)), ctrlPersistencia.obtenerDiccionario(ctrlPersistencia.obtenerRecursoPartida(id)), ctrlPersistencia.obtenerBolsa(ctrlPersistencia.obtenerRecursoPartida(id)));
     }
 
@@ -371,8 +381,11 @@ public class CtrlDominio {
             throw new NoHayPartidaGuardadaException();
         }
 
+        System.out.println("ID de la última partida: " + ultimaPartida);
+
 
         List<String> datosUltimaPartida = ctrlPersistencia.cargarPartida(ultimaPartida);
+        System.out.println("Datos de la última partida: " + datosUltimaPartida);
         ctrlPartida.setPartida(dc.stringListToPartida(datosUltimaPartida),
                 ctrlPersistencia.obtenerDiccionario(ctrlPersistencia.obtenerRecursoPartida(ultimaPartida)),
                 ctrlPersistencia.obtenerBolsa(ctrlPersistencia.obtenerRecursoPartida(ultimaPartida)));

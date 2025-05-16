@@ -610,7 +610,8 @@ public class CtrlPersistencia {
                             JSONObject partidaJson = new JSONObject(content);
                             
                             // Verificar si el jugador actual es el jugador_1
-                            if (partidaJson.getString("jugador_1").equals(jugadorActual)) {
+                            if (partidaJson.getString("jugador_1").equals(jugadorActual) 
+                                    || partidaJson.getString("jugador_2").equals(jugadorActual)) {
                                 partidasNoAcabadas.add(id);
                             }
                         }
@@ -854,17 +855,17 @@ public class CtrlPersistencia {
         }
         partidaJson.put("bolsa", fichasRestantes);
 
-        // 11. posiciones_tablero
+               // 11. posiciones_tablero
         int numFichasUsadas = Integer.parseInt(partidaData.get(11 + numFichasRestantes));
         JSONArray posicionesTablero = new JSONArray();
-        for (int i = 11 + numFichasRestantes + 1; i < partidaData.size(); i++) {
+        // Stop 1 element before the end to avoid including the resource
+        for (int i = 11 + numFichasRestantes + 1; i < partidaData.size() - 1; i++) {
             posicionesTablero.put(partidaData.get(i)); // Añadimos la posición como una cadena
         }
         partidaJson.put("posiciones_tablero", posicionesTablero);
-
-        // 12. recurso
-        partidaJson.put("recurso", partidaData.get(partidaData.size() - 1)); // Último elemento es el recurso
-
+        
+        // 12. recurso - always the last element
+        partidaJson.put("recurso", partidaData.get(partidaData.size() - 1));
         // Retornamos el JSON como una cadena con formato bonito
         return partidaJson.toString(2); // Formateo bonito del JSON
     }
@@ -902,14 +903,16 @@ public class CtrlPersistencia {
         }
 
         // 11. posiciones_tablero
-        // 11. posiciones_tablero
-JSONArray posicionesTablero = partida.getJSONArray("posiciones_tablero");
-partidaData.add(String.valueOf(posicionesTablero.length())); // Añadimos el número de fichas restantes
-for (int i = 0; i < posicionesTablero.length(); i++) {
-    if (!posicionesTablero.isNull(i)) {
-        partidaData.add(posicionesTablero.getString(i)); // Añadimos cada posición del tablero
-    }
-}
+        JSONArray posicionesTablero = partida.getJSONArray("posiciones_tablero");
+        partidaData.add(String.valueOf(posicionesTablero.length())); // Añadimos el número de fichas restantes
+        for (int i = 0; i < posicionesTablero.length(); i++) {
+            if (posicionesTablero.isNull(i)) {
+                partidaData.add("null"); // Add a string representation of null
+            } else {
+                partidaData.add(posicionesTablero.getString(i)); // Añadimos cada posición del tablero
+            }
+        }
+
 
         // 12. recurso
         partidaData.add(partida.getString("recurso")); // Último elemento es el recurso

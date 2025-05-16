@@ -56,7 +56,7 @@ public class Driver {
 
     private static void menuUsuario() throws IOException, PartidaNoEncontradaException, UsuarioYaRegistradoException,
             UsuarioNoEncontradoException, PasswordInvalidaException, DiccionarioNoEncontradoException,
-            BolsaNoEncontradaException, UltimaPartidaNoExistenteException {
+            BolsaNoEncontradaException, UltimaPartidaNoExistenteException, PartidaYaExistenteException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Gestión de Cuenta");
         System.out.println("2. Gestión de Diccionarios y Bolsas");
@@ -475,7 +475,7 @@ public class Driver {
     // --- Partidas --------------------------------------------------------------
 
     private static void subMenuPartidas() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,
-            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException, UltimaPartidaNoExistenteException {
+            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException, UltimaPartidaNoExistenteException, PartidaYaExistenteException {
         while (true) {
             System.out.println("\n=== PARTIDAS ===");
             System.out.println("1. Crear");
@@ -506,7 +506,7 @@ public class Driver {
     }
 
     private static void crearPartida() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,
-            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException, UltimaPartidaNoExistenteException {
+            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException, UltimaPartidaNoExistenteException, PartidaYaExistenteException {
         System.out.print("ID partida: ");
         String pid = sc.nextLine().trim();
         System.out.print("ID diccionario: ");

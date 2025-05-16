@@ -380,6 +380,15 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
     public String getRecursoPartida() {
         return partidaActual.getRecursoPartida();
     }   
+
+    public void clearPartida() {
+        this.partidaActual = null;
+        this.dawg = null;
+        this.validador = null;
+        this.finTurno = false;
+        this.isAlgoritmo = false;
+        this.algoritmo = null;
+    }
     
 
 

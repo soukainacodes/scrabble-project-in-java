@@ -1,5 +1,6 @@
 {
     "password": "1234",
-    "maxpuntos": 4,
+    "maxpuntos": 130,
+    "ultimaPartidaGuardada": "022",
     "nombre": "dio"
 }
