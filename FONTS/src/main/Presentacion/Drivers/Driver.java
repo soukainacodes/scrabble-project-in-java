@@ -56,7 +56,7 @@ public class Driver {
 
     private static void menuUsuario() throws IOException, PartidaNoEncontradaException, UsuarioYaRegistradoException,
             UsuarioNoEncontradoException, PasswordInvalidaException, DiccionarioNoEncontradoException,
-            BolsaNoEncontradaException {
+            BolsaNoEncontradaException, UltimaPartidaNoExistenteException {
         System.out.println("\n===== MENÚ USUARIO =====");
         System.out.println("1. Gestión de Cuenta");
         System.out.println("2. Gestión de Diccionarios y Bolsas");
@@ -475,7 +475,7 @@ public class Driver {
     // --- Partidas --------------------------------------------------------------
 
     private static void subMenuPartidas() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,
-            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException {
+            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException, UltimaPartidaNoExistenteException {
         while (true) {
             System.out.println("\n=== PARTIDAS ===");
             System.out.println("1. Crear");
@@ -506,7 +506,7 @@ public class Driver {
     }
 
     private static void crearPartida() throws UsuarioYaRegistradoException, UsuarioNoEncontradoException,
-            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException {
+            PasswordInvalidaException, IOException, DiccionarioNoEncontradoException, BolsaNoEncontradaException, UltimaPartidaNoExistenteException {
         System.out.print("ID partida: ");
         String pid = sc.nextLine().trim();
         System.out.print("ID diccionario: ");
@@ -520,9 +520,10 @@ public class Driver {
             System.out.print("Password 2: ");
             String p2 = sc.nextLine().trim();
             try {
-                ctrl.iniciarSesion(otro, p2);
+                ctrl.iniciarSesionSegundoJugador(otro, p2);
             } catch (Exception e) {
                 ctrl.registrarJugador(otro, p2);
+                ctrl.iniciarSesionSegundoJugador(otro, p2);
             }
         }
         long seed = new Random().nextLong();

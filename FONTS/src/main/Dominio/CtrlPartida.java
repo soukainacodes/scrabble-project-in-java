@@ -377,5 +377,11 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
     }
 
 
+    public String getRecursoPartida() {
+        return partidaActual.getRecursoPartida();
+    }   
+    
+
+
 
 }

@@ -196,10 +196,14 @@ public class CtrlDominio {
             boolean jugadorAlgoritmo
             )
             throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, UsuarioNoEncontradoException,
-            PasswordInvalidaException, IOException {
+            PasswordInvalidaException, IOException, UltimaPartidaNoExistenteException {
+
+        
 
         List<String> dic = ctrlPersistencia.obtenerDiccionario(idDiccionario);
         List<String> bolsa = ctrlPersistencia.obtenerBolsa(idDiccionario);
+
+
         int modo;
         if (segundoJugador == null || segundoJugador.isEmpty()) {
             ctrlJugador.setSegundoJugador("propAI");
@@ -211,16 +215,22 @@ public class CtrlDominio {
             //Tranquilo, el segundo jugador no se setea aquí pero iniciarSesionSegundoJugado
         }
             ctrlPartida.crearPartida(modo, id, dic, bolsa, seed, jugadorAlgoritmo);
+            ctrlPartida.setRecursoPartida(idDiccionario, dic, bolsa);
             ctrlPersistencia.guardarPartida(
-            ctrlJugador.getJugadorActual(),
-            ctrlJugador.getSegundoJugador(),
-            ctrlPartida.getId(),
-            dc.partidaToStringList(
-                ctrlPartida.getPartida(),
                 ctrlJugador.getJugadorActual(),
                 ctrlJugador.getSegundoJugador(),
-                ctrlPartida.getId() 
-        ));
+                ctrlPartida.getId(),
+                dc.partidaToStringList(
+                    ctrlPartida.getPartida(),
+                    ctrlJugador.getJugadorActual(),
+                    ctrlJugador.getSegundoJugador(),
+                    ctrlPartida.getId() 
+            ));
+
+
+
+        ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), ctrlPartida.getId());
+        ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), ctrlPartida.getId());
     }
 
     /**
@@ -234,18 +244,29 @@ public class CtrlDominio {
      * @throws PalabraInvalidaException     si la palabra no es válida.
      * @throws UsuarioNoEncontradoException
      * @throws PartidaYaExistenteException 
+     * @throws UltimaPartidaNoExistenteException 
      */
     public int jugarScrabble(int modo, String id)
             throws PuntuacionInvalidaException, ComandoInvalidoException, PalabraInvalidaException,
-            UsuarioNoEncontradoException, PartidaYaExistenteException {
+            UsuarioNoEncontradoException, PartidaYaExistenteException, UltimaPartidaNoExistenteException {
 
         int fin = ctrlPartida.jugarScrabble(modo, id);
 
-
+        System.out.println("Fin de turno: " + fin);
+   
         // Actualiza la puntuación del jugador activo y openente
         if (fin != 0) {
-            ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual(),ctrlPartida.getPuntosJugador1());
-            ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getSegundoJugador(),ctrlPartida.getPuntosJugador2());
+
+            System.out.println("Entrando en el if de fin");
+            ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), null);
+            System.out.println("El jugador actual es: " + ctrlJugador.getJugadorActual());
+            System.out.println("El segundo jugador es: " + ctrlJugador.getSegundoJugador());
+            ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), null);
+        }
+        else {
+            System.out.println("Entrando en el else de fin");
+            ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), ctrlPartida.getId());
+            ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), ctrlPartida.getId());
         }
 
         ctrlPersistencia.guardarPartida(
@@ -259,6 +280,10 @@ public class CtrlDominio {
                 ctrlPartida.getId() 
         )
 );
+
+        ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual(), ctrlPartida.getPuntosJugador1());
+        ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getSegundoJugador(), ctrlPartida.getPuntosJugador2());
+
         
         return fin;
     }
@@ -334,16 +359,18 @@ public class CtrlDominio {
      * @throws PartidaNoEncontradaException
      * @throws UsuarioNoEncontradoException
      * @throws IOException
+     * @throws UltimaPartidaNoExistenteException 
      */
     public void cargarUltimaPartida()
             throws NoHayPartidaGuardadaException, PartidaNoEncontradaException, UsuarioNoEncontradoException,
-            IOException {
+            IOException, UltimaPartidaNoExistenteException {
         // Obtener los datos de la última partida desde persistencia
-        String ultimaPartida = ctrlPersistencia.obtenerUltimaPartida(getUsuarioActual());
-
-        if (ultimaPartida == null) {
+        String ultimaPartida;
+        ultimaPartida = ctrlPersistencia.obtenerUltimaPartida(getUsuarioActual());
+        if (ultimaPartida == null || ultimaPartida.isEmpty()) {
             throw new NoHayPartidaGuardadaException();
         }
+
 
         List<String> datosUltimaPartida = ctrlPersistencia.cargarPartida(ultimaPartida);
         ctrlPartida.setPartida(dc.stringListToPartida(datosUltimaPartida),

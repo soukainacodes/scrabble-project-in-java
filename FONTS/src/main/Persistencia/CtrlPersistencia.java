@@ -308,7 +308,7 @@ public class CtrlPersistencia {
      * @param idPartida ID de la partida guardada
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
-    public void actualizarUltimaPartida(String username, String idPartida) throws UsuarioNoEncontradoException {
+    public void actualizarUltimaPartida(String username, String idPartida) throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
         // Define la ruta del archivo JSON del jugador
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
 
@@ -321,6 +321,7 @@ public class CtrlPersistencia {
             // Leer el contenido del archivo JSON
             String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
+
 
             // Actualizar la última partida guardada
             jugadorJson.put("ultimaPartidaGuardada", idPartida);
@@ -368,20 +369,25 @@ public class CtrlPersistencia {
      * @return ID de la última partida guardada
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
-    public String obtenerUltimaPartida(String username) throws UsuarioNoEncontradoException {
+    public String obtenerUltimaPartida(String username) throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
         // Define la ruta del archivo JSON del jugador
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
+    
         // Verifica si el archivo existe
         if (!Files.exists(userFile)) {
             throw new UsuarioNoEncontradoException(username);
         }
-
+    
         try {
             // Leer el contenido del archivo JSON
             String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
-
+    
+            // Verificar si existe una última partida guardada y no es nula
+            if (!jugadorJson.has("ultimaPartidaGuardada") || jugadorJson.isNull("ultimaPartidaGuardada")) {
+                throw new UltimaPartidaNoExistenteException();
+            }
+    
             // Obtener la última partida guardada
             return jugadorJson.getString("ultimaPartidaGuardada");
         } catch (IOException e) {
@@ -549,14 +555,6 @@ public class CtrlPersistencia {
             System.out.println("Partida guardada exitosamente en: " + rutaArchivo);
         } catch (IOException e) {
             System.err.println("[Persistencia] Error al guardar la partida: " + e.getMessage());
-        }
-
-
-        // Actualizar la última partida
-        if (esPartidaAcabada(id))
-        {
-            actualizarUltimaPartida(username, id);
-            actualizarUltimaPartida(segundoJugador, id);
         }
         
 
@@ -904,11 +902,14 @@ public class CtrlPersistencia {
         }
 
         // 11. posiciones_tablero
-        JSONArray posicionesTablero = partida.getJSONArray("posiciones_tablero");
-        partidaData.add(String.valueOf(posicionesTablero.length())); // Añadimos el número de fichas restantes
-        for (int i = 0; i < posicionesTablero.length(); i++) {
-            partidaData.add(posicionesTablero.getString(i)); // Añadimos cada posición del tablero
-        }
+        // 11. posiciones_tablero
+JSONArray posicionesTablero = partida.getJSONArray("posiciones_tablero");
+partidaData.add(String.valueOf(posicionesTablero.length())); // Añadimos el número de fichas restantes
+for (int i = 0; i < posicionesTablero.length(); i++) {
+    if (!posicionesTablero.isNull(i)) {
+        partidaData.add(posicionesTablero.getString(i)); // Añadimos cada posición del tablero
+    }
+}
 
         // 12. recurso
         partidaData.add(partida.getString("recurso")); // Último elemento es el recurso
