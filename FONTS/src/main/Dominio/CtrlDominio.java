@@ -61,10 +61,16 @@ public class CtrlDominio {
      * @param password
      * @throws UsuarioNoEncontradoException
      * @throws PasswordInvalidaException
+     * @throws InicioSesionIncorrectoException 
     */
     public void iniciarSesion(String nombre, String password) 
-            throws UsuarioNoEncontradoException, PasswordInvalidaException
+            throws UsuarioNoEncontradoException, PasswordInvalidaException, InicioSesionIncorrectoException
     {
+
+        if("propAI".equals(nombre)) {
+            throw new InicioSesionIncorrectoException("No se puede iniciar sesión como 'propAI'");
+        }
+
         if (!ctrlPersistencia.existeJugador(nombre)) {
             throw new UsuarioNoEncontradoException(nombre);
         }

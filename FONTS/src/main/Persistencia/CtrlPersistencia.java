@@ -225,6 +225,46 @@ public class CtrlPersistencia {
         } catch (IOException e) {
             throw new UncheckedIOException("Error al actualizar el nombre del jugador: " + username, e);
         }
+
+        // Actualizar el nombre en todas las partidas guardadas
+        File partidasDir = new File(PARTIDAS);
+        if (partidasDir.exists() && partidasDir.isDirectory()) {
+            File[] archivos = partidasDir.listFiles((dir, name) -> name.endsWith(".json"));
+            if (archivos != null) {
+                for (File archivoPartida : archivos) {
+                    try {
+                        // Leer el archivo de la partida
+                        String contenidoPartida = Files.readString(archivoPartida.toPath(), StandardCharsets.UTF_8);
+                        JSONObject partidaJson = new JSONObject(contenidoPartida);
+                        
+                        boolean modificado = false;
+                        
+                        // Actualizar el jugador_1 si es necesario
+                        if (partidaJson.has("jugador_1") && 
+                            partidaJson.getString("jugador_1").equals(username)) {
+                            partidaJson.put("jugador_1", newUsername);
+                            modificado = true;
+                        }
+                        
+                        // Actualizar el jugador_2 si es necesario
+                        if (partidaJson.has("jugador_2") && 
+                            partidaJson.getString("jugador_2").equals(username)) {
+                            partidaJson.put("jugador_2", newUsername);
+                            modificado = true;
+                        }
+                        
+                        // Guardar los cambios si se modificó la partida
+                        if (modificado) {
+                            Files.writeString(archivoPartida.toPath(), 
+                                            partidaJson.toString(4), 
+                                            StandardCharsets.UTF_8);
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Error al actualizar partida: " + archivoPartida.getName());
+                    }
+                }
+            }
+        }
     }
 
     /**

@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -34,7 +32,7 @@ public class Driver {
         }
     }
 
-    private static void menuPrincipal() throws IOException {
+    private static void menuPrincipal() throws IOException, InicioSesionIncorrectoException {
         System.out.println("\n===== MENÚ PRINCIPAL =====");
         System.out.println("1. Iniciar Sesión");
         System.out.println("2. Registrarse");
@@ -193,7 +191,7 @@ public class Driver {
         }
     }
 
-    private static void login() throws IOException {
+    private static void login() throws IOException, InicioSesionIncorrectoException {
         System.out.print("Usuario: ");
         String u = sc.nextLine().trim();
         System.out.print("Password: ");
@@ -367,7 +365,7 @@ public class Driver {
         }
     }
 
-        private static void addRecursos() {
+    private static void addRecursos() {
         System.out.print("ID recurso: ");
         String id = sc.nextLine().trim();
     
