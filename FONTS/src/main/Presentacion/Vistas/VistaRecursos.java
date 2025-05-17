@@ -1,20 +1,22 @@
 package Presentacion.Vistas;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
+import java.util.List;
+import javax.swing.*;
 
 public class VistaRecursos extends JPanel {
 
     private static final int CONTENT_WIDTH = 360;
-    private static final Color BG = new Color(238,238,238,255);
+    private static final Color BG = new Color(238, 238, 238, 255);
     private static final Color FG_TITLE = new Color(40, 50, 60);
     private static final Color FG_SUB = new Color(80, 90, 100);
     private static final Color BORDER = new Color(220, 220, 220);
     private JButton botonAdd;
+    private DefaultListModel<String> model;
+    private JList<String> lista;
+
+    private JButton botonEliminar;
 
     public VistaRecursos() {
         setLayout(new BorderLayout());
@@ -51,14 +53,10 @@ public class VistaRecursos extends JPanel {
         content.add(Box.createVerticalStrut(20));
 
         // Lista dentro de un JScrollPane
-        DefaultListModel<String> model = new DefaultListModel<>();
-        model.addElement("Castellano");
-        model.addElement("Catalan");
-        model.addElement("Inglés");
-        model.addElement("Animación");
-        // ... añade más recursos si quieres
+        model = new DefaultListModel<>();
 
-        JList<String> lista = new JList<>(model);
+        // ... añade más recursos si quieres
+        lista = new JList<>(model);
         lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lista.setFont(new Font("Arial", Font.PLAIN, 16));
         lista.setFixedCellHeight(40);
@@ -78,21 +76,37 @@ public class VistaRecursos extends JPanel {
         botones.setBackground(BG);
         botonAdd = crearBotonBlanco("Añadir Recurso");
         botones.add(botonAdd);
-        botones.add(crearBotonBlanco("Eliminar Recurso"));
-        ActionListener vistaAddRecurso = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                VistaExplorador vmp = new VistaExplorador();
-                vmp.setVisible(true);
-
-            }
-        };
-        botonAdd.addActionListener(vistaAddRecurso);
+        botonEliminar = crearBotonBlanco("Eliminar Recurso");
+        botones.add(botonEliminar);
+      
+       
         content.add(botones);
 
         // Pegamos content en el wrapper
         wrapper.add(content);
         add(wrapper, BorderLayout.CENTER);
+    }
+
+    public void addRecurso(ActionListener l) {
+        botonAdd.addActionListener(l);
+    }
+    public void eliminarRecurso(ActionListener l) {
+        botonEliminar.addActionListener(l);
+    }
+
+    public void removeLista(String s) {
+        model.removeElement(s);
+    }
+
+    public void setLista(List<String> lista) {
+         model.removeAllElements();
+        for (String recurso : lista) {
+            model.addElement(recurso);
+        }
+    }
+
+    public String getSeleccionado() {
+        return lista.getSelectedValue();
     }
 
     private JButton crearBotonBlanco(String texto) {

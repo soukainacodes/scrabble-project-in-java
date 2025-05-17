@@ -1,75 +1,119 @@
 package Presentacion.Vistas;
 
 import java.awt.*;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class VistaCuenta extends JPanel {
 
     public static final int CONTENT_WIDTH = 360;
-    private static final Color BG = new Color(230,230,241,255);
+    private static final Color BG = new Color(238, 238, 238, 255);
     private static final Color FG = new Color(20, 40, 80);
-    private static final Color BORDER = new Color(220, 220, 220);
-
+    private JButton btnCambiar;
+    private JButton btnEliminar;
+    private JButton btnEditarNombre;
+    private JLabel valorNombre;
+    private JLabel valorPuntos;
     public VistaCuenta() {
         setLayout(new BorderLayout());
         setBackground(BG);
+        // Margen general alrededor
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Wrapper para centrar y fijar ancho
-        JPanel wrapper = new JPanel(new GridBagLayout());
+        // Wrapper con FlowLayout para alinear a la izquierda
+        JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEFT));
         wrapper.setBackground(BG);
 
-        // Panel de contenido con BoxLayout vertical
+        // Panel vertical donde apilamos las filas
         JPanel content = new JPanel();
-        content.setBackground(BG);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(BG);
+        // Limitar el ancho, permitir altura variable
         content.setMaximumSize(new Dimension(CONTENT_WIDTH, Integer.MAX_VALUE));
+        content.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Añadimos hueco, título y botones
-        // content.add(Box.createVerticalStrut(30));
-        JLabel titulo = new JLabel("Cuenta");
-        titulo.setFont(new Font("Arial", Font.BOLD, 24));
-        titulo.setForeground(FG);
-        titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        content.add(titulo);
+        // ——— Fila de Nombre ———
+        JPanel rowNombre = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        rowNombre.setBackground(BG);
 
-        content.add(Box.createVerticalStrut(30));
+        JLabel lblNombre = new JLabel("Nombre:");
+        lblNombre.setFont(new Font("Arial", Font.BOLD, 20));
+        lblNombre.setForeground(FG);
 
-        JButton btnCambiar = crearBotonBlanco("Cambiar Contraseña");
-        JButton btnEliminar = crearBotonBlanco("Eliminar Usuario");
+        valorNombre = new JLabel();
+        valorNombre.setFont(new Font("Arial", Font.PLAIN, 20));
+        valorNombre.setForeground(FG);
+
+        // ——— Botón de editar nombre ———
+        // Carga tu icono de lápiz (pon el PNG/ICO en recursos y ajusta la ruta)
+        btnEditarNombre = crearBotonBlanco("Editar");
+
+        // Montamos la fila
+        rowNombre.add(lblNombre);
+        rowNombre.add(valorNombre);
+        rowNombre.add(btnEditarNombre);          // <-- añadimos el botón aquí
+        content.add(rowNombre);
+
+        content.add(Box.createVerticalStrut(8));
+
+        // ——— Fila de Puntos ———
+        JPanel rowPuntos = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        rowPuntos.setBackground(BG);
+        JLabel lblPuntos = new JLabel("Puntos:");
+        lblPuntos.setFont(new Font("Arial", Font.BOLD, 20));
+        valorPuntos = new JLabel();
+        valorPuntos.setFont(new Font("Arial", Font.PLAIN, 20));
+        valorPuntos.setForeground(FG);
+        rowPuntos.add(lblPuntos);
+        rowPuntos.add(valorPuntos);
+        content.add(rowPuntos);
+
+        content.add(Box.createVerticalStrut(20));
+
+        // ——— Botones ———
+        btnCambiar = crearBotonBlanco("Cambiar Contraseña");
+        btnEliminar = crearBotonBlanco("Eliminar Jugador");
 
         content.add(btnCambiar);
-        content.add(Box.createVerticalStrut(15));
+        content.add(Box.createVerticalStrut(10));
         content.add(btnEliminar);
 
-        // Pegamos el content en el wrapper centrado
+        // Montamos todo
         wrapper.add(content);
-        add(wrapper);
+        // Lo ponemos en NORTH para que quede arriba
+        add(wrapper, BorderLayout.NORTH);
+    }
+
+    public void cambiarPassword(ActionListener l) {
+        btnCambiar.addActionListener(l);
+    }
+
+    public void eliminarJugador(ActionListener l) {
+        btnEliminar.addActionListener(l);
+    }
+
+    public void cambiarNombre(ActionListener l) {
+        btnEditarNombre.addActionListener(l);
+    }
+
+    public void setNombre(String nombre) {
+        valorNombre.setText(nombre);
+    }
+
+    public void setPuntos(String puntos){
+        valorPuntos.setText(puntos);
     }
 
     private JButton crearBotonBlanco(String texto) {
-        JButton boton = new JButton(texto) {
+        JButton boton = new JButton(texto);
 
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                GradientPaint gp = new GradientPaint(0, 0, new Color(86, 99, 243), getWidth(), 0, new Color(86, 232, 243));
-                g2.setPaint(gp);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
-                super.paintComponent(g);
-            }
-        };
-
-        boton.setFont(new Font("Arial", Font.BOLD, 20));
-        boton.setForeground(FG);
+        boton.setForeground(new Color(20, 40, 80));
+        boton.setFont(new Font("Arial", Font.BOLD, 16));
         boton.setFocusPainted(false);
-        boton.setContentAreaFilled(false);
-        // boton.setBackground(Color.WHITE);
-        boton.setOpaque(true);
-        boton.setBorderPainted(false);
-        //boton.setBorder(BorderFactory.createLineBorder(BORDER, 2));
+        boton.setBackground(new Color(255, 248, 230));
+        boton.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 2));
+        boton.setMaximumSize(new Dimension(250, 50));
         boton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        boton.setMaximumSize(new Dimension(CONTENT_WIDTH, 50));
         return boton;
     }
 }

@@ -1,38 +1,31 @@
 package Presentacion.Vistas;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
+
+
 public class VistaPantallaPrincipal extends JPanel {
+
     private JButton botonCrearPartida;
     private JButton botonCargarPartida;
+    private String nombre = "";
+    private JLabel titulo;
+    
     public VistaPantallaPrincipal() {
-       // setBackground(new Color(255, 248, 230));
+        // setBackground(new Color(255, 248, 230));
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         add(Box.createVerticalStrut(30));
 
-        JLabel titulo = new JLabel("Bienvenido [Usuario]");
+        titulo = new JLabel();
         titulo.setFont(new Font("", Font.BOLD, 24));
-         titulo.setForeground(new Color(60, 80, 100));
+        titulo.setForeground(new Color(60, 80, 100));
         titulo.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(titulo);
 
         add(Box.createVerticalStrut(10));
-
-        JLabel puntuacion = new JLabel("Tu puntuación máxima es X");
-        puntuacion.setFont(new Font("", Font.PLAIN, 18));
-        puntuacion.setForeground(new Color(60, 80, 100));
-        puntuacion.setAlignmentX(Component.CENTER_ALIGNMENT);
-        add(puntuacion);
-
-        add(Box.createVerticalStrut(5));
-
-        JLabel ranking = new JLabel("Estás en la posición X en el Ranking");
-       ranking.setFont(new Font("", Font.PLAIN, 18));
-        ranking.setForeground(new Color(60, 80, 100));
-        ranking.setAlignmentX(Component.CENTER_ALIGNMENT);
-        add(ranking);
 
         add(Box.createVerticalStrut(30));
 
@@ -43,8 +36,13 @@ public class VistaPantallaPrincipal extends JPanel {
         add(Box.createVerticalStrut(15));
         add(crearBotonBlanco("Última Partida"));
         add(Box.createVerticalStrut(15));
-        add( botonCargarPartida);
+        add(botonCargarPartida);
 
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+        titulo.setText("Bienvenido " + nombre);
     }
 
     private JButton crearBotonDegradado(String texto) {
@@ -60,7 +58,7 @@ public class VistaPantallaPrincipal extends JPanel {
             }
         };
         b.setForeground(Color.WHITE);
-      //  b.setFont(new Font("Arial", Font.BOLD, 16));
+        b.setFont(new Font("Arial", Font.BOLD, 16));
         b.setFocusPainted(false);
         b.setContentAreaFilled(false);
         b.setBorderPainted(false);
@@ -73,7 +71,7 @@ public class VistaPantallaPrincipal extends JPanel {
     private JButton crearBotonBlanco(String texto) {
         JButton b = new JButton(texto);
         b.setForeground(new Color(20, 40, 80));
-       // b.setFont(new Font("Arial", Font.BOLD, 16));
+        b.setFont(new Font("Arial", Font.BOLD, 16));
         b.setFocusPainted(false);
         b.setBackground(new Color(255, 248, 230));
         b.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 2));

@@ -1,13 +1,17 @@
 package Presentacion;
 
+import java.util.LinkedHashMap;
 import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 import Presentacion.Vistas.*;
 import java.awt.Font;
-import javax.swing.UIManager;
-import java.util.List;
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
+import javax.swing.UIManager;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+
 public class CtrlPresentacion {
 
     private CtrlDominio ctrlDominio = new CtrlDominio();
@@ -25,11 +29,12 @@ public class CtrlPresentacion {
     private VistaCrearPartida vCrearPartida;
     private VistaScrabble vScrabble;
 
+    private VistaPassword vPassword;
+    private VistaCambiar vCambiar;
     private VistaExplorador vAddRecurso;
+    private VistaLogin vSegundoJugador;
 
-    private boolean sesionIniciada = false;
-
-    public CtrlPresentacion() {
+    public CtrlPresentacion() throws IOException {
         configuracion();
         crearVistaLogin();
     }
@@ -49,10 +54,8 @@ public class CtrlPresentacion {
 
     private void crearVistaLogin() {
         vLogin = new VistaLogin();
-        if (!sesionIniciada) {
-            vLogin.addVistaPrincipal(e -> crearVistaMenuPrincipal());
-        } else {
-            // vLogin.addVistaPrincipal(e -> crearVistaMenuPrincipal());
+        if (!ctrlDominio.haySesion()) {
+            vLogin.entrar(e -> crearVistaMenuPrincipal());
         }
 
     }
@@ -61,9 +64,15 @@ public class CtrlPresentacion {
 
         String usuario = vLogin.getNombre();
         String password = new String(vLogin.getPassword());
-        System.out.println(password);
+
         try {
-            ctrlDominio.iniciarSesion(usuario, password);
+            if (vLogin.getSeleccionado()) {
+                ctrlDominio.iniciarSesion(usuario, password);
+            } else {
+                ctrlDominio.registrarJugador(usuario, password);
+                ctrlDominio.iniciarSesion(usuario, password);
+            }
+
             vMenuPrincipal = new VistaMenuPrincipal();
             crearVistaMenuLateral();
             crearVistaPantallaPrincipal();
@@ -74,7 +83,7 @@ public class CtrlPresentacion {
             vLogin.pack();
 
         } catch (Exception e) {
-          //  System.err.println("Error: " + e.getMessage());
+            //  System.err.println("Error: " + e.getMessage());
             vLogin.setError(e.getMessage());
         }
 
@@ -86,13 +95,20 @@ public class CtrlPresentacion {
         vMenuPrincipal.addMenuLateral(vMenuLateral);
 
         vPantallaPrincipal = new VistaPantallaPrincipal();
+        vPantallaPrincipal.setNombre(ctrlDominio.getUsuarioActual());
+        try {
+            vCuenta = new VistaCuenta();
 
-        vCuenta = new VistaCuenta();
+        } catch (Exception e) {
+
+        }
+
         vRanking = new VistaRanking();
         vRecursos = new VistaRecursos();
 
         //Esto no se si deberia ir aqui
         vCargarPartida = new VistaCargarPartida();
+
         vCrearPartida = new VistaCrearPartida();
 
         vMenuPrincipal.addCard("PRINCIPAL", vPantallaPrincipal);
@@ -103,23 +119,29 @@ public class CtrlPresentacion {
 
         vMenuPrincipal.addCard("CREARPARTIDA", vCrearPartida);
 
-        vMenuLateral.addVerCuentaListener(e -> vMenuPrincipal.muestraCard("CUENTA"));
-        vMenuLateral.addJugarListener(e -> vMenuPrincipal.muestraCard("PRINCIPAL"));
-        vMenuLateral.addVistaRecursos(e -> vMenuPrincipal.muestraCard("RECURSOS"));
-        vMenuLateral.addVistaRanking(e -> vMenuPrincipal.muestraCard("RANKING"));
-        vMenuLateral.cerrarSesion(e -> cerrarSesion());
+        vMenuLateral.addVerCuentaListener(e -> crearVistaCuenta());
+        vMenuLateral.addJugarListener(e -> crearVistaPantallaPrincipal());
 
-        vPantallaPrincipal.addVistaCrearPartida(e -> vMenuPrincipal.muestraCard("CREARPARTIDA"));
+        vMenuLateral.addVistaRanking(e -> {
+            try {
+                crearVistaRanking();
+            } catch (IOException ex) {
+                System.out.println("ERROR: " + ex.getMessage());
+            }
+        });
+
+        vMenuLateral.addVistaRecursos(e -> {
+            crearVistaRecursos();
+        });
+
+        vMenuLateral.addVistaRecursos(e -> vMenuPrincipal.muestraCard("RECURSOS"));
+        vMenuLateral.cerrarSesion(e -> cerrarSesion());
+        vPantallaPrincipal.addVistaCrearPartida(e -> crearVistaCrearPartida());
         vPantallaPrincipal.addVistaCargarPartida(e -> vMenuPrincipal.muestraCard("CARGARPARTIDA"));
-       // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
-        vCrearPartida.jugarPartida(e -> jugarPartida());
+        // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
+
         vCargarPartida.jugarPartida(e -> jugarPartida());
-        //    crearPartida.jugarPartida(e -> jugarPartida());
-        //  cargarPartida.jugarPartida(e -> jugarPartida());
-        //  vMenuLateral.addJugarListener(e -> muestraCard(BIENVENIDA));
-        //  vMenuLateral.addVistaRecursos(e -> muestraCard(RECURSOS));
-        //  vMenuLateral.addVistaRanking(e -> muestraCard("RANKING"));
-        //  vMenuLateral.cerrarSesion(e -> cerrarSesion());
+
     }
 
     private void cerrarSesion() {
@@ -130,18 +152,35 @@ public class CtrlPresentacion {
 
     }
 
-    private void jugarPartida() {
+    private void crearPartida() {
 
+        System.out.println(vCrearPartida.getModo());
+        System.out.println(vCrearPartida.getIdioma());
+        if(vCrearPartida.getModo() == 1) {
+           
+        }
+
+    }
+
+    private void jugarPartida() {
         vScrabble = new VistaScrabble();
         vMenuPrincipal.jugarPartida(vScrabble);
     }
 
     private void crearVistaPantallaPrincipal() {
-
+        vPantallaPrincipal.setNombre(ctrlDominio.getUsuarioActual());
+        vMenuPrincipal.muestraCard("PRINCIPAL");
     }
     //Vistas del menu principal
 
     private void crearVistaCrearPartida() {
+
+        vCrearPartida.jugarPartida(e -> crearPartida());
+        vCrearPartida.addSegundoJugador(e -> crearVistaSegundoJugador());
+        List<String> ids = ctrlDominio.obtenerRecursos();
+        String[] idiomas = ids.toArray(new String[0]);
+        vCrearPartida.setIdiomas(idiomas);
+        vMenuPrincipal.muestraCard("CREARPARTIDA");
 
     }
 
@@ -149,26 +188,198 @@ public class CtrlPresentacion {
 
     }
 
+    private void crearVistaSegundoJugador() {
+        vSegundoJugador = new VistaLogin();
+        vSegundoJugador.entrar(e -> addSegundoJugador());
+    }
+
+    private void addSegundoJugador() {
+        String usuario = vSegundoJugador.getNombre();
+        String password = new String(vSegundoJugador.getPassword());
+        try {
+            if (vSegundoJugador.getSeleccionado()) {
+                ctrlDominio.iniciarSesionSegundoJugador(usuario, password);
+            } else {
+                ctrlDominio.registrarJugador(usuario, password);
+                ctrlDominio.iniciarSesionSegundoJugador(usuario, password);
+            }
+            vSegundoJugador.dispose();
+        } catch (Exception e) {
+            //  System.err.println("Error: " + e.getMessage());
+            vSegundoJugador.setError(e.getMessage());
+        }
+       
+    }
+
     //Vistas del menu lateral
     private void crearVistaCuenta() {
+        vCuenta.setNombre(ctrlDominio.getUsuarioActual());
+        try {
+
+            vCuenta.setPuntos(Integer.toString(ctrlDominio.getPuntosActual()));
+        } catch (Exception e) {
+        }
+
+        vCuenta.cambiarNombre(e -> crearVistaCambiarNombre());
+        vCuenta.cambiarPassword(e -> crearVistaCambiarPassword());
+        vCuenta.eliminarJugador(e -> crearVistaEliminarJugador());
+
+        vMenuPrincipal.muestraCard("CUENTA");
 
     }
-    private void crearVistaRanking() throws IOException {
-        try{
-              var list = ctrlDominio.obtenerRanking();
-        vRanking.setLista(list);
-        vMenuPrincipal.muestraCard("RECURSOS");
+
+    private void crearVistaCambiarPassword() {
+        vCambiar = new VistaCambiar("password");
+        vCambiar.setVisible(true);
+
+        vCambiar.cambiar(e -> cambiarPassword());
+    }
+
+    private void crearVistaEliminarJugador() {
+
+        vPassword = new VistaPassword(ctrlDominio.getUsuarioActual());
+        vPassword.setVisible(true);
+        vPassword.verificar(e -> eliminarJugador());
+
+    }
+
+    private void crearVistaCambiarNombre() {
+        vCambiar = new VistaCambiar("nombre");
+        vCambiar.setVisible(true);
+        vCambiar.setResizable(false);
+        vCambiar.cambiar(e -> cambiarNombre());
+
+    }
+
+    private void cambiarPassword() {
+        String passwordActual = new String(vCambiar.getPasswordActual());
+        String passwordNueva = new String(vCambiar.getPassword());
+        try {
+            ctrlDominio.cambiarPassword(passwordActual, passwordNueva);
+            vCambiar.dispose();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
         }
-         catch (RankingVacioException e) {
-                        System.out.println("Ranking vacío.");
-                    }
-                    
-      
+
+    }
+
+    private void cambiarNombre() {
+        String nombre = new String(vCambiar.getNombre());
+        String password = new String(vCambiar.getPassword());
+        try {
+
+            ctrlDominio.cambiarNombre(nombre, password);
+
+            vCuenta.setNombre(ctrlDominio.getUsuarioActual());
+            vCambiar.dispose();
+
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+    }
+
+    private void eliminarJugador() {
+        String password = new String(vPassword.getPassword());
+        try {
+            ctrlDominio.eliminarUsuario(password);
+            vPassword.dispose();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private void crearVistaRanking() throws IOException {
+        try {
+            var list = ctrlDominio.obtenerRanking();
+            for (int i = 0; i < list.size(); i++) {
+                var e = list.get(i);
+
+            }
+            vRanking.setLista(list);
+
+            vMenuPrincipal.muestraCard("RANKING");
+        } catch (RankingVacioException e) {
+            System.out.println("Ranking vacío.");
+        }
 
     }
 
     private void crearVistaRecursos() {
+        List<String> ids = ctrlDominio.obtenerRecursos();
+        vRecursos.setLista(ids);
+        vRecursos.eliminarRecurso(e -> eliminarRecurso());
+        vRecursos.addRecurso(e -> crearVistaAddRecurso());
+        vMenuPrincipal.muestraCard("RECURSOS");
 
+    }
+
+    private void crearVistaAddRecurso() {
+        vAddRecurso = new VistaExplorador();
+        String rutaDiccionario;
+        int contadorArchivos = 0;
+        final String[] rutas = new String[2];
+        vAddRecurso.addAñadirListener(e -> {
+            String ruta = vAddRecurso.elegirArchivo();
+            if (ruta != null) {
+                //  System.out.println("Archivo elegido: " + ruta);
+                try {
+                    if (vAddRecurso.textAreaisEmpty(1)) {
+                        vAddRecurso.listToTextArea(leeTexto(ruta), 1);
+                    } else {
+                        vAddRecurso.listToTextArea(leeTexto(ruta), 2);
+                    }
+
+                } catch (IOException xe) {
+                }
+
+            }
+            //System.out.println(rutas[0] + " " + rutas[1]);
+        });
+
+        vAddRecurso.aceptar(e -> addRecurso());
+        vAddRecurso.setVisible(true);
+
+    }
+
+    private void addRecurso() {
+        String id = vAddRecurso.getID();
+
+        List<String> diccionario = vAddRecurso.textAreaToList(1);
+        var bolsa = vAddRecurso.textAreaToList(2);
+        try {
+            ctrlDominio.crearRecurso(id, diccionario, bolsa);
+        } catch (Exception e) {
+        }
+
+    }
+
+    //Botones
+    private void eliminarRecurso() {
+
+        try {
+            ctrlDominio.eliminarRecurso(vRecursos.getSeleccionado());
+            vRecursos.removeLista(vRecursos.getSeleccionado());
+
+        } catch (IOException ex) {
+            System.out.println("ERROR: " + ex.getMessage());
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+
+    }
+
+    private static List<String> leeTexto(String ruta) throws IOException {
+        var res = new ArrayList<String>();
+        try (var br = new BufferedReader(new FileReader(ruta))) {
+            String l;
+            while ((l = br.readLine()) != null) {
+                if (!l.isBlank()) {
+                    res.add(l.trim());
+                }
+            }
+        }
+        return res;
     }
 
 }

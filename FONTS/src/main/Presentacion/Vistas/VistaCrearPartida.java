@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.*;
+
 public class VistaCrearPartida extends JPanel {
 
     private static final int CONTENT_WIDTH = 360;
@@ -13,6 +14,10 @@ public class VistaCrearPartida extends JPanel {
     private static final Color FG = new Color(20, 40, 80);
     private static final Color BORDER = new Color(220, 220, 220);
     private JButton botonCrearPartida;
+    private JButton botonIniciarSesion;
+    private String[] idiomas = new String[0];
+    private JComboBox<String> comboJugadores;
+    private JComboBox<String> comboIdiomas;
 
     public VistaCrearPartida() {
         setLayout(new BorderLayout());
@@ -39,7 +44,7 @@ public class VistaCrearPartida extends JPanel {
         content.add(Box.createVerticalStrut(8));
 
         String[] opcionesJug = {"1 Jugador", "2 Jugadores"};
-        JComboBox<String> comboJugadores = new JComboBox<>(opcionesJug);
+        comboJugadores = new JComboBox<>(opcionesJug);
         comboJugadores.setFont(new Font("Arial", Font.PLAIN, 14));
         comboJugadores.setMaximumSize(new Dimension(CONTENT_WIDTH, thirtySix()));
         comboJugadores.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -48,10 +53,10 @@ public class VistaCrearPartida extends JPanel {
         content.add(Box.createVerticalStrut(15));
 
         // Botón Iniciar Sesión (oculto inicialmente)
-        JButton btnIniciarSesion = new JButton("Iniciar Sesión");
-        styleButton(btnIniciarSesion);
-        btnIniciarSesion.setVisible(false);
-        content.add(btnIniciarSesion);
+        botonIniciarSesion = new JButton("Añadir Segundo Jugador");
+        styleButton(botonIniciarSesion);
+        botonIniciarSesion.setVisible(false);
+        content.add(botonIniciarSesion);
 
         content.add(Box.createVerticalStrut(20));
 
@@ -64,8 +69,7 @@ public class VistaCrearPartida extends JPanel {
 
         content.add(Box.createVerticalStrut(8));
 
-        String[] idiomas = {"Castellano", "Catalán", "Inglés", "Francés"};
-        JComboBox<String> comboIdiomas = new JComboBox<>(idiomas);
+        comboIdiomas = new JComboBox<>();
         comboIdiomas.setFont(new Font("Arial", Font.PLAIN, 14));
         comboIdiomas.setMaximumSize(new Dimension(CONTENT_WIDTH, thirtySix()));
         comboIdiomas.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -84,26 +88,32 @@ public class VistaCrearPartida extends JPanel {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     String sel = (String) e.getItem();
-                    btnIniciarSesion.setVisible("2 Jugadores".equals(sel));
+                    botonIniciarSesion.setVisible("2 Jugadores".equals(sel));
                     revalidate();
                 }
             }
         });
 
-        ActionListener vistaIniciarSesion = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                VistaLogin vmp = new VistaLogin();
-                vmp.setVisible(true);
-
-            }
-        };
-        btnIniciarSesion.addActionListener(vistaIniciarSesion);
+      
         wrapper.add(content);
         add(wrapper, BorderLayout.CENTER);
 
+    }
 
+    public void setIdiomas(String[] idiomas) {
+        this.idiomas = idiomas;
 
+        comboIdiomas.setModel(new DefaultComboBoxModel<>(idiomas));
+        comboIdiomas.revalidate();
+        comboIdiomas.repaint();
+    }
+
+    public int getModo() {
+        return comboJugadores.getSelectedIndex();
+    }
+
+    public String getIdioma() {
+        return (String) comboIdiomas.getSelectedItem();
     }
 
     /**
@@ -143,7 +153,9 @@ public class VistaCrearPartida extends JPanel {
 
     public void jugarPartida(ActionListener l) {
         botonCrearPartida.addActionListener(l);
-
     }
 
+      public void addSegundoJugador(ActionListener l) {
+        botonIniciarSesion.addActionListener(l);
+    }
 }

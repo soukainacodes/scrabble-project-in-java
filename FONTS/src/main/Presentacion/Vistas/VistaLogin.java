@@ -17,6 +17,7 @@ public class VistaLogin extends JFrame {
 
     private String nombre;
     private String password;
+
     public VistaLogin() {
 
         setTitle("SCRABBLE");
@@ -70,6 +71,7 @@ public class VistaLogin extends JFrame {
         campoContrasena.setBackground(fondoColor);
         campoContrasena.setHorizontalAlignment(JTextField.CENTER);
         campoContrasena.setAlignmentX(Component.CENTER_ALIGNMENT);
+        campoContrasena.addActionListener(e -> botonEntrar.doClick());
 
         // --- Botón Entrar ---
         botonEntrar = new JButton("Entrar") {
@@ -92,7 +94,7 @@ public class VistaLogin extends JFrame {
         botonEntrar.setAlignmentX(Component.CENTER_ALIGNMENT);
         botonEntrar.setPreferredSize(new Dimension(200, 45));
         botonEntrar.setMaximumSize(new Dimension(200, 45));
-      
+
         //botonEntrar.addActionListener(vistaMenuPrincipal);
         // --- Agregando componentes ---
         tarjeta.add(panelBotones);
@@ -115,11 +117,15 @@ public class VistaLogin extends JFrame {
 
     }
 
-    public void addVistaPrincipal(ActionListener l) {
+    public void entrar(ActionListener l) {
         botonEntrar.addActionListener(l);
     }
 
-    public void setError(String texto){
+    public void pulsarEnter(ActionListener l) {
+        campoContrasena.addActionListener(l);
+    }
+
+    public void setError(String texto) {
         error.setText(texto);
     }
 
@@ -153,6 +159,10 @@ public class VistaLogin extends JFrame {
         });
 
         return boton;
+    }
+
+    public boolean getSeleccionado() {
+        return iniciarSeleccionado;
     }
 
     // Clase para bordes redondeados en los JTextField
