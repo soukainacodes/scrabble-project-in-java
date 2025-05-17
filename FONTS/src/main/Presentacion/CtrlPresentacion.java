@@ -8,7 +8,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.io.IOException;
 import java.util.List;
-
+import java.util.Random;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import java.io.BufferedReader;
@@ -39,6 +39,7 @@ public class CtrlPresentacion {
     private VistaExplorador vAddRecurso;
     private VistaLogin vSegundoJugador;
 
+    private String nombreSegundoJugador = "";
     public CtrlPresentacion() throws IOException {
         configuracion();
         crearVistaLogin();
@@ -158,13 +159,22 @@ public class CtrlPresentacion {
     }
 
     private void crearPartida() {
-
-        System.out.println(vCrearPartida.getModo());
-        System.out.println(vCrearPartida.getIdioma());
-        if (vCrearPartida.getModo() == 1) {
-
+        String id = vCrearPartida.getID();
+        int modo = vCrearPartida.getModo();
+        String idioma = vCrearPartida.getIdioma();
+        String nombre = "";
+        
+       
+        try {
+            if(id != null && id != "" ){
+                 long seed = new Random().nextLong();
+                ctrlDominio.iniciarPartida(id, idioma, seed ,true);
+            }
+             
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
         }
-
+      
     }
 
     private void jugarPartida() {
@@ -199,14 +209,14 @@ public class CtrlPresentacion {
     }
 
     private void addSegundoJugador() {
-        String usuario = vSegundoJugador.getNombre();
+        nombreSegundoJugador = vSegundoJugador.getNombre();
         String password = new String(vSegundoJugador.getPassword());
         try {
             if (vSegundoJugador.getSeleccionado()) {
-                ctrlDominio.iniciarSesionSegundoJugador(usuario, password);
+                ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
             } else {
-                ctrlDominio.registrarJugador(usuario, password);
-                ctrlDominio.iniciarSesionSegundoJugador(usuario, password);
+                ctrlDominio.registrarJugador(nombreSegundoJugador, password);
+                ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
             }
             vSegundoJugador.dispose();
         } catch (Exception e) {

@@ -1,7 +1,6 @@
 package Presentacion.Vistas;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -10,7 +9,7 @@ import javax.swing.*;
 public class VistaCrearPartida extends JPanel {
 
     private static final int CONTENT_WIDTH = 360;
-    private static final Color BG = new Color(255, 248, 230);
+    private static final Color BG = new Color(238, 238, 238);
     private static final Color FG = new Color(20, 40, 80);
     private static final Color BORDER = new Color(220, 220, 220);
     private JButton botonCrearPartida;
@@ -18,6 +17,8 @@ public class VistaCrearPartida extends JPanel {
     private String[] idiomas = new String[0];
     private JComboBox<String> comboJugadores;
     private JComboBox<String> comboIdiomas;
+
+    private JTextField id;
 
     public VistaCrearPartida() {
         setLayout(new BorderLayout());
@@ -33,6 +34,23 @@ public class VistaCrearPartida extends JPanel {
         content.setBackground(BG);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setMaximumSize(new Dimension(CONTENT_WIDTH, Integer.MAX_VALUE));
+        JLabel lblID = new JLabel("ID");
+        lblID.setFont(new Font("Arial", Font.BOLD, 16));
+        lblID.setForeground(FG);
+        lblID.setAlignmentX(Component.CENTER_ALIGNMENT);
+        content.add(lblID);
+
+        content.add(Box.createVerticalStrut(8));
+
+        id = new JTextField();
+        id.setFont(new Font("Arial", Font.PLAIN, 14));
+        id.setMaximumSize(new Dimension(CONTENT_WIDTH, thirtySix()));
+        id.setAlignmentX(Component.CENTER_ALIGNMENT);
+        content.add(id);
+
+
+        content.add(Box.createVerticalStrut(35));
+
 
         // Desplegable de número de jugadores
         JLabel lblJugadores = new JLabel("Número de jugadores:");
@@ -94,15 +112,16 @@ public class VistaCrearPartida extends JPanel {
             }
         });
 
-      
         wrapper.add(content);
         add(wrapper, BorderLayout.CENTER);
 
     }
 
+
+
     public void setIdiomas(String[] idiomas) {
         this.idiomas = idiomas;
-
+        
         comboIdiomas.setModel(new DefaultComboBoxModel<>(idiomas));
         comboIdiomas.revalidate();
         comboIdiomas.repaint();
@@ -114,6 +133,10 @@ public class VistaCrearPartida extends JPanel {
 
     public String getIdioma() {
         return (String) comboIdiomas.getSelectedItem();
+    }
+
+    public String getID(){
+        return id.getText();
     }
 
     /**
@@ -155,7 +178,7 @@ public class VistaCrearPartida extends JPanel {
         botonCrearPartida.addActionListener(l);
     }
 
-      public void addSegundoJugador(ActionListener l) {
+    public void addSegundoJugador(ActionListener l) {
         botonIniciarSesion.addActionListener(l);
     }
 }

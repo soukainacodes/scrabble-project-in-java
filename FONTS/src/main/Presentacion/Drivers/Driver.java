@@ -514,7 +514,7 @@ public class Driver {
             }
         }
         long seed = new Random().nextLong();
-        ctrl.iniciarPartida(pid, otro, did, seed, true);
+        ctrl.iniciarPartida(pid, did, seed, true);
         menuJuego();
     }
 

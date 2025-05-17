@@ -56,6 +56,10 @@ public class CtrlJugador {
         this.segundoJugador = new Jugador(nombre);
     }
 
+    public void resetSegundoJugador(){
+        this.segundoJugador = null;
+    }
+
     
     /**
      * Obtiene el jugador actual.

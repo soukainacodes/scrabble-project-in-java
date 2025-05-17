@@ -23,7 +23,7 @@ public class VistaLogin extends JFrame {
         setResizable(false);
         setTitle("SCRABBLE");
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(450, 550);
         
         setLocationRelativeTo(null);
@@ -306,6 +306,7 @@ public class VistaLogin extends JFrame {
     }
 
     public String getNombre() {
+       
         return campoUsuario.getText();
     }
 
