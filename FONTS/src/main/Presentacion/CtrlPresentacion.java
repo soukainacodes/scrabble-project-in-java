@@ -5,8 +5,11 @@ import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 import Presentacion.Vistas.*;
 import java.awt.Font;
+import java.awt.Image;
 import java.io.IOException;
 import java.util.List;
+
+import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,8 +18,10 @@ import java.util.ArrayList;
 public class CtrlPresentacion {
 
     private CtrlDominio ctrlDominio = new CtrlDominio();
+    // Añadir después de las declaraciones de vistas
+    private Image aplicarIconoVentana;
 
-    //Vistas
+    // Vistas
     private VistaLogin vLogin;
     private VistaMenuPrincipal vMenuPrincipal;
     private VistaMenuLateral vMenuLateral;
@@ -37,27 +42,27 @@ public class CtrlPresentacion {
     public CtrlPresentacion() throws IOException {
         configuracion();
         crearVistaLogin();
-    }
-
-    private void configuracion() {
-        Font fuenteGlobal = new Font("Arial", Font.PLAIN, 24);
-        UIManager.put("Button.font", fuenteGlobal);
-        UIManager.put("Label.font", fuenteGlobal);
-        UIManager.put("TextField.font", fuenteGlobal);
-        UIManager.put("PasswordField.font", fuenteGlobal);
-        UIManager.put("ComboBox.font", fuenteGlobal);
-        UIManager.put("CheckBox.font", fuenteGlobal);
-        UIManager.put("RadioButton.font", fuenteGlobal);
-        UIManager.put("Menu.font", fuenteGlobal);
-        UIManager.put("MenuItem.font", fuenteGlobal);
+        aplicarIconos();
     }
 
     private void crearVistaLogin() {
         vLogin = new VistaLogin();
+        // Aplicar icono inmediatamente después de crear la ventana de login
+    if (aplicarIconoVentana != null) {
+        List<Image> iconos = new ArrayList<>();
+        int[] tamaños = {16, 24, 32, 48, 64, 128};
+        
+        for (int tamaño : tamaños) {
+            Image imagenEscalada = aplicarIconoVentana.getScaledInstance(
+                tamaño, tamaño, Image.SCALE_SMOOTH);
+            iconos.add(imagenEscalada);
+        }
+        
+        vLogin.setIconImages(iconos);
+    }
         if (!ctrlDominio.haySesion()) {
             vLogin.entrar(e -> crearVistaMenuPrincipal());
         }
-
     }
 
     private void crearVistaMenuPrincipal() {
@@ -83,13 +88,13 @@ public class CtrlPresentacion {
             vLogin.pack();
 
         } catch (Exception e) {
-            //  System.err.println("Error: " + e.getMessage());
+            // System.err.println("Error: " + e.getMessage());
             vLogin.setError(e.getMessage());
         }
 
     }
 
-    //VISTAS
+    // VISTAS
     private void crearVistaMenuLateral() {
         vMenuLateral = new VistaMenuLateral();
         vMenuPrincipal.addMenuLateral(vMenuLateral);
@@ -106,7 +111,7 @@ public class CtrlPresentacion {
         vRanking = new VistaRanking();
         vRecursos = new VistaRecursos();
 
-        //Esto no se si deberia ir aqui
+        // Esto no se si deberia ir aqui
         vCargarPartida = new VistaCargarPartida();
 
         vCrearPartida = new VistaCrearPartida();
@@ -156,8 +161,8 @@ public class CtrlPresentacion {
 
         System.out.println(vCrearPartida.getModo());
         System.out.println(vCrearPartida.getIdioma());
-        if(vCrearPartida.getModo() == 1) {
-           
+        if (vCrearPartida.getModo() == 1) {
+
         }
 
     }
@@ -171,7 +176,7 @@ public class CtrlPresentacion {
         vPantallaPrincipal.setNombre(ctrlDominio.getUsuarioActual());
         vMenuPrincipal.muestraCard("PRINCIPAL");
     }
-    //Vistas del menu principal
+    // Vistas del menu principal
 
     private void crearVistaCrearPartida() {
 
@@ -205,13 +210,13 @@ public class CtrlPresentacion {
             }
             vSegundoJugador.dispose();
         } catch (Exception e) {
-            //  System.err.println("Error: " + e.getMessage());
+            // System.err.println("Error: " + e.getMessage());
             vSegundoJugador.setError(e.getMessage());
         }
-       
+
     }
 
-    //Vistas del menu lateral
+    // Vistas del menu lateral
     private void crearVistaCuenta() {
         vCuenta.setNombre(ctrlDominio.getUsuarioActual());
         try {
@@ -322,7 +327,7 @@ public class CtrlPresentacion {
         vAddRecurso.addAñadirListener(e -> {
             String ruta = vAddRecurso.elegirArchivo();
             if (ruta != null) {
-                //  System.out.println("Archivo elegido: " + ruta);
+                // System.out.println("Archivo elegido: " + ruta);
                 try {
                     if (vAddRecurso.textAreaisEmpty(1)) {
                         vAddRecurso.listToTextArea(leeTexto(ruta), 1);
@@ -334,7 +339,7 @@ public class CtrlPresentacion {
                 }
 
             }
-            //System.out.println(rutas[0] + " " + rutas[1]);
+            // System.out.println(rutas[0] + " " + rutas[1]);
         });
 
         vAddRecurso.aceptar(e -> addRecurso());
@@ -354,7 +359,7 @@ public class CtrlPresentacion {
 
     }
 
-    //Botones
+    // Botones
     private void eliminarRecurso() {
 
         try {
@@ -380,6 +385,75 @@ public class CtrlPresentacion {
             }
         }
         return res;
+    }
+
+    private void configuracion() {
+        Font fuenteGlobal = new Font("Arial", Font.PLAIN, 24);
+        UIManager.put("Button.font", fuenteGlobal);
+        UIManager.put("Label.font", fuenteGlobal);
+        UIManager.put("TextField.font", fuenteGlobal);
+        UIManager.put("PasswordField.font", fuenteGlobal);
+        UIManager.put("ComboBox.font", fuenteGlobal);
+        UIManager.put("CheckBox.font", fuenteGlobal);
+        UIManager.put("RadioButton.font", fuenteGlobal);
+        UIManager.put("Menu.font", fuenteGlobal);
+        UIManager.put("MenuItem.font", fuenteGlobal);
+        // Se eliminaron las líneas duplicadas de configuración de fuentes
+
+        // Establecer icono global de la aplicación
+        try {
+            // Cargar el icono de la aplicación
+            ImageIcon icon = new ImageIcon("FONTS/src/main/Recursos/Imagenes/scrabble_logo.png");
+
+            // Alternativa usando classpath si la anterior falla
+            if (icon.getIconWidth() <= 0) {
+                java.net.URL iconURL = getClass().getResource("/Recursos/Imagenes/scrabble_logo.png");
+                if (iconURL != null) {
+                    icon = new ImageIcon(iconURL);
+                }
+            }
+
+            // Crear versiones del icono en múltiples tamaños
+            if (icon.getIconWidth() > 0) {
+                // Crear una lista de iconos en diferentes tamaños
+                List<Image> iconos = new ArrayList<>();
+                int[] tamaños = { 16, 24, 32, 48, 64, 128 };
+
+                for (int tamaño : tamaños) {
+                    Image imagenEscalada = icon.getImage().getScaledInstance(
+                            tamaño, tamaño, Image.SCALE_SMOOTH);
+                    iconos.add(imagenEscalada);
+                }
+
+                // Guardar la versión más grande para uso general
+                aplicarIconoVentana = iconos.get(iconos.size() - 1);
+
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar el icono global: " + e.getMessage());
+        }
+    }
+
+    // Añade este nuevo método
+    private void aplicarIconos() {
+        if (aplicarIconoVentana != null && vLogin != null) {
+            try {
+                // Crear una lista de iconos en diferentes tamaños para mejor visualización
+                ImageIcon icon = new ImageIcon(aplicarIconoVentana);
+                List<Image> iconos = new ArrayList<>();
+                int[] tamaños = { 16, 24, 32, 48, 64, 128 };
+
+                for (int tamaño : tamaños) {
+                    Image imagenEscalada = icon.getImage().getScaledInstance(
+                            tamaño, tamaño, Image.SCALE_SMOOTH);
+                    iconos.add(imagenEscalada);
+                }
+
+                vLogin.setIconImages(iconos);
+            } catch (Exception e) {
+                System.err.println("Error al aplicar iconos: " + e.getMessage());
+            }
+        }
     }
 
 }

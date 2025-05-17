@@ -362,18 +362,11 @@ public class CtrlDominio {
         if (!ctrlPersistencia.existePartida(id)) {
             throw new PartidaNoEncontradaException(id);
         }
-        System.out.println("Estoy aqui 1!");
-
-        System.out.println("Datos de la partida: " + ctrlPersistencia.cargarPartida(id));
 
         ctrlPartida.setPartida(dc.stringListToPartida(ctrlPersistencia.cargarPartida(id)), ctrlPersistencia.obtenerDiccionario(ctrlPersistencia.obtenerRecursoPartida(id)), ctrlPersistencia.obtenerBolsa(ctrlPersistencia.obtenerRecursoPartida(id)));
         ctrlJugador.setJugadorActual(ctrlPersistencia.obtenerJugadorActual(id));
         ctrlJugador.setSegundoJugador(ctrlPersistencia.obtenerSegundoJugador(id));
-        System.out.println("Estoy aqui 2!");
-        System.out.println("El jugador actual es: " + ctrlJugador.getJugadorActual());
-        System.out.println("El segundo jugador es: " + ctrlJugador.getSegundoJugador());
         if ("propAI".equals(ctrlJugador.getSegundoJugador())) {
-            System.out.println("El algoritmo se activa");
             ctrlPartida.activarAlgoritmo();
         }
     }
