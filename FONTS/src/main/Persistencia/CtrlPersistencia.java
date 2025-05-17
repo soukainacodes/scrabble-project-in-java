@@ -1,5 +1,6 @@
 package Persistencia;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -1026,5 +1027,69 @@ public class CtrlPersistencia {
             throw new UsuarioNoEncontradoException();
         }
     }
+
+        public void guardarImagenPerfil(String username, BufferedImage image) {
+            // Verificar si el usuario existe
+            if (!existeJugador(username)) {
+                return;
+            }
+            
+            // Crear el directorio del jugador si no existe
+            File dir = new File(JUGADORES + username);
+      
+            // Definir la ruta de la imagen de perfil
+            File imagenFile = new File(dir, username + ".png");
+            
+            try {
+                // Guardar la imagen en el archivo
+                javax.imageio.ImageIO.write(image, "png", imagenFile);
+                System.out.println("Imagen de perfil guardada para " + username);
+            } catch (IOException e) {
+                System.err.println("Error al guardar la imagen de perfil de " + username + ": " + e.getMessage());
+            }
+        }
+
+        public BufferedImage obtenerImagenPerfil(String username) {
+            // Verificar si el usuario existe
+            if (!existeJugador(username)) {
+                return null;
+            }
+            
+            // Definir la ruta de la imagen de perfil
+            File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
+            
+            // Verificar si la imagen existe
+            if (!imagenFile.exists()) {
+                return null;
+            }
+            
+            try {
+                // Leer y retornar la imagen
+                return javax.imageio.ImageIO.read(imagenFile);
+            } catch (IOException e) {
+                System.err.println("Error al cargar la imagen de perfil de " + username + ": " + e.getMessage());
+                return null;
+            }
+        }
+
+        public void eliminarImagenPerfil(String username) {
+            // Verificar si el usuario existe
+            if (!existeJugador(username)) {
+                return;
+            }
+            
+            // Definir la ruta de la imagen de perfil
+            File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
+            
+            // Verificar si la imagen existe
+            if (imagenFile.exists()) {
+                // Eliminar la imagen
+                if (imagenFile.delete()) {
+                    System.out.println("Imagen de perfil eliminada para " + username);
+                } else {
+                    System.err.println("No se pudo eliminar la imagen de perfil de " + username);
+                }
+            }
+        }
 
 }

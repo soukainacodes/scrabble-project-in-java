@@ -6,12 +6,16 @@ import Dominio.Excepciones.*;
 import Presentacion.Vistas.*;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
@@ -228,19 +232,41 @@ public class CtrlPresentacion {
 
     // Vistas del menu lateral
     private void crearVistaCuenta() {
-        vCuenta.setNombre(ctrlDominio.getUsuarioActual());
+        String username = ctrlDominio.getUsuarioActual();
+        vCuenta.setNombre(username);
+        
         try {
-
             vCuenta.setPuntos(Integer.toString(ctrlDominio.getPuntosActual()));
+            
+            // Load profile image if available
+            BufferedImage profileImage = ctrlDominio.getProfileImage(username);
+            if (profileImage != null) {
+                vCuenta.setProfileImage(profileImage);
+            }
+            
+            // Add profile image change listener
+            vCuenta.setProfileChangeListener(e -> {
+                File selectedFile = (File) e.getSource();
+                try {
+                    BufferedImage newImage = ImageIO.read(selectedFile);
+                    if (newImage != null) {
+                        ctrlDominio.saveProfileImage(username, newImage);
+                    }
+                } catch (IOException ex) {
+                    System.err.println("Error al guardar la imagen de perfil: " + ex.getMessage());
+                }
+            });
         } catch (Exception e) {
+            System.err.println("Error al cargar datos del perfil: " + e.getMessage());
         }
-
+    
+        // Add listeners (using your existing implementations)
         vCuenta.cambiarNombre(e -> crearVistaCambiarNombre());
         vCuenta.cambiarPassword(e -> crearVistaCambiarPassword());
         vCuenta.eliminarJugador(e -> crearVistaEliminarJugador());
-
+    
+        // Show the account card (your existing navigation pattern)
         vMenuPrincipal.muestraCard("CUENTA");
-
     }
 
     private void crearVistaCambiarPassword() {
@@ -465,5 +491,7 @@ public class CtrlPresentacion {
             }
         }
     }
+
+     
 
 }

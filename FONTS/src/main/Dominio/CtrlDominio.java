@@ -2,10 +2,15 @@ package Dominio;
 
 import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import javax.imageio.ImageIO;
 
 /**
  * Controlador principal del dominio que coordina la lógica de negocio,
@@ -627,6 +632,21 @@ void validarFormatoBolsa(List<String> bolsa) throws FormatoBolsaInvalidoExceptio
     }
 }
 
+
+// Gestiónn de fotos de jugadores
+// Add these methods to your existing CtrlDominio class
+
+public void saveProfileImage(String username, BufferedImage image) {
+    ctrlPersistencia.guardarImagenPerfil(username, image);
+}
+
+public BufferedImage getProfileImage(String username) {
+    return ctrlPersistencia.obtenerImagenPerfil(username);
+}
+
+public void deleteProfileImage(String username) {
+    ctrlPersistencia.eliminarImagenPerfil(username);
+}
 
 
 
