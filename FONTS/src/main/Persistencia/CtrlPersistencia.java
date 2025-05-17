@@ -665,24 +665,33 @@ public class CtrlPersistencia {
         return bolsa;
     }
 
-    public void crearRecurso(String id, List<String> palabras, Map<String, int[]> bolsaData)
+       /**
+     * Crea un nuevo recurso (diccionario y bolsa) en el sistema.
+     * 
+     * @param id Identificador único del recurso
+     * @param palabras Lista de palabras para el diccionario
+     * @param bolsa Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
+     * @throws IOException Si ocurre un error de E/S
+     * @throws RecursoExistenteException Si el recurso ya existe
+     */
+    public void crearRecurso(String id, List<String> palabras, List<String> bolsa)
             throws IOException, RecursoExistenteException {
         // Verifica si el recurso ya existe
         if (existeRecurso(id)) {
             throw new RecursoExistenteException(id);
         }
-
+    
         // Crea el directorio del recurso si no existe
         File dir = new File(RECURSOS, id);
         if (!dir.exists() && !dir.mkdirs()) {
             throw new IOException("No se pudo crear el directorio: " + dir.getPath());
         }
-
+    
         // Crea el archivo del diccionario
         crearDiccionario(id, palabras);
-
-        // Crea el archivo de la bolsa
-        crearBolsa(id, bolsaData);
+    
+        // Crea el archivo de la bolsa directamente con la lista de strings
+        crearBolsa(id, bolsa);
     }
 
     public void crearDiccionario(String id, List<String> palabras) throws IOException, RecursoExistenteException {
@@ -704,20 +713,25 @@ public class CtrlPersistencia {
         }
     }
 
-    public void crearBolsa(String id, Map<String, int[]> bolsaData) throws IOException, RecursoExistenteException {
+    /**
+     * Crea un archivo de bolsa para un recurso usando una lista de strings.
+     * 
+     * @param id Identificador del recurso
+     * @param bolsa Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
+     * @throws IOException Si ocurre un error al escribir el archivo
+     */
+    public void crearBolsa(String id, List<String> bolsa) throws IOException {
         // Crea el archivo de la bolsa
         File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(bolsaFile))) {
-            for (Map.Entry<String, int[]> entry : bolsaData.entrySet()) {
-                String ficha = entry.getKey();
-                int[] valores = entry.getValue();
-                writer.write(ficha + " " + valores[0] + " " + valores[1]);
+            for (String linea : bolsa) {
+                writer.write(linea);
                 writer.newLine();
             }
         }
     }
  
-    public void modificarRecurso(String id, List<String> palabras, Map<String, int[]> bolsaData)
+    public void modificarRecurso(String id, List<String> palabras, List<String> bolsaData)
             throws IOException, RecursoNoExistenteException {
         // Verifica si el recurso existe
         if (!existeRecurso(id)) {
@@ -731,16 +745,19 @@ public class CtrlPersistencia {
         modificarBolsa(id, bolsaData);
     }
 
-    public void modificarBolsa(String id, Map<String, int[]> bolsaData)
-            throws IOException{ 
-        
+     /**
+     * Modifica el archivo de bolsa para un recurso.
+     * 
+     * @param id Identificador del recurso
+     * @param bolsa Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
+     * @throws IOException Si ocurre un error al escribir el archivo
+     */
+    public void modificarBolsa(String id, List<String> bolsa) throws IOException {
         // Crea el archivo de la bolsa
         File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(bolsaFile))) {
-            for (Map.Entry<String, int[]> entry : bolsaData.entrySet()) {
-                String ficha = entry.getKey();
-                int[] valores = entry.getValue();
-                writer.write(ficha + " " + valores[0] + " " + valores[1]);
+            for (String linea : bolsa) {
+                writer.write(linea);
                 writer.newLine();
             }
         }

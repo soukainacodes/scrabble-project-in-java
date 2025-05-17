@@ -466,7 +466,7 @@ public class CtrlDominio {
     }
 
 
-    public void crearRecurso(String id , List<String> diccionario, Map<String, int[]> bolsa)
+        public void crearRecurso(String id, List<String> diccionario, List<String> bolsa)
             throws IOException, RecursoExistenteException, FormatoDiccionarioInvalidoException, FormatoBolsaInvalidoException {
         if (ctrlPersistencia.existeRecurso(id)) {
             throw new RecursoExistenteException(id);
@@ -488,7 +488,7 @@ public class CtrlDominio {
      * @throws FormatoDiccionarioInvalidoException 
      * @throws FormatoBolsaInvalidoException 
      */
-    public void modificarRecurso(String id, List<String> diccionario, Map<String, int[]> bolsa)
+    public void modificarRecurso(String id, List<String> diccionario, List<String> bolsa)
             throws IOException, RecursoNoExistenteException,
             BolsaNoEncontradaException, DiccionarioNoEncontradoException, FormatoDiccionarioInvalidoException, FormatoBolsaInvalidoException {
         validarFormatoBolsa(bolsa);
@@ -527,32 +527,17 @@ public class CtrlDominio {
         return ctrlPersistencia.obtenerDiccionario(id);
     }
 
-    /**
+     /**
      * Recupera una bolsa de fichas para un idioma.
      *
      * @param id identificador de la bolsa.
-     * @return lista de líneas con configuración de fichas.
+     * @return lista de líneas con configuración de fichas en formato "LETRA FRECUENCIA PUNTOS".
      * @throws BolsaNoEncontradaException si no existe el ID.
-     * @throws IOException
-     * @throws FormatoBolsaInvalidoException 
+     * @throws IOException si hay problemas de lectura.
      */
-    public Map<String, int[]> obtenerBolsa(String id) throws BolsaNoEncontradaException, IOException {
-        // Get the raw list of strings from persistence
-        List<String> bolsaList = ctrlPersistencia.obtenerBolsa(id);
-        
-        // Convert to a map format
-        Map<String, int[]> bolsaMap = new LinkedHashMap<>();
-        for (String linea : bolsaList) {
-            String[] partes = linea.split("\\s+");
-            if (partes.length >= 3) {
-                bolsaMap.put(partes[0], new int[] {
-                    Integer.parseInt(partes[1]),
-                    Integer.parseInt(partes[2])
-                });
-            }
-        }
-        
-        return bolsaMap;
+    public List<String> obtenerBolsa(String id) throws BolsaNoEncontradaException, IOException {
+        // Devolver directamente la lista de strings de la capa de persistencia
+        return ctrlPersistencia.obtenerBolsa(id);
     }
 
     /**
@@ -598,33 +583,53 @@ public class CtrlDominio {
         }
     }
 
-
-    void validarFormatoBolsa(Map<String, int[]> bolsa)
-        throws FormatoBolsaInvalidoException {
-        if (bolsa == null || bolsa.isEmpty()) {
+/**
+ * Valida que una bolsa de letras en formato de lista de cadenas cumpla con el formato requerido.
+ * Cada cadena debe tener el formato "LETRA FRECUENCIA PUNTOS"
+ * 
+ * @param bolsa Lista de strings que representa la bolsa de letras
+ * @throws FormatoBolsaInvalidoException si el formato de la bolsa no es válido
+ */
+void validarFormatoBolsa(List<String> bolsa) throws FormatoBolsaInvalidoException {
+    if (bolsa == null || bolsa.isEmpty()) {
+        throw new FormatoBolsaInvalidoException();
+    }
+    
+    for (String linea : bolsa) {
+        // Verifica si la línea es nula o vacía
+        if (linea == null || linea.trim().isEmpty()) {
             throw new FormatoBolsaInvalidoException();
         }
         
-        for (Map.Entry<String, int[]> entry : bolsa.entrySet()) {
-            String letra = entry.getKey();
-            int[] valores = entry.getValue();
+        // Divide la línea por espacios
+        String[] partes = linea.split("\\s+");
+        
+        // Verifica que haya al menos 3 partes (letra, frecuencia, puntos)
+        if (partes.length < 3) {
+            throw new FormatoBolsaInvalidoException();
+        }
+        
+        String letra = partes[0];
+        
+        // Verifica si la letra está en mayúsculas
+        if (!letra.equals(letra.toUpperCase())) {
+            throw new FormatoBolsaInvalidoException();
+        }
+        
+        // Intenta analizar la frecuencia y los puntos como enteros
+        try {
+            int frecuencia = Integer.parseInt(partes[1]);
+            int puntos = Integer.parseInt(partes[2]);
             
-            // Verifica si la letra es nula o vacía
-            if (letra == null || letra.trim().isEmpty()) {
+            // Verifica que frecuencia y puntos sean no negativos
+            if (frecuencia < 0 || puntos < 0) {
                 throw new FormatoBolsaInvalidoException();
             }
-            
-            // Verifica si la letra está en mayúsculas
-            if (!letra.equals(letra.toUpperCase())) {
-                throw new FormatoBolsaInvalidoException();
-            }
-            
-            // Verifica si los valores son válidos
-            if (valores == null || valores.length != 2 || valores[0] < 0 || valores[1] < 0) {
-                throw new FormatoBolsaInvalidoException();
-            }
+        } catch (NumberFormatException e) {
+            throw new FormatoBolsaInvalidoException();
         }
     }
+}
 
 
 

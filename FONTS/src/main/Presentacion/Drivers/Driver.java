@@ -239,7 +239,7 @@ public class Driver {
                     addRecursos();
                     break;
                 case "3":
-                    modifyRecursos(); // Add this new case
+                    modificarRecursos(); // Add this new case
                     break;
                 case "4":
                     delRecursos();
@@ -263,88 +263,7 @@ public class Driver {
             System.out.println(" - " + id);
     }
 
-    private static void addRecursos() {
-        System.out.print("ID recurso: ");
-        String id = sc.nextLine().trim();
-
-        if (id.isEmpty()) {
-            System.out.println("ERROR: El ID del recurso no puede estar vacío.");
-            return;
-        }
-
-        try {
-            // Solicitar el diccionario
-            System.out.println("Para el diccionario:");
-            System.out.println("1. Introducir ruta de fichero");
-            System.out.println("2. Introducir palabras manualmente");
-            System.out.print("Opción: ");
-            String opcionDic = sc.nextLine().trim();
-
-            List<String> palabras = new ArrayList<>();
-            if (opcionDic.equals("1")) {
-                System.out.print("Fichero diccionario (ruta): ");
-                String rutaDiccionario = sc.nextLine().trim();
-                palabras = leeTexto(rutaDiccionario);
-            } else if (opcionDic.equals("2")) {
-                System.out.println("Introduce palabras (línea vacía para terminar):");
-                String palabra;
-                while (!(palabra = sc.nextLine().trim()).isEmpty()) {
-                    palabras.add(palabra);
-                }
-            } else {
-                System.out.println("Opción no válida, usando fichero.");
-                System.out.print("Fichero diccionario (ruta): ");
-                String rutaDiccionario = sc.nextLine().trim();
-                palabras = leeTexto(rutaDiccionario);
-            }
-
-            // Solicitar la bolsa
-            System.out.println("Para la bolsa:");
-            System.out.println("1. Introducir ruta de fichero");
-            System.out.println("2. Introducir valores manualmente");
-            System.out.print("Opción: ");
-            String opcionBolsa = sc.nextLine().trim();
-
-            Map<String, int[]> bolsa = new LinkedHashMap<>();
-            if (opcionBolsa.equals("1")) {
-                System.out.print("Fichero bolsa (ruta): ");
-                String rutaBolsa = sc.nextLine().trim();
-                bolsa = leeBolsa(rutaBolsa);
-            } else if (opcionBolsa.equals("2")) {
-                System.out.println("Introduce fichas en formato 'letra cantidad valor' (línea vacía para terminar):");
-                String linea;
-                while (!(linea = sc.nextLine().trim()).isEmpty()) {
-                    String[] partes = linea.split("\\s+");
-                    if (partes.length >= 3) {
-                        try {
-                            bolsa.put(partes[0], new int[] {
-                                    Integer.parseInt(partes[1]),
-                                    Integer.parseInt(partes[2])
-                            });
-                        } catch (NumberFormatException e) {
-                            System.out.println("Formato incorrecto. Use: letra cantidad valor");
-                        }
-                    } else {
-                        System.out.println("Formato incorrecto. Use: letra cantidad valor");
-                    }
-                }
-            } else {
-                System.out.println("Opción no válida, usando fichero.");
-                System.out.print("Fichero bolsa (ruta): ");
-                String rutaBolsa = sc.nextLine().trim();
-                bolsa = leeBolsa(rutaBolsa);
-            }
-
-            // Crear el recurso
-            ctrl.crearRecurso(id, palabras, bolsa);
-            System.out.println("Recurso '" + id + "' creado.");
-
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
-    }
-
-        private static void modifyRecursos() {
+    private static void modificarRecursos() {
         System.out.print("ID recurso a modificar: ");
         String id = sc.nextLine().trim();
     
@@ -381,14 +300,13 @@ public class Driver {
                     palabras.add(palabra);
                 }
             } else if (opcionDic.equals("3")) {
-                // Mantener diccionario actual - obtenerlo del sistema
                 palabras = ctrl.obtenerDiccionario(id);
             } else {
                 System.out.println("Opción no válida, manteniendo diccionario actual.");
                 palabras = ctrl.obtenerDiccionario(id);
             }
     
-            // Solicitar la bolsa
+            // Solicitar la bolsa - CAMBIAR AQUÍ: usar List<String> en lugar de Map
             System.out.println("Para modificar la bolsa:");
             System.out.println("1. Introducir ruta de fichero");
             System.out.println("2. Introducir valores manualmente");
@@ -396,11 +314,11 @@ public class Driver {
             System.out.print("Opción: ");
             String opcionBolsa = sc.nextLine().trim();
     
-            Map<String, int[]> bolsa = new LinkedHashMap<>();
+            List<String> bolsa = new ArrayList<>();
             if (opcionBolsa.equals("1")) {
                 System.out.print("Fichero bolsa (ruta): ");
                 String rutaBolsa = sc.nextLine().trim();
-                bolsa = leeBolsa(rutaBolsa);
+                bolsa = leeTexto(rutaBolsa); // Usar leeTexto en lugar de leeBolsa
             } else if (opcionBolsa.equals("2")) {
                 System.out.println("Introduce fichas en formato 'letra cantidad valor' (línea vacía para terminar):");
                 String linea;
@@ -408,10 +326,11 @@ public class Driver {
                     String[] partes = linea.split("\\s+");
                     if (partes.length >= 3) {
                         try {
-                            bolsa.put(partes[0], new int[] {
-                                    Integer.parseInt(partes[1]),
-                                    Integer.parseInt(partes[2])
-                            });
+                            // Solo para verificar que los números son válidos
+                            Integer.parseInt(partes[1]);
+                            Integer.parseInt(partes[2]);
+                            // Añadir la línea completa a la lista
+                            bolsa.add(linea);
                         } catch (NumberFormatException e) {
                             System.out.println("Formato incorrecto. Use: letra cantidad valor");
                         }
@@ -420,7 +339,7 @@ public class Driver {
                     }
                 }
             } else if (opcionBolsa.equals("3")) {
-                // Mantener bolsa actual - obtenerla del sistema
+                // Obtener la bolsa actual como List<String>
                 bolsa = ctrl.obtenerBolsa(id);
             } else {
                 System.out.println("Opción no válida, manteniendo bolsa actual.");
@@ -435,7 +354,8 @@ public class Driver {
             System.out.println("ERROR: " + e.getMessage());
         }
     }
-
+       
+   
     private static void delRecursos() {
         System.out.print("ID a eliminar: ");
         String id = sc.nextLine().trim();
@@ -447,6 +367,87 @@ public class Driver {
         }
     }
 
+        private static void addRecursos() {
+        System.out.print("ID recurso: ");
+        String id = sc.nextLine().trim();
+    
+        if (id.isEmpty()) {
+            System.out.println("ERROR: El ID del recurso no puede estar vacío.");
+            return;
+        }
+    
+        try {
+            // Solicitar el diccionario
+            System.out.println("Para el diccionario:");
+            System.out.println("1. Introducir ruta de fichero");
+            System.out.println("2. Introducir palabras manualmente");
+            System.out.print("Opción: ");
+            String opcionDic = sc.nextLine().trim();
+    
+            List<String> palabras = new ArrayList<>();
+            if (opcionDic.equals("1")) {
+                System.out.print("Fichero diccionario (ruta): ");
+                String rutaDiccionario = sc.nextLine().trim();
+                palabras = leeTexto(rutaDiccionario);
+            } else if (opcionDic.equals("2")) {
+                System.out.println("Introduce palabras (línea vacía para terminar):");
+                String palabra;
+                while (!(palabra = sc.nextLine().trim()).isEmpty()) {
+                    palabras.add(palabra);
+                }
+            } else {
+                System.out.println("Opción no válida, usando fichero.");
+                System.out.print("Fichero diccionario (ruta): ");
+                String rutaDiccionario = sc.nextLine().trim();
+                palabras = leeTexto(rutaDiccionario);
+            }
+    
+            // Solicitar la bolsa
+            System.out.println("Para la bolsa:");
+            System.out.println("1. Introducir ruta de fichero");
+            System.out.println("2. Introducir valores manualmente");
+            System.out.print("Opción: ");
+            String opcionBolsa = sc.nextLine().trim();
+    
+            List<String> bolsa = new ArrayList<>();
+            if (opcionBolsa.equals("1")) {
+                System.out.print("Fichero bolsa (ruta): ");
+                String rutaBolsa = sc.nextLine().trim();
+                bolsa = leeTexto(rutaBolsa);
+            } else if (opcionBolsa.equals("2")) {
+                System.out.println("Introduce fichas en formato 'letra cantidad valor' (línea vacía para terminar):");
+                String linea;
+                while (!(linea = sc.nextLine().trim()).isEmpty()) {
+                    String[] partes = linea.split("\\s+");
+                    if (partes.length >= 3) {
+                        try {
+                            // Solo para verificar que los números son válidos
+                            Integer.parseInt(partes[1]);
+                            Integer.parseInt(partes[2]);
+                            // Añadir la línea completa a la lista
+                            bolsa.add(linea);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Formato incorrecto. Use: letra cantidad valor");
+                        }
+                    } else {
+                        System.out.println("Formato incorrecto. Use: letra cantidad valor");
+                    }
+                }
+            } else {
+                System.out.println("Opción no válida, usando fichero.");
+                System.out.print("Fichero bolsa (ruta): ");
+                String rutaBolsa = sc.nextLine().trim();
+                bolsa = leeTexto(rutaBolsa);
+            }
+    
+            // Crear el recurso
+            ctrl.crearRecurso(id, palabras, bolsa);
+            System.out.println("Recurso '" + id + "' creado.");
+    
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
     private static List<String> leeTexto(String ruta) throws IOException {
         var res = new ArrayList<String>();
         try (var br = new BufferedReader(new FileReader(ruta))) {
@@ -458,19 +459,7 @@ public class Driver {
         return res;
     }
 
-    private static Map<String, int[]> leeBolsa(String ruta) throws IOException {
-        var map = new LinkedHashMap<String, int[]>();
-        try (var br = new BufferedReader(new FileReader(ruta))) {
-            String l;
-            while ((l = br.readLine()) != null) {
-                if (l.isBlank())
-                    continue;
-                var t = l.trim().split("\\s+");
-                map.put(t[0], new int[] { Integer.parseInt(t[1]), Integer.parseInt(t[2]) });
-            }
-        }
-        return map;
-    }
+
 
     // --- Partidas --------------------------------------------------------------
 
