@@ -10,7 +10,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class VistaExplorador extends JFrame {
 
-    private static final Color BG = new Color(238, 238, 238);
+    private static final Color BG = new Color(242, 226, 177);
     private static final Color FG_TITLE = new Color(40, 50, 60);
     private static final Color FG_SUB = new Color(80, 90, 100);
     private static final Color BORDER = new Color(220, 220, 220);

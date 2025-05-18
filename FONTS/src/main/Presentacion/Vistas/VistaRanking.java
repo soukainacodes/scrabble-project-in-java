@@ -1,7 +1,8 @@
 package Presentacion.Vistas;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -12,109 +13,154 @@ import javax.swing.table.*;
 
 public class VistaRanking extends JPanel {
 
-    // Match login background color
-    private static final Color APP_BG_COLOR = new Color(238, 238, 238);
-    
-    // Bold, vibrant medal colors
+    // Colores
+    private static final Color APP_BG_COLOR = new Color(242, 226, 177);
     private static final Color GOLD_COLOR = new Color(255, 215, 0);
     private static final Color SILVER_COLOR = new Color(189, 195, 199);
     private static final Color BRONZE_COLOR = new Color(230, 126, 34);
-    
-    // Text colors
     private static final Color HEADER_TEXT = new Color(44, 62, 80);
-    private static final Color MEDAL_TEXT = new Color(50, 50, 50);
-    
-    // Scrollbar colors
     private static final Color SCROLLBAR_THUMB = new Color(180, 180, 180);
     private static final Color SCROLLBAR_TRACK = new Color(240, 240, 240);
+    private static final Color LILA_CLARO = new Color(180, 95, 220);
+    private static final Color LILA_OSCURO = new Color(52, 28, 87);
     
-    // Fixed dimensions
-    private static final int TABLE_WIDTH = 450;
-    private static final int TABLE_HEIGHT = 370; // Made a little taller to compensate for no headers
+    // Dimensiones
+    private static final int TABLE_WIDTH = 400;
+    private static final int TABLE_HEIGHT = 330;
     
-    // Medal image paths - try multiple paths to find the correct one
+    // Rutas de imágenes
     private static final String[] GOLD_MEDAL_PATHS = {
         "FONTS/src/main/Recursos/Imagenes/medalla_oro.png"
     };
-    
     private static final String[] SILVER_MEDAL_PATHS = {
         "FONTS/src/main/Recursos/Imagenes/medalla_plata.png"
     };
-    
     private static final String[] BRONZE_MEDAL_PATHS = {
         "FONTS/src/main/Recursos/Imagenes/medalla_bronce.png"
     };
     
-    // Medal image cache
+    // Iconos de medallas
     private ImageIcon goldMedalIcon;
     private ImageIcon silverMedalIcon;
     private ImageIcon bronzeMedalIcon;
     
+    // Componentes de la tabla
     private DefaultTableModel model;
     private JTable table;
     private JPanel contentPanel;
 
-
-
     public VistaRanking() {
         setLayout(new BorderLayout());
         setBackground(APP_BG_COLOR);
-        setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20)); // Reduced top padding
-
-        // Load medal images
+        setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+    
+        // Cargar imágenes de medallas
         loadMedalImages();
         
-        // Create and add components
+        // Crear y añadir componentes
         JPanel titlePanel = createTitlePanel();
         contentPanel = createTablePanel();
         
         add(titlePanel, BorderLayout.NORTH);
         add(contentPanel, BorderLayout.CENTER);
         
-        // Set fixed preferred size for the entire panel
-        setPreferredSize(new Dimension(500, 450));
+        setPreferredSize(new Dimension(700, 450)); // Aumentado de 500 a 700
     }
     
-private JPanel createTitlePanel() {
-    JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-    panel.setBackground(APP_BG_COLOR);
-    panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-    
-    // Try to load the title image
-    ImageIcon titleIcon = loadImageFromClasspath("FONTS/src/main/Recursos/Imagenes/top_jugadores.png");
-    if (titleIcon == null) {
-        titleIcon = loadImageFromFile("FONTS/src/main/Recursos/Imagenes/top_jugadores.png");
-    }
-    
-    if (titleIcon != null) {
-        // Resize image if needed - adjust width as necessary while maintaining aspect ratio
-        int maxWidth = 300; // Maximum width for the title image
-        if (titleIcon.getIconWidth() > maxWidth) {
-            float ratio = (float)maxWidth / titleIcon.getIconWidth();
-            int newHeight = Math.round(titleIcon.getIconHeight() * ratio);
-            titleIcon = new ImageIcon(titleIcon.getImage().getScaledInstance(
-                maxWidth, newHeight, Image.SCALE_SMOOTH));
+    private JPanel createTitlePanel() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel.setBackground(APP_BG_COLOR);
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 10, 0));
+        
+        // Crear título estilo Scrabble con fichas
+        String[] letras = { "T", "O", "P", " ", "J", "U", "G", "A", "D", "O", "R", "E", "S" };
+        Color[] colores = {
+            new Color(220, 130, 95),   // Naranja rojizo
+            new Color(95, 170, 220),   // Azul claro
+            new Color(220, 180, 95),   // Amarillo
+            APP_BG_COLOR,              // Fondo (espacio)
+            new Color(150, 220, 95),   // Verde
+            new Color(180, 95, 220),   // Morado/Lila
+            new Color(220, 95, 160),   // Rosa
+            new Color(95, 220, 190),   // Turquesa
+            new Color(235, 140, 80),   // Naranja
+            new Color(220, 130, 95),   // Naranja rojizo
+            new Color(95, 170, 220),   // Azul claro
+            new Color(220, 180, 95),   // Amarillo
+            new Color(150, 220, 95)    // Verde
+        };
+        
+        JPanel fichasPanel = new JPanel();
+        fichasPanel.setLayout(new BoxLayout(fichasPanel, BoxLayout.X_AXIS));
+        fichasPanel.setBackground(APP_BG_COLOR);
+        fichasPanel.add(Box.createHorizontalGlue());
+        
+        for (int i = 0; i < letras.length; i++) {
+            final int idx = i;
+            
+            // Si es un espacio, agregar espacio en blanco
+            if (letras[i].equals(" ")) {
+                fichasPanel.add(Box.createHorizontalStrut(10));
+                continue;
+            }
+            
+            JLabel letra = new JLabel(letras[i]) {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    g2.setRenderingHint(
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON
+                    );
+                    // Dibuja ficha
+                    g2.setColor(colores[idx]);
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                    // Sombra
+                    g2.setColor(new Color(0, 0, 0, 30));
+                    g2.fillRoundRect(3, 3, getWidth(), getHeight(), 10, 10);
+                    g2.dispose();
+                    super.paintComponent(g);
+                }
+            };
+            
+            letra.setFont(new Font("Arial Black", Font.BOLD, 28));
+            letra.setForeground(Color.WHITE);
+            letra.setHorizontalAlignment(SwingConstants.CENTER);
+            letra.setPreferredSize(new Dimension(40, 40));
+            letra.setMaximumSize(new Dimension(40, 40));
+            
+            // Efecto hover al pasar el ratón
+            letra.addMouseListener(new MouseAdapter() {
+                @Override 
+                public void mouseEntered(MouseEvent e) {
+                    letra.setForeground(new Color(255, 255, 200));
+                }
+                
+                @Override 
+                public void mouseExited(MouseEvent e) {
+                    letra.setForeground(Color.WHITE);
+                }
+            });
+            
+            fichasPanel.add(letra);
+            
+            // Añadir espacio entre letras
+            if (i < letras.length - 1 && !letras[i+1].equals(" ")) 
+                fichasPanel.add(Box.createHorizontalStrut(5));
         }
         
-        JLabel titleLabel = new JLabel(titleIcon);
-        panel.add(titleLabel);
-    } else {
-        // Fallback to text if image can't be loaded
-        JLabel titleLabel = new JLabel("TOP JUGADORES");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        titleLabel.setForeground(HEADER_TEXT);
-        panel.add(titleLabel);
+        fichasPanel.add(Box.createHorizontalGlue());
+        panel.add(fichasPanel);
+        
+        return panel;
     }
-    
-    return panel;
-}
-
 
     private JPanel createTablePanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(APP_BG_COLOR);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         
-        // Create table model - still needs column names internally even if not displayed
+        // Crear modelo de tabla
         String[] columns = {"Posición", "Nombre", "Puntuación"};
         model = new DefaultTableModel(columns, 0) {
             @Override
@@ -123,66 +169,82 @@ private JPanel createTitlePanel() {
             }
         };
         
-        // Create and configure table
+        // Crear y configurar tabla
         table = new JTable(model);
-        
-        // Hide the table header completely
         table.setTableHeader(null);
-        
-        // Set background color for the table itself
         table.setBackground(APP_BG_COLOR);
-        
         table.setRowHeight(40);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setFont(new Font("Arial", Font.PLAIN, 14));
         table.setFillsViewportHeight(true);
         
-        // Set column widths
+        // Configurar anchos de columnas iguales
+         // Configurar anchos de columnas (proporción personalizada)
         TableColumnModel columnModel = table.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(80);
-        columnModel.getColumn(0).setMaxWidth(100);
-        columnModel.getColumn(1).setPreferredWidth(250); // Wider name column
-        columnModel.getColumn(2).setPreferredWidth(120);
-        columnModel.getColumn(2).setMaxWidth(150);
+        columnModel.getColumn(0).setPreferredWidth(TABLE_WIDTH / 6);    // Posición (más estrecha)
+        columnModel.getColumn(0).setMaxWidth(TABLE_WIDTH / 6);
+        columnModel.getColumn(1).setPreferredWidth(TABLE_WIDTH / 2);    // Nombre (más ancha)
+        columnModel.getColumn(2).setPreferredWidth(TABLE_WIDTH / 3);    // Puntuación
         
-        // Set custom renderer
+        // Establecer renderizador personalizado
         table.setDefaultRenderer(Object.class, new RankingRenderer());
         
-        // Create scroll pane with minimalist style
+        // Crear scrollpane con estilo minimalista
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); // Remove border completely
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         scrollPane.getViewport().setBackground(APP_BG_COLOR);
         scrollPane.setBackground(APP_BG_COLOR);
         
-        // Custom scrollbar UI for minimalist look
+        // UI personalizada para scrollbar
         scrollPane.getVerticalScrollBar().setUI(new MinimalistScrollBarUI());
-        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0)); // Thinner scrollbar
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
         scrollPane.getHorizontalScrollBar().setUI(new MinimalistScrollBarUI());
-        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 8)); // Thinner scrollbar
+        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 8));
         
-        // Set fixed size for scroll pane to ensure proper scrolling with many entries
         scrollPane.setPreferredSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
         
-        panel.add(scrollPane, BorderLayout.CENTER);
+        // Crear panel con bordes redondeados para contener la tabla
+        JPanel roundedPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Crear un borde redondeado con un color ligeramente más oscuro
+                g2.setColor(new Color(220, 200, 150));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                
+                // Crear fondo interior con el color de fondo de la app
+                g2.setColor(APP_BG_COLOR);
+                g2.fillRoundRect(2, 2, getWidth()-4, getHeight()-4, 18, 18);
+                
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        roundedPanel.setLayout(new BorderLayout());
+        roundedPanel.setOpaque(false);
+        roundedPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        roundedPanel.add(scrollPane);
+        
+        panel.add(roundedPanel, BorderLayout.CENTER);
         return panel;
     }
     
     /**
-     * Sets the ranking list data to be displayed in the table.
-     * 
-     * @param list List of entries containing player names and scores
+     * Establece los datos de la lista de ranking para mostrar en la tabla.
      */
     public void setLista(List<Map.Entry<String, Integer>> list) {
         model.setRowCount(0);
         
-        // Add rows to the table
+        // Añadir filas a la tabla
         for (int i = 0; i < list.size(); i++) {
             Map.Entry<String, Integer> entry = list.get(i);
             model.addRow(new Object[]{i + 1, entry.getKey(), entry.getValue()});
         }
         
-        // Force table to recalculate its size based on content
+        // Forzar a la tabla a recalcular su tamaño
         table.revalidate();
         contentPanel.revalidate();
     }
@@ -192,106 +254,63 @@ private JPanel createTitlePanel() {
         boolean silverLoaded = false;
         boolean bronzeLoaded = false;
         
-        // Try to load gold medal
+        // Intentar cargar medalla de oro
         for (String path : GOLD_MEDAL_PATHS) {
             try {
-                // Try using class loader
-                ImageIcon icon = loadImageFromClasspath(path);
-                if (icon != null) {
-                    goldMedalIcon = new ImageIcon(icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-                    goldLoaded = true;
-                    break;
-                }
-                
-                // Try as direct file
-                icon = loadImageFromFile(path);
+                ImageIcon icon = loadImageFromFile(path);
                 if (icon != null) {
                     goldMedalIcon = new ImageIcon(icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
                     goldLoaded = true;
                     break;
                 }
             } catch (Exception e) {
-                // Continue to next path
+                // Continuar con la siguiente ruta
             }
         }
         
-        // Try to load silver medal
+        // Intentar cargar medalla de plata
         for (String path : SILVER_MEDAL_PATHS) {
             try {
-                // Try using class loader
-                ImageIcon icon = loadImageFromClasspath(path);
-                if (icon != null) {
-                    silverMedalIcon = new ImageIcon(icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-                    silverLoaded = true;
-                    break;
-                }
-                
-                // Try as direct file
-                icon = loadImageFromFile(path);
+                ImageIcon icon = loadImageFromFile(path);
                 if (icon != null) {
                     silverMedalIcon = new ImageIcon(icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
                     silverLoaded = true;
                     break;
                 }
             } catch (Exception e) {
-                // Continue to next path
+                // Continuar con la siguiente ruta
             }
         }
         
-        // Try to load bronze medal
+        // Intentar cargar medalla de bronce
         for (String path : BRONZE_MEDAL_PATHS) {
             try {
-                // Try using class loader
-                ImageIcon icon = loadImageFromClasspath(path);
-                if (icon != null) {
-                    bronzeMedalIcon = new ImageIcon(icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-                    bronzeLoaded = true;
-                    break;
-                }
-                
-                // Try as direct file
-                icon = loadImageFromFile(path);
+                ImageIcon icon = loadImageFromFile(path);
                 if (icon != null) {
                     bronzeMedalIcon = new ImageIcon(icon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH));
                     bronzeLoaded = true;
                     break;
                 }
             } catch (Exception e) {
-                // Continue to next path
+                // Continuar con la siguiente ruta
             }
         }
         
-        // If any image couldn't be loaded, create fallback icons
+        // Si no se pudieron cargar, crear iconos de respaldo
         if (!goldLoaded) {
-            System.err.println("Could not load gold medal image, using fallback");
             goldMedalIcon = createFallbackMedalIcon(GOLD_COLOR, "1");
         }
         
         if (!silverLoaded) {
-            System.err.println("Could not load silver medal image, using fallback");
             silverMedalIcon = createFallbackMedalIcon(SILVER_COLOR, "2");
         }
         
         if (!bronzeLoaded) {
-            System.err.println("Could not load bronze medal image, using fallback");
             bronzeMedalIcon = createFallbackMedalIcon(BRONZE_COLOR, "3");
         }
     }
     
-    // Helper method to load image from classpath resources
-    private ImageIcon loadImageFromClasspath(String path) {
-        try {
-            java.net.URL url = getClass().getClassLoader().getResource(path);
-            if (url != null) {
-                return new ImageIcon(url);
-            }
-            return null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-    
-    // Helper method to load image from file system
+    // Método para cargar imagen desde archivos
     private ImageIcon loadImageFromFile(String path) {
         try {
             File file = new File(path);
@@ -304,8 +323,21 @@ private JPanel createTitlePanel() {
         }
     }
     
+    // Método para cargar imagen desde classpath
+    private ImageIcon loadImageFromClasspath(String path) {
+        try {
+            java.net.URL url = getClass().getClassLoader().getResource(path);
+            if (url != null) {
+                return new ImageIcon(url);
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
     private ImageIcon createFallbackMedalIcon(Color color, String text) {
-        // Create a simple colored circle icon as fallback
+        // Crear un icono circular simple como respaldo
         int size = 30;
         BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
@@ -320,7 +352,7 @@ private JPanel createTitlePanel() {
         return new ImageIcon(image);
     }
     
-    // Minimalist ScrollBar UI class
+    // Clase UI de ScrollBar minimalista
     private class MinimalistScrollBarUI extends BasicScrollBarUI {
         @Override
         protected void configureScrollBarColors() {
@@ -358,7 +390,7 @@ private JPanel createTitlePanel() {
             g2.setColor(thumbColor);
             g2.fillRoundRect(thumbBounds.x, thumbBounds.y, 
                             thumbBounds.width, thumbBounds.height, 
-                            8, 8); // Rounded corners
+                            8, 8); // Esquinas redondeadas
             
             g2.dispose();
         }
@@ -372,41 +404,38 @@ private JPanel createTitlePanel() {
         }
     }
     
-    // Custom renderer with medal icons
+    // Renderizador personalizado con iconos de medallas
     private class RankingRenderer extends DefaultTableCellRenderer {
-        // Bold font for winners
         private final Font boldFont = new Font("Arial", Font.BOLD, 15);
-        // Regular font
         private final Font regularFont = new Font("Arial", Font.PLAIN, 14);
         
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
                 
-            // For position column with medals
+            // Para columna de posición con medallas
             if (column == 0 && row < 3) {
                 return createMedalComponent(row);
             }
             
-            // For other cells, use standard renderer
+            // Para otras celdas, usar renderizador estándar
             JLabel label = (JLabel) super.getTableCellRendererComponent(
                 table, value, isSelected, false, row, column);
             
-            // Reset border
+            // Restablecer borde
             label.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
             
             Color rowBackground;
             
-            // Format position column with colorful badges for positions after top 3
+            // Formatear columna de posición con insignias coloridas para posiciones después del top 3
             if (column == 0) {
                 label.setHorizontalAlignment(JLabel.CENTER);
-                // Regular rows
                 label.setText(String.valueOf(value));
                 rowBackground = row % 2 == 0 ? APP_BG_COLOR : new Color(225, 225, 225);
                 label.setFont(regularFont);
                 label.setForeground(Color.DARK_GRAY);
             } 
-            // Format name column
+            // Formatear columna de nombre
             else if (column == 1) {
                 label.setHorizontalAlignment(JLabel.LEFT);
                 if (row < 3) {
@@ -419,7 +448,7 @@ private JPanel createTitlePanel() {
                 }
                 label.setForeground(Color.DARK_GRAY);
             } 
-            // Format score column
+            // Formatear columna de puntuación
             else {
                 label.setHorizontalAlignment(JLabel.RIGHT);
                 if (row < 3) {
@@ -433,18 +462,18 @@ private JPanel createTitlePanel() {
                 label.setForeground(Color.DARK_GRAY);
             }
             
-            // Apply the calculated background
+            // Aplicar el fondo calculado
             label.setBackground(rowBackground);
             
             return label;
         }
         
-        // Create a medal component with image icons
+        // Crear un componente de medalla con iconos de imágenes
         private Component createMedalComponent(int position) {
             JLabel medalLabel = new JLabel();
             medalLabel.setHorizontalAlignment(JLabel.CENTER);
             
-            // Set appropriate medal icon based on position
+            // Establecer el icono de medalla apropiado según la posición
             if (position == 0) {
                 medalLabel.setIcon(goldMedalIcon);
                 medalLabel.setBackground(GOLD_COLOR);

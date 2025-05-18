@@ -5,87 +5,80 @@ import javax.swing.*;
 
 public class VistaMenuPrincipal extends JPanel {
 
-   
     public static final String OTRA = "OTRA";
     public static final String RECURSOS = "RECURSOS";
 
-  
-//    private final VistaPantallaPrincipal pantallaPrincipal;
- //   private final VistaCrearPartida crearPartida;
- //   private final VistaCargarPartida cargarPartida;
     private final JPanel panelMenuIzquierdo;
+    private final JPanel menuContainer; // Container for the left menu area
     private final JButton botonToggleMenu;
     private final JPanel cards;
+    private final JPanel centroWrapper;
     private boolean menuVisible = true;
 
     public VistaMenuPrincipal() {
-        setBackground(new Color(238,238,238,255));
+        setBackground(new Color(242, 226, 177));
         setLayout(new BorderLayout());
-
-        // --- BOTÓN TOGGLE siempre visible en la cabecera ---
+        
+        // --- Container for the menu area (always present with same width) ---
+        menuContainer = new JPanel(new BorderLayout());
+        menuContainer.setPreferredSize(new Dimension(200, 0));
+        menuContainer.setBackground(getBackground());
+        
+        // --- Panel lateral completo (WEST) ---
+        panelMenuIzquierdo = new JPanel(new BorderLayout());
+        panelMenuIzquierdo.setBackground(new Color(230, 220, 245)); // Color lila para el panel completo
+        panelMenuIzquierdo.setPreferredSize(new Dimension(200, 0));
+        
+        // --- BOTÓN TOGGLE integrado en el panel izquierdo ---
         botonToggleMenu = new JButton("✖");
         botonToggleMenu.setFont(new Font("Arial", Font.BOLD, 24));
         botonToggleMenu.setFocusPainted(false);
         botonToggleMenu.setBorderPainted(false);
         botonToggleMenu.setContentAreaFilled(false);
-        botonToggleMenu.setBackground(getBackground());
+        botonToggleMenu.setBackground(panelMenuIzquierdo.getBackground());
         botonToggleMenu.addActionListener(e -> toggleMenu());
-
+        
+        // Agregar el botón al NORTE del panel izquierdo, no al panel principal
         JPanel panelCabecera = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panelCabecera.setBackground(getBackground());
+        panelCabecera.setBackground(panelMenuIzquierdo.getBackground());
         panelCabecera.add(botonToggleMenu);
-        add(panelCabecera, BorderLayout.NORTH);
-
-        //menuLateral = new VistaMenuLateral();
-
-        // --- Panel lateral completo (WEST) ---
-        panelMenuIzquierdo = new JPanel(new BorderLayout());
-        panelMenuIzquierdo.setBackground(getBackground());
-        panelMenuIzquierdo.setPreferredSize(new Dimension(200, 0));
-        panelMenuIzquierdo.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 2, new Color(220, 220, 220)));
+        panelMenuIzquierdo.add(panelCabecera, BorderLayout.NORTH);
         
+        // Add the menu panel to the container
+        menuContainer.add(panelMenuIzquierdo, BorderLayout.CENTER);
         
+        // Añadir el contenedor del menú al panel principal
+        add(menuContainer, BorderLayout.WEST);
 
         // --- Contenedor de pantallas (CardLayout) ---
-       // pantallaPrincipal = new VistaPantallaPrincipal();
-      //  crearPartida = new VistaCrearPartida();
-      //  cargarPartida = new VistaCargarPartida();
-        
         cards = new JPanel(new CardLayout());
         
-      
         // --- Wrapper para centrar y fijar ancho ---
-        JPanel centroWrapper = new JPanel(new GridBagLayout());
+        centroWrapper = new JPanel(new GridBagLayout());
         centroWrapper.setBackground(getBackground());
         cards.setMaximumSize(new Dimension(360, Integer.MAX_VALUE));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.VERTICAL;
         centroWrapper.add(cards, gbc);
         add(centroWrapper, BorderLayout.CENTER);
-
-       // menuLateral.addVerCuentaListener(e -> muestraCard(OTRA));
-       // menuLateral.addJugarListener(e -> muestraCard(BIENVENIDA));
-       // menuLateral.addVistaRecursos(e -> muestraCard(RECURSOS));
-       // menuLateral.addVistaRanking(e -> muestraCard("RANKING"));
-       // menuLateral.cerrarSesion(e -> cerrarSesion());
-       // pantallaPrincipal.addVistaCrearPartida(e -> muestraCard("CREARPARTIDA"));
-     //   pantallaPrincipal.addVistaCargarPartida(e -> muestraCard("CARGARPARTIDA"));
-
-    //    crearPartida.jugarPartida(e -> jugarPartida());
-      //  cargarPartida.jugarPartida(e -> jugarPartida());
-
     }
 
-   public void addMenuLateral(VistaMenuLateral menuLateral){
-    panelMenuIzquierdo.add(menuLateral, BorderLayout.CENTER);
-    add(panelMenuIzquierdo, BorderLayout.WEST);
+    public void addMenuLateral(VistaMenuLateral menuLateral){
+        // Añadimos un panel que contendrá el menú lateral
+        JPanel menuContainerInternal = new JPanel(new BorderLayout());
+        menuContainerInternal.setBackground(panelMenuIzquierdo.getBackground());
+        menuContainerInternal.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0)); // Sin bordes para el contenedor
+        
+        // Añade el menú lateral al contenedor
+        menuContainerInternal.add(menuLateral, BorderLayout.CENTER);
+        
+        // Añade el contenedor del menú al panel izquierdo
+        panelMenuIzquierdo.add(menuContainerInternal, BorderLayout.CENTER);
+    }
     
-   }
-    
-  public void addCard(String nombre, Component vista) {
+    public void addCard(String nombre, Component vista) {
         cards.add(vista, nombre);
     }
-
 
     public void jugarPartida(VistaScrabble vs) {
         // Limpia todo el contenido de este panel
@@ -95,13 +88,12 @@ public class VistaMenuPrincipal extends JPanel {
         setLayout(new BorderLayout());
 
         // Instanciamos y añadimos la vista del tablero
-         vs = new VistaScrabble();
+        vs = new VistaScrabble();
         add(vs, BorderLayout.CENTER);
 
         // Refrescamos la UI
         revalidate();
         repaint();
-
     }
 
     private void cerrarSesion() {
@@ -118,13 +110,35 @@ public class VistaMenuPrincipal extends JPanel {
 
     private void toggleMenu() {
         if (menuVisible) {
-            remove(panelMenuIzquierdo);
+            // Hide menu but keep a small container for the button
+            // Create a panel for just the button
+            JPanel soloBoton = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            soloBoton.setBackground(getBackground());
+            soloBoton.add(botonToggleMenu);
+            
+            // Change button to show "menu" icon
             botonToggleMenu.setText("☰");
+            
+            // Reset the preferred size to minimum to allow content expansion
+            menuContainer.setPreferredSize(new Dimension(50, 0));
+            menuContainer.removeAll();
+            menuContainer.add(soloBoton, BorderLayout.NORTH);
         } else {
-            add(panelMenuIzquierdo, BorderLayout.WEST);
+            // Restore the menu with full size
+            menuContainer.setPreferredSize(new Dimension(200, 0));
+            menuContainer.removeAll();
+            menuContainer.add(panelMenuIzquierdo, BorderLayout.CENTER);
             botonToggleMenu.setText("✖");
+            
+            // Make sure button is in the header panel
+            JPanel panelCabecera = (JPanel)panelMenuIzquierdo.getComponent(0);
+            if (!panelCabecera.isAncestorOf(botonToggleMenu)) {
+                panelCabecera.add(botonToggleMenu);
+            }
         }
         menuVisible = !menuVisible;
+        
+        // Revalidate and repaint the entire panel to ensure proper layout update
         revalidate();
         repaint();
     }
