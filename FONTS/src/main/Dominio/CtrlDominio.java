@@ -636,8 +636,8 @@ void validarFormatoBolsa(List<String> bolsa) throws FormatoBolsaInvalidoExceptio
 // Gestiónn de fotos de jugadores
 // Add these methods to your existing CtrlDominio class
 
-public void saveProfileImage(String username, BufferedImage image) {
-    ctrlPersistencia.guardarImagenPerfil(username, image);
+public void saveProfileImage(BufferedImage image) {
+    ctrlPersistencia.guardarImagenPerfil(ctrlJugador.getJugadorActual(), image);
 }
 
 public BufferedImage getProfileImage(String username) {

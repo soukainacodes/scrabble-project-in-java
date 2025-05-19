@@ -15,6 +15,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class VistaCuenta extends JPanel {
 
+    private JPanel positionPanel;
+
     public static final int CONTENT_WIDTH = 500;
     private static final Color BG = new Color(242, 226, 177); // Color crema
     private static final Color FG = new Color(20, 40, 80); 
@@ -191,7 +193,7 @@ public class VistaCuenta extends JPanel {
         // Info sections
         JPanel welcomePanel = createInfoField("Bienvenido, ", "valorNombre");
         JPanel pointsPanel = createInfoField("Tu puntuación actual es: ", "valorPuntos");
-        JPanel positionPanel = createInfoField("Tu posición es: ", "valorPosicion");
+        positionPanel = createInfoField("Tu posición es: ", "valorPosicion"); // Guardar referencia
     
         infoPanel.add(welcomePanel);
         infoPanel.add(Box.createVerticalStrut(10));
@@ -374,8 +376,20 @@ private JPanel createButtonsSection() {
         profileImage.setImage(image);
     }
 
+    // Actualiza el método setPosicion para ocultar el panel cuando sea 0
     public void setPosicion(int posicion) {
-        valorPosicion.setText(String.valueOf(posicion));
+        if (posicion <= 0) {
+            // Ocultar el panel de posición si el jugador no está clasificado
+            if (positionPanel != null) {
+                positionPanel.setVisible(false);
+            }
+        } else {
+            // Mostrar el panel de posición con el valor correspondiente
+            valorPosicion.setText(String.valueOf(posicion));
+            if (positionPanel != null) {
+                positionPanel.setVisible(true);
+            }
+        }
     }
 
     public void cambiarNombre(ActionListener l) {

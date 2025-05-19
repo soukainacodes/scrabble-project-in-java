@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.imageio.ImageIO;
+
 import Dominio.Excepciones.*;
 
 import java.nio.charset.StandardCharsets;
@@ -122,10 +124,39 @@ public class CtrlPersistencia {
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      * @throws IOException Si hay algún error al eliminar archivos
      */
-    public void eliminarJugador(String username) throws UsuarioNoEncontradoException, IOException {
+        public void eliminarJugador(String username) throws UsuarioNoEncontradoException, IOException {
         // Usa el método existente para verificar si el jugador existe
         if (!existeJugador(username)) {
             throw new UsuarioNoEncontradoException(username);
+        }
+        
+        // Primero eliminar todas las partidas relacionadas con este jugador
+        File partidasDir = new File(PARTIDAS);
+        if (partidasDir.exists() && partidasDir.isDirectory()) {
+            File[] archivosPartidas = partidasDir.listFiles((dir, name) -> name.endsWith(".json"));
+            if (archivosPartidas != null) {
+                for (File archivoPartida : archivosPartidas) {
+                    try {
+                        // Leer el archivo de la partida
+                        String contenidoPartida = Files.readString(archivoPartida.toPath(), StandardCharsets.UTF_8);
+                        JSONObject partidaJson = new JSONObject(contenidoPartida);
+                        
+                        // Verificar si el jugador es jugador_1 o jugador_2
+                        if ((partidaJson.has("jugador_1") && partidaJson.getString("jugador_1").equals(username)) ||
+                            (partidaJson.has("jugador_2") && partidaJson.getString("jugador_2").equals(username))) {
+                            
+                            // Eliminar la partida
+                            if (!archivoPartida.delete()) {
+                                System.err.println("No se pudo eliminar la partida: " + archivoPartida.getName());
+                            } else {
+                                System.out.println("Partida eliminada: " + archivoPartida.getName());
+                            }
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Error al procesar partida " + archivoPartida.getName() + ": " + e.getMessage());
+                    }
+                }
+            }
         }
         
         // Define la ruta de la carpeta del jugador
@@ -145,6 +176,8 @@ public class CtrlPersistencia {
         if (!userDir.delete()) {
             throw new IOException("No se pudo eliminar la carpeta del jugador: " + username);
         }
+        
+        System.out.println("Jugador " + username + " eliminado completamente con todas sus partidas asociadas");
     }
 
     
@@ -186,47 +219,79 @@ public class CtrlPersistencia {
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      * @throws UsuarioYaRegistradoException Si el nuevo nombre ya está en uso
      */
-    public void actualizarNombre(String username, String newUsername) throws UsuarioNoEncontradoException, UsuarioYaRegistradoException {
+public void actualizarNombre(String username, String newUsername) throws UsuarioNoEncontradoException, UsuarioYaRegistradoException {
         // Verifica si el jugador existe
         if (!existeJugador(username)) {
             throw new UsuarioNoEncontradoException(username);
         }
-
+    
         // Verifica si el nuevo nombre ya está en uso
         if (existeJugador(newUsername)) {
             throw new UsuarioYaRegistradoException(newUsername);
         }
-
+    
         // Define las rutas relevantes
         Path oldUserDir = Paths.get(JUGADORES + username);
         Path oldUserFile = oldUserDir.resolve(username + ".json");
         Path newUserDir = Paths.get(JUGADORES + newUsername);
         Path newUserFile = newUserDir.resolve(newUsername + ".json");
-
+    
         try {
             // Leer el contenido del archivo JSON
             String contenido = Files.readString(oldUserFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
-
+    
             // Actualizar el nombre de usuario en el JSON
             jugadorJson.put("nombre", newUsername);
-
+    
             // Crear el nuevo directorio si no existe
             Files.createDirectories(newUserDir);
-
+    
             // Escribir el archivo JSON con el nuevo nombre
             Files.writeString(newUserFile, jugadorJson.toString(4), StandardCharsets.UTF_8);
-
+            
+            // Comprobar si existe la imagen de perfil y transferirla
+            File oldProfileImage = new File(oldUserDir.toFile(), username + ".png");
+            if (oldProfileImage.exists()) {
+                BufferedImage image = ImageIO.read(oldProfileImage);
+                if (image != null) {
+                    File newProfileImage = new File(newUserDir.toFile(), newUsername + ".png");
+                    ImageIO.write(image, "png", newProfileImage);
+                    oldProfileImage.delete(); // Eliminar la imagen antigua
+                }
+            }
+            
+            // Transferir cualquier otro archivo que pueda existir en el directorio
+            File[] oldFiles = oldUserDir.toFile().listFiles();
+            if (oldFiles != null) {
+                for (File oldFile : oldFiles) {
+                    if (!oldFile.getName().equals(username + ".json") && 
+                        !oldFile.getName().equals(username + ".png")) {
+                        
+                        // Determinar el nuevo nombre para el archivo (si comienza con el username antiguo)
+                        String newFileName = oldFile.getName();
+                        if (newFileName.startsWith(username)) {
+                            newFileName = newFileName.replaceFirst(username, newUsername);
+                        }
+                        
+                        // Copiar el archivo al nuevo directorio
+                        Files.copy(oldFile.toPath(), 
+                                   newUserDir.resolve(newFileName),
+                                   java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        oldFile.delete(); // Eliminar el archivo antiguo
+                    }
+                }
+            }
+    
             // Eliminar el archivo antiguo
             Files.delete(oldUserFile);
-
+    
             // Eliminar el directorio antiguo (debe estar vacío)
             Files.delete(oldUserDir);
-            
+                
         } catch (IOException e) {
             throw new UncheckedIOException("Error al actualizar el nombre del jugador: " + username, e);
         }
-
         // Actualizar el nombre en todas las partidas guardadas
         File partidasDir = new File(PARTIDAS);
         if (partidasDir.exists() && partidasDir.isDirectory()) {
@@ -1036,7 +1101,13 @@ public class CtrlPersistencia {
             
             // Crear el directorio del jugador si no existe
             File dir = new File(JUGADORES + username);
-      
+            if (!dir.exists()) {
+                if (!dir.mkdirs()) {
+                    System.err.println("No se pudo crear el directorio para la imagen de perfil de " + username);
+                    return;
+                }
+            }
+          
             // Definir la ruta de la imagen de perfil
             File imagenFile = new File(dir, username + ".png");
             

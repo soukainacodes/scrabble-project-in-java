@@ -1,6 +1,5 @@
 package Presentacion;
 
-import java.util.LinkedHashMap;
 import Dominio.CtrlDominio;
 import Dominio.Excepciones.*;
 import Presentacion.Vistas.*;
@@ -147,8 +146,7 @@ public class CtrlPresentacion {
         vMenuLateral.addVistaRecursos(e -> vMenuPrincipal.muestraCard("RECURSOS"));
         vMenuLateral.cerrarSesion(e -> cerrarSesion());
         vPantallaPrincipal.addVistaCrearPartida(e -> crearVistaCrearPartida());
-        vPantallaPrincipal.addVistaCargarPartida(e -> vMenuPrincipal.muestraCard("CARGARPARTIDA"));
-        // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
+        vPantallaPrincipal.addVistaCargarPartida(e -> crearVistaCargarPartida());        // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
 
         vCargarPartida.jugarPartida(e -> jugarPartida());
 
@@ -204,7 +202,45 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaCargarPartida() {
-
+        // Obtener la lista de partidas guardadas del usuario actual
+        List<String> partidasGuardadas = ctrlDominio.obtenerNombresPartidasGuardadas();
+        
+        // Cargar la lista en la vista
+        vCargarPartida.setPartidas(partidasGuardadas);
+        
+        // Configurar los listeners de botones
+        vCargarPartida.jugarPartida(e -> cargarPartidaSeleccionada());
+        vCargarPartida.eliminarPartida(e -> eliminarPartidaSeleccionada());
+        
+        // Mostrar la vista
+        vMenuPrincipal.muestraCard("CARGARPARTIDA");
+    }
+    
+    private void cargarPartidaSeleccionada() {
+        String partidaSeleccionada = vCargarPartida.getSeleccionada();
+        if (partidaSeleccionada != null) {
+            try {
+                ctrlDominio.cargarPartida(partidaSeleccionada);
+                jugarPartida(); // Inicia la partida cargada
+            } catch (Exception e) {
+                System.err.println("Error al cargar la partida: " + e.getMessage());
+                // Podrías mostrar un diálogo de error si lo deseas
+            }
+        }
+    }
+    
+    private void eliminarPartidaSeleccionada() {
+        String partidaSeleccionada = vCargarPartida.getSeleccionada();
+        if (partidaSeleccionada != null) {
+            try {
+                ctrlDominio.eliminarPartidaGuardada(partidaSeleccionada);
+                // Actualizar la lista después de eliminar
+                vCargarPartida.removePartida(partidaSeleccionada);
+            } catch (Exception e) {
+                System.err.println("Error al eliminar la partida: " + e.getMessage());
+                // Podrías mostrar un diálogo de error si lo deseas
+            }
+        }
     }
 
     private void crearVistaSegundoJugador() {
@@ -230,42 +266,57 @@ public class CtrlPresentacion {
 
     }
 
-    // Vistas del menu lateral
-    private void crearVistaCuenta() {
-        String username = ctrlDominio.getUsuarioActual();
-        vCuenta.setNombre(username);
-        
+        private void crearVistaCuenta() {
         try {
+            String username = ctrlDominio.getUsuarioActual();
+            vCuenta.setNombre(username);
+            
+            // Establecer puntos
             vCuenta.setPuntos(Integer.toString(ctrlDominio.getPuntosActual()));
             
-            // Load profile image if available
-            BufferedImage profileImage = ctrlDominio.getProfileImage(username);
-            if (profileImage != null) {
-                vCuenta.setProfileImage(profileImage);
+            // Try-catch específico para la posición en el ranking
+            try {
+                int posicion = ctrlDominio.obtenerPosicion(username);
+                vCuenta.setPosicion(posicion);
+            } catch (UsuarioNoEncontradoException | IOException e) {
+                // Si el usuario no está en el ranking, mostrar "Sin clasificar"
+                vCuenta.setPosicion(0); // El 0 se puede interpretar como "No clasificado"
             }
             
-            // Add profile image change listener
+            // Cargar imagen de perfil si está disponible
+            try {
+                BufferedImage profileImage = ctrlDominio.getProfileImage(username);
+                if (profileImage != null) {
+                    vCuenta.setProfileImage(profileImage);
+                }
+            } catch (Exception ex) {
+                // Ignorar silenciosamente si no hay imagen de perfil
+            }
+            
+            // Agregar listener para cambios de imagen de perfil
             vCuenta.setProfileChangeListener(e -> {
                 File selectedFile = (File) e.getSource();
                 try {
                     BufferedImage newImage = ImageIO.read(selectedFile);
                     if (newImage != null) {
-                        ctrlDominio.saveProfileImage(username, newImage);
+                        ctrlDominio.saveProfileImage(newImage);
                     }
                 } catch (IOException ex) {
                     System.err.println("Error al guardar la imagen de perfil: " + ex.getMessage());
                 }
             });
+            
         } catch (Exception e) {
-            System.err.println("Error al cargar datos del perfil: " + e.getMessage());
+            // Capturar cualquier otro error general pero no mostrar mensajes repetidos
+            System.err.println("Error general al cargar datos del perfil: " + e.getMessage());
         }
     
-        // Add listeners (using your existing implementations)
+        // Añadir listeners para botones
         vCuenta.cambiarNombre(e -> crearVistaCambiarNombre());
         vCuenta.cambiarPassword(e -> crearVistaCambiarPassword());
         vCuenta.eliminarJugador(e -> crearVistaEliminarJugador());
     
-        // Show the account card (your existing navigation pattern)
+        // Mostrar la vista de cuenta
         vMenuPrincipal.muestraCard("CUENTA");
     }
 
@@ -325,6 +376,7 @@ public class CtrlPresentacion {
         try {
             ctrlDominio.eliminarUsuario(password);
             vPassword.dispose();
+            cerrarSesion();
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
         }
@@ -357,9 +409,6 @@ public class CtrlPresentacion {
 
     private void crearVistaAddRecurso() {
         vAddRecurso = new VistaExplorador();
-        String rutaDiccionario;
-        int contadorArchivos = 0;
-        final String[] rutas = new String[2];
         vAddRecurso.addAñadirListener(e -> {
             String ruta = vAddRecurso.elegirArchivo();
             if (ruta != null) {
