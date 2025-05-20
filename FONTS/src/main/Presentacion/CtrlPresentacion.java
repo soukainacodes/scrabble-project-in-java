@@ -267,21 +267,35 @@ public class CtrlPresentacion {
     }
 
         private void crearVistaCuenta() {
-        try {
-            String username = ctrlDominio.getUsuarioActual();
-            vCuenta.setNombre(username);
-            
-            // Establecer puntos
-            vCuenta.setPuntos(Integer.toString(ctrlDominio.getPuntosActual()));
-            
-            // Try-catch específico para la posición en el ranking
             try {
-                int posicion = ctrlDominio.obtenerPosicion(username);
-                vCuenta.setPosicion(posicion);
-            } catch (UsuarioNoEncontradoException | IOException e) {
-                // Si el usuario no está en el ranking, mostrar "Sin clasificar"
-                vCuenta.setPosicion(0); // El 0 se puede interpretar como "No clasificado"
-            }
+                String username = ctrlDominio.getUsuarioActual();
+                vCuenta.setNombre(username);
+                
+                try {
+                    vCuenta.setPuntos(Integer.toString(ctrlDominio.getPuntosActual()));
+                    System.out.println("Puntos cargados: " + ctrlDominio.getPuntosActual()); 
+                } catch (UsuarioNoEncontradoException e) {
+                    // Si hay error al obtener los puntos, mostrar 0
+                    vCuenta.setPuntos("0");
+                    System.out.println("Error al cargar puntos: " + e.getMessage());
+                }
+                
+                try {
+                    int posicion = ctrlDominio.obtenerPosicion(username);
+                    // Asegurarse de que la posición siempre sea un valor positivo
+                    if (posicion > 0) {
+                        vCuenta.setPosicion(posicion);
+                        System.out.println("Posición cargada: " + posicion);
+                    } else {
+                        System.out.println("Posición recibida inválida: " + posicion);
+                        // Si el usuario aparece en ranking pero la posición es 0, mostrar 1
+                        vCuenta.setPosicion(1); // Asignar la primera posición si hay confusión
+                    }
+                } catch (UsuarioNoEncontradoException | IOException e) {
+                    // Si el usuario no está en el ranking, mostrar "Sin clasificar"
+                    vCuenta.setPosicion(0);
+                    System.out.println("Usuario no clasificado en ranking: " + e.getMessage());
+                }
             
             // Cargar imagen de perfil si está disponible
             try {
