@@ -90,7 +90,9 @@ public class CtrlPresentacion {
             vLogin.repaint();
             vLogin.setContentPane(vMenuPrincipal);
             vLogin.setLocationRelativeTo(null);
-            vLogin.setSize(1280, 720);
+            
+            //vLogin.setSize(1280, 720);
+            vLogin.pack();
 
         } catch (Exception e) {
             // System.err.println("Error: " + e.getMessage());
