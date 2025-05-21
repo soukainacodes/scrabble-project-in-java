@@ -19,6 +19,7 @@ public class VistaRanking extends JPanel {
     private static final Color FG = new Color(20, 40, 80);               // Texto oscuro
     private static final Color LILA_OSCURO = new Color(52, 28, 87);      // Exactamente igual que VistaCuenta
     private static final Color LILA_CLARO = new Color(180, 95, 220);     // Exactamente igual que VistaCuenta
+    private static final Color BORDE_COLOR = new Color(220, 200, 150);
     
     // Colores específicos de ranking
     private static final Color GOLD_COLOR = new Color(255, 215, 0);
@@ -29,8 +30,7 @@ public class VistaRanking extends JPanel {
     private static final Color SCROLLBAR_TRACK = new Color(240, 240, 240);
     
     // Dimensiones
-    private static final int TABLE_WIDTH = 500;  // Aumentado para aprovechar más espacio
-    private static final int TABLE_HEIGHT = 330;
+    private static final int TABLE_WIDTH = 640;  // Aumentado para llenar todo el ancho
     
     // Rutas de imágenes
     private static final String[] GOLD_MEDAL_PATHS = {
@@ -52,6 +52,7 @@ public class VistaRanking extends JPanel {
     private DefaultTableModel model;
     private JTable table;
     private JPanel contentPanel;
+    private RoundedPanel tablaPanel;
 
     public VistaRanking() {
         setLayout(new BorderLayout());
@@ -137,32 +138,10 @@ public class VistaRanking extends JPanel {
         JPanel content = new JPanel(new BorderLayout());
         content.setBackground(APP_BG_COLOR);
         
-        // Panel con marco redondeado y sombra (consistente con VistaCuenta)
-        JPanel marco = new JPanel(new BorderLayout()) {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                // Sombra externa mejorada - exactamente igual que VistaCuenta
-                g2.setColor(new Color(0, 0, 0, 15));
-                g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, 22, 22);
-                
-                // Borde más definido - exactamente igual que VistaCuenta
-                g2.setColor(new Color(220, 200, 150));
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                
-                // Gradiente interior mejorado - exactamente igual que VistaCuenta
-                GradientPaint gp = new GradientPaint(
-                    0, 0, APP_BG_COLOR.brighter(), 
-                    0, getHeight(), APP_BG_COLOR
-                );
-                g2.setPaint(gp);
-                g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 18, 18);
-                g2.dispose();
-            }
-        };
-        marco.setOpaque(false);
-        marco.setBorder(new EmptyBorder(30, 30, 30, 30)); // Igual que VistaCuenta
+        // Panel de tabla con esquinas redondeadas (como en VistaRecursos)
+        tablaPanel = new RoundedPanel();
+        tablaPanel.setLayout(new BorderLayout());
+        tablaPanel.setBackground(APP_BG_COLOR);
         
         // Crear modelo de tabla
         String[] columns = {"Posición", "Nombre", "Puntuación"};
@@ -193,11 +172,17 @@ public class VistaRanking extends JPanel {
         // Establecer renderizador personalizado
         table.setDefaultRenderer(Object.class, new RankingRenderer());
         
-        // Crear scrollpane con estilo minimalista
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        // IMPORTANTE: Crear un panel personalizado que abarque completamente
+        JPanel tableContainer = new JPanel(new BorderLayout());
+        tableContainer.setBackground(APP_BG_COLOR);
+        tableContainer.add(table, BorderLayout.CENTER);
+        
+        // Scroll con UI consistente y transparente
+        JScrollPane scrollPane = new JScrollPane(tableContainer);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(APP_BG_COLOR);
         scrollPane.setBackground(APP_BG_COLOR);
+        scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
         
         // UI personalizada para scrollbar
         scrollPane.getVerticalScrollBar().setUI(new MinimalistScrollBarUI());
@@ -205,10 +190,10 @@ public class VistaRanking extends JPanel {
         scrollPane.getHorizontalScrollBar().setUI(new MinimalistScrollBarUI());
         scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 8));
         
-        // Añadir la tabla al marco
-        marco.add(scrollPane, BorderLayout.CENTER);
+        // Añadir un pequeño margen interno (como en VistaRecursos)
+        tablaPanel.add(scrollPane, BorderLayout.CENTER);
+        content.add(tablaPanel, BorderLayout.CENTER);
         
-        content.add(marco, BorderLayout.CENTER);
         return content;
     }
     
@@ -224,9 +209,53 @@ public class VistaRanking extends JPanel {
             model.addRow(new Object[]{i + 1, entry.getKey(), entry.getValue()});
         }
         
+        // Asegurar que haya suficientes filas para llenar el espacio
+        int minRows = 15; // Incrementado para garantizar que llene toda la altura
+        if (list.size() < minRows) {
+            for (int i = list.size(); i < minRows; i++) {
+                model.addRow(new Object[]{"", "", ""});
+            }
+        }
+        
         // Forzar a la tabla a recalcular su tamaño
         table.revalidate();
         contentPanel.revalidate();
+    }
+    
+    // Panel con esquinas redondeadas y sombra (igual que en VistaRecursos)
+    private class RoundedPanel extends JPanel {
+        
+        private static final int CORNER_RADIUS = 20;
+        
+        public RoundedPanel() {
+            setOpaque(false);
+            setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2)); // Pequeño margen para la sombra
+        }
+        
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Dibujar sombra
+            g2.setColor(new Color(0, 0, 0, 15));
+            g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, CORNER_RADIUS, CORNER_RADIUS);
+            
+            // Dibujar borde
+            g2.setColor(BORDE_COLOR);
+            g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
+            
+            // Dibujar fondo con gradiente
+            GradientPaint gp = new GradientPaint(
+                0, 0, APP_BG_COLOR.brighter(), 
+                0, getHeight(), APP_BG_COLOR
+            );
+            g2.setPaint(gp);
+            g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() - 5, CORNER_RADIUS - 2, CORNER_RADIUS - 2);
+            
+            g2.dispose();
+            super.paintComponent(g);
+        }
     }
     
     private void loadMedalImages() {
@@ -296,19 +325,6 @@ public class VistaRanking extends JPanel {
             File file = new File(path);
             if (file.exists()) {
                 return new ImageIcon(file.getAbsolutePath());
-            }
-            return null;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-    
-    // Método para cargar imagen desde classpath
-    private ImageIcon loadImageFromClasspath(String path) {
-        try {
-            java.net.URL url = getClass().getClassLoader().getResource(path);
-            if (url != null) {
-                return new ImageIcon(url);
             }
             return null;
         } catch (Exception e) {
@@ -396,11 +412,21 @@ public class VistaRanking extends JPanel {
     // Renderizador personalizado con iconos de medallas
     private class RankingRenderer extends DefaultTableCellRenderer {
         private final Font boldFont = new Font("Arial", Font.BOLD, 15);
-        private final Font regularFont = new Font("Arial", Font.PLAIN, 14);
+        private final Font regularFont = new Font("Arial", Font.BOLD, 14);
         
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
+                
+            // Para filas vacías (cuando no hay suficientes jugadores)
+            if (value == null || value.toString().isEmpty()) {
+                JLabel emptyLabel = new JLabel("");
+                emptyLabel.setOpaque(true);
+                emptyLabel.setBackground(APP_BG_COLOR);
+                // Eliminar cualquier margen en las celdas vacías
+                emptyLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+                return emptyLabel;
+            }
                 
             // Para columna de posición con medallas
             if (column == 0 && row < 3) {
@@ -411,8 +437,8 @@ public class VistaRanking extends JPanel {
             JLabel label = (JLabel) super.getTableCellRendererComponent(
                 table, value, isSelected, false, row, column);
             
-            // Restablecer borde
-            label.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
+            // Ajustar el borde para que sea más pequeño pero mantenga legibilidad
+            label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
             
             Color rowBackground;
             
@@ -477,6 +503,8 @@ public class VistaRanking extends JPanel {
             }
             
             medalLabel.setOpaque(true);
+            // Eliminar márgenes para que la medalla toque el borde
+            medalLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
             return medalLabel;
         }
     }
