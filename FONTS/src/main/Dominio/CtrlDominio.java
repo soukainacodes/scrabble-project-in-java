@@ -2,15 +2,11 @@ package Dominio;
 
 import Dominio.Excepciones.*;
 import Persistencia.CtrlPersistencia;
-
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
-import javax.imageio.ImageIO;
 
 /**
  * Controlador principal del dominio que coordina la lógica de negocio,
@@ -200,6 +196,7 @@ public class CtrlDominio {
     
     public void iniciarPartida(
             String id,
+            String segundoJugador,
             String idDiccionario,
             long seed,
             boolean jugadorAlgoritmo
@@ -216,7 +213,7 @@ public class CtrlDominio {
 
 
         int modo;
-        if (ctrlJugador.getSegundoJugador() == null || ctrlJugador.getSegundoJugador().isEmpty()) {
+        if (segundoJugador == null ||segundoJugador.isEmpty()) {
             ctrlJugador.setSegundoJugador("propAI");
             modo = 0;
         }

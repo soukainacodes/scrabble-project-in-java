@@ -5,21 +5,20 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
 public class VistaScrabble extends JPanel {
 
-    private static final int TILE_SIZE = 48;
+    private static final int TILE_SIZE = 32;
+    private JPanel grid;
 
     public VistaScrabble() {
         setLayout(new BorderLayout(5, 5));
-        setBackground(new Color(186,187,200,255));
-
+        setSize(1920, 1080);
+        setBackground(new Color(238, 238, 238, 255));
+        add(crearTabla(), BorderLayout.WEST);
         // Tablero en el centro
-        add(crearTablero(), BorderLayout.CENTER);
 
         // Rack + controles al sur
         JPanel southPanel = new JPanel();
@@ -31,14 +30,7 @@ public class VistaScrabble extends JPanel {
         southPanel.add(crearPanelControles());
 
         add(southPanel, BorderLayout.SOUTH);
-    }
-
-    private JPanel crearTablero() {
-        // Panel que contiene el grid, centrado y con tamaño fijo
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(getBackground());
-
-        JPanel grid = new JPanel(new GridLayout(15, 15, 2, 2)) {
+        grid = new JPanel(new GridLayout(15, 15, 2, 2)) {
             @Override
             public Dimension getPreferredSize() {
                 int total = TILE_SIZE * 15 + 2 * 14;
@@ -52,27 +44,84 @@ public class VistaScrabble extends JPanel {
         };
         grid.setBackground(new Color(200, 200, 200));
 
-        for (int i = 0; i < 15 * 15; i++) {
-            grid.add(new CellPanel());
-        }
+    }
+
+    public void crearTablero() {
+        // Panel que contiene el grid, centrado y con tamaño fijo
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(getBackground());
+
         wrapper.add(grid);
-        return wrapper;
+       
+        add(wrapper, BorderLayout.CENTER);
+        wrapper.revalidate();
+        wrapper.repaint();
+        revalidate();
+        repaint();
+        
+    }
+
+    public void configurarTablero(String b, int i, int j) {
+        CellPanel cell;
+        if (b.equals("DL")) {
+            cell = new CellPanel(189, 236, 248, "DL", i, j);
+
+        } else if (b.equals("TL")) {
+            cell = new CellPanel(69, 192, 236, "TL", i, j);
+
+        } else if (b.equals("DP")) {
+            cell = new CellPanel(244, 180, 188, "DP", i, j);
+
+        } else if (b.equals("TP")) {
+            cell = new CellPanel(247, 77, 90, "TP", i, j);
+
+        } else {
+            cell = new CellPanel(255, 248, 230, "", i, j);
+            
+        }
+
+        cell.addPropertyChangeListener("tile", evt -> {
+            TileLabel tile = (TileLabel) evt.getNewValue();
+            // ¡aquí recibes la ficha sin haber definido otra clase!
+            System.out.println("Ha caído la ficha " + tile.getLetter() + " en " + tile.getRow() + " " + tile.getCol());
+            // p.ej. modelo.placeTile(pos, tile);
+        });
+        cell.addPropertyChangeListener("tileRemoved", evt -> {
+            TileLabel removed = (TileLabel) evt.getOldValue();
+            System.out.println("Ha salido la ficha " + removed.getLetter() + " en " + removed.getRow() + " " + removed.getCol());
+            // Actualiza tu modelo, UI, etc.
+        });
+        grid.add(cell);
+        System.out.println("se añaden cosas");
     }
 
     private class CellPanel extends JPanel {
 
-        CellPanel() {
+        private int row;
+        private int col;
+        private boolean locked = false;
+        private final Label placeholder;
+
+        CellPanel(int R, int G, int B, String bonus, int row, int col) {
             super(new BorderLayout());
             setPreferredSize(new Dimension(TILE_SIZE, TILE_SIZE));
             setBorder(new LineBorder(Color.GRAY));
             setBackground(new Color(255, 248, 230));
-
+            this.row = row;
+            this.col = col;
+            placeholder = new Label(bonus, Label.CENTER);
+            placeholder.setForeground(Color.BLACK);
+            add(placeholder, BorderLayout.CENTER);
             // Drop: acepta StringFlavor y pone un TileLabel draggable
             setTransferHandler(new TransferHandler() {
                 @Override
                 public boolean canImport(TransferSupport support) {
-                    return support.isDataFlavorSupported(DataFlavor.stringFlavor)
-                            && getComponentCount() == 0;
+                    if (!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                        return false;
+                    }
+                    // Sólo si ahora mismo hay sólo el placeholder (o ningún componente)
+                    Component[] comps = getComponents();
+                    return comps.length == 0 || (comps.length == 1 && comps[0] == placeholder);
                 }
 
                 @Override
@@ -83,10 +132,15 @@ public class VistaScrabble extends JPanel {
                     try {
                         String data = (String) support.getTransferable()
                                 .getTransferData(DataFlavor.stringFlavor);
-                        char letter = data.charAt(0);
-                        int score = Integer.parseInt(data.substring(1));
-                        TileLabel tile = new TileLabel(letter, score);
+                        String[] parts = data.trim().split(" ");
+                        String letter = parts[0];
+                        int score = Integer.parseInt(parts[1]);
+                        TileLabel tile = new TileLabel(letter, score, row, col);
                         instalarDrag(tile);
+
+                        // notifica inserción
+                        firePropertyChange("tile", null, tile);
+
                         removeAll();
                         add(tile, BorderLayout.CENTER);
                         revalidate();
@@ -102,7 +156,58 @@ public class VistaScrabble extends JPanel {
                 public int getSourceActions(JComponent c) {
                     return NONE;
                 }
+
+                @Override
+                protected void exportDone(JComponent source, Transferable data, int action) {
+                    if (action == MOVE) {
+                        // tile quitado
+                        Container parent = source.getParent();
+                        parent.remove(source);
+                        parent.add(placeholder, BorderLayout.CENTER);
+                        parent.revalidate();
+                        parent.repaint();
+
+                        // notificamos la remoción
+                        fireTileAction("tileRemoved", (TileLabel) source);
+                    }
+                }
+
             });
+        }
+
+        @Override
+        public void remove(Component comp) {
+            // captura la ficha que se va a eliminar
+            if (comp instanceof TileLabel) {
+                firePropertyChange("tileRemoved", comp, null);
+            }
+            super.remove(comp);
+        }
+
+        @Override
+        public void removeAll() {
+            // si hay una única ficha, la notificamos antes de quitar todo
+            if (getComponentCount() == 1) {
+                Component old = getComponent(0);
+                if (old instanceof TileLabel) {
+                    firePropertyChange("tileRemoved", old, null);
+                }
+            }
+            super.removeAll();
+        }
+    }
+
+    /**
+     * Dispara un ActionEvent con el comando y la TileLabel en getSource()
+     */
+    private void fireTileAction(String command, TileLabel tile) {
+        ActionEvent evt = new ActionEvent(
+                tile, // quien genera el evento
+                ActionEvent.ACTION_PERFORMED,
+                command // "tileAdded" o "tileRemoved"
+        );
+        for (ActionListener l : listenerList.getListeners(ActionListener.class)) {
+            l.actionPerformed(evt);
         }
     }
 
@@ -110,10 +215,10 @@ public class VistaScrabble extends JPanel {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         p.setBackground(getBackground());
 
-        p.add(crearBotonControl("Abandonar"));
-        p.add(crearBotonControl("Omitir"));
-        p.add(crearBotonControl("Cambiar"));
-        p.add(crearBotonPrimario("Colocar"));
+        p.add(crearBotonControl("Reset"));
+        p.add(crearBotonControl("Pasar"));
+        p.add(crearBotonControl("Fin Turno"));
+        p.add(crearBotonPrimario("Salir"));
 
         return p;
     }
@@ -153,18 +258,21 @@ public class VistaScrabble extends JPanel {
         return b;
     }
 
-    private JPanel crearRack() {
-        JPanel rack = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        rack.setBackground(getBackground());
+    public void modificarRack(String ficha) {
 
-        List<String> fichas = Arrays.asList("A1", "I1", "O1", "S1", "R1", "M3", "Q10");
-        for (String s : fichas) {
-            char letter = s.charAt(0);
-            int score = Integer.parseInt(s.substring(1));
-            TileLabel tile = new TileLabel(letter, score);
-            instalarDrag(tile);
-            rack.add(tile);
-        }
+        String[] parts = ficha.trim().split(" ");
+
+        int score = Integer.parseInt(parts[1]);
+        TileLabel tile = new TileLabel(parts[0], score, -1, -1);
+        instalarDrag(tile);
+        rack.add(tile);
+    }
+
+    private JPanel rack;
+
+    private JPanel crearRack() {
+        rack = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        rack.setBackground(getBackground());
 
         // rack acepta devolver fichas
         rack.setTransferHandler(new TransferHandler() {
@@ -181,9 +289,10 @@ public class VistaScrabble extends JPanel {
                 try {
                     String data = (String) supp.getTransferable()
                             .getTransferData(DataFlavor.stringFlavor);
-                    char letter = data.charAt(0);
-                    int score = Integer.parseInt(data.substring(1));
-                    TileLabel tile = new TileLabel(letter, score);
+                    String[] parts = data.trim().split(" ");
+                    String letter = parts[0];
+                    int score = Integer.parseInt(parts[1]);
+                    TileLabel tile = new TileLabel(letter, score, -1, -1);
                     instalarDrag(tile);
                     rack.add(tile);
                     rack.revalidate();
@@ -238,13 +347,29 @@ public class VistaScrabble extends JPanel {
      */
     private static class TileLabel extends JComponent {
 
-        private final char letter;
+        private final String letter;
         private final int score;
+        private final int row;
+        private final int col;
         private final Dimension size = new Dimension(TILE_SIZE, TILE_SIZE);
 
-        TileLabel(char letter, int score) {
+        public String getLetter() {
+            return this.letter;
+        }
+
+        public int getRow() {
+            return this.row;
+        }
+
+        public int getCol() {
+            return this.col;
+        }
+
+        TileLabel(String letter, int score, int row, int col) {
             this.letter = letter;
             this.score = score;
+            this.row = row;
+            this.col = col;
             setPreferredSize(size);
             setMinimumSize(size);
             setMaximumSize(size);
@@ -289,15 +414,98 @@ public class VistaScrabble extends JPanel {
         }
     }
 
-    // Para prueba
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            JFrame f = new JFrame("Scrabble");
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            f.getContentPane().add(new VistaScrabble());
-            f.pack();
-            f.setLocationRelativeTo(null);
-            f.setVisible(true);
-        });
+    private JComponent crearTabla() {
+        // Creamos un componente que pinta todo el scoreboard
+        JComponent tabla = new JComponent() {
+            private int score1 = 1500;
+            private int score2 = 1200;
+            private final int WIDTH = 200;
+            private final int HEIGHT = 100;
+            private final int ARC = 20;
+            private final Color BG = Color.WHITE;
+            private final Color HEADER1_COLOR = new Color(100, 150, 255);
+            private final Color HEADER2_COLOR = new Color(255, 100, 100);
+            private final Color DIVIDER_COLOR = new Color(220, 220, 220);
+            private final Font HEADER_FONT = new Font("Arial", Font.BOLD, 14);
+            private final Font SCORE_FONT = new Font("Arial", Font.BOLD, 28);
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(WIDTH, HEIGHT);
+            }
+
+            @Override
+            public Dimension getMinimumSize() {
+                return getPreferredSize();
+            }
+
+            @Override
+            public Dimension getMaximumSize() {
+                return getPreferredSize();
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // 1) Fondo redondeado
+                g2.setColor(BG);
+                g2.fillRoundRect(0, 0, WIDTH, HEIGHT, ARC, ARC);
+
+                // 2) Cabecera Jugador 1
+                int headerH = 24;
+                g2.setColor(HEADER1_COLOR);
+                g2.fillRoundRect(0, 0, WIDTH / 2, headerH, ARC, ARC);
+                g2.fillRect(0, headerH / 2, WIDTH / 2, headerH / 2);
+
+                // 3) Cabecera Jugador 2
+                g2.setColor(HEADER2_COLOR);
+                g2.fillRoundRect(WIDTH / 2, 0, WIDTH / 2, headerH, ARC, ARC);
+                g2.fillRect(WIDTH / 2, headerH / 2, WIDTH / 2, headerH / 2);
+
+                // 4) Texto de headers
+                g2.setFont(HEADER_FONT);
+                g2.setColor(Color.WHITE);
+                FontMetrics fmH = g2.getFontMetrics();
+                String t1 = "JUGADOR 1", t2 = "JUGADOR 2";
+                int x1 = (WIDTH / 2 - fmH.stringWidth(t1)) / 2;
+                int x2 = WIDTH / 2 + (WIDTH / 2 - fmH.stringWidth(t2)) / 2;
+                int yH = (headerH + fmH.getAscent() - fmH.getDescent()) / 2;
+                g2.drawString(t1, x1, yH);
+                g2.drawString(t2, x2, yH);
+
+                // 5) Línea divisoria vertical
+                g2.setColor(DIVIDER_COLOR);
+                int y0 = headerH + 8, y1 = HEIGHT - 16, xm = WIDTH / 2;
+                g2.setStroke(new BasicStroke(1));
+                g2.drawLine(xm, y0, xm, y1);
+
+                // 6) Puntuaciones
+                g2.setFont(SCORE_FONT);
+                FontMetrics fmS = g2.getFontMetrics();
+                // Jugador1
+                String s1 = String.valueOf(score1);
+                int sx1 = (WIDTH / 2 - fmS.stringWidth(s1)) / 2;
+                int sy = HEIGHT - (HEIGHT - headerH) / 2 + fmS.getAscent() / 2 - 4;
+                g2.setColor(HEADER1_COLOR);
+                g2.drawString(s1, sx1, sy);
+                // Jugador2
+                String s2 = String.valueOf(score2);
+                int sx2 = WIDTH / 2 + (WIDTH / 2 - fmS.stringWidth(s2)) / 2;
+                g2.setColor(HEADER2_COLOR);
+                g2.drawString(s2, sx2, sy);
+
+                g2.dispose();
+            }
+        };
+
+        // Añadimos un pequeño margen
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.add(tabla, BorderLayout.NORTH);
+        wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        return wrapper;
     }
 }

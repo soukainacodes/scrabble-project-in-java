@@ -88,7 +88,7 @@ public class VistaMenuPrincipal extends JPanel {
         setLayout(new BorderLayout());
 
         // Instanciamos y añadimos la vista del tablero
-        vs = new VistaScrabble();
+       
         add(vs, BorderLayout.CENTER);
 
         // Refrescamos la UI
