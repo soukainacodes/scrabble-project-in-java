@@ -509,20 +509,16 @@ public class CtrlPresentacion {
 
     }
 
-    private void cambiarNombre() {
+        private void cambiarNombre() {
         String nombre = new String(vCambiar.getNombre());
-        String password = new String(vCambiar.getPassword());
+        String password = new String(vCambiar.getPasswordActual());  // Corrección aquí
         try {
-
             ctrlDominio.cambiarNombre(nombre, password);
-
             vCuenta.setNombre(ctrlDominio.getUsuarioActual());
             vCambiar.dispose();
-
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
         }
-
     }
 
     private void eliminarJugador() {
