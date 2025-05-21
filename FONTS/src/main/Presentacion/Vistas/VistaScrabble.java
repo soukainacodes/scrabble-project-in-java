@@ -441,7 +441,7 @@ public class VistaScrabble extends JPanel {
     }
 
     public void ponerFichaTablero(String letra, int puntos, int i, int j) {
-        if (letra != null && !letra.isEmpty()) {
+        if (letra != null || !letra.isEmpty()) {
             TileLabel tile = new TileLabel(letra, puntos, i, j);
             instalarDrag(tile);
             cells[i][j].add(tile, BorderLayout.CENTER);
@@ -450,7 +450,7 @@ public class VistaScrabble extends JPanel {
             grid.revalidate();
             grid.repaint();
         }
-        if (letra == null || letra.isEmpty()) {
+        else if (letra == null || letra.isEmpty()) {
             cells[i][j].removeAll();
             cells[i][j].revalidate();
             cells[i][j].repaint();

@@ -182,8 +182,9 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
             return finTurno(false, true);
 
         case 5: {
-            List<Pair<Integer, Integer>> coords = partidaActual.getCoordenadasPalabras();
-            for (Pair<Integer, Integer> p : coords) {
+            List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
+            for (Pair<Integer, Integer> p : coordenadas) {
+                System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
                 partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
             }
 

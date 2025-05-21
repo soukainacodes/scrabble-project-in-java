@@ -16,12 +16,13 @@ public class VistaExplorador extends JFrame {
     private static final Color BORDER = new Color(220, 220, 220);
 
     private JTextField txtID;
+    private JLabel labelID;
     private JTextArea textArea1;
     private JTextArea textArea2;
     private JButton btnArchivo;
     private JButton btnAceptar;
 
-    public VistaExplorador() {
+    public VistaExplorador(String label) {
         setTitle("Mi Ventana de Recursos");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         getContentPane().setBackground(BG);
@@ -35,11 +36,23 @@ public class VistaExplorador extends JFrame {
         JLabel lblID = new JLabel("ID:");
         lblID.setFont(new Font("Arial", Font.BOLD, 14));
         lblID.setForeground(FG_TITLE);
-        txtID = new JTextField(10);
-        txtID.setFont(new Font("Arial", Font.PLAIN, 14));
-        txtID.setBorder(BorderFactory.createLineBorder(BORDER, 1));
-        panelTop.add(lblID);
-        panelTop.add(txtID);
+        if (label == "") {
+            txtID = new JTextField(10);
+            txtID.setFont(new Font("Arial", Font.PLAIN, 14));
+            txtID.setBorder(BorderFactory.createLineBorder(BORDER, 1));
+            panelTop.add(lblID);
+            panelTop.add(txtID);
+        }
+        else {
+            labelID = new JLabel(label);
+            labelID.setFont(new Font("Arial", Font.PLAIN, 14));
+            labelID.setForeground(FG_SUB);
+            panelTop.add(lblID);
+            panelTop.add(labelID);
+        }
+
+        
+
         add(panelTop, BorderLayout.NORTH);
 
         // ===== Centro: dos columnas con label + textArea cada una =====
@@ -183,9 +196,9 @@ public class VistaExplorador extends JFrame {
     }
 
     public boolean textAreaisEmpty(int textArea) {
-        String text = (textArea == 1) 
-        ? textArea1.getText() 
-        : textArea2.getText();
+        String text = (textArea == 1)
+                ? textArea1.getText()
+                : textArea2.getText();
         return text == null || text.trim().isEmpty();
 
     }
