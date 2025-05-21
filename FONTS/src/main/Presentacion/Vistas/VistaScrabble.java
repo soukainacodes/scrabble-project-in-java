@@ -12,6 +12,7 @@ public class VistaScrabble extends JPanel {
 
     private static final int TILE_SIZE = 32;
     private JPanel grid;
+    private CellPanel[][] cells = new CellPanel[15][15];
 
     public VistaScrabble() {
         setLayout(new BorderLayout(5, 5));
@@ -84,15 +85,43 @@ public class VistaScrabble extends JPanel {
             TileLabel tile = (TileLabel) evt.getNewValue();
             // ¡aquí recibes la ficha sin haber definido otra clase!
             System.out.println("Ha caído la ficha " + tile.getLetter() + " en " + tile.getRow() + " " + tile.getCol());
-            // p.ej. modelo.placeTile(pos, tile);
+            if (tileActionListener != null) {
+                tileActionListener.onTilePlaced(
+                        tile.getLetter(),
+                        tile.getScore(),
+                        tile.getRow(),
+                        tile.getCol()
+                );
+            }
         });
         cell.addPropertyChangeListener("tileRemoved", evt -> {
             TileLabel removed = (TileLabel) evt.getOldValue();
             System.out.println("Ha salido la ficha " + removed.getLetter() + " en " + removed.getRow() + " " + removed.getCol());
-            // Actualiza tu modelo, UI, etc.
+            if (tileActionListener != null) {
+                tileActionListener.onTileRemoved(
+                        removed.getLetter(),
+                        removed.score,
+                        removed.getRow(),
+                        removed.getCol()
+                );
+            }
         });
+        cells[i][j] = cell;
         grid.add(cell);
-        System.out.println("se añaden cosas");
+       
+    }
+
+    private TileActionListener tileActionListener;
+
+    public void setTileActionListener(TileActionListener listener) {
+        this.tileActionListener = listener;
+    }
+
+    public interface TileActionListener {
+
+        void onTilePlaced(String letter, int score, int row, int col);
+
+        void onTileRemoved(String letter, int score, int row, int col);
     }
 
     private class CellPanel extends JPanel {
@@ -174,17 +203,40 @@ public class VistaScrabble extends JPanel {
         }
     }
 
+    private JButton finTurno;
+    private JButton reset;
+    private JButton pasar;
+    private JButton salir;
 
     private JPanel crearPanelControles() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         p.setBackground(getBackground());
-
-        p.add(crearBotonControl("Reset"));
-        p.add(crearBotonControl("Pasar"));
-        p.add(crearBotonControl("Fin Turno"));
-        p.add(crearBotonPrimario("Salir"));
+        reset = crearBotonControl("Reset");
+        p.add(reset);
+        pasar = crearBotonControl("Pasar");
+        p.add(pasar);
+        finTurno = crearBotonControl("Fin de turno");
+        p.add(finTurno);
+        salir = crearBotonControl("Salir");
+        p.add(salir);
 
         return p;
+    }
+
+    public void finTurno(ActionListener l) {
+        finTurno.addActionListener(l);
+    }
+
+    public void reset(ActionListener l) {
+        reset.addActionListener(l);
+    }
+
+    public void pasar(ActionListener l) {
+        pasar.addActionListener(l);
+    }
+
+    public void salir(ActionListener l) {
+        salir.addActionListener(l);
     }
 
     private JButton crearBotonControl(String texto) {
@@ -279,7 +331,7 @@ public class VistaScrabble extends JPanel {
         tile.setTransferHandler(new TransferHandler() {
             @Override
             protected Transferable createTransferable(JComponent c) {
-                return new StringSelection(tile.letter + " " +  String.valueOf(tile.score));
+                return new StringSelection(tile.letter + " " + String.valueOf(tile.score));
             }
 
             @Override
@@ -327,6 +379,10 @@ public class VistaScrabble extends JPanel {
 
         public int getCol() {
             return this.col;
+        }
+
+        public int getScore() {
+            return this.score;
         }
 
         TileLabel(String letter, int score, int row, int col) {
@@ -378,11 +434,39 @@ public class VistaScrabble extends JPanel {
         }
     }
 
+    public void ponerFichaTablero(String letra, int puntos, int i, int j) {
+        if (letra != null && !letra.isEmpty()) {
+            TileLabel tile = new TileLabel(letra, puntos, i, j);
+            instalarDrag(tile);
+            cells[i][j].add(tile, BorderLayout.CENTER);
+            cells[i][j].revalidate();
+            cells[i][j].repaint();
+            grid.revalidate();
+            grid.repaint();
+        }
+        if(letra == null || letra.isEmpty()) {
+            cells[i][j].removeAll();
+            cells[i][j].revalidate();
+            cells[i][j].repaint();
+            grid.revalidate();
+            grid.repaint();
+        }
+    }
+    private int score1;
+    private int score2;
+
+    public void setPuntos(int score1, int score2) {
+        this.score1 = score1;
+        this.score2 = score2;
+        if (tabla != null) {
+            tabla.repaint();
+        }
+    }
+    private JComponent tabla;
+
     private JComponent crearTabla() {
         // Creamos un componente que pinta todo el scoreboard
-        JComponent tabla = new JComponent() {
-            private int score1 = 1500;
-            private int score2 = 1200;
+         tabla = new JComponent() {
             private final int WIDTH = 200;
             private final int HEIGHT = 100;
             private final int ARC = 20;

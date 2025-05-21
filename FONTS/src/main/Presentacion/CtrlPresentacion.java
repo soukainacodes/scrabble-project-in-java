@@ -41,7 +41,7 @@ public class CtrlPresentacion {
     private VistaCambiar vCambiar;
     private VistaExplorador vAddRecurso;
     private VistaLogin vSegundoJugador;
-
+    private VistaFichas vFichas;
     private String nombreSegundoJugador = "";
 
     public CtrlPresentacion() throws IOException {
@@ -165,7 +165,7 @@ public class CtrlPresentacion {
         String id = vCrearPartida.getID();
         int modo = vCrearPartida.getModo();
         String idioma = vCrearPartida.getIdioma();
-   
+
         try {
             if (id != null && id != "") {
                 if (modo == 1 && nombreSegundoJugador.equals("")) {
@@ -188,6 +188,7 @@ public class CtrlPresentacion {
 
     private void jugarPartida() {
         vScrabble = new VistaScrabble();
+        vScrabble.setPuntos(0, 0);
         int N = ctrlDominio.getTableroDimension();
         for (int fila = 0; fila < N; ++fila) {
             for (int col = 0; col < N; col++) {
@@ -196,15 +197,129 @@ public class CtrlPresentacion {
                 vScrabble.configurarTablero(b, fila, col);
             }
         }
-        
-        vScrabble.crearTablero();
 
+        vScrabble.setTileActionListener(new VistaScrabble.TileActionListener() {
+            @Override
+            public void onTilePlaced(String letter, int score, int row, int col) {
+                // Handle tile placement in the controller
+                ponerFicha(letter, score, row, col);
+            }
+
+            @Override
+            public void onTileRemoved(String letter, int score, int row, int col) {
+                // Handle tile removal in the controller
+                quitarFicha(letter, score, row, col);
+            }
+        });
+
+        vScrabble.crearTablero();
+        // vScrabble.finTurno(e -> f
+        vScrabble.pasar(e -> pasarTurno());
+        vScrabble.finTurno(e -> finTurno());
+        vScrabble.reset(e -> crearVistaFichas());
         List<String> fichas = ctrlDominio.obtenerFichas();
-        for(String ficha : fichas){
-             vScrabble.modificarRack(ficha);
+        for (String ficha : fichas) {
+            vScrabble.modificarRack(ficha);
         }
-       
+
         vMenuPrincipal.jugarPartida(vScrabble);
+    }
+
+    private void crearVistaFichas() {
+        try {
+            vFichas = new VistaFichas();
+
+            List<String> fichas = ctrlDominio.obtenerFichas();
+            vFichas.cargarFichas(fichas);
+            vFichas.setAcceptListener(e -> {
+                List<String[]> seleccionadas = vFichas.getSelectedTiles();
+                // Process selected tiles
+                for (String[] tile : seleccionadas) {
+                    System.out.println("Selected: " + tile[0] + " with score " + tile[1]);
+                }
+                vFichas.dispose();
+            });
+            vFichas.setVisible(true);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+    private void ponerFicha(String letra, int puntuacion, int fila, int col) {
+        try {
+            String parametros = letra + " " + Integer.toString(fila) + " " + Integer.toString(col);
+            ctrlDominio.jugarScrabble(1, parametros);
+            //actualizarTablero();
+
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+    private void quitarFicha(String letra, int puntuacion, int fila, int col) {
+        try {
+            String parametros = Integer.toString(fila) + " " + Integer.toString(col);
+            ctrlDominio.jugarScrabble(2, parametros);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+    private void mostrarTablero() {
+        int N = ctrlDominio.getTableroDimension();
+        System.out.print("    ");
+        for (int j = 0; j < N; j++) {
+            System.out.printf("%4d", j);
+        }
+        System.out.println();
+        for (int i = 0; i < N; i++) {
+            System.out.printf("%2d: ", i);
+            for (int j = 0; j < N; j++) {
+                String l = ctrlDominio.getLetraCelda(i, j);
+                String b = ctrlDominio.getBonusCelda(i, j);
+                System.out.printf("[%2s]", l != null ? l : b);
+            }
+            System.out.println();
+        }
+    }
+
+    private void actualizarTablero() {
+        int N = ctrlDominio.getTableroDimension();
+        for (int fila = 0; fila < N; ++fila) {
+            for (int col = 0; col < N; col++) {
+                try {
+                    String letra = ctrlDominio.getLetraCelda(fila, col);
+                    int puntos = ctrlDominio.getPuntuacionCelda(fila, col);
+                    vScrabble.ponerFichaTablero(letra, puntos, fila, col);
+                } catch (Exception e) {
+                }
+
+            }
+
+            System.out.println();
+        }
+        mostrarTablero();
+        System.out.println("Puntos: " + ctrlDominio.getPuntosJugador1() + " " + ctrlDominio.getPuntosJugador2());
+        vScrabble.setPuntos(ctrlDominio.getPuntosJugador1(), ctrlDominio.getPuntosJugador2());
+    }
+
+    private void finTurno() {
+        try {
+            ctrlDominio.jugarScrabble(4, "");
+            actualizarTablero();
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+    private void pasarTurno() {
+        try {
+            ctrlDominio.jugarScrabble(3, "");
+            actualizarTablero();
+
+        } catch (Exception e) {
+        }
+
     }
 
     private void crearVistaPantallaPrincipal() {
@@ -289,37 +404,37 @@ public class CtrlPresentacion {
 
     }
 
-        private void crearVistaCuenta() {
+    private void crearVistaCuenta() {
+        try {
+            String username = ctrlDominio.getUsuarioActual();
+            vCuenta.setNombre(username);
+
             try {
-                String username = ctrlDominio.getUsuarioActual();
-                vCuenta.setNombre(username);
-                
-                try {
-                    vCuenta.setPuntos(Integer.toString(ctrlDominio.getPuntosActual()));
-                    System.out.println("Puntos cargados: " + ctrlDominio.getPuntosActual()); 
-                } catch (UsuarioNoEncontradoException e) {
-                    // Si hay error al obtener los puntos, mostrar 0
-                    vCuenta.setPuntos("0");
-                    System.out.println("Error al cargar puntos: " + e.getMessage());
+                vCuenta.setPuntos(Integer.toString(ctrlDominio.getPuntosActual()));
+                System.out.println("Puntos cargados: " + ctrlDominio.getPuntosActual());
+            } catch (UsuarioNoEncontradoException e) {
+                // Si hay error al obtener los puntos, mostrar 0
+                vCuenta.setPuntos("0");
+                System.out.println("Error al cargar puntos: " + e.getMessage());
+            }
+
+            try {
+                int posicion = ctrlDominio.obtenerPosicion(username);
+                // Asegurarse de que la posición siempre sea un valor positivo
+                if (posicion > 0) {
+                    vCuenta.setPosicion(posicion);
+                    System.out.println("Posición cargada: " + posicion);
+                } else {
+                    System.out.println("Posición recibida inválida: " + posicion);
+                    // Si el usuario aparece en ranking pero la posición es 0, mostrar 1
+                    vCuenta.setPosicion(1); // Asignar la primera posición si hay confusión
                 }
-                
-                try {
-                    int posicion = ctrlDominio.obtenerPosicion(username);
-                    // Asegurarse de que la posición siempre sea un valor positivo
-                    if (posicion > 0) {
-                        vCuenta.setPosicion(posicion);
-                        System.out.println("Posición cargada: " + posicion);
-                    } else {
-                        System.out.println("Posición recibida inválida: " + posicion);
-                        // Si el usuario aparece en ranking pero la posición es 0, mostrar 1
-                        vCuenta.setPosicion(1); // Asignar la primera posición si hay confusión
-                    }
-                } catch (UsuarioNoEncontradoException | IOException e) {
-                    // Si el usuario no está en el ranking, mostrar "Sin clasificar"
-                    vCuenta.setPosicion(0);
-                    System.out.println("Usuario no clasificado en ranking: " + e.getMessage());
-                }
-            
+            } catch (UsuarioNoEncontradoException | IOException e) {
+                // Si el usuario no está en el ranking, mostrar "Sin clasificar"
+                vCuenta.setPosicion(0);
+                System.out.println("Usuario no clasificado en ranking: " + e.getMessage());
+            }
+
             // Cargar imagen de perfil si está disponible
             try {
                 BufferedImage profileImage = ctrlDominio.getProfileImage(username);
@@ -358,18 +473,18 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaCambiarPassword() {
-        if(vCambiar == null || !vCambiar.isDisplayable()) {
+        if (vCambiar == null || !vCambiar.isDisplayable()) {
             vCambiar = new VistaCambiar("password");
             vCambiar.setLocationRelativeTo(null);
         }
-       
+
         vCambiar.setVisible(true);
         vCambiar.setLocationRelativeTo(null);
         vCambiar.cambiar(e -> cambiarPassword());
     }
 
     private void crearVistaEliminarJugador() {
-        if(vPassword == null || !vPassword.isDisplayable()) {
+        if (vPassword == null || !vPassword.isDisplayable()) {
             vPassword = new VistaPassword(ctrlDominio.getUsuarioActual());
             vPassword.setLocationRelativeTo(null);
         }
@@ -381,11 +496,11 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaCambiarNombre() {
-        if(vCambiar == null || !vCambiar.isDisplayable()) {
+        if (vCambiar == null || !vCambiar.isDisplayable()) {
             vCambiar = new VistaCambiar("nombre");
             vCambiar.setLocationRelativeTo(null);
         }
-        
+
         vCambiar.setVisible(true);
         vCambiar.setResizable(false);
         vCambiar.cambiar(e -> cambiarNombre());

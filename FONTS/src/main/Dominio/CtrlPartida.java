@@ -1,9 +1,5 @@
 package Dominio;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import Dominio.Excepciones.ComandoInvalidoException;
 import Dominio.Excepciones.PalabraInvalidaException;
 import Dominio.Modelos.Algoritmo;
@@ -13,6 +9,9 @@ import Dominio.Modelos.Pair;
 import Dominio.Modelos.Partida;
 import Dominio.Modelos.Tablero;
 import Dominio.Modelos.Validador;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Controlador de la lógica para una partida de Scrabble.
@@ -168,7 +167,10 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         }
 
         case 3: {
-            for (Pair<Integer, Integer> p : partidaActual.getCoordenadasPalabras()) {
+            // Create a copy of the coordinates list to avoid concurrent modification issues
+            List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
+            for (Pair<Integer, Integer> p : coordenadas) {
+                System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
                 partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
             }
            

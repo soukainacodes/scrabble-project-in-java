@@ -179,6 +179,15 @@ public class Tablero {
         return null;
     }
 
+    public int getPuntuacionCelda(int fila, int col) {
+        Celda cel = celdas[fila][col];
+        if (cel.estaOcupada()) {
+            Ficha f = cel.getFicha();
+            return f.getPuntuacion();
+        }
+        return 0;
+    }
+
 
 
     /**

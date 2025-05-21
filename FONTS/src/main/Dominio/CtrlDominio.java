@@ -441,6 +441,16 @@ public class CtrlDominio {
     }
 
     /**
+     * Obtiene el valor de una celda en la presentación.
+     *
+     * @param fila índice de fila.
+     * @param col  índice de columna.
+     * @return valor de la celda o -1 si vacía.
+     */
+    public int getPuntuacionCelda(int fila, int col) {
+        return ctrlPartida.obtenerTablero().getPuntuacionCelda(fila, col);
+    }
+    /**
      * Obtiene el código de bonificación de celda para presentación.
      *
      * @param fila fila de la celda.
