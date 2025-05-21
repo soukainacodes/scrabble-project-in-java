@@ -358,22 +358,34 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaCambiarPassword() {
-        vCambiar = new VistaCambiar("password");
+        if(vCambiar == null || !vCambiar.isDisplayable()) {
+            vCambiar = new VistaCambiar("password");
+            vCambiar.setLocationRelativeTo(null);
+        }
+       
         vCambiar.setVisible(true);
-
+        vCambiar.setLocationRelativeTo(null);
         vCambiar.cambiar(e -> cambiarPassword());
     }
 
     private void crearVistaEliminarJugador() {
-
-        vPassword = new VistaPassword(ctrlDominio.getUsuarioActual());
+        if(vPassword == null || !vPassword.isDisplayable()) {
+            vPassword = new VistaPassword(ctrlDominio.getUsuarioActual());
+            vPassword.setLocationRelativeTo(null);
+        }
         vPassword.setVisible(true);
+        vPassword.setLocationRelativeTo(null);
+        vPassword.setResizable(false);
         vPassword.verificar(e -> eliminarJugador());
 
     }
 
     private void crearVistaCambiarNombre() {
-        vCambiar = new VistaCambiar("nombre");
+        if(vCambiar == null || !vCambiar.isDisplayable()) {
+            vCambiar = new VistaCambiar("nombre");
+            vCambiar.setLocationRelativeTo(null);
+        }
+        
         vCambiar.setVisible(true);
         vCambiar.setResizable(false);
         vCambiar.cambiar(e -> cambiarNombre());

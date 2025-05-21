@@ -52,13 +52,13 @@ public class VistaScrabble extends JPanel {
         wrapper.setBackground(getBackground());
 
         wrapper.add(grid);
-       
+
         add(wrapper, BorderLayout.CENTER);
         wrapper.revalidate();
         wrapper.repaint();
         revalidate();
         repaint();
-        
+
     }
 
     public void configurarTablero(String b, int i, int j) {
@@ -77,7 +77,7 @@ public class VistaScrabble extends JPanel {
 
         } else {
             cell = new CellPanel(255, 248, 230, "", i, j);
-            
+
         }
 
         cell.addPropertyChangeListener("tile", evt -> {
@@ -97,29 +97,22 @@ public class VistaScrabble extends JPanel {
 
     private class CellPanel extends JPanel {
 
-    
-        private boolean locked = false;
-        private final Label placeholder;
-
+        //  private final Label placeholder;
         CellPanel(int R, int G, int B, String bonus, int row, int col) {
             super(new BorderLayout());
             setPreferredSize(new Dimension(TILE_SIZE, TILE_SIZE));
             setBorder(new LineBorder(Color.GRAY));
             setBackground(new Color(R, G, B));
-        
-            placeholder = new Label(bonus, Label.CENTER);
-            placeholder.setForeground(Color.BLACK);
-            add(placeholder, BorderLayout.CENTER);
+
+            //   placeholder = new Label(bonus, Label.CENTER);
+            // placeholder.setForeground(Color.BLACK);
+            // add(placeholder, BorderLayout.CENTER);
             // Drop: acepta StringFlavor y pone un TileLabel draggable
             setTransferHandler(new TransferHandler() {
                 @Override
                 public boolean canImport(TransferSupport support) {
-                    if (!support.isDataFlavorSupported(DataFlavor.stringFlavor)) {
-                        return false;
-                    }
-                    // Sólo si ahora mismo hay sólo el placeholder (o ningún componente)
-                    Component[] comps = getComponents();
-                    return comps.length == 0 || (comps.length == 1 && comps[0] == placeholder);
+                    return support.isDataFlavorSupported(DataFlavor.stringFlavor)
+                            && getComponentCount() == 0;
                 }
 
                 @Override
@@ -130,11 +123,12 @@ public class VistaScrabble extends JPanel {
                     try {
                         String data = (String) support.getTransferable()
                                 .getTransferData(DataFlavor.stringFlavor);
+                        System.out.println("Importando " + data);
                         String[] parts = data.trim().split(" ");
                         String letter = parts[0];
                         int score = Integer.parseInt(parts[1]);
                         TileLabel tile = new TileLabel(letter, score, row, col);
-                       // instalarDrag(tile);
+                        instalarDrag(tile);
 
                         // notifica inserción
                         firePropertyChange("tile", null, tile);
@@ -153,21 +147,6 @@ public class VistaScrabble extends JPanel {
                 @Override
                 public int getSourceActions(JComponent c) {
                     return NONE;
-                }
-
-                @Override
-                protected void exportDone(JComponent source, Transferable data, int action) {
-                    if (action == MOVE) {
-                        // tile quitado
-                        Container parent = source.getParent();
-                        parent.remove(source);
-                        parent.add(placeholder, BorderLayout.CENTER);
-                        parent.revalidate();
-                        parent.repaint();
-
-                        // notificamos la remoción
-                        fireTileAction("tileRemoved", (TileLabel) source);
-                    }
                 }
 
             });
@@ -195,19 +174,6 @@ public class VistaScrabble extends JPanel {
         }
     }
 
-    /**
-     * Dispara un ActionEvent con el comando y la TileLabel en getSource()
-     */
-    private void fireTileAction(String command, TileLabel tile) {
-        ActionEvent evt = new ActionEvent(
-                tile, // quien genera el evento
-                ActionEvent.ACTION_PERFORMED,
-                command // "tileAdded" o "tileRemoved"
-        );
-        for (ActionListener l : listenerList.getListeners(ActionListener.class)) {
-            l.actionPerformed(evt);
-        }
-    }
 
     private JPanel crearPanelControles() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -313,7 +279,7 @@ public class VistaScrabble extends JPanel {
         tile.setTransferHandler(new TransferHandler() {
             @Override
             protected Transferable createTransferable(JComponent c) {
-                return new StringSelection(tile.letter + String.valueOf(tile.score));
+                return new StringSelection(tile.letter + " " +  String.valueOf(tile.score));
             }
 
             @Override

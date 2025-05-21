@@ -30,7 +30,7 @@ public class VistaCambiar extends JFrame {
         );
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setResizable(false);
+        setLocationRelativeTo(null);
         
         // Panel principal con fondo nuevo
         JPanel panelPrincipal = new JPanel(new BorderLayout());
