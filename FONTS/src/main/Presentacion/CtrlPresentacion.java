@@ -512,16 +512,18 @@ public class CtrlPresentacion {
     }
 
         private void cambiarNombre() {
-        String nombre = new String(vCambiar.getNombre());
-        String password = new String(vCambiar.getPasswordActual());  // Corrección aquí
-        try {
-            ctrlDominio.cambiarNombre(nombre, password);
-            vCuenta.setNombre(ctrlDominio.getUsuarioActual());
-            vCambiar.dispose();
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+            String nombre = new String(vCambiar.getNombre());
+            String password = new String(vCambiar.getPasswordActual());
+            try {
+                ctrlDominio.cambiarNombre(nombre, password);
+                vCuenta.setNombre(ctrlDominio.getUsuarioActual());
+                vCambiar.dispose();
+            } catch (Exception e) {
+                // Mostrar el error en la UI en lugar de en la consola
+                vCambiar.setError(e.getMessage());
+                System.err.println("Error: " + e.getMessage()); // Opcional: mantener también el log en consola
+            }
         }
-    }
 
     private void eliminarJugador() {
         String password = new String(vPassword.getPassword());

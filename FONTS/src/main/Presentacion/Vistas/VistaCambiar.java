@@ -22,15 +22,19 @@ public class VistaCambiar extends JFrame {
     private JPasswordField campoPasswordActual;
     private JPasswordField campoConfirmPassword; // Campo de confirmación de contraseña
 
+        // Añade esta variable de clase
+    private JLabel errorLabel;
+    
+    // Modificar el constructor para inicializar y añadir el label de error
     public VistaCambiar(String asunto) {
         super(
             "nombre".equals(asunto) ? "Cambiar Nombre"
             : "password".equals(asunto) ? "Cambiar Contraseña"
             : "Aplicación"
         );
-
+    
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setResizable(false);
         
         // Panel principal con fondo nuevo
         JPanel panelPrincipal = new JPanel(new BorderLayout());
@@ -56,17 +60,32 @@ public class VistaCambiar extends JFrame {
         } else {
             formPanel.add(crearPanelCampo("Contraseña actual:", campoPasswordActual = crearCampoPassword()));
             formPanel.add(crearPanelCampo("Contraseña nueva:", campoPassword = crearCampoPassword()));
-            formPanel.add(crearPanelCampo("Confirmar contraseña:", campoConfirmPassword = crearCampoPassword())); // Añadido campo de confirmación
+            formPanel.add(crearPanelCampo("Confirmar contraseña:", campoConfirmPassword = crearCampoPassword()));
         }
         
         contentPanel.add(formPanel, BorderLayout.CENTER);
         
+        // Crear y configurar el label de error
+        errorLabel = new JLabel("");
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        errorLabel.setForeground(new Color(200, 0, 0));
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel.setVisible(false);
+        
         // Panel de botón con estilo mejorado
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
         
+        JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        errorPanel.setOpaque(false);
+        errorPanel.add(errorLabel);
+        buttonPanel.add(errorPanel, BorderLayout.NORTH);
+        
+        JPanel botonContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        botonContainer.setOpaque(false);
         botonCambiar = createStylishButton("Guardar Cambios");
-        buttonPanel.add(botonCambiar);
+        botonContainer.add(botonCambiar);
+        buttonPanel.add(botonContainer, BorderLayout.CENTER);
         
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
         
@@ -78,6 +97,7 @@ public class VistaCambiar extends JFrame {
         pack();
         setLocationRelativeTo(null);
     }
+    
     
     private JPanel crearPanelTitulo(String asunto) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -337,5 +357,21 @@ public class VistaCambiar extends JFrame {
     // Método para obtener la contraseña de confirmación
     public char[] getConfirmPassword() {
         return campoConfirmPassword != null ? campoConfirmPassword.getPassword() : new char[0];
+    }
+
+
+        // Añade este método al final de la clase
+    public void setError(String mensaje) {
+        errorLabel.setText(mensaje);
+        errorLabel.setVisible(true);
+        
+        // Hacer que el mensaje desaparezca después de 5 segundos
+        new Timer(5000, (e) -> {
+            errorLabel.setVisible(false);
+        }).start();
+        
+        // Ajustar el tamaño de la ventana si es necesario
+        revalidate();
+        repaint();
     }
 }
