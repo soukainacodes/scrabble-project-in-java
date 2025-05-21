@@ -108,7 +108,7 @@ public class VistaScrabble extends JPanel {
         });
         cells[i][j] = cell;
         grid.add(cell);
-       
+
     }
 
     private TileActionListener tileActionListener;
@@ -272,6 +272,12 @@ public class VistaScrabble extends JPanel {
         b.setBorderPainted(false);
         b.setPreferredSize(new Dimension(100, 40));
         return b;
+    }
+
+    public void clearRack() {
+        rack.removeAll();
+        rack.revalidate();
+        rack.repaint();
     }
 
     public void modificarRack(String ficha) {
@@ -444,7 +450,7 @@ public class VistaScrabble extends JPanel {
             grid.revalidate();
             grid.repaint();
         }
-        if(letra == null || letra.isEmpty()) {
+        if (letra == null || letra.isEmpty()) {
             cells[i][j].removeAll();
             cells[i][j].revalidate();
             cells[i][j].repaint();
@@ -466,7 +472,7 @@ public class VistaScrabble extends JPanel {
 
     private JComponent crearTabla() {
         // Creamos un componente que pinta todo el scoreboard
-         tabla = new JComponent() {
+        tabla = new JComponent() {
             private final int WIDTH = 200;
             private final int HEIGHT = 100;
             private final int ARC = 20;

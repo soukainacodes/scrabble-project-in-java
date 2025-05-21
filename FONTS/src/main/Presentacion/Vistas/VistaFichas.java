@@ -67,12 +67,13 @@ public class VistaFichas extends JFrame {
         this.acceptListener = listener;
     }
     
-    public List<String[]> getSelectedTiles() {
-        List<String[]> result = new ArrayList<>();
+    public String getSelectedTiles() {
+        StringBuilder result = new StringBuilder();
         for (SelectableTileLabel tile : selectedTiles) {
-            result.add(new String[]{tile.letter, String.valueOf(tile.score)});
+            result.append(tile.letter);
+            result.append(" ");
         }
-        return result;
+        return result.toString();
     }
     
     private JButton crearBotonControl(String texto) {

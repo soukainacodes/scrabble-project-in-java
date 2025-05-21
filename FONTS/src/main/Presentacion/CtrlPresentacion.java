@@ -232,12 +232,16 @@ public class CtrlPresentacion {
             List<String> fichas = ctrlDominio.obtenerFichas();
             vFichas.cargarFichas(fichas);
             vFichas.setAcceptListener(e -> {
-                List<String[]> seleccionadas = vFichas.getSelectedTiles();
+                String seleccionadas = vFichas.getSelectedTiles();
                 // Process selected tiles
-                for (String[] tile : seleccionadas) {
-                    System.out.println("Selected: " + tile[0] + " with score " + tile[1]);
+                try {
+                    ctrlDominio.jugarScrabble(5, seleccionadas);
+                    vFichas.dispose();
+                } catch (Exception ex) {
+                    System.out.println("ERROR: " + ex.getMessage());
+                    return;
                 }
-                vFichas.dispose();
+
             });
             vFichas.setVisible(true);
         } catch (Exception e) {
@@ -265,24 +269,6 @@ public class CtrlPresentacion {
         }
     }
 
-    private void mostrarTablero() {
-        int N = ctrlDominio.getTableroDimension();
-        System.out.print("    ");
-        for (int j = 0; j < N; j++) {
-            System.out.printf("%4d", j);
-        }
-        System.out.println();
-        for (int i = 0; i < N; i++) {
-            System.out.printf("%2d: ", i);
-            for (int j = 0; j < N; j++) {
-                String l = ctrlDominio.getLetraCelda(i, j);
-                String b = ctrlDominio.getBonusCelda(i, j);
-                System.out.printf("[%2s]", l != null ? l : b);
-            }
-            System.out.println();
-        }
-    }
-
     private void actualizarTablero() {
         int N = ctrlDominio.getTableroDimension();
         for (int fila = 0; fila < N; ++fila) {
@@ -298,7 +284,11 @@ public class CtrlPresentacion {
 
             System.out.println();
         }
-        mostrarTablero();
+        vScrabble.clearRack();
+        List<String> fichas = ctrlDominio.obtenerFichas();
+        for (String ficha : fichas) {
+            vScrabble.modificarRack(ficha);
+        }
         System.out.println("Puntos: " + ctrlDominio.getPuntosJugador1() + " " + ctrlDominio.getPuntosJugador2());
         vScrabble.setPuntos(ctrlDominio.getPuntosJugador1(), ctrlDominio.getPuntosJugador2());
     }
