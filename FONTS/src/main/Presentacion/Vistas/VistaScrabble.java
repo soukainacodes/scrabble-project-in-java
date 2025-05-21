@@ -97,8 +97,7 @@ public class VistaScrabble extends JPanel {
 
     private class CellPanel extends JPanel {
 
-        private int row;
-        private int col;
+    
         private boolean locked = false;
         private final Label placeholder;
 
@@ -106,9 +105,8 @@ public class VistaScrabble extends JPanel {
             super(new BorderLayout());
             setPreferredSize(new Dimension(TILE_SIZE, TILE_SIZE));
             setBorder(new LineBorder(Color.GRAY));
-            setBackground(new Color(255, 248, 230));
-            this.row = row;
-            this.col = col;
+            setBackground(new Color(R, G, B));
+        
             placeholder = new Label(bonus, Label.CENTER);
             placeholder.setForeground(Color.BLACK);
             add(placeholder, BorderLayout.CENTER);
@@ -136,7 +134,7 @@ public class VistaScrabble extends JPanel {
                         String letter = parts[0];
                         int score = Integer.parseInt(parts[1]);
                         TileLabel tile = new TileLabel(letter, score, row, col);
-                        instalarDrag(tile);
+                       // instalarDrag(tile);
 
                         // notifica inserción
                         firePropertyChange("tile", null, tile);
