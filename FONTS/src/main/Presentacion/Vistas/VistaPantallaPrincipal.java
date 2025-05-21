@@ -25,7 +25,7 @@ public class VistaPantallaPrincipal extends JPanel {
     public VistaPantallaPrincipal() {
         setLayout(new BorderLayout());
         setBackground(APP_BG_COLOR);
-        setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+        setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
 
         // Crear y añadir componentes
         JPanel titlePanel = createTitlePanel();
@@ -34,13 +34,13 @@ public class VistaPantallaPrincipal extends JPanel {
         add(titlePanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
         
-        setPreferredSize(new Dimension(700, 450)); // Consistente con otras vistas
+        setPreferredSize(new Dimension(700, 520)); // Consistente con VistaCuenta
     }
 
     private JPanel createTitlePanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setBackground(APP_BG_COLOR);
-        panel.setBorder(BorderFactory.createEmptyBorder(60, 0, 20, 0));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 0, 5, 0));
         
         // Cambiar título a "A JUGAR!"
         String[] letras = { "A", " ", "J", "U", "G", "A", "R", "!" };
@@ -121,13 +121,41 @@ public class VistaPantallaPrincipal extends JPanel {
     }
 
     private JPanel createMainPanel() {
-        // Usar un panel con GridBagLayout para mejor control de posiciones
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(APP_BG_COLOR);
+        // Panel con marco redondeado y sombra (consistente con VistaCuenta)
+        JPanel marcoPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Sombra externa mejorada
+                g2.setColor(new Color(0, 0, 0, 15));
+                g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, 22, 22);
+                
+                // Borde más definido
+                g2.setColor(new Color(220, 200, 150));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                
+                // Gradiente interior mejorado
+                GradientPaint gp = new GradientPaint(
+                    0, 0, APP_BG_COLOR.brighter(), 
+                    0, getHeight(), APP_BG_COLOR
+                );
+                g2.setPaint(gp);
+                g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 18, 18);
+                g2.dispose();
+            }
+        };
+        marcoPanel.setOpaque(false);
+        marcoPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
+        
+        // Panel contenido principal con GridBagLayout
+        JPanel contenidoPanel = new JPanel(new GridBagLayout());
+        contenidoPanel.setOpaque(false);
         
         // Mensaje de bienvenida
         mensajeBienvenida = new JLabel("Bienvenido!");
-        mensajeBienvenida.setFont(new Font("Arial", Font.BOLD, 22));
+        mensajeBienvenida.setFont(new Font("Arial", Font.BOLD, 26)); // Tamaño aumentado a 26 como en VistaCuenta
         mensajeBienvenida.setForeground(AZUL_OSCURO);
         mensajeBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
         
@@ -140,26 +168,23 @@ public class VistaPantallaPrincipal extends JPanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 0, 10, 0);
         
         // Añadir elementos al panel
         gbc.insets = new Insets(10, 0, 30, 0);  // Más espacio después del título
-        panel.add(mensajeBienvenida, gbc);
+        contenidoPanel.add(mensajeBienvenida, gbc);
         
-        gbc.insets = new Insets(5, 0, 5, 0);  // Espacio normal entre botones
-        panel.add(botonCrearPartida, gbc);
-        panel.add(botonUltimaPartida, gbc);
-        panel.add(botonCargarPartida, gbc);
+        gbc.insets = new Insets(10, 0, 10, 0);  // Espacio normal entre botones
+        contenidoPanel.add(botonCrearPartida, gbc);
+        contenidoPanel.add(botonUltimaPartida, gbc);
+        contenidoPanel.add(botonCargarPartida, gbc);
         
-        return panel;
+        // Añadir el panel de contenido al marco
+        marcoPanel.add(contenidoPanel, BorderLayout.CENTER);
+        
+        return marcoPanel;
     }
     
     private JButton createStylishButton(String text, Color baseColor) {
-        // Panel contenedor para asegurar tamaño fijo sin importar el estado del botón
-        JPanel buttonContainer = new JPanel(new BorderLayout());
-        buttonContainer.setBackground(APP_BG_COLOR);
-        buttonContainer.setPreferredSize(new Dimension(300, 60));
-        
         JButton button = new JButton(text) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -169,62 +194,60 @@ public class VistaPantallaPrincipal extends JPanel {
                 // Radio de las esquinas redondeadas
                 int radius = 15;
                 
-                // Determinar si el botón está en estado hover
+                // Determinar estados del botón
                 boolean isHovered = getModel().isRollover();
+                boolean isPressed = getModel().isPressed();
+                
+                // Color base según estado
+                Color bg = isPressed ? baseColor.darker().darker() : 
+                          (isHovered ? baseColor.darker() : baseColor);
                 
                 // Efecto de sombra si está en hover
-                if (isHovered) {
+                if (isHovered && !isPressed) {
                     g2.setColor(new Color(0, 0, 0, 50));
-                    g2.fillRoundRect(5, 5, getWidth() - 8, getHeight() - 8, radius, radius);
+                    g2.fillRoundRect(3, 3, getWidth() - 4, getHeight() - 4, radius, radius);
                 }
                 
-                // Dibujar el fondo del botón
-                g2.setColor(getBackground());
-                g2.fillRoundRect(isHovered ? 0 : 2, isHovered ? 0 : 2, 
-                                getWidth() - (isHovered ? 2 : 4), 
-                                getHeight() - (isHovered ? 2 : 4), 
-                                radius, radius);
+                // Dibujar el fondo del botón con gradiente
+                g2.setPaint(new GradientPaint(0, 0,
+                    new Color(Math.min(bg.getRed() + 25, 255), 
+                              Math.min(bg.getGreen() + 25, 255), 
+                              Math.min(bg.getBlue() + 25, 255)),
+                    0, getHeight(), bg));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
                 
-                // Dibujar el texto
-                FontMetrics fm = g2.getFontMetrics();
-                Rectangle textRect = new Rectangle(0, 0, getWidth(), getHeight());
-                String buttonText = getText();
-                g2.setColor(getForeground());
-                g2.setFont(getFont());
-                int x = (textRect.width - fm.stringWidth(buttonText)) / 2;
-                int y = (textRect.height - fm.getHeight()) / 2 + fm.getAscent();
-                g2.drawString(buttonText, x, y);
+                // Efecto de brillo en la parte superior
+                if (!isPressed) {
+                    g2.setColor(new Color(255, 255, 255, 70));
+                    g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() / 2 - 2, radius, radius);
+                }
                 
                 g2.dispose();
+                super.paintComponent(g);
             }
         };
         
-        button.setFont(new Font("Arial", Font.BOLD, 18)); // Letra más grande
+        button.setFont(new Font("Arial", Font.BOLD, 16)); // Consistente con botones de VistaCuenta
         button.setForeground(Color.WHITE);
-        button.setBackground(baseColor);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setOpaque(false);
+        button.setPreferredSize(new Dimension(300, 45)); // Tamaño consistente
         
-        // Usar un margen fijo para evitar cambios de tamaño
-        button.setMargin(new Insets(10, 10, 10, 10));
-        
-        // Efecto al pasar el ratón (sin cambiar tamaños para evitar movimientos)
+        // Efecto al pasar el ratón
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                button.setBackground(baseColor.darker());
-                button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
             
             @Override
             public void mouseExited(MouseEvent e) {
-                button.setBackground(baseColor);
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
         
-        buttonContainer.add(button, BorderLayout.CENTER);
         return button;
     }
 

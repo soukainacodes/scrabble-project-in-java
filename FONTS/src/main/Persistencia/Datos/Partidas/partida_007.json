@@ -1,12 +1,12 @@
 {
+  "recurso": "Castellano",
   "puntos_jugador_1": 4,
   "nombre_partida": "007",
   "puntos_jugador_2": 2,
   "posiciones_tablero": [
     "T 1 6 7",
     "O 1 7 7",
-    "R 1 7 8",
-    null
+    "R 1 7 8"
   ],
   "partida_acabada": "0",
   "turno_jugador": 1,

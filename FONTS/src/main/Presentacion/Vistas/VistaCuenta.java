@@ -1,526 +1,412 @@
 package Presentacion.Vistas;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+/**
+ * Vista gráfica para mostrar y gestionar la cuenta del usuario.
+ *  - Fotografía de perfil (clic para cambiarla)
+ *  - Nombre, puntuación y posición en la clasificación
+ *  - Botones para modificar datos o eliminar la cuenta
+ * 
+ * Todos los estilos (colores, fuentes…) se definen en constantes
+ * para facilitar futuros cambios.
+ */
 public class VistaCuenta extends JPanel {
 
-    private JPanel positionPanel;
+    /* === Estilos de la vista ===================================================== */
+    private static final int CONTENT_WIDTH = 450;
+    private static final Color BG            = new Color(242, 226, 177);                // Crema
+    private static final Color FG            = new Color(20,   40,  80);                // Texto oscuro
+    private static final Color LILA_OSCURO   = new Color(52,   28,  87);
+    private static final Color LILA_CLARO    = new Color(180,  95, 220);
 
-    public static final int CONTENT_WIDTH = 500;
-    private static final Color BG = new Color(242, 226, 177); // Color crema
-    private static final Color FG = new Color(20, 40, 80); 
-    private static final Color LILA_OSCURO = new Color(52, 28, 87);
-    private static final Color LILA_CLARO = new Color(180, 95, 220);
+    /* === Componentes ============================================================= */
+    private final JLabel valorNombre   = new JLabel();
+    private final JLabel valorPuntos   = new JLabel();
+    private final JLabel valorPosicion = new JLabel();
 
-    private JButton btnCambiarNombre;
-    private JButton btnCambiarPassword;
-    private JButton btnEliminarCuenta;
-    private JLabel valorNombre;
-    private JLabel valorPuntos;
-    private JLabel valorPosicion;
+    private final JButton btnCambiarNombre;
+    private final JButton btnCambiarPassword;
+    private final JButton btnEliminarCuenta;
+
     private CircularProfileImage profileImage;
     private ActionListener profileChangeListener;
 
+    /* === Constructor ============================================================= */
     public VistaCuenta() {
         setLayout(new BorderLayout());
         setBackground(BG);
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBorder(new EmptyBorder(5, 20, 5, 20));
+        setPreferredSize(new Dimension(700, 520));
+
+        // Paneles principales
+        add(crearPanelTitulo(),  BorderLayout.NORTH);
+        add(crearPanelContenido(), BorderLayout.CENTER);
+
+        /* Valores iniciales de ejemplo */
+        setNombre("Jugador");
+        setPuntos("0");
+        setPosicion(0);
+
+        // Botones
+        btnCambiarNombre   = crearBoton("Cambiar Nombre",   LILA_CLARO);
+        btnCambiarPassword = crearBoton("Cambiar Contraseña", LILA_CLARO);
+        btnEliminarCuenta  = crearBoton("Eliminar Cuenta",   LILA_OSCURO);
+
+        btnCambiarNombre.setPreferredSize(new Dimension(210, 40));   // Aumentado de 180x35 a 210x40
+        btnCambiarPassword.setPreferredSize(new Dimension(210, 40)); // Aumentado de 180x35 a 210x40
+
+
+
+        // Insertamos los botones en su contenedor
+        JPanel botones = crearPanelBotones();
         
-        // Add title panel first
-        JPanel titlePanel = createTitlePanel();
+        // Primera fila: botones normales
+        JPanel filaSuperior = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        filaSuperior.setOpaque(false);
+        filaSuperior.add(btnCambiarNombre);
+        filaSuperior.add(btnCambiarPassword);
         
-        // Create main panel
-        JPanel mainPanel = createMainPanel();
+        // Segunda fila: botón de eliminar cuenta
+        JPanel filaInferior = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        filaInferior.setOpaque(false);
+        filaInferior.add(btnEliminarCuenta);
         
-        // Add panels to layout
-        add(titlePanel, BorderLayout.NORTH);
-        add(mainPanel, BorderLayout.CENTER);
-        
-        setPreferredSize(new Dimension(700, 450));
+        // Añadir al panel principal de botones
+        botones.add(filaSuperior);
+        botones.add(Box.createVerticalStrut(15)); // Más espacio entre filas
+        botones.add(filaInferior);
+
+        ((JPanel) getComponent(1)).add(botones, BorderLayout.SOUTH); // al content panel
     }
-    
-    private JPanel createTitlePanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        panel.setBackground(BG);
-        panel.setBorder(BorderFactory.createEmptyBorder(25, 0, 15, 0));
-        
-        // Crear título estilo Scrabble usando fichas
+
+    /* === Panel título ============================================================ */
+    private JPanel crearPanelTitulo() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        p.setBackground(BG);
+        p.setBorder(new EmptyBorder(15, 0, 5, 0));
+
         String[] letras = { "T", "U", " ", "C", "U", "E", "N", "T", "A" };
         Color[] colores = {
-            new Color(220, 130, 95),  // Naranja rojizo
-            new Color(95, 170, 220),  // Azul claro
-            BG,                       // Fondo - espacio
-            new Color(220, 180, 95),  // Amarillo
-            new Color(150, 220, 95),  // Verde
-            new Color(180, 95, 220),  // Morado/Lila
-            new Color(220, 95, 160),  // Rosa
-            new Color(95, 220, 190),  // Turquesa
-            new Color(235, 140, 80)   // Naranja
+                new Color(220, 130,  95), new Color( 95, 170, 220), BG,
+                new Color(220, 180,  95), new Color(150, 220,  95), new Color(180,  95, 220),
+                new Color(220,  95, 160), new Color( 95, 220, 190), new Color(235, 140,  80)
         };
-        
-        JPanel fichasPanel = new JPanel();
-        fichasPanel.setLayout(new BoxLayout(fichasPanel, BoxLayout.X_AXIS));
-        fichasPanel.setBackground(BG);
-        fichasPanel.add(Box.createHorizontalGlue());
-        
+
+        JPanel fichas = new JPanel();
+        fichas.setBackground(BG);
+        fichas.setLayout(new BoxLayout(fichas, BoxLayout.X_AXIS));
+        fichas.add(Box.createHorizontalGlue());
+
         for (int i = 0; i < letras.length; i++) {
-            final int idx = i;
-            
-            // Si es un espacio, agregar espacio en blanco
-            if (letras[i].equals(" ")) {
-                fichasPanel.add(Box.createHorizontalStrut(10));
+            if (" ".equals(letras[i])) {
+                fichas.add(Box.createHorizontalStrut(10));
                 continue;
             }
-            
-            JLabel letra = new JLabel(letras[i]) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON
-                    );
-                    // Dibuja ficha
-                    g2.setColor(colores[idx]);
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                    // Sombra
-                    g2.setColor(new Color(0, 0, 0, 30));
-                    g2.fillRoundRect(3, 3, getWidth(), getHeight(), 10, 10);
-                    g2.dispose();
-                    super.paintComponent(g);
-                }
-            };
-            
-            letra.setFont(new Font("Arial Black", Font.BOLD, 28));
-            letra.setForeground(Color.WHITE);
-            letra.setHorizontalAlignment(SwingConstants.CENTER);
-            letra.setPreferredSize(new Dimension(40, 40));
-            letra.setMaximumSize(new Dimension(40, 40));
-            
-            // Efecto hover al pasar el ratón
-            letra.addMouseListener(new MouseAdapter() {
-                @Override 
-                public void mouseEntered(MouseEvent e) {
-                    letra.setForeground(new Color(255, 255, 200));
-                }
-                
-                @Override 
-                public void mouseExited(MouseEvent e) {
-                    letra.setForeground(Color.WHITE);
-                }
-            });
-            
-            fichasPanel.add(letra);
-            
-            // Añadir espacio entre letras
-            if (i < letras.length - 1 && !letras[i+1].equals(" ")) 
-                fichasPanel.add(Box.createHorizontalStrut(5));
+            JLabel l = crearFichaTitulo(letras[i], colores[i]);
+            fichas.add(l);
+            if (i < letras.length - 1 && !" ".equals(letras[i + 1]))
+                fichas.add(Box.createHorizontalStrut(5));
         }
-        
-        fichasPanel.add(Box.createHorizontalGlue());
-        panel.add(fichasPanel);
-        
-        return panel;
-    }
-    
-    private JPanel createMainPanel() {
-        JPanel panel = new JPanel(new BorderLayout(20, 10));
-        panel.setBackground(BG);
-
-        // Añadir un espacio superior adicional
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-
-        // Profile section (image and user info)
-        JPanel profileSection = createProfileSection();
-
-        // Buttons section
-        JPanel buttonsSection = createButtonsSection();
-
-        panel.add(profileSection, BorderLayout.NORTH);
-        panel.add(buttonsSection, BorderLayout.CENTER);
-
-        return panel;
+        fichas.add(Box.createHorizontalGlue());
+        p.add(fichas);
+        return p;
     }
 
-    private JPanel createProfileSection() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        panel.setBackground(BG);
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 25, 5, 25));
-        
-        // Profile image (left side)
-        profileImage = new CircularProfileImage(150); 
+    private JLabel crearFichaTitulo(String texto, Color color) {
+        JLabel l = new JLabel(texto, SwingConstants.CENTER) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(color);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g2.setColor(new Color(0, 0, 0, 30));
+                g2.fillRoundRect(3, 3, getWidth(), getHeight(), 10, 10);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        l.setForeground(Color.WHITE);
+        l.setFont(new Font("Arial Black", Font.BOLD, 28));  // TAMAÑO AUMENTADO
+        l.setPreferredSize(new Dimension(40, 40));          // TAMAÑO AUMENTADO
+        l.addMouseListener(new HoverEfectoTexto(l));
+        return l;
+    }
+
+    /* === Panel contenido ========================================================= */
+    private JPanel crearPanelContenido() {
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBackground(BG);
+
+        /* ==== Panel perfil (foto + datos) ==== */
+        JPanel perfil = new JPanel(new BorderLayout(20, 0));
+        perfil.setOpaque(false);
+
+        // Foto circular - TAMAÑO AUMENTADO
+        profileImage = new CircularProfileImage(140);  // Aumentado de 120 a 140
         profileImage.setToolTipText("Haz clic para cambiar tu foto de perfil");
         profileImage.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                openImageChooser();
+            @Override public void mouseClicked(MouseEvent e) { elegirImagen(); }
+            @Override public void mouseEntered(MouseEvent e) { setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); }
+            @Override public void mouseExited (MouseEvent e) { setCursor(Cursor.getDefaultCursor()); }
+        });
+        JPanel fotoWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        fotoWrapper.setOpaque(false);
+        fotoWrapper.add(profileImage);
+        perfil.add(fotoWrapper, BorderLayout.WEST);
+
+        // Datos de usuario
+        JPanel datos = new JPanel();
+        datos.setOpaque(false);
+        datos.setLayout(new BoxLayout(datos, BoxLayout.Y_AXIS));
+
+        // TAMAÑOS DE LETRA AUMENTADOS
+        datos.add(crearFilaInfo("Bienvenido, ", valorNombre, 26));     // 22 → 26
+        datos.add(Box.createVerticalStrut(10));                        // 4 → 10 (más espacio)
+        datos.add(crearFilaInfo("Puntuación máx.: ", valorPuntos, 20)); // 18 → 20
+        datos.add(Box.createVerticalStrut(10));                        // 4 → 10 (más espacio)
+        datos.add(crearFilaInfo("Posición: ", valorPosicion, 20));     // 18 → 20
+
+        perfil.add(datos, BorderLayout.CENTER);
+
+        /* ==== Panel redondeado con sombra mejorado ==== */
+        JPanel marco = new JPanel(new GridBagLayout()) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Sombra externa mejorada
+                g2.setColor(new Color(0, 0, 0, 15));
+                g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, 22, 22);
+                
+                // Borde más definido
+                g2.setColor(new Color(220, 200, 150));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                
+                // Gradiente interior mejorado
+                GradientPaint gp = new GradientPaint(
+                    0, 0, BG.brighter(), 
+                    0, getHeight(), BG
+                );
+                g2.setPaint(gp);
+                g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 18, 18);
+                g2.dispose();
             }
-    
+        };
+        marco.setOpaque(false);
+        marco.setBorder(new EmptyBorder(30, 30, 30, 30)); // ESPACIO AUMENTADO 20 → 30
+        marco.add(perfil);
+
+        content.add(marco, BorderLayout.CENTER);
+        return content;
+    }
+
+    private JPanel crearFilaInfo(String etiqueta, JLabel valor, int fontSize) {
+        JPanel fila = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 8)); // 2 → 8 (más espacio vertical)
+        fila.setOpaque(false);
+        JLabel l = new JLabel(etiqueta);
+        l.setForeground(FG);
+        l.setFont(new Font("Arial", Font.PLAIN, fontSize));
+        valor.setForeground(LILA_OSCURO);
+        valor.setFont(new Font("Arial", Font.BOLD, fontSize));
+        fila.add(l);
+        fila.add(valor);
+        return fila;
+    }
+
+    /* === Panel botones =========================================================== */
+    private JPanel crearPanelBotones() {
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(10, 0, 10, 0)); // Añadir margen vertical
+        return panel;
+    }
+
+    private JButton crearBoton(String texto, Color base) {
+        JButton b = new JButton(texto) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int radius = 15; // 14 → 15 (bordes más redondeados)
+                boolean over = getModel().isRollover();
+                boolean press = getModel().isPressed();
+                Color bg = press ? base.darker().darker() : (over ? base.darker() : base);
+                if (over && !press) {
+                    g2.setColor(new Color(0, 0, 0, 50));
+                    g2.fillRoundRect(3, 3, getWidth() - 4, getHeight() - 4, radius, radius);
+                }
+                g2.setPaint(new GradientPaint(0, 0,
+                        new Color(Math.min(bg.getRed() + 25, 255), Math.min(bg.getGreen() + 25, 255), Math.min(bg.getBlue() + 25, 255)),
+                        0, getHeight(), bg));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+                if (!press) {
+                    g2.setColor(new Color(255, 255, 255, 70));
+                    g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() / 2 - 2, radius, radius);
+                }
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        b.setFont(new Font("Arial", Font.BOLD, 14));
+        b.setForeground(Color.WHITE);
+        b.setFocusPainted(false);
+        b.setBorderPainted(false);
+        b.setContentAreaFilled(false);
+        b.setOpaque(false);
+        b.setPreferredSize(new Dimension(180, 35)); // 34 → 35 (botones ligeramente más altos)
+        b.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
-    
+            
             @Override
             public void mouseExited(MouseEvent e) {
                 setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
-    
-        JPanel imageContainer = new JPanel();
-        imageContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 50, 0));
-        imageContainer.setBackground(BG);
-        imageContainer.add(profileImage);
-    
-        // User info (right side)
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setBackground(BG);
-        infoPanel.setBorder(new EmptyBorder(0, 100, 0, 0));
-    
-        // Info sections
-        JPanel welcomePanel = createInfoField("Bienvenido, ", "valorNombre");
-        JPanel pointsPanel = createInfoField("Tu puntuación actual es: ", "valorPuntos");
-        positionPanel = createInfoField("Tu posición es: ", "valorPosicion"); // Guardar referencia
-    
-        infoPanel.add(welcomePanel);
-        infoPanel.add(Box.createVerticalStrut(10));
-        infoPanel.add(pointsPanel);
-        infoPanel.add(Box.createVerticalStrut(5));
-        infoPanel.add(positionPanel);
-    
-        panel.add(imageContainer);
-        panel.add(infoPanel);
-    
-        return panel;
+        return b;
     }
-    
-    private JPanel createInfoField(String labelText, String valueType) {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel.setBackground(BG);
-        
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Arial", valueType.equals("valorNombre") ? 
-                Font.BOLD : Font.PLAIN, valueType.equals("valorNombre") ? 24 : 18));
-        label.setForeground(FG);
-        
-        JLabel value;
-        
-        switch(valueType) {
-            case "valorNombre":
-                valorNombre = new JLabel();
-                valorNombre.setFont(new Font("Arial", Font.BOLD, 24));
-                valorNombre.setForeground(LILA_OSCURO);
-                value = valorNombre;
-                break;
-            case "valorPuntos":
-                valorPuntos = new JLabel();
-                valorPuntos.setFont(new Font("Arial", Font.BOLD, 18));
-                valorPuntos.setForeground(LILA_OSCURO);
-                value = valorPuntos;
-                break;
-            case "valorPosicion":
-                valorPosicion = new JLabel();
-                valorPosicion.setFont(new Font("Arial", Font.BOLD, 18));
-                valorPosicion.setForeground(LILA_OSCURO);
-                value = valorPosicion;
-                break;
-            default:
-                value = new JLabel();
-        }
-        
-        panel.add(label);
-        panel.add(value);
-        
-        return panel;
-    }
-    
-    
-private JPanel createButtonsSection() {
-    // Cambiar de GridLayout a FlowLayout para respetar los tamaños preferidos
-    JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-    panel.setBackground(BG);
-    panel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
 
-    // Crear botones con estilo consistente
-    btnCambiarNombre = createStylishButton("Cambiar Nombre", LILA_CLARO);
-    btnCambiarPassword = createStylishButton("Cambiar Contraseña", LILA_CLARO);
-    btnEliminarCuenta = createStylishButton("Eliminar Cuenta", LILA_OSCURO);
-    
-    panel.add(btnCambiarNombre);
-    panel.add(btnCambiarPassword);
-    panel.add(btnEliminarCuenta);
+    /* === Getters / setters públicos ============================================= */
+    public void setProfileChangeListener(ActionListener l) { this.profileChangeListener = l; }
+    public void cambiarNombre    (ActionListener l) { btnCambiarNombre.addActionListener(l); }
+    public void cambiarPassword  (ActionListener l) { btnCambiarPassword.addActionListener(l); }
+    public void eliminarJugador  (ActionListener l) { btnEliminarCuenta.addActionListener(l); }
 
-    return panel;
-}
-    private JButton createStylishButton(String text, Color baseColor) {
-        JButton button = new JButton(text) {
-            private final Color hoverColor = baseColor.darker();
-            
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                // Radio de las esquinas redondeadas
-                int radius = 15;
-                boolean isHovered = getModel().isRollover();
-                Color bgColor = isHovered ? hoverColor : baseColor;
-                
-                // Dibujar sombra si está en hover
-                if (isHovered) {
-                    g2.setColor(new Color(0, 0, 0, 50));
-                    g2.fillRoundRect(5, 5, getWidth() - 8, getHeight() - 8, radius, radius);
-                }
-                
-                // Dibujar fondo del botón
-                g2.setColor(bgColor);
-                g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, radius, radius);
-                
-                // Dibujar texto
-                g2.setColor(getForeground());
-                g2.setFont(getFont());
-                
-                FontMetrics fm = g2.getFontMetrics();
-                String buttonText = getText();
-                int x = (getWidth() - fm.stringWidth(buttonText)) / 2;
-                int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
-                
-                // Ya no necesitamos ajustar la posición para los iconos
-                
-                g2.drawString(buttonText, x, y);
-                g2.dispose();
-            }
-        };
-        
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setOpaque(false);
-        
-         // Reducir el tamaño de los botones
-        button.setPreferredSize(new Dimension(180, 35)); // Reducido de 40 a 35 en altura
-        button.setMinimumSize(new Dimension(180, 35));
-        button.setMaximumSize(new Dimension(180, 35)); // Añadir tamaño máximo
-        
-        // Efecto al pasar el ratón simplificado
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                button.repaint();
-            }
-            
-            @Override
-            public void mouseExited(MouseEvent e) {
-                button.repaint();
-            }
-        });
-        
-        return button;
+    public void setNombre(String nombre)   { 
+        valorNombre.setText(nombre + "!"); 
+        System.out.println("Nombre establecido: " + nombre);
     }
     
-   
-    private void openImageChooser() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Selecciona una imagen de perfil");
-        
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                "Imágenes", "jpg", "jpeg", "png", "gif");
-        fileChooser.setFileFilter(filter);
-        
-        int result = fileChooser.showOpenDialog(this);
-        
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+    public void setPuntos(String puntos)   { 
+        valorPuntos.setText(puntos + " pts"); 
+        System.out.println("Puntos establecidos: " + puntos);
+        valorPuntos.setVisible(true);
+        revalidate();
+        repaint();
+    }
+    
+    public void setPosicion(int pos) { 
+        valorPosicion.setText(pos <= 0 ? "No clasificado" : String.valueOf(pos)); 
+        System.out.println("Posición establecida: " + pos);
+        valorPosicion.setVisible(true);
+        revalidate();
+        repaint();
+    }
+    
+    public void setProfileImage(BufferedImage img) { profileImage.setImage(img); }
+
+    /* === Selección de imagen de perfil ========================================== */
+    private void elegirImagen() {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Selecciona una imagen de perfil");
+        fc.setFileFilter(new FileNameExtensionFilter("Imágenes", "jpg", "jpeg", "png", "gif"));
+        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
-                BufferedImage img = ImageIO.read(selectedFile);
+                BufferedImage img = ImageIO.read(fc.getSelectedFile());
                 if (img != null) {
-                    profileImage.setImage(img);
-                    
+                    setProfileImage(img);
                     if (profileChangeListener != null) {
-                        profileChangeListener.actionPerformed(
-                                new java.awt.event.ActionEvent(selectedFile, 0, "profileImageChanged"));
+                        profileChangeListener.actionPerformed(new ActionEvent(fc.getSelectedFile(), 0, "profileImageChanged"));
                     }
                 }
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Error al cargar la imagen: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-    
-    // Métodos públicos
-    public void setProfileChangeListener(ActionListener listener) {
-        this.profileChangeListener = listener;
-    }
-
-    public void setProfileImage(BufferedImage image) {
-        profileImage.setImage(image);
-    }
-
-    // Actualiza el método setPosicion para ocultar el panel cuando sea 0
-    public void setPosicion(int posicion) {
-        if (posicion <= 0) {
-            // Ocultar el panel de posición si el jugador no está clasificado
-            if (positionPanel != null) {
-                positionPanel.setVisible(false);
-            }
-        } else {
-            // Mostrar el panel de posición con el valor correspondiente
-            valorPosicion.setText(String.valueOf(posicion));
-            if (positionPanel != null) {
-                positionPanel.setVisible(true);
+                JOptionPane.showMessageDialog(this, "Error al cargar la imagen: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    public void cambiarNombre(ActionListener l) {
-        btnCambiarNombre.addActionListener(l);
+    /* === Sub‑clases internas ===================================================== */
+    // Las clases internas se mantienen sin cambios
+    /* === Sub‑clases internas ===================================================== */
+    private static class HoverEfectoTexto extends MouseAdapter {
+        private final JLabel label;
+        HoverEfectoTexto(JLabel l) { this.label = l; }
+        @Override public void mouseEntered(MouseEvent e) { label.setForeground(new Color(255, 255, 200)); }
+        @Override public void mouseExited (MouseEvent e) { label.setForeground(Color.WHITE); }
     }
 
-    public void cambiarPassword(ActionListener l) {
-        btnCambiarPassword.addActionListener(l);
-    }
-
-    public void eliminarJugador(ActionListener l) {
-        btnEliminarCuenta.addActionListener(l);
-    }
-
-    public void setNombre(String nombre) {
-        valorNombre.setText(nombre + "!");
-    }
-
-    public void setPuntos(String puntos) {
-        valorPuntos.setText(puntos + " pts");
-    }
-
-    // Inner class for circular profile image
-    private class CircularProfileImage extends JPanel {
-        private BufferedImage image;
+    /**
+     * Imagen circular con sombra y borde.
+     */
+    private static class CircularProfileImage extends JPanel {
         private final int size;
+        private BufferedImage image;
         private BufferedImage defaultImage;
 
-        public CircularProfileImage(int size) {
+        CircularProfileImage(int size) {
             this.size = size;
             setPreferredSize(new Dimension(size, size));
             setOpaque(false);
-            loadDefaultImage();
+            cargarImagenPorDefecto();
         }
 
-        private void loadDefaultImage() {
+        private void cargarImagenPorDefecto() {
             try {
-                // Try to load default profile image
-                File defaultFile = new File("FONTS/src/main/Recursos/Imagenes/default_profile.png");
-                if (defaultFile.exists()) {
-                    defaultImage = ImageIO.read(defaultFile);
-                } else {
-                    // Create a default image with user silhouette if file doesn't exist
-                    defaultImage = createDefaultUserImage();
-                }
+                File f = new File("FONTS/src/main/Recursos/Imagenes/default_profile.png");
+                defaultImage = f.exists() ? ImageIO.read(f) : crearImagenSilhouette();
             } catch (IOException e) {
-                defaultImage = createDefaultUserImage();
+                defaultImage = crearImagenSilhouette();
             }
-
             image = defaultImage;
         }
 
-        private BufferedImage createDefaultUserImage() {
+        private BufferedImage crearImagenSilhouette() {
             BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = img.createGraphics();
-
-            // Background circle with gradient
-            GradientPaint gradient = new GradientPaint(
-                    0, 0, new Color(180, 180, 180),
-                    size, size, new Color(220, 220, 220));
-            g2d.setPaint(gradient);
-            g2d.fillOval(0, 0, size - 1, size - 1);
-
-            // User silhouette (improved)
-            g2d.setColor(new Color(240, 240, 240));
-            // Head
-            g2d.fillOval(size / 4, size / 6, size / 2, size / 2);
-            // Body
-            g2d.fillOval(size / 4 - size / 8, size / 2, size / 2 + size / 4, size / 2);
-
-            // Add subtle shadow
-            g2d.setColor(new Color(0, 0, 0, 30));
-            g2d.setStroke(new BasicStroke(2));
-            g2d.drawOval(2, 2, size - 5, size - 5);
-
-            g2d.dispose();
+            Graphics2D g = img.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setPaint(new GradientPaint(0, 0, new Color(190, 190, 190), size, size, new Color(230, 230, 230)));
+            g.fillOval(0, 0, size, size);
+            g.setColor(new Color(240, 240, 240));
+            g.fillOval(size / 4, size / 6, size / 2, size / 2);              // cabeza
+            g.fillOval(size / 4 - size / 8, size / 2, size / 2 + size / 4, size / 2); // torso
+            g.setColor(new Color(0, 0, 0, 30));
+            g.setStroke(new BasicStroke(2));
+            g.drawOval(2, 2, size - 4, size - 4);
+            g.dispose();
             return img;
         }
 
-        public void setImage(BufferedImage newImage) {
-            if (newImage != null) {
-                // Resize image while maintaining aspect ratio
-                double scale = (double) size / Math.max(newImage.getWidth(), newImage.getHeight());
-                int width = (int) (newImage.getWidth() * scale);
-                int height = (int) (newImage.getHeight() * scale);
-
-                BufferedImage resized = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-                Graphics2D g = resized.createGraphics();
-                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-                // Center the image
-                int x = (size - width) / 2;
-                int y = (size - height) / 2;
-
-                g.drawImage(newImage, x, y, width, height, null);
-                g.dispose();
-
-                this.image = resized;
-                repaint();
-            }
+        public void setImage(BufferedImage img) {
+            if (img == null) return;
+            double scale = (double) size / Math.max(img.getWidth(), img.getHeight());
+            int w = (int) (img.getWidth() * scale);
+            int h = (int) (img.getHeight() * scale);
+            BufferedImage scaled = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = scaled.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(img, (size - w) / 2, (size - h) / 2, w, h, null);
+            g.dispose();
+            this.image = scaled;
+            repaint();
         }
 
-        @Override
-        protected void paintComponent(Graphics g) {
+        @Override protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-
-            if (image != null) {
-                Graphics2D g2 = (Graphics2D) g.create();
-
-                // Enable antialiasing for smoother edges
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // Draw shadow under the image for 3D effect
-                g2.setColor(new Color(0, 0, 0, 30));
-                g2.fillOval(3, 3, size - 2, size - 2);
-
-                // Create circular clipping region
-                Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, size, size);
-                g2.setClip(circle);
-
-                // Draw the image
-                g2.drawImage(image, 0, 0, size, size, null);
-
-                // Draw border with gradient for 3D effect
-                g2.setClip(null);
-                g2.setStroke(new BasicStroke(2));
-                g2.setColor(new Color(180, 180, 180));
-                g2.draw(circle);
-
-                g2.dispose();
-            }
+            if (image == null) return;
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(new Color(0, 0, 0, 40));
+            g2.fillOval(3, 3, size - 2, size - 2); // sombra
+            Ellipse2D.Double clip = new Ellipse2D.Double(0, 0, size, size);
+            g2.setClip(clip);
+            g2.drawImage(image, 0, 0, size, size, null);
+            g2.setClip(null);
+            g2.setColor(new Color(180, 180, 180));
+            g2.setStroke(new BasicStroke(2));
+            g2.draw(clip);
+            g2.dispose();
         }
     }
 }

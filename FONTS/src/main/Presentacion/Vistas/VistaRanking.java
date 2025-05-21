@@ -8,24 +8,28 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.*;
 
 public class VistaRanking extends JPanel {
 
-    // Colores
-    private static final Color APP_BG_COLOR = new Color(242, 226, 177);
+    // Colores consistentes con VistaCuenta y VistaPantallaPrincipal
+    private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Crema
+    private static final Color FG = new Color(20, 40, 80);               // Texto oscuro
+    private static final Color LILA_OSCURO = new Color(52, 28, 87);      // Exactamente igual que VistaCuenta
+    private static final Color LILA_CLARO = new Color(180, 95, 220);     // Exactamente igual que VistaCuenta
+    
+    // Colores específicos de ranking
     private static final Color GOLD_COLOR = new Color(255, 215, 0);
     private static final Color SILVER_COLOR = new Color(189, 195, 199);
     private static final Color BRONZE_COLOR = new Color(230, 126, 34);
     private static final Color HEADER_TEXT = new Color(44, 62, 80);
     private static final Color SCROLLBAR_THUMB = new Color(180, 180, 180);
     private static final Color SCROLLBAR_TRACK = new Color(240, 240, 240);
-    private static final Color LILA_CLARO = new Color(180, 95, 220);
-    private static final Color LILA_OSCURO = new Color(52, 28, 87);
     
     // Dimensiones
-    private static final int TABLE_WIDTH = 400;
+    private static final int TABLE_WIDTH = 500;  // Aumentado para aprovechar más espacio
     private static final int TABLE_HEIGHT = 330;
     
     // Rutas de imágenes
@@ -52,25 +56,24 @@ public class VistaRanking extends JPanel {
     public VistaRanking() {
         setLayout(new BorderLayout());
         setBackground(APP_BG_COLOR);
-        setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+        setBorder(new EmptyBorder(5, 20, 5, 20)); // Consistente con otras vistas
+        setPreferredSize(new Dimension(700, 520)); // Tamaño consistente con VistaCuenta y VistaPantallaPrincipal
     
         // Cargar imágenes de medallas
         loadMedalImages();
         
         // Crear y añadir componentes
-        JPanel titlePanel = createTitlePanel();
-        contentPanel = createTablePanel();
+        JPanel titlePanel = crearPanelTitulo();
+        contentPanel = crearPanelContenido();
         
         add(titlePanel, BorderLayout.NORTH);
         add(contentPanel, BorderLayout.CENTER);
-        
-        setPreferredSize(new Dimension(700, 450)); // Aumentado de 500 a 700
     }
     
-    private JPanel createTitlePanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        panel.setBackground(APP_BG_COLOR);
-        panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 10, 0));
+    private JPanel crearPanelTitulo() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        p.setBackground(APP_BG_COLOR);
+        p.setBorder(new EmptyBorder(15, 0, 5, 0)); // Exactamente igual que en VistaCuenta
         
         // Crear título estilo Scrabble con fichas
         String[] letras = { "T", "O", "P", " ", "J", "U", "G", "A", "D", "O", "R", "E", "S" };
@@ -90,75 +93,76 @@ public class VistaRanking extends JPanel {
             new Color(150, 220, 95)    // Verde
         };
         
-        JPanel fichasPanel = new JPanel();
-        fichasPanel.setLayout(new BoxLayout(fichasPanel, BoxLayout.X_AXIS));
-        fichasPanel.setBackground(APP_BG_COLOR);
-        fichasPanel.add(Box.createHorizontalGlue());
+        JPanel fichas = new JPanel();
+        fichas.setLayout(new BoxLayout(fichas, BoxLayout.X_AXIS));
+        fichas.setBackground(APP_BG_COLOR);
+        fichas.add(Box.createHorizontalGlue());
         
         for (int i = 0; i < letras.length; i++) {
-            final int idx = i;
-            
-            // Si es un espacio, agregar espacio en blanco
-            if (letras[i].equals(" ")) {
-                fichasPanel.add(Box.createHorizontalStrut(10));
+            if (" ".equals(letras[i])) {
+                fichas.add(Box.createHorizontalStrut(10));
                 continue;
             }
-            
-            JLabel letra = new JLabel(letras[i]) {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D g2 = (Graphics2D) g.create();
-                    g2.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON
-                    );
-                    // Dibuja ficha
-                    g2.setColor(colores[idx]);
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                    // Sombra
-                    g2.setColor(new Color(0, 0, 0, 30));
-                    g2.fillRoundRect(3, 3, getWidth(), getHeight(), 10, 10);
-                    g2.dispose();
-                    super.paintComponent(g);
-                }
-            };
-            
-            letra.setFont(new Font("Arial Black", Font.BOLD, 28));
-            letra.setForeground(Color.WHITE);
-            letra.setHorizontalAlignment(SwingConstants.CENTER);
-            letra.setPreferredSize(new Dimension(40, 40));
-            letra.setMaximumSize(new Dimension(40, 40));
-            
-            // Efecto hover al pasar el ratón
-            letra.addMouseListener(new MouseAdapter() {
-                @Override 
-                public void mouseEntered(MouseEvent e) {
-                    letra.setForeground(new Color(255, 255, 200));
-                }
-                
-                @Override 
-                public void mouseExited(MouseEvent e) {
-                    letra.setForeground(Color.WHITE);
-                }
-            });
-            
-            fichasPanel.add(letra);
-            
-            // Añadir espacio entre letras
-            if (i < letras.length - 1 && !letras[i+1].equals(" ")) 
-                fichasPanel.add(Box.createHorizontalStrut(5));
+            JLabel l = crearFichaTitulo(letras[i], colores[i]);
+            fichas.add(l);
+            if (i < letras.length - 1 && !" ".equals(letras[i + 1]))
+                fichas.add(Box.createHorizontalStrut(5));
         }
-        
-        fichasPanel.add(Box.createHorizontalGlue());
-        panel.add(fichasPanel);
-        
-        return panel;
+        fichas.add(Box.createHorizontalGlue());
+        p.add(fichas);
+        return p;
     }
 
-    private JPanel createTablePanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(APP_BG_COLOR);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+    private JLabel crearFichaTitulo(String texto, Color color) {
+        JLabel l = new JLabel(texto, SwingConstants.CENTER) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(color);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g2.setColor(new Color(0, 0, 0, 30));
+                g2.fillRoundRect(3, 3, getWidth(), getHeight(), 10, 10);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        l.setForeground(Color.WHITE);
+        l.setFont(new Font("Arial Black", Font.BOLD, 28));  // Igual que VistaCuenta
+        l.setPreferredSize(new Dimension(40, 40));          // Igual que VistaCuenta
+        l.addMouseListener(new HoverEfectoTexto(l));
+        return l;
+    }
+
+    private JPanel crearPanelContenido() {
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBackground(APP_BG_COLOR);
+        
+        // Panel con marco redondeado y sombra (consistente con VistaCuenta)
+        JPanel marco = new JPanel(new BorderLayout()) {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Sombra externa mejorada - exactamente igual que VistaCuenta
+                g2.setColor(new Color(0, 0, 0, 15));
+                g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, 22, 22);
+                
+                // Borde más definido - exactamente igual que VistaCuenta
+                g2.setColor(new Color(220, 200, 150));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                
+                // Gradiente interior mejorado - exactamente igual que VistaCuenta
+                GradientPaint gp = new GradientPaint(
+                    0, 0, APP_BG_COLOR.brighter(), 
+                    0, getHeight(), APP_BG_COLOR
+                );
+                g2.setPaint(gp);
+                g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 18, 18);
+                g2.dispose();
+            }
+        };
+        marco.setOpaque(false);
+        marco.setBorder(new EmptyBorder(30, 30, 30, 30)); // Igual que VistaCuenta
         
         // Crear modelo de tabla
         String[] columns = {"Posición", "Nombre", "Puntuación"};
@@ -179,8 +183,7 @@ public class VistaRanking extends JPanel {
         table.setFont(new Font("Arial", Font.PLAIN, 14));
         table.setFillsViewportHeight(true);
         
-        // Configurar anchos de columnas iguales
-         // Configurar anchos de columnas (proporción personalizada)
+        // Configurar anchos de columnas (proporción personalizada)
         TableColumnModel columnModel = table.getColumnModel();
         columnModel.getColumn(0).setPreferredWidth(TABLE_WIDTH / 6);    // Posición (más estrecha)
         columnModel.getColumn(0).setMaxWidth(TABLE_WIDTH / 6);
@@ -202,34 +205,11 @@ public class VistaRanking extends JPanel {
         scrollPane.getHorizontalScrollBar().setUI(new MinimalistScrollBarUI());
         scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 8));
         
-        scrollPane.setPreferredSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
+        // Añadir la tabla al marco
+        marco.add(scrollPane, BorderLayout.CENTER);
         
-        // Crear panel con bordes redondeados para contener la tabla
-        JPanel roundedPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                // Crear un borde redondeado con un color ligeramente más oscuro
-                g2.setColor(new Color(220, 200, 150));
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                
-                // Crear fondo interior con el color de fondo de la app
-                g2.setColor(APP_BG_COLOR);
-                g2.fillRoundRect(2, 2, getWidth()-4, getHeight()-4, 18, 18);
-                
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        roundedPanel.setLayout(new BorderLayout());
-        roundedPanel.setOpaque(false);
-        roundedPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        roundedPanel.add(scrollPane);
-        
-        panel.add(roundedPanel, BorderLayout.CENTER);
-        return panel;
+        content.add(marco, BorderLayout.CENTER);
+        return content;
     }
     
     /**
@@ -352,6 +332,7 @@ public class VistaRanking extends JPanel {
         return new ImageIcon(image);
     }
     
+    /* === Sub‑clases internas ===================================================== */
     // Clase UI de ScrollBar minimalista
     private class MinimalistScrollBarUI extends BasicScrollBarUI {
         @Override
@@ -404,6 +385,14 @@ public class VistaRanking extends JPanel {
         }
     }
     
+    // Efecto de hover para las fichas del título
+    private static class HoverEfectoTexto extends MouseAdapter {
+        private final JLabel label;
+        HoverEfectoTexto(JLabel l) { this.label = l; }
+        @Override public void mouseEntered(MouseEvent e) { label.setForeground(new Color(255, 255, 200)); }
+        @Override public void mouseExited (MouseEvent e) { label.setForeground(Color.WHITE); }
+    }
+    
     // Renderizador personalizado con iconos de medallas
     private class RankingRenderer extends DefaultTableCellRenderer {
         private final Font boldFont = new Font("Arial", Font.BOLD, 15);
@@ -431,7 +420,7 @@ public class VistaRanking extends JPanel {
             if (column == 0) {
                 label.setHorizontalAlignment(JLabel.CENTER);
                 label.setText(String.valueOf(value));
-                rowBackground = row % 2 == 0 ? APP_BG_COLOR : new Color(225, 225, 225);
+                rowBackground = row % 2 == 0 ? APP_BG_COLOR : new Color(235, 220, 170); // Alternar fila más sutil
                 label.setFont(regularFont);
                 label.setForeground(Color.DARK_GRAY);
             } 
@@ -439,11 +428,12 @@ public class VistaRanking extends JPanel {
             else if (column == 1) {
                 label.setHorizontalAlignment(JLabel.LEFT);
                 if (row < 3) {
-                    rowBackground = (row == 0) ? GOLD_COLOR : 
-                                   (row == 1) ? SILVER_COLOR : BRONZE_COLOR;
+                    rowBackground = (row == 0) ? new Color(255, 215, 0, 90) : 
+                                  (row == 1) ? new Color(189, 195, 199, 90) : 
+                                               new Color(230, 126, 34, 90);
                     label.setFont(boldFont);
                 } else {
-                    rowBackground = row % 2 == 0 ? APP_BG_COLOR : new Color(225, 225, 225);
+                    rowBackground = row % 2 == 0 ? APP_BG_COLOR : new Color(235, 220, 170);
                     label.setFont(regularFont);
                 }
                 label.setForeground(Color.DARK_GRAY);
@@ -452,11 +442,12 @@ public class VistaRanking extends JPanel {
             else {
                 label.setHorizontalAlignment(JLabel.RIGHT);
                 if (row < 3) {
-                    rowBackground = (row == 0) ? GOLD_COLOR : 
-                                   (row == 1) ? SILVER_COLOR : BRONZE_COLOR;
+                    rowBackground = (row == 0) ? new Color(255, 215, 0, 90) : 
+                                  (row == 1) ? new Color(189, 195, 199, 90) : 
+                                               new Color(230, 126, 34, 90);
                     label.setFont(boldFont);
                 } else {
-                    rowBackground = row % 2 == 0 ? APP_BG_COLOR : new Color(225, 225, 225);
+                    rowBackground = row % 2 == 0 ? APP_BG_COLOR : new Color(235, 220, 170);
                     label.setFont(regularFont);
                 }
                 label.setForeground(Color.DARK_GRAY);
@@ -476,13 +467,13 @@ public class VistaRanking extends JPanel {
             // Establecer el icono de medalla apropiado según la posición
             if (position == 0) {
                 medalLabel.setIcon(goldMedalIcon);
-                medalLabel.setBackground(GOLD_COLOR);
+                medalLabel.setBackground(new Color(255, 215, 0, 90));
             } else if (position == 1) {
                 medalLabel.setIcon(silverMedalIcon);
-                medalLabel.setBackground(SILVER_COLOR);
+                medalLabel.setBackground(new Color(189, 195, 199, 90));
             } else {
                 medalLabel.setIcon(bronzeMedalIcon);
-                medalLabel.setBackground(BRONZE_COLOR);
+                medalLabel.setBackground(new Color(230, 126, 34, 90));
             }
             
             medalLabel.setOpaque(true);
