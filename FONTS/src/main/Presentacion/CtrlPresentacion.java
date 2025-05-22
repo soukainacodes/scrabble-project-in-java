@@ -230,6 +230,7 @@ public class CtrlPresentacion {
         // vMenuPrincipal.muestraCard("SCRABBLE");
         vMenuPrincipal.jugarPartida(vScrabble);
     }
+
     private void crearVistaFinal() {
         VistaFinal vFinal = new VistaFinal("Fin de la partida");
         vFinal.setDuracion(5);
@@ -542,17 +543,17 @@ public class CtrlPresentacion {
 
     }
 
-        private void cambiarPassword() {
+    private void cambiarPassword() {
         String passwordActual = new String(vCambiar.getPasswordActual());
         String passwordNueva = new String(vCambiar.getPassword());
         String confirmPassword = new String(vCambiar.getConfirmPassword());
-        
+
         // Verificar que las nuevas contraseñas coincidan
         if (!passwordNueva.equals(confirmPassword)) {
             vCambiar.setError("Las contraseñas nuevas no coinciden");
             return;
         }
-        
+
         try {
             ctrlDominio.cambiarPassword(passwordActual, passwordNueva);
             vCambiar.dispose();
@@ -576,7 +577,7 @@ public class CtrlPresentacion {
         }
     }
 
-    private void eliminarJugador()  {
+    private void eliminarJugador() {
         String password = new String(vPassword.getPassword());
         try {
             ctrlDominio.eliminarUsuario(password);
@@ -619,96 +620,99 @@ public class CtrlPresentacion {
 
     private void crearVistaAddRecurso() {
 
-        vAddRecurso = new VistaExplorador("");
-        vAddRecurso.addAñadirListener(e -> {
-            String ruta = vAddRecurso.elegirArchivo();
-            if (ruta != null) {
-                // System.out.println("Archivo elegido: " + ruta);
-                try {
-                    if (vAddRecurso.textAreaisEmpty(1)) {
-                        vAddRecurso.listToTextArea(leeTexto(ruta), 1);
-                    } else {
-                        vAddRecurso.listToTextArea(leeTexto(ruta), 2);
+        if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
+            vAddRecurso = new VistaExplorador("");
+
+            vAddRecurso.addAñadirListener(e -> {
+                String ruta = vAddRecurso.elegirArchivo();
+                if (ruta != null) {
+                    // System.out.println("Archivo elegido: " + ruta);
+                    try {
+                        if (vAddRecurso.textAreaisEmpty(1)) {
+                            vAddRecurso.listToTextArea(leeTexto(ruta), 1);
+                        } else {
+                            vAddRecurso.listToTextArea(leeTexto(ruta), 2);
+                        }
+
+                    } catch (IOException xe) {
                     }
 
-                } catch (IOException xe) {
                 }
+                // System.out.println(rutas[0] + " " + rutas[1]);
+            });
 
-            }
-            // System.out.println(rutas[0] + " " + rutas[1]);
-        });
-
-        vAddRecurso.aceptar(e -> addRecurso());
-        vAddRecurso.setVisible(true);
-
-    }
-
-private void crearVistaModificarRecurso() {
-    String idRecurso = vRecursos.getSeleccionado();
-    vAddRecurso = new VistaExplorador(idRecurso);
-    
-    try {
-        // Cargar el diccionario
-        List<String> diccionario = ctrlDominio.obtenerDiccionario(idRecurso);
-        vAddRecurso.listToTextArea(diccionario, 1);
-        
-        // Cargar la bolsa
-        List<String> bolsa = ctrlDominio.obtenerBolsa(idRecurso);
-        vAddRecurso.listToTextArea(bolsa, 2);
-        
-        System.out.println("Recurso cargado: " + idRecurso);
-        System.out.println("Diccionario: " + diccionario.size() + " palabras");
-        System.out.println("Bolsa: " + bolsa.size() + " elementos");
-    } catch (Exception e) {
-        System.err.println("Error al cargar el recurso: " + e.getMessage());
-        e.printStackTrace();
-    }
-
-    // Configuración de botones para añadir desde archivo
-    vAddRecurso.addAñadirListener(e -> {
-        String ruta = vAddRecurso.elegirArchivo();
-        if (ruta != null) {
-            try {
-                if (vAddRecurso.textAreaisEmpty(1)) {
-                    vAddRecurso.listToTextArea(leeTexto(ruta), 1);
-                } else {
-                    vAddRecurso.listToTextArea(leeTexto(ruta), 2);
-                }
-            } catch (IOException xe) {
-                System.err.println("Error al leer archivo: " + xe.getMessage());
-            }
+            vAddRecurso.aceptar(e -> addRecurso());
+            vAddRecurso.setVisible(true);
         }
-    });
-    
-    // Usar el método adecuado para modificar, no para añadir
-    vAddRecurso.aceptar(e -> modificarRecurso());
-    vAddRecurso.setVisible(true);
-}
+    }
 
+    private void crearVistaModificarRecurso() {
+        String idRecurso = vRecursos.getSeleccionado();
+        if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
+            vAddRecurso = new VistaExplorador(idRecurso);
+
+            try {
+                // Cargar el diccionario
+                List<String> diccionario = ctrlDominio.obtenerDiccionario(idRecurso);
+                vAddRecurso.listToTextArea(diccionario, 1);
+
+                // Cargar la bolsa
+                List<String> bolsa = ctrlDominio.obtenerBolsa(idRecurso);
+                vAddRecurso.listToTextArea(bolsa, 2);
+
+                System.out.println("Recurso cargado: " + idRecurso);
+                System.out.println("Diccionario: " + diccionario.size() + " palabras");
+                System.out.println("Bolsa: " + bolsa.size() + " elementos");
+            } catch (Exception e) {
+                System.err.println("Error al cargar el recurso: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // Configuración de botones para añadir desde archivo
+            vAddRecurso.addAñadirListener(e -> {
+                String ruta = vAddRecurso.elegirArchivo();
+                if (ruta != null) {
+                    try {
+                        if (vAddRecurso.textAreaisEmpty(1)) {
+                            vAddRecurso.listToTextArea(leeTexto(ruta), 1);
+                        } else {
+                            vAddRecurso.listToTextArea(leeTexto(ruta), 2);
+                        }
+                    } catch (IOException xe) {
+                        System.err.println("Error al leer archivo: " + xe.getMessage());
+                    }
+                }
+            });
+
+            // Usar el método adecuado para modificar, no para añadir
+            vAddRecurso.aceptar(e -> modificarRecurso());
+            vAddRecurso.setVisible(true);
+        }
+    }
 
     private void addRecurso() {
         String id = vAddRecurso.getID();
-        
+
         // Verificar que el ID no esté vacío
         if (id == null || id.trim().isEmpty()) {
             vAddRecurso.setError("El ID no puede estar vacío");
             return;
         }
-    
+
         List<String> diccionario = vAddRecurso.textAreaToList(1);
         List<String> bolsa = vAddRecurso.textAreaToList(2);
-        
+
         // Verificar que no estén vacíos
         if (diccionario.isEmpty()) {
             vAddRecurso.setError("El diccionario no puede estar vacío");
             return;
         }
-        
+
         if (bolsa.isEmpty()) {
             vAddRecurso.setError("La bolsa no puede estar vacía");
             return;
         }
-        
+
         try {
             ctrlDominio.crearRecurso(id, diccionario, bolsa);
             vAddRecurso.dispose();  // Cerrar la ventana solo si todo fue exitoso
@@ -723,23 +727,23 @@ private void crearVistaModificarRecurso() {
             vAddRecurso.setError("Error: " + e.getMessage());
         }
     }
-    
+
     private void modificarRecurso() {
         String id = vRecursos.getSeleccionado();
         List<String> diccionario = vAddRecurso.textAreaToList(1);
         List<String> bolsa = vAddRecurso.textAreaToList(2);
-        
+
         // Verificar que no estén vacíos
         if (diccionario.isEmpty()) {
             vAddRecurso.setError("El diccionario no puede estar vacío");
             return;
         }
-        
+
         if (bolsa.isEmpty()) {
             vAddRecurso.setError("La bolsa no puede estar vacía");
             return;
         }
-        
+
         try {
             ctrlDominio.modificarRecurso(id, diccionario, bolsa);
             vAddRecurso.dispose();
@@ -752,6 +756,7 @@ private void crearVistaModificarRecurso() {
             vAddRecurso.setError("Error: " + e.getMessage());
         }
     }
+
     // Botones
     private void eliminarRecurso() {
 
