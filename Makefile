@@ -61,7 +61,7 @@ runcode_scrabble:
 runcode_juego:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionJuego.jar  Presentacion.Drivers.DriverGestionJuego
 runcode_main:
-	java -cp $(CLASS_OUTPUT_MAIN)/Main.jar:./FONTS/src/main/Persistencia/json-20231013.jar   main.Main
+	java -Xmx1024m -cp $(CLASS_OUTPUT_MAIN)/Main.jar:./FONTS/src/main/Persistencia/json-20231013.jar main.Main
 runcode_usuarios:
 	java -cp $(CLASS_OUTPUT_MAIN)/DriverGestionUsuarios.jar Presentacion.Drivers.DriverGestionUsuarios
 

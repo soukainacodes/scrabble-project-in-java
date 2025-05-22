@@ -21,6 +21,7 @@ public class VistaMenuLateral extends JPanel {
     private JButton botonJugar;
     private JButton botonRecursos;
     private JButton botonRanking;
+    private JButton botonManual;
     private JButton botonCerrarSesion;
 
     public VistaMenuLateral() {
@@ -58,6 +59,10 @@ public class VistaMenuLateral extends JPanel {
 
         botonRecursos = crearBotonMenu("Recursos");
         add(botonRecursos);
+        add(crearSeparadorDecorado());
+
+        botonManual = crearBotonMenu("Manual");
+        add(botonManual);
         add(crearSeparadorDecorado());
 
         // Espacio flexible que empuja el botón de cerrar sesión hacia abajo
@@ -173,6 +178,10 @@ public class VistaMenuLateral extends JPanel {
 
     public void addVistaRecursos(ActionListener l) {
         botonRecursos.addActionListener(l);
+    }
+
+    public void addVistaManual(ActionListener l) {
+        botonManual.addActionListener(l);
     }
 
     public void addVistaRanking(ActionListener l) {

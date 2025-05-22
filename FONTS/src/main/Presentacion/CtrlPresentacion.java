@@ -619,77 +619,82 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaAddRecurso() {
-
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
             vAddRecurso = new VistaExplorador("");
-
+    
+            // Listener para el botón de añadir diccionario
             vAddRecurso.addAñadirListener(e -> {
                 String ruta = vAddRecurso.elegirArchivo();
                 if (ruta != null) {
-                    // System.out.println("Archivo elegido: " + ruta);
                     try {
-                        if (vAddRecurso.textAreaisEmpty(1)) {
-                            vAddRecurso.listToTextArea(leeTexto(ruta), 1);
-                        } else {
-                            vAddRecurso.listToTextArea(leeTexto(ruta), 2);
-                        }
-
+                        vAddRecurso.listToTextArea(leeTexto(ruta), 1);
                     } catch (IOException xe) {
+                        vAddRecurso.setError("Error al leer el archivo: " + xe.getMessage());
                     }
-
                 }
-                // System.out.println(rutas[0] + " " + rutas[1]);
             });
-
+            
+            // Añade este código para el botón de añadir bolsa
+            vAddRecurso.addAñadirBolsaListener(e -> {
+                String ruta = vAddRecurso.elegirArchivo();
+                if (ruta != null) {
+                    try {
+                        vAddRecurso.listToTextArea(leeTexto(ruta), 2);
+                    } catch (IOException xe) {
+                        vAddRecurso.setError("Error al leer el archivo: " + xe.getMessage());
+                    }
+                }
+            });
+    
             vAddRecurso.aceptar(e -> addRecurso());
             vAddRecurso.setVisible(true);
         }
     }
-
+    
     private void crearVistaModificarRecurso() {
         String idRecurso = vRecursos.getSeleccionado();
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
             vAddRecurso = new VistaExplorador(idRecurso);
-
+    
             try {
-                // Cargar el diccionario
+                // Cargar datos existentes...
                 List<String> diccionario = ctrlDominio.obtenerDiccionario(idRecurso);
                 vAddRecurso.listToTextArea(diccionario, 1);
-
-                // Cargar la bolsa
                 List<String> bolsa = ctrlDominio.obtenerBolsa(idRecurso);
                 vAddRecurso.listToTextArea(bolsa, 2);
-
-                System.out.println("Recurso cargado: " + idRecurso);
-                System.out.println("Diccionario: " + diccionario.size() + " palabras");
-                System.out.println("Bolsa: " + bolsa.size() + " elementos");
             } catch (Exception e) {
                 System.err.println("Error al cargar el recurso: " + e.getMessage());
                 e.printStackTrace();
             }
-
-            // Configuración de botones para añadir desde archivo
+    
+            // Listener para el botón de añadir diccionario
             vAddRecurso.addAñadirListener(e -> {
                 String ruta = vAddRecurso.elegirArchivo();
                 if (ruta != null) {
                     try {
-                        if (vAddRecurso.textAreaisEmpty(1)) {
-                            vAddRecurso.listToTextArea(leeTexto(ruta), 1);
-                        } else {
-                            vAddRecurso.listToTextArea(leeTexto(ruta), 2);
-                        }
+                        vAddRecurso.listToTextArea(leeTexto(ruta), 1);
                     } catch (IOException xe) {
-                        System.err.println("Error al leer archivo: " + xe.getMessage());
+                        vAddRecurso.setError("Error al leer el archivo: " + xe.getMessage());
                     }
                 }
             });
-
-            // Usar el método adecuado para modificar, no para añadir
+            
+            // Añade este código para el botón de añadir bolsa
+            vAddRecurso.addAñadirBolsaListener(e -> {
+                String ruta = vAddRecurso.elegirArchivo();
+                if (ruta != null) {
+                    try {
+                        vAddRecurso.listToTextArea(leeTexto(ruta), 2);
+                    } catch (IOException xe) {
+                        vAddRecurso.setError("Error al leer el archivo: " + xe.getMessage());
+                    }
+                }
+            });
+    
             vAddRecurso.aceptar(e -> modificarRecurso());
             vAddRecurso.setVisible(true);
         }
     }
-
     private void addRecurso() {
         String id = vAddRecurso.getID();
 

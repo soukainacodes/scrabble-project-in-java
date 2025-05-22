@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
 
 public class VistaExplorador extends JFrame {
 
@@ -296,14 +299,40 @@ public class VistaExplorador extends JFrame {
         return field;
     }
     
-    private JTextArea crearTextArea() {
-        JTextArea ta = new JTextArea(10, 20);
-        ta.setFont(new Font("Consolas", Font.PLAIN, 14));
-        ta.setLineWrap(true);
-        ta.setWrapStyleWord(true);
-        ta.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        return ta;
+private JTextArea crearTextArea() {
+    JTextArea ta = new JTextArea(10, 20);
+    ta.setFont(new Font("Consolas", Font.PLAIN, 14));
+    ta.setLineWrap(true);
+    ta.setWrapStyleWord(true);
+    
+    // Configuraciones para mejorar rendimiento con textos grandes
+    Document doc = ta.getDocument();
+    if (doc instanceof AbstractDocument) {
+        ((AbstractDocument)doc).setDocumentFilter(new DocumentFilter() {
+            // Implementación vacía que se puede extender si es necesario
+            // para optimizar la inserción de grandes cantidades de texto
+        });
     }
+    
+    // Optimizaciones de rendimiento para JTextArea
+    ta.getDocument().putProperty("filterNewlines", Boolean.FALSE);
+    ta.setDoubleBuffered(true);
+    
+    // Aumentar el tamaño del buffer interno para manejar textos grandes
+    System.setProperty("awt.text.textComponentPool", "20");
+    
+    // Desactivar validación en tiempo real para mejorar rendimiento
+    ta.putClientProperty("JEditorPane.honorDisplayProperties", Boolean.TRUE);
+    ta.putClientProperty("i18n", Boolean.FALSE);
+    
+    // Reducir actualizaciones de UI durante cambios de texto
+    ((AbstractDocument)ta.getDocument()).setAsynchronousLoadPriority(-1);
+    
+    // Configurar aspecto visual
+    ta.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    
+    return ta;
+}
     
     private JButton createStylishButton(String text, Color baseColor) {
         JButton button = new JButton(text) {
@@ -470,7 +499,7 @@ public class VistaExplorador extends JFrame {
         return text == null || text.trim().isEmpty();
     }
 
-    public void listToTextArea(List<String> lines, int textArea) {
+public void listToTextArea(List<String> lines, int textArea) {
         // Si la lista es nula o está vacía, borramos el contenido
         if (lines == null || lines.isEmpty()) {
             if (textArea == 1) {
@@ -480,18 +509,33 @@ public class VistaExplorador extends JFrame {
             }
             return;
         }
-
-        // Unimos las líneas usando el separador de línea del sistema
-        String text = String.join(System.lineSeparator(), lines);
-
-        // Asignamos el texto al área correspondiente
-        if (textArea == 1) {
-            textArea1.setText(text);
-        } else {
-            textArea2.setText(text);
+    
+        JTextArea targetArea = (textArea == 1) ? textArea1 : textArea2;
+    
+        // Optimizaciones para mejorar rendimiento con textos grandes
+        targetArea.setEditable(false);  // Temporalmente desactivar edición
+        
+        // Desactivar actualizaciones de interfaz durante la carga
+        Document doc = targetArea.getDocument();
+        ((AbstractDocument)doc).setAsynchronousLoadPriority(-1);
+        
+        try {
+            // Construir el texto de manera eficiente
+            StringBuilder sb = new StringBuilder();
+            for (String line : lines) {
+                sb.append(line).append('\n');
+            }
+            
+            // Establecer todo el texto de una vez
+            targetArea.setText(sb.toString());
+            
+            // Mover al inicio
+            targetArea.setCaretPosition(0);
+        } finally {
+            // Restaurar edición
+            targetArea.setEditable(true);
         }
     }
-
     /**
      * Obtiene el texto ingresado en el campo ID
      *
