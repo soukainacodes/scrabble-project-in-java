@@ -221,7 +221,7 @@ public class CtrlPresentacion {
         vScrabble.pasar(e -> pasarTurno());
         vScrabble.finTurno(e -> finTurno());
         vScrabble.reset(e -> crearVistaFichas());
-        vScrabble.salir(e -> crearVistaFinal());
+        vScrabble.salir(e -> crearVistaSalir());
         List<String> fichas = ctrlDominio.obtenerFichas();
         for (String ficha : fichas) {
             vScrabble.modificarRack(ficha);
@@ -240,6 +240,7 @@ public class CtrlPresentacion {
         // Don't hide it immediately - either mostrar() will auto-hide after duration
         // or you can add a listener to handle closing it after user interaction
     }
+
     private void crearVistaSalir() {
         VistaSalir vSalir = new VistaSalir();
         vSalir.setVisible(true);
@@ -278,6 +279,7 @@ public class CtrlPresentacion {
                     for (String ficha : fichas2) {
                         vScrabble.modificarRack(ficha);
                     }
+                    actualizarTablero();
                 } catch (Exception ex) {
                     System.out.println("ERROR: " + ex.getMessage());
                     return;
@@ -660,6 +662,8 @@ public class CtrlPresentacion {
             }
             // System.out.println(rutas[0] + " " + rutas[1]);
         });
+
+        
 
         vAddRecurso.aceptar(e -> addRecurso());
         vAddRecurso.setVisible(true);

@@ -126,22 +126,27 @@ public class VistaScrabble extends JPanel {
 
     private class CellPanel extends JPanel {
 
-        //  private final Label placeholder;
+        private final Label placeholder;
         CellPanel(int R, int G, int B, String bonus, int row, int col) {
             super(new BorderLayout());
             setPreferredSize(new Dimension(TILE_SIZE, TILE_SIZE));
             setBorder(new LineBorder(Color.GRAY));
             setBackground(new Color(R, G, B));
 
-            //   placeholder = new Label(bonus, Label.CENTER);
-            // placeholder.setForeground(Color.BLACK);
-            // add(placeholder, BorderLayout.CENTER);
+            placeholder = new Label(bonus, Label.CENTER);
+            placeholder.setForeground(Color.BLACK);
+            add(placeholder, BorderLayout.CENTER);
             // Drop: acepta StringFlavor y pone un TileLabel draggable
             setTransferHandler(new TransferHandler() {
                 @Override
                 public boolean canImport(TransferSupport support) {
-                    return support.isDataFlavorSupported(DataFlavor.stringFlavor)
-                            && getComponentCount() == 0;
+                    // Check if there's already a tile (not just any component)
+                    for (Component comp : getComponents()) {
+                        if (comp instanceof TileLabel) {
+                            return false;
+                        }
+                    }
+                    return support.isDataFlavorSupported(DataFlavor.stringFlavor);
                 }
 
                 @Override
@@ -159,10 +164,12 @@ public class VistaScrabble extends JPanel {
                         TileLabel tile = new TileLabel(letter, score, row, col);
                         instalarDrag(tile);
 
+                        // Hide the placeholder but don't remove it
+                        placeholder.setVisible(false);
+                        
                         // notifica inserción
                         firePropertyChange("tile", null, tile);
 
-                        removeAll();
                         add(tile, BorderLayout.CENTER);
                         revalidate();
                         repaint();
@@ -186,6 +193,8 @@ public class VistaScrabble extends JPanel {
             // captura la ficha que se va a eliminar
             if (comp instanceof TileLabel) {
                 firePropertyChange("tileRemoved", comp, null);
+                // Make the placeholder visible again
+                placeholder.setVisible(true);
             }
             super.remove(comp);
         }
@@ -193,13 +202,23 @@ public class VistaScrabble extends JPanel {
         @Override
         public void removeAll() {
             // si hay una única ficha, la notificamos antes de quitar todo
-            if (getComponentCount() == 1) {
-                Component old = getComponent(0);
-                if (old instanceof TileLabel) {
-                    firePropertyChange("tileRemoved", old, null);
+            for (Component comp : getComponents()) {
+                if (comp instanceof TileLabel) {
+                    firePropertyChange("tileRemoved", comp, null);
+                    break;
                 }
             }
-            super.removeAll();
+            
+            // Only remove TileLabels, keep the placeholder
+            Component[] components = getComponents();
+            for (Component comp : components) {
+                if (comp instanceof TileLabel) {
+                    super.remove(comp);
+                }
+            }
+            
+            // Make sure placeholder is visible
+            placeholder.setVisible(true);
         }
     }
 
@@ -450,7 +469,7 @@ public class VistaScrabble extends JPanel {
             grid.revalidate();
             grid.repaint();
         }
-        else if (letra == null || letra.isEmpty()) {
+        else if (letra == null || letra.isEmpty() || letra.equals("")) {
             cells[i][j].removeAll();
             cells[i][j].revalidate();
             cells[i][j].repaint();

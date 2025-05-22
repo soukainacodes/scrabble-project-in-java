@@ -20,6 +20,7 @@ public class VistaExplorador extends JFrame {
     private JTextArea textArea1;
     private JTextArea textArea2;
     private JButton btnArchivo;
+    private JButton btnArchivoBolsa; // New button for adding bag files
     private JButton btnAceptar;
 
     public VistaExplorador(String label) {
@@ -105,7 +106,8 @@ public class VistaExplorador extends JFrame {
         add(centerWrapper, BorderLayout.CENTER);
 
         // ===== Sur: etiqueta + botón Añadir a la izquierda, Aceptar a la derecha =====
-        btnArchivo = crearBotonBlanco("Añadir Archivo");
+        btnArchivo = crearBotonBlanco("Añadir Diccionario a partir de archivo");
+        btnArchivoBolsa = crearBotonBlanco("Añadir Bolsa a partir de archivo");
         btnAceptar = crearBotonBlanco("Aceptar");
 
         // Panel izquierdo con label encima del botón Añadir
@@ -122,6 +124,8 @@ public class VistaExplorador extends JFrame {
         westPanel.add(lblAñadirInfo);
         westPanel.add(Box.createVerticalStrut(6));
         westPanel.add(btnArchivo);
+        westPanel.add(Box.createVerticalStrut(6));
+        westPanel.add(btnArchivoBolsa);
 
         // Panel sur principal
         JPanel panelSouth = new JPanel(new BorderLayout());
@@ -164,14 +168,21 @@ public class VistaExplorador extends JFrame {
     }
 
     /**
-     * Permite añadir un ActionListener al botón “Añadir Archivo”
+     * Permite añadir un ActionListener al botón "Añadir Archivo"
      */
     public void addAñadirListener(ActionListener l) {
         btnArchivo.addActionListener(l);
     }
 
     /**
-     * Permite añadir un ActionListener al botón “Aceptar”
+     * Permite añadir un ActionListener al botón "Añadir Bolsa"
+     */
+    public void addAñadirBolsaListener(ActionListener l) {
+        btnArchivoBolsa.addActionListener(l);
+    }
+
+    /**
+     * Permite añadir un ActionListener al botón "Aceptar"
      */
     public void aceptar(ActionListener l) {
         btnAceptar.addActionListener(l);

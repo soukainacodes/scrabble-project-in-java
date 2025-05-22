@@ -106,6 +106,11 @@ public class VistaLogin extends JFrame {
         campoContrasena.setBackground(fondoColor);
         campoContrasena.setHorizontalAlignment(JTextField.CENTER);
         campoContrasena.setFont(new Font("Arial", Font.BOLD, 16));
+        // Añadir el listener para cuando se pulse Enter en el campo de contraseña
+        campoContrasena.addActionListener(e -> {
+            // Simular clic en el botón Entrar
+            botonEntrar.doClick();
+        });
 
         // --- Botón Entrar/Registrarse ---
         botonEntrar = new ScrabbleTileButton("Entrar", LILA_OSCURO);
