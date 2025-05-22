@@ -163,7 +163,7 @@ public class VistaRecursos extends JPanel {
 
         botonAdd = createStylishButton("Añadir Recurso");
         botonEliminar = createStylishButton("Eliminar Recurso");
-        botonModificar = createStylishButton("Modificar Recurso");
+        botonModificar = createStylishButton("Editar Recurso");
 
         botonesPanel.add(botonAdd);
         botonesPanel.add(botonModificar);

@@ -460,7 +460,7 @@ public class CtrlPresentacion {
                     System.out.println("Posición cargada: " + posicion);
                 } else {
                     System.out.println("Posición recibida inválida: " + posicion);
-                    // Si el usuario aparece en ranking pero la posición es 0, mostrar 1
+                    // Si el usuario aparece en el ranking pero la posición es 0, mostrar 1
                     vCuenta.setPosicion(1); // Asignar la primera posición si hay confusión
                 }
             } catch (UsuarioNoEncontradoException | IOException e) {
@@ -542,16 +542,24 @@ public class CtrlPresentacion {
 
     }
 
-    private void cambiarPassword() {
+        private void cambiarPassword() {
         String passwordActual = new String(vCambiar.getPasswordActual());
         String passwordNueva = new String(vCambiar.getPassword());
+        String confirmPassword = new String(vCambiar.getConfirmPassword());
+        
+        // Verificar que las nuevas contraseñas coincidan
+        if (!passwordNueva.equals(confirmPassword)) {
+            vCambiar.setError("Las contraseñas nuevas no coinciden");
+            return;
+        }
+        
         try {
             ctrlDominio.cambiarPassword(passwordActual, passwordNueva);
             vCambiar.dispose();
         } catch (Exception e) {
+            vCambiar.setError(e.getMessage());
             System.err.println("Error: " + e.getMessage());
         }
-
     }
 
     private void cambiarNombre() {
@@ -568,13 +576,14 @@ public class CtrlPresentacion {
         }
     }
 
-    private void eliminarJugador() {
+    private void eliminarJugador()  {
         String password = new String(vPassword.getPassword());
         try {
             ctrlDominio.eliminarUsuario(password);
             vPassword.dispose();
             cerrarSesion();
         } catch (Exception e) {
+            vPassword.setError("Error: " + e.getMessage());
             System.err.println("Error: " + e.getMessage());
         }
     }
@@ -634,58 +643,115 @@ public class CtrlPresentacion {
 
     }
 
-    private void crearVistaModificarRecurso() {
-        vAddRecurso = new VistaExplorador(vRecursos.getSeleccionado());
-        try {
-            vAddRecurso.listToTextArea(ctrlDominio.obtenerDiccionario(vRecursos.getSeleccionado()), 1);
-        } catch (Exception e) {
-        }
-        try {
-            vAddRecurso.listToTextArea(ctrlDominio.obtenerBolsa(vRecursos.getSeleccionado()), 2);
-        } catch (Exception e) {
-        }
-
-        vAddRecurso.addAñadirListener(e -> {
-            String ruta = vAddRecurso.elegirArchivo();
-            if (ruta != null) {
-                // System.out.println("Archivo elegido: " + ruta);
-                try {
-                    if (vAddRecurso.textAreaisEmpty(1)) {
-                        vAddRecurso.listToTextArea(leeTexto(ruta), 1);
-                    } else {
-                        vAddRecurso.listToTextArea(leeTexto(ruta), 2);
-                    }
-
-                } catch (IOException xe) {
-                }
-
-            }
-            // System.out.println(rutas[0] + " " + rutas[1]);
-        });
-
+private void crearVistaModificarRecurso() {
+    String idRecurso = vRecursos.getSeleccionado();
+    vAddRecurso = new VistaExplorador(idRecurso);
+    
+    try {
+        // Cargar el diccionario
+        List<String> diccionario = ctrlDominio.obtenerDiccionario(idRecurso);
+        vAddRecurso.listToTextArea(diccionario, 1);
         
-
-        vAddRecurso.aceptar(e -> addRecurso());
-        vAddRecurso.setVisible(true);
-
+        // Cargar la bolsa
+        List<String> bolsa = ctrlDominio.obtenerBolsa(idRecurso);
+        vAddRecurso.listToTextArea(bolsa, 2);
+        
+        System.out.println("Recurso cargado: " + idRecurso);
+        System.out.println("Diccionario: " + diccionario.size() + " palabras");
+        System.out.println("Bolsa: " + bolsa.size() + " elementos");
+    } catch (Exception e) {
+        System.err.println("Error al cargar el recurso: " + e.getMessage());
+        e.printStackTrace();
     }
+
+    // Configuración de botones para añadir desde archivo
+    vAddRecurso.addAñadirListener(e -> {
+        String ruta = vAddRecurso.elegirArchivo();
+        if (ruta != null) {
+            try {
+                if (vAddRecurso.textAreaisEmpty(1)) {
+                    vAddRecurso.listToTextArea(leeTexto(ruta), 1);
+                } else {
+                    vAddRecurso.listToTextArea(leeTexto(ruta), 2);
+                }
+            } catch (IOException xe) {
+                System.err.println("Error al leer archivo: " + xe.getMessage());
+            }
+        }
+    });
+    
+    // Usar el método adecuado para modificar, no para añadir
+    vAddRecurso.aceptar(e -> modificarRecurso());
+    vAddRecurso.setVisible(true);
+}
+
 
     private void addRecurso() {
         String id = vAddRecurso.getID();
-
+        
+        // Verificar que el ID no esté vacío
+        if (id == null || id.trim().isEmpty()) {
+            vAddRecurso.setError("El ID no puede estar vacío");
+            return;
+        }
+    
         List<String> diccionario = vAddRecurso.textAreaToList(1);
-        var bolsa = vAddRecurso.textAreaToList(2);
+        List<String> bolsa = vAddRecurso.textAreaToList(2);
+        
+        // Verificar que no estén vacíos
+        if (diccionario.isEmpty()) {
+            vAddRecurso.setError("El diccionario no puede estar vacío");
+            return;
+        }
+        
+        if (bolsa.isEmpty()) {
+            vAddRecurso.setError("La bolsa no puede estar vacía");
+            return;
+        }
+        
         try {
             ctrlDominio.crearRecurso(id, diccionario, bolsa);
+            vAddRecurso.dispose();  // Cerrar la ventana solo si todo fue exitoso
+            crearVistaRecursos();   // Actualizar la lista de recursos
+        } catch (RecursoExistenteException e) {
+            vAddRecurso.setError("Ya existe un recurso con ID '" + id + "'");
+        } catch (FormatoDiccionarioInvalidoException e) {
+            vAddRecurso.setError("Formato de diccionario inválido. Verifica que las palabras estén en mayúsculas y ordenadas");
+        } catch (FormatoBolsaInvalidoException e) {
+            vAddRecurso.setError("Formato de bolsa inválido. Formato correcto: 'LETRA FRECUENCIA PUNTOS'");
         } catch (Exception e) {
+            vAddRecurso.setError("Error: " + e.getMessage());
         }
-
     }
-
+    
     private void modificarRecurso() {
-
+        String id = vRecursos.getSeleccionado();
+        List<String> diccionario = vAddRecurso.textAreaToList(1);
+        List<String> bolsa = vAddRecurso.textAreaToList(2);
+        
+        // Verificar que no estén vacíos
+        if (diccionario.isEmpty()) {
+            vAddRecurso.setError("El diccionario no puede estar vacío");
+            return;
+        }
+        
+        if (bolsa.isEmpty()) {
+            vAddRecurso.setError("La bolsa no puede estar vacía");
+            return;
+        }
+        
+        try {
+            ctrlDominio.modificarRecurso(id, diccionario, bolsa);
+            vAddRecurso.dispose();
+            crearVistaRecursos(); // Recargar la vista de recursos
+        } catch (FormatoDiccionarioInvalidoException e) {
+            vAddRecurso.setError("Formato de diccionario inválido. Verifica que las palabras estén en mayúsculas y ordenadas");
+        } catch (FormatoBolsaInvalidoException e) {
+            vAddRecurso.setError("Formato de bolsa inválido. Formato correcto: 'LETRA FRECUENCIA PUNTOS'");
+        } catch (Exception e) {
+            vAddRecurso.setError("Error: " + e.getMessage());
+        }
     }
-
     // Botones
     private void eliminarRecurso() {
 
