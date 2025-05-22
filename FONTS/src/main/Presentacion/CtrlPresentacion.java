@@ -32,6 +32,8 @@ public class CtrlPresentacion {
     private VistaRanking vRanking;
     private VistaCuenta vCuenta;
     private VistaRecursos vRecursos;
+    private VistaSalir vSalir;
+    private VistaManual vManual;
 
     private VistaCargarPartida vCargarPartida;
     private VistaCrearPartida vCrearPartida;
@@ -145,6 +147,8 @@ public class CtrlPresentacion {
         vMenuLateral.addVistaRecursos(e -> {
             crearVistaRecursos();
         });
+                // Dentro del método crearVistaMenuLateral(), añade esta línea junto con los otros listeners
+        vMenuLateral.addVistaManual(e -> crearVistaManual());
 
         vMenuLateral.addVistaRecursos(e -> vMenuPrincipal.muestraCard("RECURSOS"));
         vMenuLateral.cerrarSesion(e -> cerrarSesion());
@@ -857,6 +861,15 @@ public class CtrlPresentacion {
                 System.err.println("Error al aplicar iconos: " + e.getMessage());
             }
         }
+    }
+
+    private void crearVistaManual() {
+        if (vManual == null) {
+            vManual = new VistaManual();
+            vMenuPrincipal.addCard("MANUAL", vManual);
+        }
+        
+        vMenuPrincipal.muestraCard("MANUAL");
     }
 
 }

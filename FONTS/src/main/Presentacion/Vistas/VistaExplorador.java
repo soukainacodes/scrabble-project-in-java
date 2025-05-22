@@ -555,7 +555,7 @@ public void listToTextArea(List<String> lines, int textArea) {
         errorLabel.setVisible(true);
         
         // Hacer que el mensaje desaparezca después de 5 segundos
-        new Timer(5000, (e) -> {
+        new Timer(10000, (e) -> {
             errorLabel.setVisible(false);
         }).start();
         
