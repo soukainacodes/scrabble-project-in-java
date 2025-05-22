@@ -12,9 +12,6 @@ public class VistaManual extends JPanel {
 
     // Colores consistentes con VistaRecursos
     private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Crema
-    private static final Color FG = new Color(20, 40, 80);               // Texto oscuro
-    private static final Color LILA_OSCURO = new Color(52, 28, 87);      // Lila oscuro
-    private static final Color LILA_CLARO = new Color(180, 95, 220);     // Lila claro
     private static final Color BORDE_COLOR = new Color(220, 200, 150);   // Borde de paneles
     
     private JEditorPane contenidoHTML;

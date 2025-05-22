@@ -698,7 +698,7 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
-        public List<String> listarPartidasNoAcabadas(String jugadorActual) {
+    public List<String> listarPartidasNoAcabadas(String jugadorActual) {
         List<String> partidasNoAcabadas = new ArrayList<>();
         File dir = new File(PARTIDAS);
     
@@ -710,13 +710,24 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
                     try {
                         // Verificamos si la partida no está acabada
                         if (!esPartidaAcabada(id)) {
-                            // Leer el archivo JSON para verificar si el jugador actual es jugador_1
+                            // Leer el archivo JSON para verificar si el jugador actual participa
                             String content = Files.readString(Paths.get(PARTIDAS + file.getName()), 
-                                                             StandardCharsets.UTF_8);
+                                                            StandardCharsets.UTF_8);
                             JSONObject partidaJson = new JSONObject(content);
                             
-                            // Verificar si el jugador actual es el jugador_1
-                            if (partidaJson.getString("jugador_1").equals(jugadorActual)) {
+                            // Extraer el recurso y los jugadores de la partida
+                            String recurso = partidaJson.getString("recurso");
+                            String jugador1 = partidaJson.getString("jugador_1");
+                            String jugador2 = partidaJson.getString("jugador_2");
+                            
+                            // Verificar si:
+                            // 1. El jugador actual participa (es jugador_1 o jugador_2)
+                            // 2. Ambos jugadores existen en el sistema
+                            // 3. El recurso existe
+                            if ((jugador1.equals(jugadorActual) || jugador2.equals(jugadorActual)) && 
+                                existeJugador(jugador1) && 
+                                existeJugador(jugador2) && 
+                                existeRecurso(recurso)) {
                                 partidasNoAcabadas.add(id);
                             }
                         }
@@ -728,7 +739,7 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
         return partidasNoAcabadas; // Retorna la lista de partidas no acabadas
     }
-
+        
     // ─── Diccionarios y Bolsas ───────────────────────────────────────────────
 
     public boolean existeRecurso(String id) {
