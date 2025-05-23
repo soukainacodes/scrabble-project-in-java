@@ -1,1 +1,0 @@
-Carpeta que contiene los ficheros txt con la descripción de juegos de prueba de cada driver individual.
