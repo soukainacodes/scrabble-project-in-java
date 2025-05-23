@@ -123,8 +123,20 @@ public class CtrlDominio {
         return null;
     }
 
+    /**
+     * Recupera el nombre del segundo jugador.
+     *
+     * @return nombre del segundo jugador o null si no hay sesión.
+     */
+    public String getSegundoJugador() {
+        if (ctrlJugador.haySesion())
+            return ctrlJugador.getSegundoJugador();
+
+        return null;
+    }
+
    
-    
+
    
     /**
      * Recupera los puntos actuales del jugador activo.
