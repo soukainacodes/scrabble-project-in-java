@@ -287,12 +287,13 @@ public class CtrlPartida {
      */
     private int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
         if (!pasar) {
-            int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg,
+            System.out.println(partidaActual.getCoordenadasPalabras());
+         int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg,
                     partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
                 partidaActual.addPuntos(puntos);
             } else {
-                return 0;
+                throw new PalabraInvalidaException();
             }
 
         }

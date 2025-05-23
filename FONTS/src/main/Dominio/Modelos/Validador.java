@@ -1,8 +1,7 @@
 package Dominio.Modelos;
 
-import java.util.List;
-
 import Dominio.Excepciones.PalabraInvalidaException;
+import java.util.List;
 
 /**
  * Clase encargada de validar las jugadas hechas en el tablero según las reglas del
@@ -116,7 +115,7 @@ public class Validador {
         if (coordenadasPalabra.size() == 7) {
             puntosTotales += 50;
         }
-
+        
         return puntosTotales;
     }
 

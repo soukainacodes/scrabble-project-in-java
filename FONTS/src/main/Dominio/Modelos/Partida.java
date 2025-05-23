@@ -207,14 +207,17 @@ public class Partida {
      */
     public void añadirFicha(String letra, int x, int y) {
         if (!tablero.getCelda(x, y).estaOcupada()) {
-            coordenadasPalabra.add(Pair.createPair(x, y));
+            
             Ficha ficha = getFichaString(letra);
+
             if (ficha == null && getFichaString("#") != null) {
                 tablero.ponerComodin(letra, x, y);
                 quitarFicha("#");
+                coordenadasPalabra.add(Pair.createPair(x, y));
             } else if (ficha != null) {
                 tablero.ponerFicha(ficha, x, y);
                 quitarFicha(letra);
+                coordenadasPalabra.add(Pair.createPair(x, y));
             }
         }
     }
