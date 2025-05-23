@@ -14,11 +14,11 @@ public class VistaScrabble extends JPanel {
     private JPanel grid;
     private CellPanel[][] cells = new CellPanel[15][15];
 
-    public VistaScrabble() {
+    public VistaScrabble(String nombre1, String nombre2) {
         setLayout(new BorderLayout(5, 5));
         setSize(1920, 1080);
         setBackground(new Color(238, 238, 238, 255));
-        add(crearTabla(), BorderLayout.WEST);
+        add(crearTabla(nombre1,nombre2), BorderLayout.WEST);
         // Tablero en el centro
 
         // Rack + controles al sur
@@ -127,6 +127,7 @@ public class VistaScrabble extends JPanel {
     private class CellPanel extends JPanel {
 
         private final Label placeholder;
+
         CellPanel(int R, int G, int B, String bonus, int row, int col) {
             super(new BorderLayout());
             setPreferredSize(new Dimension(TILE_SIZE, TILE_SIZE));
@@ -166,7 +167,7 @@ public class VistaScrabble extends JPanel {
 
                         // Hide the placeholder but don't remove it
                         placeholder.setVisible(false);
-                        
+
                         // notifica inserción
                         firePropertyChange("tile", null, tile);
 
@@ -208,7 +209,7 @@ public class VistaScrabble extends JPanel {
                     break;
                 }
             }
-            
+
             // Only remove TileLabels, keep the placeholder
             Component[] components = getComponents();
             for (Component comp : components) {
@@ -216,7 +217,7 @@ public class VistaScrabble extends JPanel {
                     super.remove(comp);
                 }
             }
-            
+
             // Make sure placeholder is visible
             placeholder.setVisible(true);
         }
@@ -226,6 +227,7 @@ public class VistaScrabble extends JPanel {
     private JButton reset;
     private JButton pasar;
     private JButton salir;
+    private JButton ayuda;
 
     private JPanel crearPanelControles() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -238,6 +240,8 @@ public class VistaScrabble extends JPanel {
         p.add(finTurno);
         salir = crearBotonControl("Salir");
         p.add(salir);
+        ayuda = crearBotonControl("Ayuda");
+        p.add(ayuda);
 
         return p;
     }
@@ -258,6 +262,9 @@ public class VistaScrabble extends JPanel {
         salir.addActionListener(l);
     }
 
+    public void ayuda(ActionListener l) {
+        ayuda.addActionListener(l);
+    }
     private JButton crearBotonControl(String texto) {
         JButton b = new JButton(texto);
         b.setFont(new Font("Arial", Font.BOLD, 14));
@@ -356,11 +363,19 @@ public class VistaScrabble extends JPanel {
         tile.setTransferHandler(new TransferHandler() {
             @Override
             protected Transferable createTransferable(JComponent c) {
+                // No permitir arrastre si está bloqueada
+                if (tile.estaBloqueada()) {
+                    return null;
+                }
                 return new StringSelection(tile.letter + " " + String.valueOf(tile.score));
             }
 
             @Override
             public int getSourceActions(JComponent c) {
+                // No permitir arrastre si está bloqueada
+                if (tile.estaBloqueada()) {
+                    return NONE;
+                }
                 return MOVE;
             }
 
@@ -374,11 +389,15 @@ public class VistaScrabble extends JPanel {
                 }
             }
         });
+
         tile.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                JComponent c = (JComponent) e.getSource();
-                TransferHandler h = c.getTransferHandler();
-                h.exportAsDrag(c, e, TransferHandler.MOVE);
+                // Solo iniciar arrastre si la ficha no está bloqueada
+                if (!tile.estaBloqueada()) {
+                    JComponent c = (JComponent) e.getSource();
+                    TransferHandler h = c.getTransferHandler();
+                    h.exportAsDrag(c, e, TransferHandler.MOVE);
+                }
             }
         });
     }
@@ -393,6 +412,7 @@ public class VistaScrabble extends JPanel {
         private final int row;
         private final int col;
         private final Dimension size = new Dimension(TILE_SIZE, TILE_SIZE);
+        private boolean bloqueada = false;  // Nueva propiedad para bloqueo
 
         public String getLetter() {
             return this.letter;
@@ -408,6 +428,15 @@ public class VistaScrabble extends JPanel {
 
         public int getScore() {
             return this.score;
+        }
+
+        public boolean estaBloqueada() {
+            return this.bloqueada;
+        }
+
+        public void setBloqueada(boolean bloqueada) {
+            this.bloqueada = bloqueada;
+            repaint(); // Para actualizar la visualización
         }
 
         TileLabel(String letter, int score, int row, int col) {
@@ -430,11 +459,21 @@ public class VistaScrabble extends JPanel {
             RoundRectangle2D bg = new RoundRectangle2D.Float(
                     0, 0, getWidth(), getHeight(), 12, 12
             );
-            g2.setColor(new Color(255, 223, 169));
+
+            // Color según bloqueo (opcional)
+            if (bloqueada) {
+                // Color más oscuro para fichas bloqueadas
+                g2.setColor(new Color(230, 198, 144));
+            } else {
+                g2.setColor(new Color(255, 223, 169));
+            }
+
             g2.fill(bg);
             g2.setColor(new Color(220, 180, 140));
             g2.setStroke(new BasicStroke(2));
             g2.draw(bg);
+
+         
 
             // letra grande
             Font f1 = getFont().deriveFont(Font.BOLD, getHeight() * 0.5f);
@@ -460,26 +499,80 @@ public class VistaScrabble extends JPanel {
     }
 
     public void ponerFichaTablero(String letra, int puntos, int i, int j) {
-        if (letra != null || !letra.isEmpty()) {
+        if (letra != null && !letra.isEmpty()) {
+
+            for (Component comp : cells[i][j].getComponents()) {
+                if (comp instanceof TileLabel) {
+                    cells[i][j].remove(comp);
+                    break;
+                }
+            }
+
+            for (Component comp : cells[i][j].getComponents()) {
+                if (comp instanceof Label) {
+                    comp.setVisible(false);
+                    break;
+                }
+            }
+
             TileLabel tile = new TileLabel(letra, puntos, i, j);
             instalarDrag(tile);
             cells[i][j].add(tile, BorderLayout.CENTER);
+
+            // Asegurarse que todas las actualizaciones visuales se realizan
             cells[i][j].revalidate();
             cells[i][j].repaint();
             grid.revalidate();
             grid.repaint();
-        }
-        else if (letra == null || letra.isEmpty() || letra.equals("")) {
-            cells[i][j].removeAll();
-            cells[i][j].revalidate();
-            cells[i][j].repaint();
+        } else {;
+            if (cells[i][j] != null) {
+                cells[i][j].removeAll();
+                cells[i][j].revalidate();
+                cells[i][j].repaint();
+            }
             grid.revalidate();
             grid.repaint();
         }
     }
+
+    /**
+     * Bloquea o desbloquea una ficha en la posición especificada.
+     *
+     * @param i Fila de la ficha
+     * @param j Columna de la ficha
+     * @param bloquear true para bloquear, false para desbloquear
+     * @return true si la ficha fue encontrada y su estado cambió, false en caso
+     * contrario
+     */
+    public boolean bloquearFicha(int i, int j, boolean bloquear) {
+        if (cells[i][j] == null) {
+            return false;
+        }
+
+        for (Component comp : cells[i][j].getComponents()) {
+            if (comp instanceof TileLabel) {
+                TileLabel tile = (TileLabel) comp;
+                tile.setBloqueada(bloquear);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Bloquea todas las fichas en el tablero
+     */
+    public void bloquearTodasLasFichas() {
+        for (int i = 0; i < cells.length; i++) {
+            for (int j = 0; j < cells[i].length; j++) {
+                bloquearFicha(i, j, true);
+            }
+        }
+    }
+
     private int score1;
     private int score2;
-
     public void setPuntos(int score1, int score2) {
         this.score1 = score1;
         this.score2 = score2;
@@ -489,7 +582,7 @@ public class VistaScrabble extends JPanel {
     }
     private JComponent tabla;
 
-    private JComponent crearTabla() {
+    private JComponent crearTabla(String nombre1, String nombre2) {
         // Creamos un componente que pinta todo el scoreboard
         tabla = new JComponent() {
             private final int WIDTH = 200;
@@ -542,7 +635,7 @@ public class VistaScrabble extends JPanel {
                 g2.setFont(HEADER_FONT);
                 g2.setColor(Color.WHITE);
                 FontMetrics fmH = g2.getFontMetrics();
-                String t1 = "JUGADOR 1", t2 = "JUGADOR 2";
+                String t1 = nombre1, t2 = nombre2;
                 int x1 = (WIDTH / 2 - fmH.stringWidth(t1)) / 2;
                 int x2 = WIDTH / 2 + (WIDTH / 2 - fmH.stringWidth(t2)) / 2;
                 int yH = (headerH + fmH.getAscent() - fmH.getDescent()) / 2;

@@ -21,30 +21,44 @@ import java.util.List;
  */
 public class CtrlPartida {
 
-    /** Partida actualmente en curso. */
+    /**
+     * Partida actualmente en curso.
+     */
     private Partida partidaActual;
 
-    /** Estructura DAWG para validación de vocabulario. */
+    /**
+     * Estructura DAWG para validación de vocabulario.
+     */
     private Dawg dawg;
 
-    /** Validador de palabras y reglas de Scrabble. */
+    /**
+     * Validador de palabras y reglas de Scrabble.
+     */
     private Validador validador;
 
-    /** Indica si el turno actual ha finalizado. */
+    /**
+     * Indica si el turno actual ha finalizado.
+     */
     private boolean finTurno;
 
-    /** Indica si el modo de juego es con IA. */
+    /**
+     * Indica si el modo de juego es con IA.
+     */
     private boolean isAlgoritmo;
 
-    /** Motor de IA para jugar automáticamente. */
+    /**
+     * Motor de IA para jugar automáticamente.
+     */
     private Algoritmo algoritmo;
 
-    /** Determina si el jugador 2 es la IA. */
+    /**
+     * Determina si el jugador 2 es la IA.
+     */
     private boolean jugadorAlgoritmo;
 
     /**
-     * Construye un controlador de partida sin partida inicial.
-     * Inicializa el validador de palabras.
+     * Construye un controlador de partida sin partida inicial. Inicializa el
+     * validador de palabras.
      */
     public CtrlPartida() {
         this.validador = new Validador();
@@ -53,11 +67,11 @@ public class CtrlPartida {
     /**
      * Crea una nueva partida con el ID y las configuraciones especificadas.
      *
-     * @param modo            modo de juego (0: contra IA, 1: contra otro jugador).
-     * @param id              identificador de la partida.
-     * @param lineasArchivo   lista de palabras válidas.
+     * @param modo modo de juego (0: contra IA, 1: contra otro jugador).
+     * @param id identificador de la partida.
+     * @param lineasArchivo lista de palabras válidas.
      * @param lineasArchivoBolsa lista de fichas disponibles.
-     * @param seed            semilla para la generación aleatoria.
+     * @param seed semilla para la generación aleatoria.
      * @param jugadorAlgoritmo {@code true} si el jugador 2 es la IA.
      */
     public void crearPartida(int modo, String id, List<String> lineasArchivo, List<String> lineasArchivoBolsa,
@@ -76,7 +90,7 @@ public class CtrlPartida {
 
     /**
      * Obtiene las fichas actuales del jugador activo.
-     * 
+     *
      * @return lista de cadenas con las fichas en mano.
      */
     public List<String> obtenerFichas() {
@@ -86,9 +100,9 @@ public class CtrlPartida {
     /**
      * Establece la partida actual y su configuración.
      *
-     * @param partida   la partida a establecer.
+     * @param partida la partida a establecer.
      * @param diccionario lista de palabras válidas.
-     * @param bolsa      lista de fichas disponibles en la bolsa.
+     * @param bolsa lista de fichas disponibles en la bolsa.
      */
     public void setPartida(Partida partida, List<String> diccionario, List<String> bolsa) {
         this.dawg = new Dawg(bolsa, diccionario);
@@ -107,10 +121,9 @@ public class CtrlPartida {
     /**
      * Ejecuta una jugada de Scrabble según la opción especificada.
      *
-     * @param opcion código de acción (1:añadir ficha, 2:quitar ficha,
-     *               3:cambiar fichas, 4:finalizar turno,
-     *               5:intercambiar, 6:abandonar, 7:IA).
-     * @param input  cadena con los parámetros de la jugada.
+     * @param opcion código de acción (1:añadir ficha, 2:quitar ficha, 3:cambiar
+     * fichas, 4:finalizar turno, 5:intercambiar, 6:abandonar, 7:IA).
+     * @param input cadena con los parámetros de la jugada.
      * @return código de fin de turno o fin de partida.
      * @throws ComandoInvalidoException si el formato del comando es incorrecto.
      * @throws PalabraInvalidaException si la palabra formada no es válida.
@@ -224,7 +237,11 @@ public class CtrlPartida {
                 if (!jugadorAlgoritmo) {
                     throw new ComandoInvalidoException("No se puede usar la opción 'Ayuda' en este modo de juego (Duo - 2 Jugadores).");
                 }
-
+                List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
+                for (Pair<Integer, Integer> p : coordenadas) {
+                    System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
+                    partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
+                }
                 int puntosAlgoritmo = jugarAlgoritmo();
                 partidaActual.addPuntos(puntosAlgoritmo);
                 if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty()
@@ -260,10 +277,10 @@ public class CtrlPartida {
     }
 
     /**
-     * Finaliza el turno actual: valida palabra, actualiza puntos,
-     * bloquea celdas y cambia turno.
+     * Finaliza el turno actual: valida palabra, actualiza puntos, bloquea
+     * celdas y cambia turno.
      *
-     * @param pasar     {@code true} para pasar sin validar palabra.
+     * @param pasar {@code true} para pasar sin validar palabra.
      * @param algoritmo {@code true} para ejecutar turno de IA.
      * @return 0 si continúa, código de fin de partida si corresponde.
      * @throws PalabraInvalidaException si la validación de la palabra falla.
@@ -361,39 +378,36 @@ public class CtrlPartida {
         return partidaActual.getTablero();
     }
 
-
     /**
-     * Establece el estado de la partida como acabada.
-     * Esto puede ser útil para marcar la partida como finalizada y no mostrarlas en la lista de partidas guardadas.
+     * Establece el estado de la partida como acabada. Esto puede ser útil para
+     * marcar la partida como finalizada y no mostrarlas en la lista de partidas
+     * guardadas.
      */
     public void setPartidaAcabada() {
         this.partidaActual.setPartidaAcabada();
     }
 
-
-    
-    /** 
+    /**
      * Obtiene el ID de la partida actual.
+     *
      * @return el ID de la partida.
      */
     public String getId() {
         return partidaActual.getIdPartida();
     }
 
-
     /**
      * Establece el recurso de la partida actual.
      *
-     * @param recurso   el recurso de la partida.
+     * @param recurso el recurso de la partida.
      * @param diccionario lista de palabras válidas.
-     * @param bolsa      lista de fichas disponibles.
+     * @param bolsa lista de fichas disponibles.
      */
     public void setRecursoPartida(String recurso, List<String> diccionario, List<String> bolsa) {
         this.partidaActual.setRecursoPartida(recurso);
         this.dawg = new Dawg(bolsa, diccionario);
 
     }
-
 
     /**
      * Obtiene el recurso de la partida actual.
@@ -405,8 +419,8 @@ public class CtrlPartida {
     }
 
     /**
-     * Limpia la partida actual y sus recursos.
-     * Esto incluye el DAWG, el validador y el estado del turno.
+     * Limpia la partida actual y sus recursos. Esto incluye el DAWG, el
+     * validador y el estado del turno.
      */
     public void clearPartida() {
         this.partidaActual = null;
@@ -417,10 +431,9 @@ public class CtrlPartida {
         this.algoritmo = null;
     }
 
-
     /**
-     * Activa el modo de juego contra IA.
-+    * Inicializa el algoritmo de IA para jugar automáticamente.
+     * Activa el modo de juego contra IA. + * Inicializa el algoritmo de IA para
+     * jugar automáticamente.
      */
     public void activarAlgoritmo() {
         this.isAlgoritmo = true;

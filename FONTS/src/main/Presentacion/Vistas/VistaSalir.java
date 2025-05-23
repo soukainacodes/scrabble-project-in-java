@@ -25,6 +25,15 @@ public class VistaSalir extends JFrame {
         mensaje.setForeground(new Color(60, 60, 80));
         panelMensaje.add(mensaje);
         add(panelMensaje, BorderLayout.NORTH);
+
+          // Panel para el texto de advertencia
+        JPanel panelAdvertencia = new JPanel();
+        panelAdvertencia.setBackground(getBackground());
+        JLabel advertencia = new JLabel("<html><center>Recuerda que, si eliges <b>«Abandonar»</b>, la partida se dará<br>por finalizada y no podrás retomarla</center></html>");
+        advertencia.setFont(new Font("Arial", Font.ITALIC, 12));
+        advertencia.setForeground(new Color(180, 0, 0));
+        panelAdvertencia.add(advertencia);
+        add(panelAdvertencia, BorderLayout.CENTER);
         
         // Panel para los botones
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
@@ -50,10 +59,10 @@ public class VistaSalir extends JFrame {
         });
         panelBotones.add(botonSalir);
         
-        add(panelBotones, BorderLayout.CENTER);
+        add(panelBotones, BorderLayout.SOUTH);
         
         // Configurar tamaño y posición
-        setSize(300, 150);
+        setSize(300,400);
         setLocationRelativeTo(null);
         setResizable(false);
     }

@@ -68,12 +68,11 @@ public class CtrlPresentacion {
             vLogin.setIconImages(iconos);
         }
         if (!ctrlDominio.haySesion()) {
-            vLogin.entrar(e -> crearVistaMenuPrincipal());
+            vLogin.entrar(e -> iniciarSesion());
         }
     }
 
-    private void crearVistaMenuPrincipal() {
-
+    private void iniciarSesion() {
         String usuario = vLogin.getNombre();
         String password = new String(vLogin.getPassword());
 
@@ -84,22 +83,24 @@ public class CtrlPresentacion {
                 ctrlDominio.registrarJugador(usuario, password);
                 ctrlDominio.iniciarSesion(usuario, password);
             }
-
-            vMenuPrincipal = new VistaMenuPrincipal();
-            crearVistaMenuLateral();
-            crearVistaPantallaPrincipal();
-            vLogin.revalidate();
-            vLogin.repaint();
-            vLogin.setContentPane(vMenuPrincipal);
-            vLogin.setLocationRelativeTo(null);
-
-            //vLogin.setSize(1280, 720);
-            vLogin.pack();
-
+            crearVistaMenuPrincipal();
         } catch (Exception e) {
-            // System.err.println("Error: " + e.getMessage());
             vLogin.setError(e.getMessage());
         }
+    }
+
+    private void crearVistaMenuPrincipal() {
+
+        vMenuPrincipal = new VistaMenuPrincipal();
+        crearVistaMenuLateral();
+        crearVistaPantallaPrincipal();
+        vLogin.revalidate();
+        vLogin.repaint();
+        vLogin.setContentPane(vMenuPrincipal);
+        vLogin.setLocationRelativeTo(null);
+
+        //vLogin.setSize(1280, 720);
+        vLogin.pack();
 
     }
 
@@ -124,7 +125,7 @@ public class CtrlPresentacion {
         vCargarPartida = new VistaCargarPartida();
 
         vCrearPartida = new VistaCrearPartida();
-        vScrabble = new VistaScrabble();
+
         vMenuPrincipal.addCard("PRINCIPAL", vPantallaPrincipal);
         vMenuPrincipal.addCard("CUENTA", vCuenta);
         vMenuPrincipal.addCard("RANKING", vRanking);
@@ -132,7 +133,7 @@ public class CtrlPresentacion {
         vMenuPrincipal.addCard("CARGARPARTIDA", vCargarPartida);
 
         vMenuPrincipal.addCard("CREARPARTIDA", vCrearPartida);
-        vMenuPrincipal.addCard("SCRABBLE", vScrabble);
+
         vMenuLateral.addVerCuentaListener(e -> crearVistaCuenta());
         vMenuLateral.addJugarListener(e -> crearVistaPantallaPrincipal());
 
@@ -147,15 +148,36 @@ public class CtrlPresentacion {
         vMenuLateral.addVistaRecursos(e -> {
             crearVistaRecursos();
         });
-                // Dentro del método crearVistaMenuLateral(), añade esta línea junto con los otros listeners
+        // Dentro del método crearVistaMenuLateral(), añade esta línea junto con los otros listeners
         vMenuLateral.addVistaManual(e -> crearVistaManual());
 
         vMenuLateral.addVistaRecursos(e -> vMenuPrincipal.muestraCard("RECURSOS"));
         vMenuLateral.cerrarSesion(e -> cerrarSesion());
         vPantallaPrincipal.addVistaCrearPartida(e -> crearVistaCrearPartida());
         vPantallaPrincipal.addVistaCargarPartida(e -> crearVistaCargarPartida());        // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
+        vPantallaPrincipal.cargarUltimaPartida(e -> cargarUltimaPartida());
+        vCargarPartida.jugarPartida(e -> cargarPartida());
 
-        vCargarPartida.jugarPartida(e -> jugarPartida());
+    }
+
+    private void cargarPartida() {
+        String partida = vCargarPartida.getSeleccionada();
+        try {
+            ctrlDominio.cargarPartida(partida);
+            jugarPartida();
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+
+    }
+
+    private void cargarUltimaPartida() {
+        try {
+            ctrlDominio.cargarUltimaPartida();
+            jugarPartida();
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
 
     }
 
@@ -193,9 +215,14 @@ public class CtrlPresentacion {
     }
 
     private void jugarPartida() {
-        vScrabble = new VistaScrabble();
+        try {
+            vScrabble = new VistaScrabble(ctrlDominio.getUsuarioActual(), ctrlDominio.getSegundoJugador());
+        } catch (Exception e) {
+            System.err.println("Error al crear la vista de Scrabble: " + e.getMessage());
+        }
+
         vLogin.setSize(1280, 720);
-        vScrabble.setPuntos(0, 0);
+        vScrabble.setPuntos(ctrlDominio.getPuntosJugador1(), ctrlDominio.getPuntosJugador2());
 
         int N = ctrlDominio.getTableroDimension();
         for (int fila = 0; fila < N; ++fila) {
@@ -207,16 +234,36 @@ public class CtrlPresentacion {
         }
 
         vScrabble.setTileActionListener(new VistaScrabble.TileActionListener() {
+            boolean cola = false;
+            int row_cola = -1;
+            int col_cola = -1;
+            String letra_cola = "";
+
             @Override
             public void onTilePlaced(String letter, int score, int row, int col) {
                 // Handle tile placement in the controller
+
                 ponerFicha(letter, score, row, col);
+                if (ctrlDominio.getLetraCelda(row, col) == null) {
+                    cola = true;
+                    row_cola = row;
+                    col_cola = col;
+                    letra_cola = letter;
+
+                }
+
             }
 
             @Override
             public void onTileRemoved(String letter, int score, int row, int col) {
                 // Handle tile removal in the controller
+
                 quitarFicha(letter, score, row, col);
+                if (cola && letra_cola.equals(letter)) {
+
+                    ponerFicha(letter, score, row_cola, col_cola);
+                    cola = false;
+                }
             }
         });
 
@@ -226,22 +273,57 @@ public class CtrlPresentacion {
         vScrabble.finTurno(e -> finTurno());
         vScrabble.reset(e -> crearVistaFichas());
         vScrabble.salir(e -> crearVistaSalir());
+        vScrabble.ayuda(e -> mostrarTablero());
         List<String> fichas = ctrlDominio.obtenerFichas();
         for (String ficha : fichas) {
             vScrabble.modificarRack(ficha);
         }
-
+        actualizarTablero();
         // vMenuPrincipal.muestraCard("SCRABBLE");
         vMenuPrincipal.jugarPartida(vScrabble);
     }
+       private  void mostrarTablero() {
+        int N = ctrlDominio.getTableroDimension();
+        System.out.print("    ");
+        for (int j = 0; j < N; j++)
+            System.out.printf("%4d", j);
+        System.out.println();
+        for (int i = 0; i < N; i++) {
+            System.out.printf("%2d: ", i);
+            for (int j = 0; j < N; j++) {
+                String l = ctrlDominio.getLetraCelda(i, j);
+                String b = ctrlDominio.getBonusCelda(i, j);
+                System.out.printf("[%2s]", l != null ? l : b);
+            }
+            System.out.println();
+        }
+    }
+    private void ayuda() {
+        try {
+            ctrlDominio.jugarScrabble(7, "");
+            actualizarTablero();
+        } catch (Exception e) {
+        }
 
-    private void crearVistaFinal() {
+    }
+
+    private void crearVistaFinal(boolean abandonada, int resultado) {
+        String mensaje;
+
+        String perdedor = resultado == 1 ? ctrlDominio.getUsuarioActual() : ctrlDominio.getSegundoJugador();
+        String ganador = resultado == 1 ? ctrlDominio.getSegundoJugador() : ctrlDominio.getUsuarioActual();
+        if (abandonada) {
+            mensaje = perdedor + " ha abandonado la partida. " + ganador + " gana.";
+        } else {
+            mensaje = "Fin de la partida. " + ganador + " ha ganado con " + resultado + " puntos.";
+        }
         VistaFinal vFinal = new VistaFinal("Fin de la partida");
-        vFinal.setDuracion(5);
+        vFinal.setDuracion(3);
         vFinal.setLocationRelativeTo(null);
         vFinal.setResizable(false);
         // Let the mostrar() method handle the visibility
         vFinal.mostrar();
+        crearVistaMenuPrincipal();
         // Don't hide it immediately - either mostrar() will auto-hide after duration
         // or you can add a listener to handle closing it after user interaction
     }
@@ -251,16 +333,16 @@ public class CtrlPresentacion {
         vSalir.setVisible(true);
         vSalir.setLocationRelativeTo(null);
         vSalir.setResizable(false);
+
         vSalir.setAbandonarListener(e -> {
             try {
-
-                crearVistaMenuPrincipal();
+                crearVistaFinal(true, ctrlDominio.jugarScrabble(6, ""));
             } catch (Exception ex) {
                 System.out.println("ERROR: " + ex.getMessage());
             }
             vSalir.dispose();
-            crearVistaPantallaPrincipal();
         });
+
         vSalir.setSalirListener(e -> {
             vSalir.dispose();
             crearVistaMenuPrincipal();
@@ -277,7 +359,10 @@ public class CtrlPresentacion {
                 String seleccionadas = vFichas.getSelectedTiles();
                 // Process selected tiles
                 try {
-                    ctrlDominio.jugarScrabble(5, seleccionadas);
+                    int resultado = ctrlDominio.jugarScrabble(5, seleccionadas);
+                    if (resultado != 0) {
+                        crearVistaFinal(false, resultado);
+                    }
                     vFichas.dispose();
                     vScrabble.clearRack();
                     List<String> fichas2 = ctrlDominio.obtenerFichas();
@@ -298,11 +383,12 @@ public class CtrlPresentacion {
     }
 
     private void ponerFicha(String letra, int puntuacion, int fila, int col) {
+        String parametros = letra + " " + Integer.toString(fila) + " " + Integer.toString(col);
+
         try {
-            String parametros = letra + " " + Integer.toString(fila) + " " + Integer.toString(col);
+            //  String parametros = letra + " " + Integer.toString(fila) + " " + Integer.toString(col);
             ctrlDominio.jugarScrabble(1, parametros);
             //actualizarTablero();
-
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
         }
@@ -343,7 +429,10 @@ public class CtrlPresentacion {
 
     private void finTurno() {
         try {
-            ctrlDominio.jugarScrabble(4, "");
+            int resultado = ctrlDominio.jugarScrabble(4, "");
+            if (resultado != 0) {
+                crearVistaFinal(false, resultado);
+            }
             actualizarTablero();
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
@@ -352,7 +441,10 @@ public class CtrlPresentacion {
 
     private void pasarTurno() {
         try {
-            ctrlDominio.jugarScrabble(3, "");
+            int resultado = ctrlDominio.jugarScrabble(3, "");
+            if(resultado != 0){
+                crearVistaFinal(false, resultado);  
+            }
             actualizarTablero();
 
         } catch (Exception e) {
@@ -625,7 +717,7 @@ public class CtrlPresentacion {
     private void crearVistaAddRecurso() {
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
             vAddRecurso = new VistaExplorador("");
-    
+
             // Listener para el botón de añadir diccionario
             vAddRecurso.addAñadirListener(e -> {
                 String ruta = vAddRecurso.elegirArchivo();
@@ -637,7 +729,7 @@ public class CtrlPresentacion {
                     }
                 }
             });
-            
+
             // Añade este código para el botón de añadir bolsa
             vAddRecurso.addAñadirBolsaListener(e -> {
                 String ruta = vAddRecurso.elegirArchivo();
@@ -649,17 +741,17 @@ public class CtrlPresentacion {
                     }
                 }
             });
-    
+
             vAddRecurso.aceptar(e -> addRecurso());
             vAddRecurso.setVisible(true);
         }
     }
-    
+
     private void crearVistaModificarRecurso() {
         String idRecurso = vRecursos.getSeleccionado();
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
             vAddRecurso = new VistaExplorador(idRecurso);
-    
+
             try {
                 // Cargar datos existentes...
                 List<String> diccionario = ctrlDominio.obtenerDiccionario(idRecurso);
@@ -670,7 +762,7 @@ public class CtrlPresentacion {
                 System.err.println("Error al cargar el recurso: " + e.getMessage());
                 e.printStackTrace();
             }
-    
+
             // Listener para el botón de añadir diccionario
             vAddRecurso.addAñadirListener(e -> {
                 String ruta = vAddRecurso.elegirArchivo();
@@ -682,7 +774,7 @@ public class CtrlPresentacion {
                     }
                 }
             });
-            
+
             // Añade este código para el botón de añadir bolsa
             vAddRecurso.addAñadirBolsaListener(e -> {
                 String ruta = vAddRecurso.elegirArchivo();
@@ -694,11 +786,12 @@ public class CtrlPresentacion {
                     }
                 }
             });
-    
+
             vAddRecurso.aceptar(e -> modificarRecurso());
             vAddRecurso.setVisible(true);
         }
     }
+
     private void addRecurso() {
         String id = vAddRecurso.getID();
 
@@ -868,7 +961,7 @@ public class CtrlPresentacion {
             vManual = new VistaManual();
             vMenuPrincipal.addCard("MANUAL", vManual);
         }
-        
+
         vMenuPrincipal.muestraCard("MANUAL");
     }
 

@@ -264,7 +264,7 @@ public class VistaPantallaPrincipal extends JPanel {
         botonCargarPartida.addActionListener(l);
     }
     
-    public void addVistaUltimaPartida(ActionListener l) {
+    public void cargarUltimaPartida(ActionListener l) {
         botonUltimaPartida.addActionListener(l);
     }
 }
