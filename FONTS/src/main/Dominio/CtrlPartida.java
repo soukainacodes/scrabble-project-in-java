@@ -167,7 +167,6 @@ public class CtrlPartida {
             }
 
             case 3: {
-                // Create a copy of the coordinates list to avoid concurrent modification issues
                 List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
                 for (Pair<Integer, Integer> p : coordenadas) {
                     System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
@@ -223,7 +222,7 @@ public class CtrlPartida {
 
             case 7:
                 if (!jugadorAlgoritmo) {
-                    throw new ComandoInvalidoException("Jugador de algoritmo no está habilitado.");
+                    throw new ComandoInvalidoException("No se puede usar la opción 'Ayuda' en este modo de juego (Duo - 2 Jugadores).");
                 }
 
                 int puntosAlgoritmo = jugarAlgoritmo();
@@ -232,7 +231,8 @@ public class CtrlPartida {
                         && partidaActual.getPuntosJugador2() > partidaActual.getPuntosJugador1()) {
                     return finPartida(false);
                 }
-                return finTurno(true, true);
+                // Para habilitar el botón de Ayuda
+                return 0;
 
             default:
                 throw new ComandoInvalidoException("Opción de jugada desconocida: " + opcion);

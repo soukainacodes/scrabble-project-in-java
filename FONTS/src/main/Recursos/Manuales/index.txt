@@ -1,0 +1,1 @@
+En esta carpeta se guardan los manuales en formato HTML quese usaran en la vista VistaManual en la aplicacion Scrabble.

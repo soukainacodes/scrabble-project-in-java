@@ -1,0 +1,1 @@
+En esta carpeta se guardan imagenes que se usan en las interficies grafices como iconos, favicons, etc. 
