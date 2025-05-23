@@ -1,2 +1,0 @@
-Lib
-Carpeta con todas las librerias necesarias para implementar los tests unitarios.

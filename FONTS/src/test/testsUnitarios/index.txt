@@ -1,4 +1,0 @@
-Tests unitarios
-
-    Carpeta que contiene los tests unitarios de las clases modelo; 
-    incluye mocks y stubs para simular dependencias y validar la logica de negocio.

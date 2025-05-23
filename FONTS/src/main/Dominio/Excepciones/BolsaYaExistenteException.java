@@ -1,9 +1,14 @@
 package Dominio.Excepciones;
 
 /**
- * Excepción lanzada cuando se intenta añadir una "Bolsa" (bolsa) con un ID ya existente.
- * Esta excepción se utiliza para indicar que el sistema no puede crear una nueva "Bolsa"
- * porque ya existe otra con el mismo ID.
+ * Excepción lanzada cuando se intenta añadir una "Bolsa" (conjunto de fichas) con un ID ya existente.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta crear una nueva bolsa de fichas con un identificador ya registrado</li>
+ *   <li>Se intenta importar una bolsa con un nombre que colisiona con una existente</li>
+ * </ul>
+ * 
  */
 public class BolsaYaExistenteException extends Exception {
 

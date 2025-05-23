@@ -1,18 +1,19 @@
 package Dominio.Modelos;
 
 /**
- * Representa un jugador del juego, con nombre, contraseña y puntuación máxima alcanzada.
+ * Representa un jugador del juego, con nombre, contraseña y puntuación máxima
+ * alcanzada.
  */
 public class Jugador {
 
     /** Nombre único del jugador. */
     private String nombre;
 
-    
     /**
-     * Construye un nuevo jugador con nombre y contraseña, inicializando la puntuación a cero.
+     * Construye un nuevo jugador con nombre y contraseña, inicializando la
+     * puntuación a cero.
      *
-     * @param nombre   Nombre del jugador.
+     * @param nombre Nombre del jugador.
      */
     public Jugador(String nombre) {
         this.nombre = nombre;
@@ -36,5 +37,4 @@ public class Jugador {
         this.nombre = nombre;
     }
 
- 
 }

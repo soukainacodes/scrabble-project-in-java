@@ -1,9 +1,15 @@
 package Dominio.Excepciones;
 
 /**
- * Excepción lanzada cuando no se encuentra una "Bolsa" (bolsa) solicitada.
- * Esta excepción se utiliza para indicar que el sistema no pudo localizar
- * el recurso de "Bolsa" requerido.
+ * Excepción lanzada cuando no se encuentra una "Bolsa" (conjunto de fichas) solicitada.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta acceder a una bolsa de fichas que no existe en el sistema</li>
+ *   <li>Se intenta cargar una bolsa cuyo identificador no está registrado</li>
+ *   <li>La bolsa ha sido eliminada o el archivo está corrompido</li>
+ * </ul>
+ * 
  */
 public class BolsaNoEncontradaException extends Exception {
     private static final String DEFAULT_MSG = "Bolsa no encontrada.";

@@ -1,7 +1,13 @@
 package Dominio.Excepciones;
 
 /**
- * Excepción lanzada cuando se intenta asignar una puntuación inválida (negativa).
+ * Excepción lanzada cuando se intenta asignar una puntuación inválida en el juego.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta asignar una puntuación negativa a un jugador</li>
+ * </ul>
+ *
  */
 public class PuntuacionInvalidaException extends Exception {
 

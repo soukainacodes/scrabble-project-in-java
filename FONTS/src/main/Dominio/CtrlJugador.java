@@ -3,10 +3,9 @@ package Dominio;
 
 import Dominio.Modelos.Jugador;
 
-
 /**
  * Controlador de Jugador.
- * Este controlador gestiona la sesión del jugador actual y el segundo jugador.
+ * Este controlador gestiona la información del jugador actual y el segundo jugador en el juego.
  * 
  */
 public class CtrlJugador {
@@ -40,7 +39,6 @@ public class CtrlJugador {
      * Establece el jugador actual.
      * 
      * @param nombre Nombre del jugador.
-     * @param password Contraseña del jugador.
      */
     public void setJugadorActual(String nombre) {
         this.jugadorActual = new Jugador(nombre);
@@ -56,13 +54,18 @@ public class CtrlJugador {
         this.segundoJugador = new Jugador(nombre);
     }
 
+
+    /**
+     * Resetea el jugador actual.
+     * Esto establece el jugador actual a null.
+     */
     public void resetSegundoJugador(){
         this.segundoJugador = null;
     }
 
     
     /**
-     * Obtiene el jugador actual.
+     * Obtiene el nombre del jugador actual.
      * 
      * @return Jugador actual.
      */
@@ -72,7 +75,7 @@ public class CtrlJugador {
 
 
     /**
-     * Obtiene el segundo jugador.
+     * Obtiene el nombre del segundo jugador.
      * 
      * @return Segundo jugador.
      */
@@ -80,8 +83,6 @@ public class CtrlJugador {
     {
         return segundoJugador.getNombre();
     }
-
-
     
     /**
      * Verifica si hay una sesión activa.
@@ -92,18 +93,13 @@ public class CtrlJugador {
         return jugadorActual != null;
     }
 
-
-
-   /**
-    * Limpia la sesión del jugador actual y el segundo jugador.
-    * Esto se utiliza para cerrar la sesión y reiniciar el estado del controlador.
-    */
+    /**
+     * Limpia la sesión actual.
+     * Esto establece el jugador actual y el segundo jugador a null.
+     */
     public void clearSesion() {
         this.jugadorActual = null;
         this.segundoJugador = null;
     }
 
-
-
- 
 }

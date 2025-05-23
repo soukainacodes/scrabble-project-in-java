@@ -2,21 +2,26 @@ package Dominio.Modelos;
 
 import java.util.*;
 
-import Dominio.Excepciones.*;
-
 /**
- * Representa un DAWG (Directed Acyclic Word Graph) para validación y búsqueda eficiente de palabras.
+ * Representa un DAWG (Directed Acyclic Word Graph) para validación y búsqueda
+ * eficiente de palabras.
  * <p>
- * Permite cargar fichas válidas y construir la estructura DAWG a partir de un listado de palabras ordenadas.
- * Ofrece operaciones de tokenización, búsqueda de palabra, búsqueda de prefijo y obtención de nodos.
+ * Permite cargar fichas válidas y construir la estructura DAWG a partir de un
+ * listado de palabras ordenadas.
+ * Ofrece operaciones de tokenización, búsqueda de palabra, búsqueda de prefijo
+ * y obtención de nodos.
  * </p>
  */
+
 public class Dawg {
 
     /** Nodo raíz del DAWG. */
     private Nodo raiz;
 
-    /** Conjunto de fichas válidas (letras o grupos de letras permitidos en tokenización). */
+    /**
+     * Conjunto de fichas válidas (letras o grupos de letras permitidos en
+     * tokenización).
+     */
     private Set<String> fichasValidas;
 
     /** Longitud máxima de fichas válidas, para optimizar la tokenización. */
@@ -26,10 +31,12 @@ public class Dawg {
     private Map<Nodo, Nodo> registro;
 
     /**
-     * Construye un DAWG inicializando con las fichas válidas y las palabras en el diccionario.
+     * Construye un DAWG inicializando con las fichas válidas y las palabras en el
+     * diccionario.
      *
-     * @param lineasArchivoBolsa  Líneas con fichas válidas (formato: "ficha ...").
-     * @param lineasArchivo       Líneas con palabras ordenadas para construir el DAWG.
+     * @param lineasArchivoBolsa Líneas con fichas válidas (formato: "ficha ...").
+     * @param lineasArchivo      Líneas con palabras ordenadas para construir el
+     *                           DAWG.
      */
     public Dawg(List<String> lineasArchivoBolsa, List<String> lineasArchivo) {
         this.raiz = new Nodo();
@@ -66,7 +73,7 @@ public class Dawg {
     }
 
     /**
-     * Tokeniza una palabra en fichas válidas (greedy por longitud máxima).
+     * Tokeniza una palabra en fichas válidas (por longitud máxima).
      *
      * @param palabra Palabra a tokenizar.
      * @return Lista de tokens reconocidos, o lista vacía si falla.
@@ -87,7 +94,8 @@ public class Dawg {
                     break;
                 }
             }
-            if (!enc) break;
+            if (!enc)
+                break;
         }
         return tokens;
     }
@@ -174,20 +182,22 @@ public class Dawg {
      * Comprueba si una palabra existe en el DAWG.
      *
      * @param palabra Palabra a buscar.
-     * @return {@code true} si existe exactamente la palabra, {@code false} otherwise.
+     * @return {@code true} si existe exactamente la palabra, {@code false}
+     *         otherwise.
      */
     public boolean buscarPalabra(String palabra) {
         Nodo actual = raiz;
         for (String token : tokenizarPalabra(palabra)) {
             actual = actual.hijos.get(token);
-            if (actual == null) return false;
+            if (actual == null)
+                return false;
         }
         return actual.palabraValidaHastaAqui;
     }
 
-
     /**
-     * Obtiene el último nodo correspondiente a la palabra dada, sin validar existencia.
+     * Obtiene el último nodo correspondiente a la palabra dada, sin validar
+     * existencia.
      *
      * @param palabra Palabra/tokenización a navegar.
      * @return Último nodo alcanzado, o {@code null} si no existe.
@@ -196,7 +206,8 @@ public class Dawg {
         Nodo actual = raiz;
         for (String token : tokenizarPalabra(palabra)) {
             actual = actual.hijos.get(token);
-            if (actual == null) return null;
+            if (actual == null)
+                return null;
         }
         return actual;
     }

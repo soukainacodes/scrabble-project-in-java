@@ -2,8 +2,15 @@ package Dominio.Excepciones;
 
 /**
  * Excepción lanzada cuando se detecta un comando inválido.
- * Esta excepción se utiliza para indicar que el comando proporcionado
- * no es válido o no puede ser procesado por el sistema.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se proporciona un comando que no existe en el sistema</li>
+ *   <li>La sintaxis del comando es incorrecta o incompleta</li>
+ *   <li>Se intenta ejecutar un comando en un contexto no permitido</li>
+ *   <li>Los parámetros del comando no cumplen con los requisitos esperados</li>
+ * </ul>
+ * 
  */
 public class ComandoInvalidoException extends Exception {
 

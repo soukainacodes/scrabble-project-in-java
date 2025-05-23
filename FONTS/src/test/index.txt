@@ -1,3 +1,0 @@
-Carpeta que contiene dos subcarpetas:  
-- TestsUnitarios: archivos `.java` con las pruebas unitarias.  
-- lib: librerias necesarias para ejecutar los tests.

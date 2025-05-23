@@ -6,8 +6,10 @@ import java.util.List;
 /**
  * Se encarga de buscar y construir jugadas posibles en el juego de Scrabble.
  * <p>
- * Utiliza las fichas del jugador, el tablero y un diccionario DAWG para formar palabras válidas
- * que respeten las reglas del juego. Calcula la puntuación de cada jugada y selecciona la mejor.
+ * Utiliza las fichas del jugador, el tablero y un diccionario DAWG para formar
+ * palabras válidas
+ * que respeten las reglas del juego. Calcula la puntuación de cada jugada y
+ * selecciona la mejor.
  */
 
 public class Algoritmo {
@@ -34,7 +36,7 @@ public class Algoritmo {
      *
      * @param pos Par de coordenadas (fila, columna) a verificar.
      * @return {@code true} si la celda existe y no está ocupada, {@code false}
-     * en caso contrario.
+     *         en caso contrario.
      */
     public boolean isEmpty(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
@@ -48,7 +50,7 @@ public class Algoritmo {
      *
      * @param pos Par de coordenadas (fila, columna) a verificar.
      * @return {@code true} si la celda existe y está ocupada, {@code false} en
-     * caso contrario.
+     *         caso contrario.
      */
     public boolean isFilled(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
@@ -61,7 +63,7 @@ public class Algoritmo {
      *
      * @param pos Par de coordenadas (fila, columna) a comprobar.
      * @return {@code true} si la celda en la posición indicada existe,
-     * {@code false} en caso contrario.
+     *         {@code false} en caso contrario.
      */
     public boolean isDentroTablero(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
@@ -74,7 +76,7 @@ public class Algoritmo {
      * decir, celdas vacías adyacentes a al menos una celda ocupada.
      *
      * @return Lista de posiciones (pares fila, columna) que son válidas como
-     * anclas.
+     *         anclas.
      */
     public ArrayList<Pair<Integer, Integer>> find_anchors() {
         ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
@@ -82,7 +84,8 @@ public class Algoritmo {
             for (int j = 0; j < 15; j++) {
                 Pair<Integer, Integer> pos = Pair.createPair(i, j);
                 boolean empty = isEmpty(pos);
-                boolean vecinoOcupado = (isFilled(before(pos)) || isFilled(after(pos)) || isFilled(up(pos)) || isFilled(down(pos)));
+                boolean vecinoOcupado = (isFilled(before(pos)) || isFilled(after(pos)) || isFilled(up(pos))
+                        || isFilled(down(pos)));
 
                 if (empty && vecinoOcupado) {
 
@@ -157,15 +160,11 @@ public class Algoritmo {
      * Añade una ficha representada por una cadena en una posición específica al
      * resultado final.
      *
-     * @param s Letra o símbolo que representa la ficha.
+     * @param s   Letra o símbolo que representa la ficha.
      * @param pos Posición en la que se colocará la ficha.
      */
     private void ponerFicha(String s, Pair<Integer, Integer> pos) {
-        int row = pos.getFirst();
-        int col = pos.getSecond();
-
         resultadoFinal.add(Pair.createPair(s, pos));
-
     }
 
     /**
@@ -177,9 +176,9 @@ public class Algoritmo {
      * Si la puntuación total obtenida es mayor que la mejor registrada hasta el
      * momento, actualiza el resultado final.
      *
-     * @param palabra Palabra a evaluar.
+     * @param palabra  Palabra a evaluar.
      * @param last_pos Posición final de la palabra (última letra colocada).
-     * @param puntos Puntuación acumulada antes de colocar esta palabra.
+     * @param puntos   Puntuación acumulada antes de colocar esta palabra.
      */
     private void palabra_parcial(String palabra, Pair<Integer, Integer> last_pos, int puntos) {
 
@@ -200,7 +199,8 @@ public class Algoritmo {
 
                         p = ficha.getPuntuacion();
                         if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTripleLetra()) {
-                            p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+                            p *= tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion()
+                                    .getMultiplicador();
                         }
 
                         puntosPalabra += p;
@@ -208,8 +208,10 @@ public class Algoritmo {
                     }
 
                 }
-                if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTriplePalabra() && tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).bonusDisponible()) {
-                    bonusPalabra += tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion().getMultiplicador();
+                if (tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).isDobleTriplePalabra()
+                        && tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).bonusDisponible()) {
+                    bonusPalabra += tablero.getCelda(last_pos.getFirst(), last_pos.getSecond()).getBonificacion()
+                            .getMultiplicador();
                 }
             }
 
@@ -249,12 +251,12 @@ public class Algoritmo {
      * Se consideran las bonificaciones de letra y palabra, así como los puntos
      * base de las fichas ya colocadas en el tablero.
      *
-     * @param pos Posición donde se colocará la nueva ficha.
+     * @param pos       Posición donde se colocará la nueva ficha.
      * @param direccion {@code true} para recorrer en dirección horizontal,
-     * {@code false} para vertical.
-     * @param s Letra que se quiere colocar en la posición indicada.
+     *                  {@code false} para vertical.
+     * @param s         Letra que se quiere colocar en la posición indicada.
      * @return Puntuación total de la palabra si es válida, o {@code -1} si la
-     * palabra no existe en el diccionario.
+     *         palabra no existe en el diccionario.
      */
     private int recorrerDireccion(Pair<Integer, Integer> pos, boolean direccion, String s) {
         StringBuilder palabra = new StringBuilder();
@@ -262,11 +264,9 @@ public class Algoritmo {
         int xx = pos.getFirst();
         int yy = pos.getSecond();
         int x = xx, y = yy;
-        int puntosFicha = 0;
         int dx, dy;
         int puntosRecorrerDireccion = 0;
 
-        // Determine direction of traversal
         if (direccion) {
             dx = 1; // horizontal
             dy = 0;
@@ -275,18 +275,15 @@ public class Algoritmo {
             dy = 1;
         }
 
-        // Recorre en ambas direcciones
         for (int dir = -1; dir <= 1; dir += 2) {
             x = xx;
             y = yy;
             StringBuilder currentPalabra = (dir == -1) ? palabra2 : palabra;
 
             while (true) {
-                // Adjust coordinates before checking
                 x += dir * dx;
                 y += dir * dy;
 
-                // Check if cell is out of bounds or empty
                 if (x < 0 || y < 0
                         || tablero.getCelda(x, y) == null
                         || tablero.getFicha(x, y) == null) {
@@ -299,7 +296,6 @@ public class Algoritmo {
                     puntosRecorrerDireccion += getFichaPuntuacion(p);
                 }
 
-                // Append letter to appropriate StringBuilder
                 if (dir == 1) {
                     currentPalabra.append(letra);
                 } else {
@@ -314,7 +310,6 @@ public class Algoritmo {
         if (esPalabra || palabraCompleta.length() == 1) {
 
             if (esPalabra) {
-                Pair<Integer, Integer> p = Pair.createPair(xx, yy);
                 int pp = 0;
                 for (Ficha ficha : f) {
                     if (ficha.getLetra().equals(s)) {
@@ -345,7 +340,7 @@ public class Algoritmo {
      *
      * @param pos Posición (fila, columna) de la ficha.
      * @return Puntuación de la ficha si existe, o {@code 0} si no hay ninguna
-     * ficha en esa celda.
+     *         ficha en esa celda.
      */
     private int getFichaPuntuacion(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
@@ -367,13 +362,14 @@ public class Algoritmo {
      * evalúa la puntuación correspondiente.
      *
      * @param palabraParcial Palabra construida hasta el momento.
-     * @param nodo_actual Nodo actual en el DAWG que representa el prefijo
-     * construido.
-     * @param next_pos Siguiente posición en el tablero a explorar.
-     * @param anchor_filled Indica si se ha pasado por una celda ancla válida.
-     * @param puntos Puntuación acumulada hasta el momento.
+     * @param nodo_actual    Nodo actual en el DAWG que representa el prefijo
+     *                       construido.
+     * @param next_pos       Siguiente posición en el tablero a explorar.
+     * @param anchor_filled  Indica si se ha pasado por una celda ancla válida.
+     * @param puntos         Puntuación acumulada hasta el momento.
      */
-    private void extend_after(String palabraParcial, Nodo nodo_actual, Pair<Integer, Integer> next_pos, boolean anchor_filled, int puntos) {
+    private void extend_after(String palabraParcial, Nodo nodo_actual, Pair<Integer, Integer> next_pos,
+            boolean anchor_filled, int puntos) {
         if (!isFilled(next_pos) && nodo_actual.esValida() && anchor_filled) {
             palabra_parcial(palabraParcial, before(next_pos), puntos);
         }
@@ -390,7 +386,8 @@ public class Algoritmo {
                                 fichass.remove("#");
                             }
 
-                            extend_after(palabraParcial + s, nodo_actual.getHijos().get(s), after(next_pos), true, puntos + b);
+                            extend_after(palabraParcial + s, nodo_actual.getHijos().get(s), after(next_pos), true,
+                                    puntos + b);
 
                             fichass.add(s);
                         }
@@ -402,13 +399,20 @@ public class Algoritmo {
 
                 if (nodo_actual.getHijos().containsKey(existing_letter)) {
 
-                    extend_after(palabraParcial + existing_letter, nodo_actual.getHijos().get(existing_letter), after(next_pos), true, puntos);
+                    extend_after(palabraParcial + existing_letter, nodo_actual.getHijos().get(existing_letter),
+                            after(next_pos), true, puntos);
 
                 }
             }
         }
     }
 
+    /**
+     * Obtiene la letra de la ficha en una posición específica del tablero.
+     *
+     * @param pos Posición (fila, columna) de la ficha.
+     * @return Letra de la ficha en la posición dada.
+     */
     private String getFicha(Pair<Integer, Integer> pos) {
         int row = pos.getFirst();
         int col = pos.getSecond();
@@ -417,6 +421,17 @@ public class Algoritmo {
 
     }
 
+    /**
+     * Explora todas las combinaciones posibles de letras a partir de una
+     * palabra parcial, utilizando un nodo del DAWG y una posición inicial.
+     *
+     * @param partial_word Palabra parcial construida hasta el momento.
+     * @param nodo_actual  Nodo actual en el DAWG que representa el prefijo
+     *                     construido.
+     * @param pos          Posición inicial en el tablero para la exploración.
+     * @param limit        Límite de profundidad para la exploración.
+     * @param puntos       Puntuación acumulada hasta el momento.
+     */
     private void before_part(String partial_word, Nodo nodo_actual, Pair<Integer, Integer> pos, int limit, int puntos) {
 
         extend_after(partial_word, nodo_actual, pos, false, puntos);
@@ -446,14 +461,15 @@ public class Algoritmo {
      * horizontal como verticalmente para construir palabras completas, tomando
      * en cuenta las bonificaciones de celda.
      *
-     * @param fichas Lista de fichas disponibles del jugador.
+     * @param fichas      Lista de fichas disponibles del jugador.
      * @param diccionario Estructura DAWG que contiene todas las palabras
-     * válidas.
-     * @param tablero Estado actual del tablero de juego.
+     *                    válidas.
+     * @param tablero     Estado actual del tablero de juego.
      * @return Par compuesto por la lista de jugadas (letra y posición) que
-     * forman la mejor palabra encontrada y su puntuación total.
+     *         forman la mejor palabra encontrada y su puntuación total.
      */
-    public Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> find_all_words(List<Ficha> fichas, Dawg diccionario, Tablero tablero) {
+    public Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> find_all_words(List<Ficha> fichas,
+            Dawg diccionario, Tablero tablero) {
 
         this.resultadoFinal = new ArrayList<>();
         this.tablero = tablero;
@@ -464,7 +480,7 @@ public class Algoritmo {
         }
 
         this.diccionario = diccionario;
-        //fichas del jugador
+        // fichas del jugador
         puntosFinal = 0;
         vertical = false;
         ArrayList<Pair<Integer, Integer>> anchors = find_anchors();

@@ -51,17 +51,17 @@ public class CtrlPartida {
     }
 
     /**
-     * Crea una nueva partida con los parámetros indicados.
+     * Crea una nueva partida con el ID y las configuraciones especificadas.
      *
-     * @param modo             0 para un jugador (vs IA), otro para dos jugadores.
-     * @param players          lista de nombres de los jugadores.
-     * @param lineasArchivo    líneas del archivo de diccionario.
-     * @param lineasArchivoBolsa líneas del archivo de configuración de bolsa.
-     * @param seed             semilla para aleatoriedad de fichas.
-     * @param jugadorAlgoritmo {@code true} si el jugador 2 es IA.
+     * @param modo            modo de juego (0: contra IA, 1: contra otro jugador).
+     * @param id              identificador de la partida.
+     * @param lineasArchivo   lista de palabras válidas.
+     * @param lineasArchivoBolsa lista de fichas disponibles.
+     * @param seed            semilla para la generación aleatoria.
+     * @param jugadorAlgoritmo {@code true} si el jugador 2 es la IA.
      */
-
-    public void crearPartida(int modo, String id,  List<String> lineasArchivo, List<String> lineasArchivoBolsa, long seed, boolean jugadorAlgoritmo) {
+    public void crearPartida(int modo, String id, List<String> lineasArchivo, List<String> lineasArchivoBolsa,
+            long seed, boolean jugadorAlgoritmo) {
         this.dawg = new Dawg(lineasArchivoBolsa, lineasArchivo);
         this.partidaActual = new Partida(id, lineasArchivoBolsa, seed);
         this.finTurno = false;
@@ -76,6 +76,7 @@ public class CtrlPartida {
 
     /**
      * Obtiene las fichas actuales del jugador activo.
+     * 
      * @return lista de cadenas con las fichas en mano.
      */
     public List<String> obtenerFichas() {
@@ -83,9 +84,11 @@ public class CtrlPartida {
     }
 
     /**
-     * Carga una partida existente como la actual.
+     * Establece la partida actual y su configuración.
      *
-     * @param partida instancia de {@link Partida} a restaurar.
+     * @param partida   la partida a establecer.
+     * @param diccionario lista de palabras válidas.
+     * @param bolsa      lista de fichas disponibles en la bolsa.
      */
     public void setPartida(Partida partida, List<String> diccionario, List<String> bolsa) {
         this.dawg = new Dawg(bolsa, diccionario);
@@ -101,8 +104,7 @@ public class CtrlPartida {
         return partidaActual;
     }
 
-
-/**
+    /**
      * Ejecuta una jugada de Scrabble según la opción especificada.
      *
      * @param opcion código de acción (1:añadir ficha, 2:quitar ficha,
@@ -111,138 +113,135 @@ public class CtrlPartida {
      * @param input  cadena con los parámetros de la jugada.
      * @return código de fin de turno o fin de partida.
      * @throws ComandoInvalidoException si el formato del comando es incorrecto.
-     * @throws PalabraInvalidaException  si la palabra formada no es válida.
+     * @throws PalabraInvalidaException si la palabra formada no es válida.
      */
+    public int jugarScrabble(int opcion, String input) throws ComandoInvalidoException, PalabraInvalidaException {
+        String[] parts = input.trim().split(" ");
 
-public int jugarScrabble(int opcion, String input) throws ComandoInvalidoException, PalabraInvalidaException {
-
-    String[] parts = input.trim().split(" ");
-
-    switch (opcion) {
-        case 1: {
-            if (parts.length < 3) {
-                throw new ComandoInvalidoException("Uso esperado: <ficha> <x> <y>.");
-            }
-
-            String ficha = parts[0];
-            if (ficha.matches("[0-7]")) {
-                int num = Integer.parseInt(ficha);
-                List<String> fichasJugador = partidaActual.obtenerFichas();
-                if (num < 0 || num >= fichasJugador.size()) {
-                    throw new ComandoInvalidoException("Índice de ficha fuera de rango: " + num);
+        switch (opcion) {
+            case 1: {
+                if (parts.length < 3) {
+                    throw new ComandoInvalidoException("Uso esperado: <ficha> <x> <y>.");
                 }
-                ficha = fichasJugador.get(num);
-            }
 
-            int x, y;
-            try {
-                if (ficha.equals("#") && parts.length == 4) {
-                    ficha = parts[1];
-                    x = Integer.parseInt(parts[2]);
-                    y = Integer.parseInt(parts[3]);
-                } else {
-                    x = Integer.parseInt(parts[1]);
-                    y = Integer.parseInt(parts[2]);
-                }
-            } catch (NumberFormatException e) {
-                throw new ComandoInvalidoException("Coordenadas inválidas: deben ser números.");
-            }
-
-            partidaActual.añadirFicha(ficha, x, y);
-            break;
-        }
-
-        case 2: {
-            if (parts.length != 2) {
-                throw new ComandoInvalidoException("Uso esperado: <x> <y> para quitar ficha.");
-            }
-            try {
-                int x = Integer.parseInt(parts[0]);
-                int y = Integer.parseInt(parts[1]);
-                partidaActual.quitarFichaTablero(x, y);
-            } catch (NumberFormatException e) {
-                throw new ComandoInvalidoException("Coordenadas inválidas: deben ser números.");
-            }
-            break;
-        }
-
-        case 3: {
-            // Create a copy of the coordinates list to avoid concurrent modification issues
-            List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
-            for (Pair<Integer, Integer> p : coordenadas) {
-                System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
-                partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
-            }
-           
-            return finTurno(true, true);
-        }
-
-        case 4:
-         
-            return finTurno(false, true);
-
-        case 5: {
-            List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
-            for (Pair<Integer, Integer> p : coordenadas) {
-                System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
-                partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
-            }
-
-            List<String> fichas = new ArrayList<>(Arrays.asList(parts));
-            List<String> letrasJugador = new ArrayList<>();
-            for (Ficha f : partidaActual.getFichasJugador()) {
-                letrasJugador.add(f.getLetra());
-            }
-
-            for (int i = fichas.size() - 1; i >= 0; --i) {
-                String s = fichas.get(i);
-                if (s.matches("[0-7]")) {
-                    int idx = Integer.parseInt(s);
-                    List<Ficha> mano = partidaActual.getFichasJugador();
-                    if (idx < 0 || idx >= mano.size()) {
-                        throw new ComandoInvalidoException("Índice de ficha inválido: " + s);
+                String ficha = parts[0];
+                if (ficha.matches("[0-7]")) {
+                    int num = Integer.parseInt(ficha);
+                    List<String> fichasJugador = partidaActual.obtenerFichas();
+                    if (num < 0 || num >= fichasJugador.size()) {
+                        throw new ComandoInvalidoException("Índice de ficha fuera de rango: " + num);
                     }
-                    fichas.add(mano.get(idx).getLetra());
-                    fichas.remove(i);
+                    ficha = fichasJugador.get(num);
                 }
+
+                int x, y;
+                try {
+                    if (ficha.equals("#") && parts.length == 4) {
+                        ficha = parts[1];
+                        x = Integer.parseInt(parts[2]);
+                        y = Integer.parseInt(parts[3]);
+                    } else {
+                        x = Integer.parseInt(parts[1]);
+                        y = Integer.parseInt(parts[2]);
+                    }
+                } catch (NumberFormatException e) {
+                    throw new ComandoInvalidoException("Coordenadas inválidas: deben ser números.");
+                }
+
+                partidaActual.añadirFicha(ficha, x, y);
+                break;
             }
 
-            for (String s : fichas) {
-                if (!letrasJugador.contains(s)) {
-                    throw new ComandoInvalidoException("No tienes la ficha: '" + s + "'");
+            case 2: {
+                if (parts.length != 2) {
+                    throw new ComandoInvalidoException("Uso esperado: <x> <y> para quitar ficha.");
                 }
-                partidaActual.quitarFicha(s);
+                try {
+                    int x = Integer.parseInt(parts[0]);
+                    int y = Integer.parseInt(parts[1]);
+                    partidaActual.quitarFichaTablero(x, y);
+                } catch (NumberFormatException e) {
+                    throw new ComandoInvalidoException("Coordenadas inválidas: deben ser números.");
+                }
+                break;
             }
 
-            partidaActual.recuperarFichas();
-            return finTurno(true, true);
+            case 3: {
+                // Create a copy of the coordinates list to avoid concurrent modification issues
+                List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
+                for (Pair<Integer, Integer> p : coordenadas) {
+                    System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
+                    partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
+                }
+
+                return finTurno(true, true);
+            }
+
+            case 4:
+
+                return finTurno(false, true);
+
+            case 5: {
+                List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
+                for (Pair<Integer, Integer> p : coordenadas) {
+                    System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
+                    partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
+                }
+
+                List<String> fichas = new ArrayList<>(Arrays.asList(parts));
+                List<String> letrasJugador = new ArrayList<>();
+                for (Ficha f : partidaActual.getFichasJugador()) {
+                    letrasJugador.add(f.getLetra());
+                }
+
+                for (int i = fichas.size() - 1; i >= 0; --i) {
+                    String s = fichas.get(i);
+                    if (s.matches("[0-7]")) {
+                        int idx = Integer.parseInt(s);
+                        List<Ficha> mano = partidaActual.getFichasJugador();
+                        if (idx < 0 || idx >= mano.size()) {
+                            throw new ComandoInvalidoException("Índice de ficha inválido: " + s);
+                        }
+                        fichas.add(mano.get(idx).getLetra());
+                        fichas.remove(i);
+                    }
+                }
+
+                for (String s : fichas) {
+                    if (!letrasJugador.contains(s)) {
+                        throw new ComandoInvalidoException("No tienes la ficha: '" + s + "'");
+                    }
+                    partidaActual.quitarFicha(s);
+                }
+
+                partidaActual.recuperarFichas();
+                return finTurno(true, true);
+            }
+
+            case 6:
+                return finPartida(true);
+
+            case 7:
+                if (!jugadorAlgoritmo) {
+                    throw new ComandoInvalidoException("Jugador de algoritmo no está habilitado.");
+                }
+
+                int puntosAlgoritmo = jugarAlgoritmo();
+                partidaActual.addPuntos(puntosAlgoritmo);
+                if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty()
+                        && partidaActual.getPuntosJugador2() > partidaActual.getPuntosJugador1()) {
+                    return finPartida(false);
+                }
+                return finTurno(true, true);
+
+            default:
+                throw new ComandoInvalidoException("Opción de jugada desconocida: " + opcion);
         }
 
-        case 6:
-            return finPartida(true);
-
-        case 7:
-            if (!jugadorAlgoritmo) {
-                throw new ComandoInvalidoException("Jugador de algoritmo no está habilitado.");
-            }
-
-            int puntosAlgoritmo = jugarAlgoritmo();
-            partidaActual.addPuntos(puntosAlgoritmo);
-            if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty()
-                && partidaActual.getPuntosJugador2() > partidaActual.getPuntosJugador1()) {
-                return finPartida(false);
-            }
-            return finTurno(true, true);
-
-        default:
-            throw new ComandoInvalidoException("Opción de jugada desconocida: " + opcion);
+        return 0;
     }
 
-    return 0;
-}
-
-
- /**
+    /**
      * Obtiene la puntuación acumulada del jugador 1.
      *
      * @return puntos del jugador 1.
@@ -260,8 +259,7 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         return partidaActual.getPuntosJugador2();
     }
 
-
-     /**
+    /**
      * Finaliza el turno actual: valida palabra, actualiza puntos,
      * bloquea celdas y cambia turno.
      *
@@ -270,10 +268,10 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
      * @return 0 si continúa, código de fin de partida si corresponde.
      * @throws PalabraInvalidaException si la validación de la palabra falla.
      */
-
     private int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
         if (!pasar) {
-            int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg, partidaActual.getTablero(), partidaActual.getContadorTurno());
+            int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg,
+                    partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
                 partidaActual.addPuntos(puntos);
             } else {
@@ -284,7 +282,7 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
 
         partidaActual.bloquearCeldas();
         partidaActual.coordenadasClear();
-        
+
         partidaActual.cambiarTurnoJugador();
         partidaActual.aumentarContador();
 
@@ -296,18 +294,18 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         if (isAlgoritmo && algoritmo) {
             int puntosAlgoritmo = jugarAlgoritmo();
             partidaActual.addPuntos(puntosAlgoritmo);
-            if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty() && partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) {
+            if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty()
+                    && partidaActual.getPuntosJugador1() > partidaActual.getPuntosJugador2()) {
                 return finPartida(false);
             }
-           
+
             finTurno(true, false);
-           
+
         }
         return 0;
     }
 
-
-     /**
+    /**
      * Finaliza la partida, calculando resultado o abandono.
      *
      * @param abandono {@code true} si el jugador abandona.
@@ -333,7 +331,6 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
             return 2;
         }
 
-
     }
 
     /**
@@ -342,7 +339,8 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
      * @return puntos obtenidos por la IA.
      */
     private int jugarAlgoritmo() {
-        Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> ss = algoritmo.find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
+        Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> ss = algoritmo
+                .find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
         List<Pair<String, Pair<Integer, Integer>>> s = ss.getFirst();
         for (Pair<String, Pair<Integer, Integer>> aa : s) {
             partidaActual.añadirFicha(aa.getFirst(), aa.getSecond().getFirst(), aa.getSecond().getSecond());
@@ -354,25 +352,42 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         return ss.getSecond();
     }
 
-
-     /**
-     * Obtiene el tablero de la partida actual.
+    /**
+     * Obtiene el tablero actual de la partida.
      *
-     * @return el {@link Tablero} de la partida.
+     * @return el tablero de la partida.
      */
     public Tablero obtenerTablero() {
         return partidaActual.getTablero();
     }
 
-     public void setPartidaAcabada() {
-        this.partidaActual.setPartidaAcabada();
-     }
-       
 
+    /**
+     * Establece el estado de la partida como acabada.
+     * Esto puede ser útil para marcar la partida como finalizada y no mostrarlas en la lista de partidas guardadas.
+     */
+    public void setPartidaAcabada() {
+        this.partidaActual.setPartidaAcabada();
+    }
+
+
+    
+    /** 
+     * Obtiene el ID de la partida actual.
+     * @return el ID de la partida.
+     */
     public String getId() {
         return partidaActual.getIdPartida();
     }
 
+
+    /**
+     * Establece el recurso de la partida actual.
+     *
+     * @param recurso   el recurso de la partida.
+     * @param diccionario lista de palabras válidas.
+     * @param bolsa      lista de fichas disponibles.
+     */
     public void setRecursoPartida(String recurso, List<String> diccionario, List<String> bolsa) {
         this.partidaActual.setRecursoPartida(recurso);
         this.dawg = new Dawg(bolsa, diccionario);
@@ -380,10 +395,19 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
     }
 
 
+    /**
+     * Obtiene el recurso de la partida actual.
+     *
+     * @return el recurso de la partida.
+     */
     public String getRecursoPartida() {
         return partidaActual.getRecursoPartida();
-    }   
+    }
 
+    /**
+     * Limpia la partida actual y sus recursos.
+     * Esto incluye el DAWG, el validador y el estado del turno.
+     */
     public void clearPartida() {
         this.partidaActual = null;
         this.dawg = null;
@@ -392,13 +416,16 @@ public int jugarScrabble(int opcion, String input) throws ComandoInvalidoExcepti
         this.isAlgoritmo = false;
         this.algoritmo = null;
     }
-    
+
+
+    /**
+     * Activa el modo de juego contra IA.
++    * Inicializa el algoritmo de IA para jugar automáticamente.
+     */
     public void activarAlgoritmo() {
         this.isAlgoritmo = true;
         this.jugadorAlgoritmo = true;
         this.algoritmo = new Algoritmo();
     }
-
-
 
 }

@@ -1,8 +1,10 @@
 package Dominio.Modelos;
 
 /**
- * Enumeración de los tipos de bonificación disponibles en el tablero de Scrabble.
- * Cada tipo define un multiplicador aplicado a la puntuación de letra o palabra.
+ * Enumeración que representa los diferentes tipos de bonificaciones disponibles en el juego.
+ * <p>
+ * Cada tipo de bonificación tiene un multiplicador asociado que afecta la puntuación del jugador.
+ * </p>
  */
 public enum TipoBonificacion {
 

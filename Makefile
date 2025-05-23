@@ -1,7 +1,7 @@
 # Rutas a los archivos fuente del código principal (sin cambios)
 MAIN_PATH = \
 	./FONTS/src/main/Dominio/Excepciones/*.java \
-    ./FONTS/src/main/Dominio/*.java \
+	./FONTS/src/main/Dominio/*.java \
 	./FONTS/src/main/Dominio/Modelos/*.java \
 	./FONTS/src/main/Presentacion/* \
 	./FONTS/src/main/Persistencia/*.java \
@@ -36,14 +36,14 @@ JSON_JAR = ./FONTS/src/main/Persistencia/json-20231013.jar
 code:
 	make clean
 	javac -Xlint:deprecation -cp ./FONTS/src/main/Persistencia/json-20231013.jar -d ./EXE/main \
-        ./FONTS/src/main/Dominio/Excepciones/*.java \
-        ./FONTS/src/main/Dominio/*.java \
+	    ./FONTS/src/main/Dominio/Excepciones/*.java \
+	    ./FONTS/src/main/Dominio/*.java \
 		./FONTS/src/main/*.java \
-        ./FONTS/src/main/Dominio/Modelos/*.java \
+	    ./FONTS/src/main/Dominio/Modelos/*.java \
 		./FONTS/src/main/Presentacion/*.java \
 		./FONTS/src/main/Presentacion/Vistas/*.java \
 		./FONTS/src/main/Presentacion/Drivers/*.java \
-        ./FONTS/src/main/Persistencia/*.java
+	    ./FONTS/src/main/Persistencia/*.java
 	jar cf $(CLASS_OUTPUT_MAIN)/Driver.jar -C $(CLASS_OUTPUT_MAIN) .
 	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .
 
@@ -127,10 +127,10 @@ clean:
 
 # Se ejecutan todos los tests unitarios en una sola línea
 runAllUnitTests: test \
-                 runTestFicha runTestBolsa runTestCelda runTestTablero \
-                 runTestJugador runTestTipoBonificacion runTestDawg \
-                 runTestPair runTestNodo runTestPartida \
-                 runTestValidador runTestAlgoritmo
+	             runTestFicha runTestBolsa runTestCelda runTestTablero \
+	             runTestJugador runTestTipoBonificacion runTestDawg \
+	             runTestPair runTestNodo runTestPartida \
+	             runTestValidador runTestAlgoritmo
 	@echo
 	@echo "──────────────────────────────────────────────────────────"
 	@echo " ;)  Todos los tests unitarios han terminado"
@@ -139,4 +139,4 @@ runAllUnitTests: test \
 
 # regla para generar la documentación de JavaDoc
 javadoc:
-	javadoc   -d DOCS/javadoc   -sourcepath FONTS/src/main   Dominio   Dominio.Excepciones   Dominio.Modelos   Persistencia   Presentacion.Drivers
+	javadoc -d DOCS/javadoc -sourcepath FONTS/src/main -classpath "FONTS/src/main/Persistencia/json-20231013.jar" Dominio Dominio.Excepciones Dominio.Modelos Persistencia 

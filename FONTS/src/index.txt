@@ -8,8 +8,3 @@ En main:
 
     Persistencia: gestión de almacenamiento y acceso a datos.
 
-En test:
-
-    lib: librerías necesarias para ejecutar los tests.
-
-    testUnitarios: pruebas unitarias que verifican el correcto funcionamiento de cada componente.

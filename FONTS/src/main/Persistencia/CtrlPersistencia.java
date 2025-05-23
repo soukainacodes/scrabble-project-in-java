@@ -57,11 +57,9 @@ public class CtrlPersistencia {
     private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
     private static final String JUGADORES = "FONTS/src/main/Persistencia/Datos/Jugadores/";
 
-
-
     /**
      * Constructor de la clase CtrlPersistencia.
-    */
+     */
     public CtrlPersistencia() {
 
     }
@@ -69,7 +67,8 @@ public class CtrlPersistencia {
     // ─── Jugadores ─────────────────────────────────────────────────────────────
 
     /**
-     * Comprueba si un jugador existe en el sistema.
+     * Verifica si un jugador existe en el sistema.
+     * 
      * @param username Nombre de usuario del jugador
      * @return true si el jugador existe, false en caso contrario
      */
@@ -82,54 +81,52 @@ public class CtrlPersistencia {
 
 
     /**
-     * Registra un nuevo jugador en el sistema.
+     * Añade un nuevo jugador al sistema.
      * 
-     * @param username Nombre de usuario único del jugador
+     * @param username Nombre de usuario del jugador
      * @param password Contraseña del jugador
-     * @throws IOException Si ocurre algún error durante la creación del archivo
-     * @throws UsuarioYaRegistradoException Si el nombre de usuario ya existe
+     * @throws IOException                  Si ocurre un error al acceder a los archivos
+     * @throws UsuarioYaRegistradoException Si el jugador ya existe
      */
     public void anadirJugador(String username, String password) throws IOException, UsuarioYaRegistradoException {
         // Verificar si el jugador ya existe
         if (existeJugador(username)) {
             throw new UsuarioYaRegistradoException(username);
         }
-    
+
         // Crear el directorio del jugador
         Path userDir = Paths.get(JUGADORES + username);
         Files.createDirectories(userDir);
-    
+
         // Crear el archivo JSON del jugador
         Path userFile = userDir.resolve(username + ".json");
-        
+
         // Preparar los datos del jugador en formato JSON
         JSONObject jugadorJson = new JSONObject();
-        jugadorJson.put("nombre", username);      // Usado en la interfaz
-        jugadorJson.put("password", password);    // Para autenticación
-        jugadorJson.put("maxpuntos", 0);          // Puntuación inicial
-        jugadorJson.put("ultimaPartidaGuardada", JSONObject.NULL);  // Sin partida guardada
-        
+        jugadorJson.put("nombre", username); // Usado en la interfaz
+        jugadorJson.put("password", password); // Para autenticación
+        jugadorJson.put("maxpuntos", 0); // Puntuación inicial
+        jugadorJson.put("ultimaPartidaGuardada", JSONObject.NULL); // Sin partida guardada
+
         // Escribir el archivo JSON
         try (BufferedWriter writer = Files.newBufferedWriter(userFile, StandardCharsets.UTF_8)) {
             writer.write(jugadorJson.toString(4)); // 4 espacios para formato legible
         }
     }
-    
-
 
     /**
-     * Elimina un jugador del sistema y todos sus archivos asociados.
+     * Elimina un jugador del sistema.
      * 
-     * @param username Nombre de usuario del jugador a eliminar
+     * @param username Nombre de usuario del jugador
      * @throws UsuarioNoEncontradoException Si el jugador no existe
-     * @throws IOException Si hay algún error al eliminar archivos
+     * @throws IOException                  Si ocurre un error al acceder a los archivos
      */
-        public void eliminarJugador(String username) throws UsuarioNoEncontradoException, IOException {
+    public void eliminarJugador(String username) throws UsuarioNoEncontradoException, IOException {
         // Usa el método existente para verificar si el jugador existe
         if (!existeJugador(username)) {
             throw new UsuarioNoEncontradoException(username);
         }
-        
+
         // Primero eliminar todas las partidas relacionadas con este jugador
         File partidasDir = new File(PARTIDAS);
         if (partidasDir.exists() && partidasDir.isDirectory()) {
@@ -140,11 +137,11 @@ public class CtrlPersistencia {
                         // Leer el archivo de la partida
                         String contenidoPartida = Files.readString(archivoPartida.toPath(), StandardCharsets.UTF_8);
                         JSONObject partidaJson = new JSONObject(contenidoPartida);
-                        
+
                         // Verificar si el jugador es jugador_1 o jugador_2
                         if ((partidaJson.has("jugador_1") && partidaJson.getString("jugador_1").equals(username)) ||
-                            (partidaJson.has("jugador_2") && partidaJson.getString("jugador_2").equals(username))) {
-                            
+                                (partidaJson.has("jugador_2") && partidaJson.getString("jugador_2").equals(username))) {
+
                             // Eliminar la partida
                             if (!archivoPartida.delete()) {
                                 System.err.println("No se pudo eliminar la partida: " + archivoPartida.getName());
@@ -153,15 +150,16 @@ public class CtrlPersistencia {
                             }
                         }
                     } catch (IOException e) {
-                        System.err.println("Error al procesar partida " + archivoPartida.getName() + ": " + e.getMessage());
+                        System.err.println(
+                                "Error al procesar partida " + archivoPartida.getName() + ": " + e.getMessage());
                     }
                 }
             }
         }
-        
+
         // Define la ruta de la carpeta del jugador
         File userDir = new File(JUGADORES + username);
-    
+
         // Elimina todos los archivos dentro de la carpeta
         File[] archivos = userDir.listFiles();
         if (archivos != null) {
@@ -171,19 +169,17 @@ public class CtrlPersistencia {
                 }
             }
         }
-    
+
         // Elimina la carpeta del jugador
         if (!userDir.delete()) {
             throw new IOException("No se pudo eliminar la carpeta del jugador: " + username);
         }
-        
+
         System.out.println("Jugador " + username + " eliminado completamente con todas sus partidas asociadas");
     }
 
-    
-
     /**
-     * Verifica si la contraseña de un jugador es correcta.
+     * Verifica la contraseña de un jugador.
      * 
      * @param username Nombre de usuario del jugador
      * @param password Contraseña a verificar
@@ -211,45 +207,46 @@ public class CtrlPersistencia {
         }
     }
 
-
     /**
-     * Actualiza el nombre de usuario de un jugador en el sistema.
-     * @param username Nombre de usuario actual
+     * Actualiza el nombre de un jugador.
+     * 
+     * @param username    Nombre de usuario del jugador
      * @param newUsername Nuevo nombre de usuario
-     * @throws UsuarioNoEncontradoException Si el jugador no existe
-     * @throws UsuarioYaRegistradoException Si el nuevo nombre ya está en uso
+     * @throws UsuarioNoEncontradoException         Si el jugador no existe
+     * @throws UsuarioYaRegistradoException        Si el nuevo nombre ya está en uso
      */
-public void actualizarNombre(String username, String newUsername) throws UsuarioNoEncontradoException, UsuarioYaRegistradoException {
+    public void actualizarNombre(String username, String newUsername)
+            throws UsuarioNoEncontradoException, UsuarioYaRegistradoException {
         // Verifica si el jugador existe
         if (!existeJugador(username)) {
             throw new UsuarioNoEncontradoException(username);
         }
-    
+
         // Verifica si el nuevo nombre ya está en uso
         if (existeJugador(newUsername)) {
             throw new UsuarioYaRegistradoException(newUsername);
         }
-    
+
         // Define las rutas relevantes
         Path oldUserDir = Paths.get(JUGADORES + username);
         Path oldUserFile = oldUserDir.resolve(username + ".json");
         Path newUserDir = Paths.get(JUGADORES + newUsername);
         Path newUserFile = newUserDir.resolve(newUsername + ".json");
-    
+
         try {
             // Leer el contenido del archivo JSON
             String contenido = Files.readString(oldUserFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
-    
+
             // Actualizar el nombre de usuario en el JSON
             jugadorJson.put("nombre", newUsername);
-    
+
             // Crear el nuevo directorio si no existe
             Files.createDirectories(newUserDir);
-    
+
             // Escribir el archivo JSON con el nuevo nombre
             Files.writeString(newUserFile, jugadorJson.toString(4), StandardCharsets.UTF_8);
-            
+
             // Comprobar si existe la imagen de perfil y transferirla
             File oldProfileImage = new File(oldUserDir.toFile(), username + ".png");
             if (oldProfileImage.exists()) {
@@ -260,35 +257,36 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
                     oldProfileImage.delete(); // Eliminar la imagen antigua
                 }
             }
-            
+
             // Transferir cualquier otro archivo que pueda existir en el directorio
             File[] oldFiles = oldUserDir.toFile().listFiles();
             if (oldFiles != null) {
                 for (File oldFile : oldFiles) {
-                    if (!oldFile.getName().equals(username + ".json") && 
-                        !oldFile.getName().equals(username + ".png")) {
-                        
-                        // Determinar el nuevo nombre para el archivo (si comienza con el username antiguo)
+                    if (!oldFile.getName().equals(username + ".json") &&
+                            !oldFile.getName().equals(username + ".png")) {
+
+                        // Determinar el nuevo nombre para el archivo (si comienza con el username
+                        // antiguo)
                         String newFileName = oldFile.getName();
                         if (newFileName.startsWith(username)) {
                             newFileName = newFileName.replaceFirst(username, newUsername);
                         }
-                        
+
                         // Copiar el archivo al nuevo directorio
-                        Files.copy(oldFile.toPath(), 
-                                   newUserDir.resolve(newFileName),
-                                   java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(oldFile.toPath(),
+                                newUserDir.resolve(newFileName),
+                                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                         oldFile.delete(); // Eliminar el archivo antiguo
                     }
                 }
             }
-    
+
             // Eliminar el archivo antiguo
             Files.delete(oldUserFile);
-    
+
             // Eliminar el directorio antiguo (debe estar vacío)
             Files.delete(oldUserDir);
-                
+
         } catch (IOException e) {
             throw new UncheckedIOException("Error al actualizar el nombre del jugador: " + username, e);
         }
@@ -302,28 +300,28 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
                         // Leer el archivo de la partida
                         String contenidoPartida = Files.readString(archivoPartida.toPath(), StandardCharsets.UTF_8);
                         JSONObject partidaJson = new JSONObject(contenidoPartida);
-                        
+
                         boolean modificado = false;
-                        
+
                         // Actualizar el jugador_1 si es necesario
-                        if (partidaJson.has("jugador_1") && 
-                            partidaJson.getString("jugador_1").equals(username)) {
+                        if (partidaJson.has("jugador_1") &&
+                                partidaJson.getString("jugador_1").equals(username)) {
                             partidaJson.put("jugador_1", newUsername);
                             modificado = true;
                         }
-                        
+
                         // Actualizar el jugador_2 si es necesario
-                        if (partidaJson.has("jugador_2") && 
-                            partidaJson.getString("jugador_2").equals(username)) {
+                        if (partidaJson.has("jugador_2") &&
+                                partidaJson.getString("jugador_2").equals(username)) {
                             partidaJson.put("jugador_2", newUsername);
                             modificado = true;
                         }
-                        
+
                         // Guardar los cambios si se modificó la partida
                         if (modificado) {
-                            Files.writeString(archivoPartida.toPath(), 
-                                            partidaJson.toString(4), 
-                                            StandardCharsets.UTF_8);
+                            Files.writeString(archivoPartida.toPath(),
+                                    partidaJson.toString(4),
+                                    StandardCharsets.UTF_8);
                         }
                     } catch (IOException e) {
                         System.err.println("Error al actualizar partida: " + archivoPartida.getName());
@@ -334,32 +332,31 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
     }
 
     /**
-     * Actualiza la contraseña de un jugador si la contraseña actual es correcta.
+     * Actualiza la contraseña de un jugador.
      * 
-     * @param username Nombre de usuario del jugador
-     * @param currentPass Contraseña actual del jugador
-     * @param newPass Nueva contraseña del jugador
+     * @param username   Nombre de usuario del jugador
+     * @param currentPass Contraseña actual
+     * @param newPass    Nueva contraseña
      * @throws UsuarioNoEncontradoException Si el jugador no existe
-     * @throws IllegalArgumentException Si la contraseña actual es incorrecta
      */
-    public void actualizarContrasena(String username, String currentPass, String newPass) 
+    public void actualizarContrasena(String username, String currentPass, String newPass)
             throws UsuarioNoEncontradoException {
         // Verificar la contraseña actual
         if (!verificarContrasena(username, currentPass)) {
             throw new IllegalArgumentException("La contraseña actual es incorrecta");
         }
-        
+
         // Define la ruta del archivo JSON del jugador
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
-        
+
         try {
             // Leer el contenido del archivo JSON
             String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
-    
+
             // Actualizar la contraseña
             jugadorJson.put("password", newPass);
-    
+
             // Escribir el archivo JSON actualizado
             Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
                     StandardOpenOption.TRUNCATE_EXISTING);
@@ -370,10 +367,11 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
 
     /**
      * Actualiza la puntuación máxima de un jugador.
+     * 
      * @param username Nombre de usuario del jugador
-     * @param pts Nueva puntuación máxima
+     * @param pts      Nueva puntuación máxima
      * @throws UsuarioNoEncontradoException Si el jugador no existe
-     * @throws PuntuacionInvalidaException Si la puntuación es invalida
+     * @throws PuntuacionInvalidaException  Si la puntuación es negativa
      */
     public void actualizarPuntuacion(String username, int pts)
             throws UsuarioNoEncontradoException, PuntuacionInvalidaException {
@@ -381,23 +379,23 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         if (pts < 0) {
             throw new PuntuacionInvalidaException(pts);
         }
-    
+
         // Obtener la puntuación actual
         int maxpuntosActual = obtenerPuntuacion(username);
-    
+
         // Actualizar la puntuación solo si el nuevo valor es mayor
         if (pts > maxpuntosActual) {
             // Define la ruta del archivo JSON del jugador
             Path userFile = Paths.get(JUGADORES + username, username + ".json");
-    
+
             try {
                 // Leer el contenido del archivo JSON
                 String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
                 JSONObject jugadorJson = new JSONObject(contenido);
-    
+
                 // Actualizar la puntuación
                 jugadorJson.put("maxpuntos", pts);
-    
+
                 // Escribir el archivo JSON actualizado
                 Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
                         StandardOpenOption.TRUNCATE_EXISTING);
@@ -406,15 +404,17 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
             }
         }
     }
-  
 
     /**
      * Actualiza la última partida guardada de un jugador.
-     * @param username Nombre de usuario del jugador
-     * @param idPartida ID de la partida guardada
-     * @throws UsuarioNoEncontradoException Si el jugador no existe
+     * 
+     * @param username  Nombre de usuario del jugador
+     * @param idPartida ID de la partida a guardar
+     * @throws UsuarioNoEncontradoException         Si el jugador no existe
+     * @throws UltimaPartidaNoExistenteException    Si no hay partida guardada
      */
-    public void actualizarUltimaPartida(String username, String idPartida) throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
+    public void actualizarUltimaPartida(String username, String idPartida)
+            throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
         // Define la ruta del archivo JSON del jugador
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
 
@@ -428,7 +428,6 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
             String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
 
-
             // Actualizar la última partida guardada
             jugadorJson.put("ultimaPartidaGuardada", idPartida);
 
@@ -440,17 +439,22 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
+    /**
+     * Obtiene la puntuación máxima de un jugador.
+     * 
+     * @param username Nombre de usuario del jugador
+     * @return Puntuación máxima del jugador
+     * @throws UsuarioNoEncontradoException Si el jugador no existe
+     */
     public int obtenerPuntuacion(String username) throws UsuarioNoEncontradoException {
         // Define la ruta del archivo JSON del jugador
-    
+
         // Verifica si el jugador existe
         if (!existeJugador(username)) {
             throw new UsuarioNoEncontradoException(username);
         }
 
-
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
 
         // Verifica si el archivo existe
         if (!Files.exists(userFile)) {
@@ -471,29 +475,32 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
 
     /**
      * Obtiene la última partida guardada de un jugador.
+     * 
      * @param username Nombre de usuario del jugador
      * @return ID de la última partida guardada
-     * @throws UsuarioNoEncontradoException Si el jugador no existe
+     * @throws UsuarioNoEncontradoException         Si el jugador no existe
+     * @throws UltimaPartidaNoExistenteException    Si no hay partida guardada
      */
-    public String obtenerUltimaPartida(String username) throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
+    public String obtenerUltimaPartida(String username)
+            throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
         // Define la ruta del archivo JSON del jugador
         Path userFile = Paths.get(JUGADORES + username, username + ".json");
-    
+
         // Verifica si el archivo existe
         if (!Files.exists(userFile)) {
             throw new UsuarioNoEncontradoException(username);
         }
-    
+
         try {
             // Leer el contenido del archivo JSON
             String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
             JSONObject jugadorJson = new JSONObject(contenido);
-    
+
             // Verificar si existe una última partida guardada y no es nula
             if (!jugadorJson.has("ultimaPartidaGuardada") || jugadorJson.isNull("ultimaPartidaGuardada")) {
                 throw new UltimaPartidaNoExistenteException();
             }
-    
+
             // Obtener la última partida guardada
             return jugadorJson.getString("ultimaPartidaGuardada");
         } catch (IOException e) {
@@ -505,7 +512,8 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
 
     /**
      * Genera un ranking de jugadores basado en sus puntuaciones.
-     * @return Lista de entradas (nombre, puntuación) ordenadas por puntuación
+     * 
+     * @return Lista de pares (nombre, puntuación) ordenada por puntuación
      * @throws IOException Si ocurre un error al acceder a los archivos
      */
     public List<Map.Entry<String, Integer>> generarRanking() throws IOException {
@@ -556,10 +564,11 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
 
     /**
      * Obtiene la posición de un jugador en el ranking.
+     * 
      * @param name Nombre del jugador
      * @return Posición del jugador en el ranking
-     * @throws UsuarioNoEncontradoException Si el jugador no se encuentra en el ranking
-     * @throws IOException Si ocurre un error al acceder a los archivos
+     * @throws UsuarioNoEncontradoException Si el jugador no existe
+     * @throws IOException                  Si ocurre un error al acceder a los archivos
      */
     public int obtenerPosicion(String name) throws UsuarioNoEncontradoException, IOException {
         // Generar el ranking
@@ -577,13 +586,13 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
     }
 
     // ------------------------------ PARTIDAS ----------------------------------
+
     
     /**
-     * Verifica si una partida existe en el sistema.
+     * Comprueba si una partida existe en el sistema.
      * @param id ID de la partida
-     * @throws PartidaNoEncontradaException Si la partida no existe 
-     * @return
-     */
+     * @return  true si la partida existe, false en caso contrario
+    */
     public boolean existePartida(String id) {
         // Verifica si el archivo de la partida existe
         File partidaFile = new File(PARTIDAS + "partida_" + id + ".json");
@@ -593,9 +602,9 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
 
     /**
      * Verifica si una partida está acabada.
+     * 
      * @param id ID de la partida
      * @return true si la partida está acabada, false en caso contrario
-     * @throws PartidaNoEncontradaException Si la partida no existe o no se puede leer
      */
     public boolean esPartidaAcabada(String id) {
         try {
@@ -603,25 +612,29 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
             if (!existePartida(id)) {
                 return false;
             }
-            
+
             // Leemos el archivo y parseamos directamente el JSON
-            String content = Files.readString(Paths.get(PARTIDAS + "partida_" + id + ".json"), 
-                                             StandardCharsets.UTF_8);
+            String content = Files.readString(Paths.get(PARTIDAS + "partida_" + id + ".json"),
+                    StandardCharsets.UTF_8);
             JSONObject partidaJson = new JSONObject(content);
-            
+
             // El campo se guarda como un entero (0 o 1)
             int acabadaValue = partidaJson.getInt("partida_acabada");
             return acabadaValue == 1;
-            
+
         } catch (IOException e) {
             System.err.println("[Persistencia] Error al leer la partida: " + e.getMessage());
             return false;
         }
     }
 
-
-    public String obtenerRecursoPartida(String id)
-    {
+    /**
+     * Obtiene el recurso de una partida.
+     * 
+     * @param id ID de la partida
+     * @return Recurso de la partida
+     */
+    public String obtenerRecursoPartida(String id) {
         // Verifica si la partida existe
         if (!existePartida(id)) {
             return null;
@@ -643,12 +656,15 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
 
     /**
      * Guarda una partida en el sistema.
-     * @param username Nombre de usuario del jugador
-     * @param id ID de la partida
-     * @param partida Datos de la partida
+     * 
+     * @param username        Nombre de usuario del jugador
+     * @param segundoJugador  Nombre de usuario del segundo jugador
+     * @param id              ID de la partida
+     * @param partida         Lista de datos de la partida
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
-    public void guardarPartida(String username, String segundoJugador, String id, List<String> partida) throws UsuarioNoEncontradoException {
+    public void guardarPartida(String username, String segundoJugador, String id, List<String> partida)
+            throws UsuarioNoEncontradoException {
         String nombreArchivo = "partida_" + id + ".json";
         String rutaArchivo = PARTIDAS + nombreArchivo;
 
@@ -662,11 +678,16 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         } catch (IOException e) {
             System.err.println("[Persistencia] Error al guardar la partida: " + e.getMessage());
         }
-        
 
     }
 
-    
+    /**
+     * Carga una partida del sistema.
+     * 
+     * @param id ID de la partida a cargar
+     * @return Lista de datos de la partida
+     * @throws PartidaNoEncontradaException Si la partida no existe
+     */
     public List<String> cargarPartida(String id) throws PartidaNoEncontradaException {
         // Verifica si la partida existe
         if (!existePartida(id)) {
@@ -683,6 +704,12 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
+    /**
+     * Elimina una partida del sistema.
+     * 
+     * @param id ID de la partida a eliminar
+     * @throws PartidaNoEncontradaException Si la partida no existe
+     */
     public void eliminarPartida(String id) throws PartidaNoEncontradaException {
         // Verifica si la partida existe
         if (!existePartida(id)) {
@@ -698,36 +725,42 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
+    /**
+     * Lista todas las partidas no acabadas del jugador actual.
+     * 
+     * @param jugadorActual Nombre de usuario del jugador actual
+     * @return Lista de IDs de partidas no acabadas
+     */
     public List<String> listarPartidasNoAcabadas(String jugadorActual) {
         List<String> partidasNoAcabadas = new ArrayList<>();
         File dir = new File(PARTIDAS);
-    
+
         if (dir.isDirectory()) {
             for (File file : Objects.requireNonNull(dir.listFiles())) {
                 if (file.getName().endsWith(".json")) {
                     String id = file.getName().replace("partida_", "").replace(".json", "");
-                    
+
                     try {
                         // Verificamos si la partida no está acabada
                         if (!esPartidaAcabada(id)) {
                             // Leer el archivo JSON para verificar si el jugador actual participa
-                            String content = Files.readString(Paths.get(PARTIDAS + file.getName()), 
-                                                            StandardCharsets.UTF_8);
+                            String content = Files.readString(Paths.get(PARTIDAS + file.getName()),
+                                    StandardCharsets.UTF_8);
                             JSONObject partidaJson = new JSONObject(content);
-                            
+
                             // Extraer el recurso y los jugadores de la partida
                             String recurso = partidaJson.getString("recurso");
                             String jugador1 = partidaJson.getString("jugador_1");
                             String jugador2 = partidaJson.getString("jugador_2");
-                            
+
                             // Verificar si:
                             // 1. El jugador actual participa (es jugador_1 o jugador_2)
                             // 2. Ambos jugadores existen en el sistema
                             // 3. El recurso existe
-                            if ((jugador1.equals(jugadorActual) || jugador2.equals(jugadorActual)) && 
-                                existeJugador(jugador1) && 
-                                existeJugador(jugador2) && 
-                                existeRecurso(recurso)) {
+                            if ((jugador1.equals(jugadorActual) || jugador2.equals(jugadorActual)) &&
+                                    existeJugador(jugador1) &&
+                                    existeJugador(jugador2) &&
+                                    existeRecurso(recurso)) {
                                 partidasNoAcabadas.add(id);
                             }
                         }
@@ -739,15 +772,26 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
         return partidasNoAcabadas; // Retorna la lista de partidas no acabadas
     }
-        
+
     // ─── Diccionarios y Bolsas ───────────────────────────────────────────────
 
+    /**
+     * Verifica si un recurso existe en el sistema.
+     * 
+     * @param id ID del recurso
+     * @return true si el recurso existe, false en caso contrario
+     */
     public boolean existeRecurso(String id) {
         // Verifica si el directorio del idioma existe
         File dir = new File(RECURSOS + id);
         return dir.exists() && dir.isDirectory();
     }
 
+    /**
+     * Lista todos los recursos disponibles en el sistema.
+     * 
+     * @return Lista de nombres de recursos
+     */
     public List<String> listarRecursos() {
         List<String> idiomas = new ArrayList<>();
         File dir = new File(RECURSOS);
@@ -760,6 +804,13 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
     }
 
     
+    /**
+     * Obtiene el diccionario de un recurso.
+     * 
+     * @param id ID del recurso
+     * @return Lista de palabras del diccionario
+     * @throws IOException Si ocurre un error de E/S
+     */
     public List<String> obtenerDiccionario(String id) throws IOException {
         List<String> palabras = new ArrayList<>();
         File diccionarioFile = new File(RECURSOS + id, id + "_diccionario.txt");
@@ -771,6 +822,15 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         return palabras;
     }
 
+  
+   
+    /**
+     * Obtiene la bolsa de un recurso.
+     * 
+     * @param id ID del recurso
+     * @return Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
+     * @throws IOException Si ocurre un error de E/S
+     */
     public List<String> obtenerBolsa(String id) throws IOException {
         List<String> bolsa = new ArrayList<>();
         File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
@@ -782,13 +842,13 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         return bolsa;
     }
 
-       /**
-     * Crea un nuevo recurso (diccionario y bolsa) en el sistema.
+    /**
+     * Crea un nuevo recurso en el sistema.
      * 
-     * @param id Identificador único del recurso
+     * @param id       Identificador único del recurso
      * @param palabras Lista de palabras para el diccionario
-     * @param bolsa Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
-     * @throws IOException Si ocurre un error de E/S
+     * @param bolsa    Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
+     * @throws IOException               Si ocurre un error de E/S
      * @throws RecursoExistenteException Si el recurso ya existe
      */
     public void crearRecurso(String id, List<String> palabras, List<String> bolsa)
@@ -797,22 +857,29 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         if (existeRecurso(id)) {
             throw new RecursoExistenteException(id);
         }
-    
+
         // Crea el directorio del recurso si no existe
         File dir = new File(RECURSOS, id);
         if (!dir.exists() && !dir.mkdirs()) {
             throw new IOException("No se pudo crear el directorio: " + dir.getPath());
         }
-    
+
         // Crea el archivo del diccionario
         crearDiccionario(id, palabras);
-    
+
         // Crea el archivo de la bolsa directamente con la lista de strings
         crearBolsa(id, bolsa);
     }
 
+    /**
+     * Crea un nuevo archivo de diccionario para un recurso.
+     * 
+     * @param id       Identificador del recurso
+     * @param palabras Lista de palabras para el diccionario
+     * @throws IOException               Si ocurre un error al escribir el archivo
+     * @throws RecursoExistenteException Si el recurso ya existe
+     */
     public void crearDiccionario(String id, List<String> palabras) throws IOException, RecursoExistenteException {
-       
 
         // Crea el directorio del recurso si no existe
         File dir = new File(RECURSOS, id);
@@ -831,9 +898,9 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
     }
 
     /**
-     * Crea un archivo de bolsa para un recurso usando una lista de strings.
+     * Crea un nuevo archivo de bolsa para un recurso.
      * 
-     * @param id Identificador del recurso
+     * @param id    Identificador del recurso
      * @param bolsa Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
      * @throws IOException Si ocurre un error al escribir el archivo
      */
@@ -847,7 +914,16 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
             }
         }
     }
- 
+
+    /**
+     * Modifica un recurso existente en el sistema.
+     * 
+     * @param id       Identificador único del recurso
+     * @param palabras Lista de palabras para el diccionario
+     * @param bolsaData    Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
+     * @throws IOException               Si ocurre un error de E/S
+     * @throws RecursoNoExistenteException Si el recurso no existe
+     */
     public void modificarRecurso(String id, List<String> palabras, List<String> bolsaData)
             throws IOException, RecursoNoExistenteException {
         // Verifica si el recurso existe
@@ -862,10 +938,10 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         modificarBolsa(id, bolsaData);
     }
 
-     /**
+    /**
      * Modifica el archivo de bolsa para un recurso.
      * 
-     * @param id Identificador del recurso
+     * @param id    Identificador del recurso
      * @param bolsa Lista de strings con formato "LETRA FRECUENCIA PUNTOS"
      * @throws IOException Si ocurre un error al escribir el archivo
      */
@@ -880,8 +956,15 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
+    /**
+     * Modifica el archivo de diccionario para un recurso.
+     * 
+     * @param id       Identificador del recurso
+     * @param palabras Lista de palabras para el diccionario
+     * @throws IOException Si ocurre un error al escribir el archivo
+     */
     public void modificarDiccionario(String id, List<String> palabras)
-            throws IOException { 
+            throws IOException {
         File diccionarioFile = new File(RECURSOS + id, id + "_diccionario.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(diccionarioFile))) {
             for (String palabra : palabras) {
@@ -891,6 +974,14 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
+    /**
+     * Elimina un recurso del sistema.
+     * 
+     * @param id Identificador del recurso
+     * @throws DiccionarioNoEncontradoException Si el diccionario no se encuentra
+     * @throws BolsaNoEncontradaException       Si la bolsa no se encuentra
+     * @throws IOException                     Si ocurre un error de E/S
+     */
     public void eliminarRecurso(String id)
             throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, IOException {
         // Define la ruta de la carpeta del recurso
@@ -927,8 +1018,14 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
-    // -------------------------------- UTILIDADES E/S----------------------------------
-    
+    // -------------------------------- UTILIDADES ----------------------------------
+
+    /**
+     * Convierte una cadena de fichas a un JSONArray.
+     * 
+     * @param fichas Cadena de fichas
+     * @return JSONArray de fichas
+     */
     private List<String> leerArchivoTexto(String ruta) throws IOException {
         List<String> out = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
@@ -942,8 +1039,13 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         return out;
     }
 
-    // -------------------------------- UTILIDADES JSON----------------------------------
 
+    /**
+     * Convierte una lista de datos de partida a un JSON.
+     * 
+     * @param partidaData Lista de datos de la partida
+     * @return JSON de la partida
+     */
     public static String partidaListToJson(List<String> partidaData) {
         // Usamos un JSONObject directamente ya que el orden no importa
         JSONObject partidaJson = new JSONObject();
@@ -988,7 +1090,7 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
         partidaJson.put("bolsa", fichasRestantes);
 
-               // 11. posiciones_tablero
+        // 11. posiciones_tablero
         int numFichasUsadas = Integer.parseInt(partidaData.get(11 + numFichasRestantes));
         JSONArray posicionesTablero = new JSONArray();
         // Stop 1 element before the end to avoid including the resource
@@ -996,13 +1098,19 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
             posicionesTablero.put(partidaData.get(i)); // Añadimos la posición como una cadena
         }
         partidaJson.put("posiciones_tablero", posicionesTablero);
-        
+
         // 12. recurso - always the last element
         partidaJson.put("recurso", partidaData.get(partidaData.size() - 1));
         // Retornamos el JSON como una cadena con formato bonito
         return partidaJson.toString(2); // Formateo bonito del JSON
     }
 
+    /**
+     * Convierte un JSON de partida a una lista de datos.
+     * 
+     * @param partidaJson JSON de la partida
+     * @return Lista de datos de la partida
+     */
     public static List<String> jsonToPartidaList(String partidaJson) {
         // Inicializamos la lista que contendrá los datos de la partida
         List<String> partidaData = new ArrayList<>();
@@ -1046,12 +1154,17 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
             }
         }
 
-
         // 12. recurso
         partidaData.add(partida.getString("recurso")); // Último elemento es el recurso
         return partidaData;
     }
 
+    /**
+     * Convierte una cadena de fichas a un JSONArray.
+     * 
+     * @param fichaData Cadena de fichas
+     * @return JSONArray de fichas
+     */
     private static JSONArray parseFichas(String fichaData) {
         JSONArray fichas = new JSONArray();
         String[] fichaArray = fichaData.split(" ");
@@ -1061,6 +1174,12 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         return fichas;
     }
 
+    /**
+     * Convierte un JSONArray de fichas a una cadena.
+     * 
+     * @param fichas JSONArray de fichas
+     * @return Cadena representando las fichas
+     */
     private static String parseFichasToString(JSONArray fichas) {
         StringBuilder fichasStr = new StringBuilder();
         for (int i = 0; i < fichas.length(); i++) {
@@ -1069,6 +1188,14 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         return fichasStr.toString().trim();
     }
 
+    /**
+     * Obtiene el segundo jugador de una partida.
+     * 
+     * @param id ID de la partida
+     * @return Nombre del segundo jugador
+     * @throws PartidaNoEncontradaException Si la partida no existe
+     * @throws UsuarioNoEncontradoException Si el segundo jugador no existe
+     */
     public String obtenerJugadorActual(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
         // Verifica si la partida existe
         if (!existePartida(id)) {
@@ -1087,11 +1214,20 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
-        public String obtenerSegundoJugador(String id)  throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
+
+    /**
+     * Obtiene el segundo jugador de una partida.
+     * 
+     * @param id ID de la partida
+     * @return Nombre del segundo jugador
+     * @throws PartidaNoEncontradaException Si la partida no existe
+     * @throws UsuarioNoEncontradoException  Si el usuario no existe
+     */
+    public String obtenerSegundoJugador(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
         // Verifica si la partida existe
         if (!existePartida(id)) {
             throw new PartidaNoEncontradaException(id);
-        }   
+        }
         // Carga el archivo de la partida
         String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
         try {
@@ -1104,74 +1240,92 @@ public void actualizarNombre(String username, String newUsername) throws Usuario
         }
     }
 
-        public void guardarImagenPerfil(String username, BufferedImage image) {
-            // Verificar si el usuario existe
-            if (!existeJugador(username)) {
+    // ------------------------------ IMAGENES ----------------------------------
+    /**
+     * Guarda la imagen de perfil de un jugador.
+     * 
+     * @param username Nombre de usuario del jugador
+     * @param image    Imagen a guardar
+     */
+    public void guardarImagenPerfil(String username, BufferedImage image) {
+        // Verificar si el usuario existe
+        if (!existeJugador(username)) {
+            return;
+        }
+
+        // Crear el directorio del jugador si no existe
+        File dir = new File(JUGADORES + username);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                System.err.println("No se pudo crear el directorio para la imagen de perfil de " + username);
                 return;
-            }
-            
-            // Crear el directorio del jugador si no existe
-            File dir = new File(JUGADORES + username);
-            if (!dir.exists()) {
-                if (!dir.mkdirs()) {
-                    System.err.println("No se pudo crear el directorio para la imagen de perfil de " + username);
-                    return;
-                }
-            }
-          
-            // Definir la ruta de la imagen de perfil
-            File imagenFile = new File(dir, username + ".png");
-            
-            try {
-                // Guardar la imagen en el archivo
-                javax.imageio.ImageIO.write(image, "png", imagenFile);
-                System.out.println("Imagen de perfil guardada para " + username);
-            } catch (IOException e) {
-                System.err.println("Error al guardar la imagen de perfil de " + username + ": " + e.getMessage());
             }
         }
 
-        public BufferedImage obtenerImagenPerfil(String username) {
-            // Verificar si el usuario existe
-            if (!existeJugador(username)) {
-                return null;
-            }
-            
-            // Definir la ruta de la imagen de perfil
-            File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
-            
-            // Verificar si la imagen existe
-            if (!imagenFile.exists()) {
-                return null;
-            }
-            
-            try {
-                // Leer y retornar la imagen
-                return javax.imageio.ImageIO.read(imagenFile);
-            } catch (IOException e) {
-                System.err.println("Error al cargar la imagen de perfil de " + username + ": " + e.getMessage());
-                return null;
-            }
+        // Definir la ruta de la imagen de perfil
+        File imagenFile = new File(dir, username + ".png");
+
+        try {
+            // Guardar la imagen en el archivo
+            javax.imageio.ImageIO.write(image, "png", imagenFile);
+            System.out.println("Imagen de perfil guardada para " + username);
+        } catch (IOException e) {
+            System.err.println("Error al guardar la imagen de perfil de " + username + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Verifica si un jugador existe en el sistema.
+     * 
+     * @param username Nombre de usuario del jugador
+     * @return true si el jugador existe, false en caso contrario
+     */
+    public BufferedImage obtenerImagenPerfil(String username) {
+        // Verificar si el usuario existe
+        if (!existeJugador(username)) {
+            return null;
         }
 
-        public void eliminarImagenPerfil(String username) {
-            // Verificar si el usuario existe
-            if (!existeJugador(username)) {
-                return;
-            }
-            
-            // Definir la ruta de la imagen de perfil
-            File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
-            
-            // Verificar si la imagen existe
-            if (imagenFile.exists()) {
-                // Eliminar la imagen
-                if (imagenFile.delete()) {
-                    System.out.println("Imagen de perfil eliminada para " + username);
-                } else {
-                    System.err.println("No se pudo eliminar la imagen de perfil de " + username);
-                }
+        // Definir la ruta de la imagen de perfil
+        File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
+
+        // Verificar si la imagen existe
+        if (!imagenFile.exists()) {
+            return null;
+        }
+
+        try {
+            // Leer y retornar la imagen
+            return javax.imageio.ImageIO.read(imagenFile);
+        } catch (IOException e) {
+            System.err.println("Error al cargar la imagen de perfil de " + username + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Elimina la imagen de perfil de un jugador.
+     * 
+     * @param username Nombre de usuario del jugador
+     */
+    public void eliminarImagenPerfil(String username) {
+        // Verificar si el usuario existe
+        if (!existeJugador(username)) {
+            return;
+        }
+
+        // Definir la ruta de la imagen de perfil
+        File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
+
+        // Verificar si la imagen existe
+        if (imagenFile.exists()) {
+            // Eliminar la imagen
+            if (imagenFile.delete()) {
+                System.out.println("Imagen de perfil eliminada para " + username);
+            } else {
+                System.err.println("No se pudo eliminar la imagen de perfil de " + username);
             }
         }
+    }
 
 }

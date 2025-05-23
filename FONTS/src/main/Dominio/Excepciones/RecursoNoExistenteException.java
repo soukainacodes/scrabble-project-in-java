@@ -1,10 +1,19 @@
 package Dominio.Excepciones;
 
+/**
+ * Excepción lanzada cuando se intenta acceder a un recurso que no existe.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta cargar un recurso con un identificador que no existe en el sistema</li>
+ *   <li>Se intenta utilizar un recurso que ha sido eliminado</li>
+ * </ul>
+ * 
+ */
 public class RecursoNoExistenteException extends Exception {
     /**
-     * Excepción lanzada cuando se intenta acceder a un recurso que no existe.
-     * Esta excepción se utiliza para indicar que el sistema no puede encontrar un recurso
-     * con el ID proporcionado.
+     * Construye una nueva RecursoNoExistenteException con un mensaje predeterminado.
+     * El mensaje predeterminado indica que el recurso no existe.
      */
     public RecursoNoExistenteException() {
         super("El recurso no existe.");

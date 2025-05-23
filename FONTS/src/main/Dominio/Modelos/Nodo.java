@@ -8,9 +8,9 @@ import java.util.Map;
  * <p>
  * Cada nodo almacena:
  * <ul>
- *   <li>Una letra o ficha identificadora (null para la raíz).</li>
- *   <li>Un mapa de hijos que asocia fichas a nodos descendientes.</li>
- *   <li>Un indicador de si marca el final de una palabra válida.</li>
+ * <li>Una letra o ficha identificadora (null para la raíz).</li>
+ * <li>Un mapa de hijos que asocia fichas a nodos descendientes.</li>
+ * <li>Un indicador de si marca el final de una palabra válida.</li>
  * </ul>
  */
 public class Nodo {
@@ -19,10 +19,10 @@ public class Nodo {
     private String letra;
 
     /** Hijos de este nodo: clave = ficha, valor = nodo descendiente. */
-    Map<String, Nodo> hijos = new HashMap<>();  // paquete-access para DAWG
+    Map<String, Nodo> hijos = new HashMap<>(); // paquete-access para DAWG
 
     /** Indica si este nodo corresponde al fin de una palabra válida. */
-    boolean palabraValidaHastaAqui = false;     // paquete-access para DAWG
+    boolean palabraValidaHastaAqui = false; // paquete-access para DAWG
 
     /**
      * Construye un nodo que representa la ficha dada.
@@ -72,9 +72,10 @@ public class Nodo {
      * 
      * Dos nodos son iguales si:
      * <ul>
-     *   <li>Tienen misma letra (o ambas null).</li>
-     *   <li>Comparten el estado de "fin de palabra".</li>
-     *   <li>Tienen idénticos hijos (mismo conjunto de claves y mismas referencias de nodos).</li>
+     * <li>Tienen misma letra (o ambas null).</li>
+     * <li>Comparten el estado de "fin de palabra".</li>
+     * <li>Tienen idénticos hijos (mismo conjunto de claves y mismas referencias de
+     * nodos).</li>
      * </ul>
      *
      * @param obj Objeto a comparar.
@@ -82,15 +83,21 @@ public class Nodo {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
         Nodo otro = (Nodo) obj;
-        if (palabraValidaHastaAqui != otro.palabraValidaHastaAqui) return false;
-        if (letra == null ? otro.letra != null : !letra.equals(otro.letra)) return false;
-        if (hijos.size() != otro.hijos.size()) return false;
+        if (palabraValidaHastaAqui != otro.palabraValidaHastaAqui)
+            return false;
+        if (letra == null ? otro.letra != null : !letra.equals(otro.letra))
+            return false;
+        if (hijos.size() != otro.hijos.size())
+            return false;
         for (Map.Entry<String, Nodo> entrada : hijos.entrySet()) {
             Nodo hijoOtro = otro.hijos.get(entrada.getKey());
-            if (hijoOtro == null || entrada.getValue() != hijoOtro) return false;
+            if (hijoOtro == null || entrada.getValue() != hijoOtro)
+                return false;
         }
         return true;
     }
@@ -100,9 +107,9 @@ public class Nodo {
      * 
      * Combina:
      * <ul>
-     *   <li>Estado de fin de palabra.</li>
-     *   <li>Hash de la letra.</li>
-     *   <li>Hash de las entradas en el mapa de hijos (clave y referencia).</li>
+     * <li>Estado de fin de palabra.</li>
+     * <li>Hash de la letra.</li>
+     * <li>Hash de las entradas en el mapa de hijos (clave y referencia).</li>
      * </ul>
      *
      * @return Código hash del nodo.

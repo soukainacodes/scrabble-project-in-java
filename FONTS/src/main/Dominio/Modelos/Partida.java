@@ -35,11 +35,12 @@ public class Partida {
     private List<Pair<Integer,Integer>> coordenadasPalabra;
 
     /**
-     * Inicia una nueva partida.
-     *
-     * @param jugadores        Lista de dos nombres [jugador1, jugador2].
-     * @param lineasArchivoBolsa Líneas de configuración para la bolsa.
-     * @param seed             Semilla para barajar la bolsa (0 para aleatorio).
+     * Constructor de la partida.
+     * Inicializa los jugadores, la bolsa y el tablero.
+     * 
+     * @param id ID de la partida.
+     * @param lineasArchivoBolsa Lista de líneas del archivo de la bolsa.
+     * @param seed Semilla para la aleatoriedad de la bolsa.
      */
     public Partida(String id, List<String> lineasArchivoBolsa, long seed) {
         this.idPartida = id;
@@ -63,7 +64,15 @@ public class Partida {
         }
     }
 
-        public Partida(String id, List<String> bolsaTexto, List<String> tableroTexto){
+    /**
+     * Constructor de la partida.
+     * Inicializa los jugadores, la bolsa y el tablero a partir de cadenas de texto.
+     *
+     * @param id ID de la partida.
+     * @param bolsaTexto Texto con las fichas de la bolsa.
+     * @param tableroTexto Texto con las fichas del tablero.
+     */
+    public Partida(String id, List<String> bolsaTexto, List<String> tableroTexto){
         this.fichasJugador1 = new ArrayList<>();
         this.fichasJugador2 = new ArrayList<>();
         this.puntosJugador1 = 0;
@@ -71,9 +80,7 @@ public class Partida {
         this.idPartida = id;
         this.bolsa = new Bolsa(bolsaTexto);
         
-        // Initialize the board
         this.tablero = new Tablero();
-        // Process board positions
         for (String posicion : tableroTexto) {
            
             String[] parts = posicion.split(" ");        
@@ -81,16 +88,28 @@ public class Partida {
             int puntuacion = Integer.parseInt(parts[1]);
             int x = Integer.parseInt(parts[2]);
             int y = Integer.parseInt(parts[3]);
-            tablero.ponerFicha(new Ficha(letra, puntuacion), x, y); // Adjust if your method needs different params
+            tablero.ponerFicha(new Ficha(letra, puntuacion), x, y); 
         }
         
         this.coordenadasPalabra = new ArrayList<>();
     }
     
+    /**
+     * Establece el ID de la partida.
+     *
+     * @param id ID de la partida.
+     */
     public void setIdPartida(String id){
         this.idPartida = id;
     }
 
+
+    /**
+     * Establece las fichas del jugador 1 a partir de una cadena de texto.
+     * La cadena debe contener pares de letra y puntuación separados por espacios.
+     *
+     * @param fichas Cadena con las fichas del jugador 1.
+     */
     public void setFichasJugador1(String fichas){
         String[] fichasString = fichas.trim().split(" ");
         
@@ -120,21 +139,22 @@ public class Partida {
     }
 
 
+    /**
+     * Recupera el recurso de la partida.
+     * @return Recurso de la partida.
+     */
     public String getRecursoPartida(){
         return recursoPartida;
     }
 
+    /**
+     * Establece el recurso de la partida.
+     *
+     * @param recurso Recurso de la partida.
+     */
     public void setRecursoPartida(String recurso){
         recursoPartida = recurso;
     }
-
-
-
-   
-
-
-
-
 
     /**
      * Obtiene el contador de turnos jugados.
@@ -145,22 +165,26 @@ public class Partida {
         return contadorTurno;
     }
 
-    /** Incrementa el contador de turno en uno. */
+    /**
+     * Aumenta el contador de turnos jugados.
+     */
     public void aumentarContador() {
         contadorTurno++;
     }
 
+    /**
+     * Establece el contador de turnos jugados.
+     *
+     * @param contador Número de turnos.
+     */
     public void setContadorTurno(int contador){
         contadorTurno = contador;
     }
 
     /**
-     * Limpia las coordenadas de la palabra en curso.
-     */
-        /**
-     * Obtiene las coordenadas de las fichas colocadas en la palabra en curso.
+     * Obtiene las coordenadas de la palabra en curso.
      *
-     * @return Lista de pares (fila, columna) de la palabra actual.
+     * @return Lista de pares de coordenadas (x, y).
      */
     public List<Pair<Integer,Integer>> getCoordenadasPalabras() {
         return coordenadasPalabra;
@@ -227,7 +251,6 @@ public class Partida {
 
     /**
      * Añade una ficha a la mano del jugador actual.
-     *
      * @param ficha Ficha a añadir.
      */
     public void setFicha(Ficha ficha) {
@@ -237,7 +260,6 @@ public class Partida {
 
     /**
      * Obtiene el número de fichas en mano del jugador actual.
-     *
      * @return Tamaño de la lista de fichas.
      */
     public int getListSize() {
@@ -246,7 +268,6 @@ public class Partida {
 
     /**
      * Rellena las manos de ambos jugadores hasta 7 fichas desde la bolsa.
-     *
      * @return {@code true} si se pudieron reponer todas las fichas, {@code false} si la bolsa se vació.
      */
     public boolean recuperarFichas() {
@@ -257,17 +278,17 @@ public class Partida {
         return ok;
     }
 
-    /** Alterna el turno entre los jugadores. */
+    /**
+     * Cambia el turno del jugador actual.
+     */
     public void cambiarTurnoJugador() {
         turnoJugador = !turnoJugador;
     }
 
-    /** Establece el turno actual. */
     /**
-     * Sets the turn status for the player.
+     * Establece el turno del jugador actual.
      *
-     * @param turno a boolean indicating whether it is the player's turn (true) 
-     *              or not (false).
+     * @param turno {@code true} para jugador 1, {@code false} para jugador 2.
      */
     public void setTurnoJugador(boolean turno) {
         turnoJugador = turno;
@@ -284,10 +305,10 @@ public class Partida {
     }
 
     /**
-     * Busca una ficha por letra en la mano actual.
+     * Obtiene la ficha con letra {@code s} de la mano del jugador actual.
      *
      * @param s Letra de la ficha a buscar.
-     * @return La ficha si existe, {@code null} en caso contrario.
+     * @return Objeto {@link Ficha} correspondiente a la letra, o {@code null} si no existe.
      */
     public Ficha getFichaString(String s) {
         List<Ficha> mano = turnoJugador ? fichasJugador1 : fichasJugador2;
@@ -319,6 +340,11 @@ public class Partida {
         return bolsa.isEmpty();
     }
 
+    /**
+     * Establece las fichas del jugador actual.
+     *
+     * @param fichas Lista de fichas a establecer.
+     */
     public void setFichas(List<Ficha> fichas){
         if(turnoJugador) {
             fichasJugador1 = fichas;
@@ -367,10 +393,20 @@ public class Partida {
         else puntosJugador2 = puntos;
     }
 
+    /**
+     * Establece los puntos de cada jugador.
+     *
+     * @param puntos Puntos del jugador 1.
+     */
     public void setPuntosJugador1(int puntos) {
         this.puntosJugador1 = puntos;
     }
 
+    /**
+     * Establece los puntos de cada jugador.
+     *
+     * @param puntos Puntos del jugador 2.
+     */
     public void setPuntosJugador2(int puntos) {
         this.puntosJugador2 = puntos;
     }
@@ -404,6 +440,9 @@ public class Partida {
 
 
 
+    /**
+     * Establece el estado de la partida como acabada.
+     */
     public void setPartidaAcabada(){
             this.partidaAcabada = 1;
     }

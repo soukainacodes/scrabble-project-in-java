@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa el tablero de Scrabble de tamaño fijo 15x15.
- * Cada celda puede tener una bonificación de letra o palabra.
+ * Clase que representa el tablero del juego Scrabble.
+ * <p>
+ * El tablero es una matriz de celdas donde se colocan las fichas. Cada celda puede
+ * tener una bonificación asociada (doble letra, triple letra, doble palabra, triple palabra).
+ * </p>
  */
 public class Tablero {
 
     /** Tamaño fijo del tablero (número de filas y columnas). */
     private static final int TAMANO = 15;
 
-    /** Matriz de celdas que conforman el tablero. */
+    /** Matriz de celdas que componen el tablero. */
     private Celda[][] celdas;
 
     /**
-     * Construye un tablero inicializando todas las celdas con sus bonificaciones.
+     * Constructor que inicializa el tablero creando una matriz de celdas.
+     * Cada celda se inicializa con su respectiva bonificación.
      */
     public Tablero() {
         this.celdas = new Celda[TAMANO][TAMANO];
@@ -24,7 +28,8 @@ public class Tablero {
     }
 
     /**
-     * Crea y asigna cada celda del tablero con su correspondiente bonificación.
+     * Inicializa el tablero asignando bonificaciones a cada celda.
+     * Las bonificaciones se asignan según las reglas del juego Scrabble.
      */
     private void inicializarTablero() {
         for (int fila = 0; fila < TAMANO; fila++) {
@@ -144,6 +149,11 @@ public class Tablero {
     }
 
    
+    /**
+     * Devuelve una representación en cadena del tablero.
+     *
+     * @return Representación en cadena del tablero.
+     */
     public List<String> toListString(){
         List<String> tableroList = new ArrayList<>();
         String celdaString = "";
@@ -179,6 +189,13 @@ public class Tablero {
         return null;
     }
 
+    /**
+     * Devuelve la puntuación de la celda en la posición dada.
+     *
+     * @param fila    Índice de fila.
+     * @param col     Índice de columna.
+     * @return Puntuación de la ficha o 0 si no hay ficha o posición inválida.
+     */
     public int getPuntuacionCelda(int fila, int col) {
         Celda cel = celdas[fila][col];
         if (cel.estaOcupada()) {

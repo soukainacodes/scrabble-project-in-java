@@ -4,7 +4,8 @@ package Dominio.Modelos;
  * Representa una celda individual del tablero de Scrabble.
  * <p>
  * Cada celda puede contener una ficha, una bonificación de letra o palabra,
- * y mantiene el estado de si la ficha ha sido bloqueada y la bonificación aplicada.
+ * y mantiene el estado de si la ficha ha sido bloqueada y la bonificación
+ * aplicada.
  * </p>
  */
 public class Celda {
@@ -37,7 +38,8 @@ public class Celda {
     /**
      * Indica si la celda contiene una ficha.
      *
-     * @return {@code true} si hay una ficha en la celda, {@code false} si está vacía.
+     * @return {@code true} si hay una ficha en la celda, {@code false} si está
+     *         vacía.
      */
     public boolean estaOcupada() {
         return this.ficha != null;
@@ -55,11 +57,12 @@ public class Celda {
     /**
      * Comprueba si la bonificación corresponde a palabra doble o triple.
      *
-     * @return {@code true} si es doble o triple palabra, {@code false} en otro caso.
+     * @return {@code true} si es doble o triple palabra, {@code false} en otro
+     *         caso.
      */
     public boolean isDobleTriplePalabra() {
         return bonificacion == TipoBonificacion.DOBLE_PALABRA
-            || bonificacion == TipoBonificacion.TRIPLE_PALABRA;
+                || bonificacion == TipoBonificacion.TRIPLE_PALABRA;
     }
 
     /**
@@ -69,7 +72,7 @@ public class Celda {
      */
     public boolean isDobleTripleLetra() {
         return bonificacion == TipoBonificacion.DOBLE_LETRA
-            || bonificacion == TipoBonificacion.TRIPLE_LETRA;
+                || bonificacion == TipoBonificacion.TRIPLE_LETRA;
     }
 
     /**
@@ -85,7 +88,8 @@ public class Celda {
      * Coloca una ficha en la celda si está libre y no bloqueada.
      *
      * @param ficha Ficha a colocar.
-     * @return {@code true} si la ficha se colocó con éxito, {@code false} en caso contrario.
+     * @return {@code true} si la ficha se colocó con éxito, {@code false} en caso
+     *         contrario.
      */
     public boolean colocarFicha(Ficha ficha) {
         if (!estaOcupada() && !bloqueada) {
@@ -140,6 +144,5 @@ public class Celda {
     public boolean bonusDisponible() {
         return !this.bonusUsada;
     }
-
 
 }

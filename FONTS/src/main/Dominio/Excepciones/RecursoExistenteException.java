@@ -1,10 +1,19 @@
 package Dominio.Excepciones;
 
+/**
+ * Excepción lanzada cuando se intenta añadir un recurso que ya existe.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta crear un nuevo recurso con un identificador ya registrado</li>
+ *   <li>Se intenta importar un recurso con un nombre que colisiona con uno existente</li>
+ * </ul>
+ * 
+ */
 public class RecursoExistenteException extends Exception {
     /**
-     * Excepción lanzada cuando se intenta añadir un recurso que ya existe.
-     * Esta excepción se utiliza para indicar que el sistema no puede crear un nuevo recurso
-     * porque ya existe otro con el mismo ID.
+     * Construye una nueva RecursoExistenteException con un mensaje predeterminado.
+     * El mensaje predeterminado indica que el recurso ya existe.
      */
     public RecursoExistenteException() {
         super("El recurso ya existe.");

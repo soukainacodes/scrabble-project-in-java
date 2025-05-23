@@ -2,6 +2,12 @@ package Dominio.Excepciones;
 
 /**
  * Excepción lanzada cuando se intenta guardar una partida con un ID que ya existe.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta crear una nueva partida usando un identificador que ya está en uso</li>
+ * </ul>
+ * 
  */
 public class PartidaYaExistenteException extends Exception {
 

@@ -15,9 +15,11 @@ import Dominio.Excepciones.PalabraInvalidaException;
  */
 public class Validador {
 
+    /** Tablero del juego. */
     private Tablero tablero;
-
+    /** Diccionario DAWG utilizado para validar palabras. */
     private Dawg diccionario;
+    /** Indica si hay fichas bloqueadas en la jugada. */
     private boolean hayBloqueada;
 
     /**

@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 /**
  * Representa una bolsa de fichas para el juego de Scrabble.
  * <p>
- * Permite inicializarse a partir de líneas de configuración (por ejemplo, leídas de un fichero),
+ * Permite inicializarse a partir de líneas de configuración (por ejemplo,
+ * leídas de un fichero),
  * barajar las fichas aleatoriamente y extraer fichas de forma controlada.
  * </p>
  */
@@ -20,7 +22,6 @@ public class Bolsa {
      */
     private List<Ficha> conjuntoDeFichas;
 
-  
     /**
      * Construye una bolsa de fichas a partir de líneas de configuración.
      * Cada línea debe tener el formato: "Letra Cantidad Puntuacion".
@@ -82,17 +83,23 @@ public class Bolsa {
     /**
      * Indica si la bolsa está vacía (no quedan fichas).
      *
-     * @return {@code true} si no hay fichas en la bolsa, {@code false} en caso contrario.
+     * @return {@code true} si no hay fichas en la bolsa, {@code false} en caso
+     *         contrario.
      */
 
     public boolean isEmpty() {
         return this.conjuntoDeFichas.isEmpty();
     }
 
-      public List<String> toListString() {
+    /**
+     * Devuelve el número de fichas restantes en la bolsa.
+     *
+     * @return Número de fichas restantes.
+     */
+    public List<String> toListString() {
         List<String> bolsaList = new ArrayList<>();
         Map<String, Integer> conteoLetras = new HashMap<>(); // Para contar las letras
-        Map<String, Integer> puntuacionLetras = new HashMap<>(); //Para almacenar la puntuacion de la letra
+        Map<String, Integer> puntuacionLetras = new HashMap<>(); // Para almacenar la puntuacion de la letra
 
         for (Ficha ficha : conjuntoDeFichas) {
             String letra = ficha.getLetra();

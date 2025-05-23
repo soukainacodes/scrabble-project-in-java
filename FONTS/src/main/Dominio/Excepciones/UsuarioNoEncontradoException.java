@@ -2,6 +2,14 @@ package Dominio.Excepciones;
 
 /**
  * Excepción lanzada cuando no se encuentra un usuario con el nombre dado.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta acceder a un usuario que no está registrado en el sistema</li>
+ *   <li>Se busca información de un perfil que ha sido eliminado</li>
+ *   <li>Se intenta cargar datos de un usuario inexistente</li>
+ * </ul>
+ * 
  */
 public class UsuarioNoEncontradoException extends Exception {
 

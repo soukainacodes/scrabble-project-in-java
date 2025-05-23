@@ -2,8 +2,14 @@ package Dominio.Excepciones;
 
 /**
  * Excepción lanzada cuando no se encuentra un diccionario solicitado.
- * Esta excepción se utiliza para indicar que el sistema no pudo localizar
- * el recurso de diccionario requerido.
+ * 
+ * Esta excepción se utiliza principalmente cuando:
+ * <ul>
+ *   <li>Se intenta acceder a un diccionario que no existe en el sistema</li>
+ *   <li>El archivo de definición del diccionario no puede ser encontrado</li>
+ *   <li>Se intenta cargar un diccionario cuyo identificador no está registrado</li>
+ * </ul>
+ * 
  */
 public class DiccionarioNoEncontradoException extends Exception {
     private static final String DEFAULT_MSG = "Diccionario no encontrado.";
