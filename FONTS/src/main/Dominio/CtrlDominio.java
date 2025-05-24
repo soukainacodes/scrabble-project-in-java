@@ -340,7 +340,7 @@ public class CtrlDominio {
             System.out.println("El jugador actual es: " + ctrlJugador.getJugadorActual());
             System.out.println("El segundo jugador es: " + ctrlJugador.getSegundoJugador());
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), null);
-            ctrlJugador.setSegundoJugador(null);
+            
         } else {
             System.out.println("Entrando en el else de fin");
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), ctrlPartida.getId());
@@ -360,7 +360,7 @@ public class CtrlDominio {
 
         ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual(), ctrlPartida.getPuntosJugador1());
         ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getSegundoJugador(), ctrlPartida.getPuntosJugador2());
-    
+        if (fin != 0) ctrlJugador.setSegundoJugador(null);
     }
         return fin;
     }

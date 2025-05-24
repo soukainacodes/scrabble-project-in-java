@@ -336,8 +336,8 @@ public class CtrlPresentacion {
     private void crearVistaFinal(boolean abandonada, int resultado) {
         String mensaje;
 
-        String perdedor = resultado == 1 ? ctrlDominio.getUsuarioActual() : ctrlDominio.getSegundoJugador();
-        String ganador = resultado == 1 ? ctrlDominio.getSegundoJugador() : ctrlDominio.getUsuarioActual();
+        String perdedor = resultado == 1 ? ctrlDominio.getUsuarioActual() : nombreSegundoJugador;
+        String ganador = resultado == 1 ? nombreSegundoJugador : ctrlDominio.getUsuarioActual();
         if (abandonada) {
             mensaje = perdedor + " ha abandonado la partida. " + ganador + " gana.";
         } else {
@@ -362,6 +362,7 @@ public class CtrlPresentacion {
 
         vSalir.setAbandonarListener(e -> {
             try {
+                nombreSegundoJugador = ctrlDominio.getSegundoJugador();
                 crearVistaFinal(true, ctrlDominio.jugarScrabble(6, ""));
             } catch (Exception ex) {
                 System.out.println("ERROR: " + ex.getMessage());
