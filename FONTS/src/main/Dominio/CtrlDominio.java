@@ -158,9 +158,15 @@ public class CtrlDominio {
      * @param password       contraseña del segundo jugador.
      * @throws UsuarioNoEncontradoException si el jugador no existe.
      * @throws PasswordInvalidaException    si la contraseña es incorrecta.
+     * @throws InicioSesionIncorrectoException si se intenta iniciar sesión como el mismo jugador.
      */
     public void iniciarSesionSegundoJugador(String segundoJugador, String password)
-            throws UsuarioNoEncontradoException, PasswordInvalidaException {
+            throws UsuarioNoEncontradoException, PasswordInvalidaException, InicioSesionIncorrectoException {
+
+        if(segundoJugador.equals(ctrlJugador.getJugadorActual())) {
+            throw new InicioSesionIncorrectoException("No se puede iniciar sesión como el mismo jugador");
+        }
+        
         if (!ctrlPersistencia.existeJugador(segundoJugador)) {
             throw new UsuarioNoEncontradoException(segundoJugador);
         }
@@ -397,7 +403,6 @@ public class CtrlDominio {
 
     /**
      * Finaliza la partida actual y guarda los datos en persistencia.       
-     * @param id identificador de la partida.
      * @throws UsuarioNoEncontradoException si el jugador no existe.
      */
     public void salirPartida() throws UsuarioNoEncontradoException {

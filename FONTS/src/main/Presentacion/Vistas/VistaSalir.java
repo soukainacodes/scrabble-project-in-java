@@ -3,8 +3,18 @@ package Presentacion.Vistas;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
+/**
+ * Vista que se muestra cuando el usuario quiere salir de una partida en curso.
+ * Ofrece opciones para abandonar la partida (perdiéndola) o simplemente salir (guardándola).
+ */
 public class VistaSalir extends JFrame {
+    
+    // Colores
+    private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Color crema de fondo 
+    private static final Color PANEL_COLOR = new Color(244, 236, 217);   // Color para paneles internos
+    private static final Color BORDER_COLOR = new Color(200, 180, 120);  // Color de bordes
     
     private JButton botonAbandonar;
     private JButton botonSalir;
@@ -12,35 +22,51 @@ public class VistaSalir extends JFrame {
     private ActionListener salirListener;
     
     public VistaSalir() {
+        // Configuración básica de la ventana
         setTitle("¿Desea salir?");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
-        setBackground(new Color(238, 238, 238, 255));
+        setLayout(new BorderLayout(10, 20));
         
-        // Panel para el mensaje
+        // Panel principal con fondo estilo Scrabble
+        JPanel panelPrincipal = new JPanel(new BorderLayout(10, 15));
+        panelPrincipal.setBackground(APP_BG_COLOR);
+        panelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
+        setContentPane(panelPrincipal);
+        
+        // Panel para el mensaje principal
         JPanel panelMensaje = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        panelMensaje.setBackground(getBackground());
+        panelMensaje.setOpaque(false);
         JLabel mensaje = new JLabel("¿Qué desea hacer?");
-        mensaje.setFont(new Font("Arial", Font.BOLD, 16));
+        mensaje.setFont(new Font("Arial", Font.BOLD, 20));
         mensaje.setForeground(new Color(60, 60, 80));
         panelMensaje.add(mensaje);
-        add(panelMensaje, BorderLayout.NORTH);
+        panelPrincipal.add(panelMensaje, BorderLayout.NORTH);
 
-          // Panel para el texto de advertencia
+        // Panel para el texto de advertencia con estilo mejorado
         JPanel panelAdvertencia = new JPanel();
-        panelAdvertencia.setBackground(getBackground());
+        panelAdvertencia.setOpaque(false);
+        panelAdvertencia.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+        
         JLabel advertencia = new JLabel("<html><center>Recuerda que, si eliges <b>«Abandonar»</b>, la partida se dará<br>por finalizada y no podrás retomarla</center></html>");
-        advertencia.setFont(new Font("Arial", Font.ITALIC, 12));
+        advertencia.setFont(new Font("Arial", Font.ITALIC, 14));
         advertencia.setForeground(new Color(180, 0, 0));
         panelAdvertencia.add(advertencia);
-        add(panelAdvertencia, BorderLayout.CENTER);
+        
+        // Envolver el panel de advertencia en otro panel para añadir padding
+        JPanel panelCentral = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelCentral.setOpaque(false);
+        panelCentral.add(panelAdvertencia);
+        panelPrincipal.add(panelCentral, BorderLayout.CENTER);
         
         // Panel para los botones
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        panelBotones.setBackground(getBackground());
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+        panelBotones.setOpaque(false);
         
-        // Botón Abandonar
-        botonAbandonar = crearBoton("Abandonar", new Color(255, 100, 100));
+        // Botón Abandonar (rojo)
+        botonAbandonar = crearBoton("Abandonar", new Color(220, 60, 60));
         botonAbandonar.addActionListener(e -> {
             if (abandonarListener != null) {
                 abandonarListener.actionPerformed(e);
@@ -49,7 +75,7 @@ public class VistaSalir extends JFrame {
         });
         panelBotones.add(botonAbandonar);
         
-        // Botón Salir
+        // Botón Salir (azul)
         botonSalir = crearBoton("Salir", new Color(100, 150, 255));
         botonSalir.addActionListener(e -> {
             if (salirListener != null) {
@@ -59,45 +85,91 @@ public class VistaSalir extends JFrame {
         });
         panelBotones.add(botonSalir);
         
-        add(panelBotones, BorderLayout.SOUTH);
+        panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
         
         // Configurar tamaño y posición
-        setSize(500,300);
+        setSize(510, 350);
         setLocationRelativeTo(null);
         setResizable(false);
     }
     
+    /**
+     * Crea un botón con estilo personalizado.
+     * @param texto Texto del botón
+     * @param color Color base del botón
+     * @return Botón estilizado
+     */
     private JButton crearBoton(String texto, Color color) {
-        JButton boton = new JButton(texto);
-        boton.setFont(new Font("Arial", Font.BOLD, 14));
-        boton.setForeground(Color.WHITE);
-        boton.setBackground(color);
-        boton.setOpaque(true);
-        boton.setBorder(BorderFactory.createLineBorder(color.darker(), 2));
-        boton.setPreferredSize(new Dimension(120, 40));
+        JButton boton = new JButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Dibujar botón con esquinas redondeadas
+                Graphics2D g2 = (Graphics2D)g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Determinar color según estado
+                Color baseColor = getModel().isPressed() ? color.darker() : 
+                            (getModel().isRollover() ? color.brighter() : color);
+                
+                // Dibujar fondo con gradiente
+                g2.setPaint(new GradientPaint(
+                    0, 0, baseColor.brighter(),
+                    0, getHeight(), baseColor
+                ));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+                
+                // Dibujar borde
+                g2.setColor(baseColor.darker());
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+                
+                g2.dispose();
+                
+                // Asegurar que el texto se dibuje encima
+                super.paintComponent(g);
+            }
+        };
         
-        // Efecto hover
+        boton.setFont(new Font("Arial", Font.BOLD, 16));
+        boton.setForeground(Color.WHITE);
+        boton.setFocusPainted(false);
+        boton.setBorderPainted(false);
+        boton.setContentAreaFilled(false);
+        boton.setPreferredSize(new Dimension(150, 45));
+        
+        // Efecto hover con cursor de mano
         boton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                boton.setBackground(color.brighter());
+                boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
             }
+            
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                boton.setBackground(color);
+                boton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
         
         return boton;
     }
     
+    /**
+     * Establece el listener para el botón Abandonar.
+     * @param listener ActionListener a ejecutar cuando se pulse el botón
+     */
     public void setAbandonarListener(ActionListener listener) {
         this.abandonarListener = listener;
     }
     
+    /**
+     * Establece el listener para el botón Salir.
+     * @param listener ActionListener a ejecutar cuando se pulse el botón
+     */
     public void setSalirListener(ActionListener listener) {
         this.salirListener = listener;
     }
     
-    // Helper method for showing the dialog
+    /**
+     * Método auxiliar para crear y mostrar el diálogo.
+     * @return Instancia de VistaSalir visible
+     */
     public static VistaSalir mostrar() {
         VistaSalir dialog = new VistaSalir();
         dialog.setVisible(true);

@@ -6,24 +6,57 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class VistaFichas extends JFrame {
 
     private static final int TILE_SIZE = 32;
+    private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Color crema de fondo
+    private static final Color BORDER_COLOR = new Color(200, 180, 120);  // Color de bordes
+    private static final Color TEXT_COLOR = new Color(60, 60, 80);       // Color del texto
+        private static final Color BUTTON_COLOR = new Color(128, 64, 200);  // Morado para el botón
+    
     private JPanel rack;
     private JButton botonAceptar;
     private List<SelectableTileLabel> selectedTiles = new ArrayList<>();
     private ActionListener acceptListener;
 
     public VistaFichas() {
-        setTitle("Seleccionar Fichas");
+        setTitle("Cambiar Fichas");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout(5, 10));
-        setBackground(new Color(242, 226, 177));
+        setLayout(new BorderLayout(5, 15));
+        
+        // Panel principal
+        JPanel panelPrincipal = new JPanel(new BorderLayout(10, 15));
+        panelPrincipal.setBackground(APP_BG_COLOR);
+        panelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
+        setContentPane(panelPrincipal);
+        
+        // Texto instructivo
+        JLabel lblInstruccion = new JLabel("Selecciona las fichas que deseas cambiar y dale a Aceptar");
+        lblInstruccion.setFont(new Font("Arial", Font.BOLD, 14));
+        lblInstruccion.setForeground(TEXT_COLOR);
+        lblInstruccion.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        // Panel superior con texto instructivo
+        JPanel panelInstruccion = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panelInstruccion.setOpaque(false);
+        panelInstruccion.add(lblInstruccion);
+        panelPrincipal.add(panelInstruccion, BorderLayout.NORTH);
        
         // Crear el panel de fichas (rack)
         rack = crearRack();
-        add(rack, BorderLayout.CENTER);
+        
+        // Envolver el rack en un panel con borde y título
+        JPanel panelRack = new JPanel(new BorderLayout());
+        panelRack.setOpaque(false);
+        panelRack.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 1, true),
+            BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        panelRack.add(rack, BorderLayout.CENTER);
+        
+        panelPrincipal.add(panelRack, BorderLayout.CENTER);
         
         // Crear el botón de aceptar
         botonAceptar = crearBotonControl("Aceptar");
@@ -34,18 +67,18 @@ public class VistaFichas extends JFrame {
         });
         
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        panelBoton.setBackground(getBackground());
+        panelBoton.setOpaque(false);
         panelBoton.add(botonAceptar);
-        add(panelBoton, BorderLayout.SOUTH);
+        panelPrincipal.add(panelBoton, BorderLayout.SOUTH);
         
         // Configurar tamaño y posición
-        setSize(400, 300);
+        setSize(600, 350);
         setLocationRelativeTo(null);
     }
     
     private JPanel crearRack() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panel.setBackground(new Color(242, 226, 177));
+        panel.setBackground(APP_BG_COLOR);
         return panel;
     }
     
@@ -77,14 +110,54 @@ public class VistaFichas extends JFrame {
     }
     
     private JButton crearBotonControl(String texto) {
-        JButton b = new JButton(texto);
-        b.setFont(new Font("Arial", Font.BOLD, 14));
-        b.setForeground(new Color(60, 60, 80));
-        b.setBackground(new Color(255, 255, 255));
-        b.setOpaque(true);
-        b.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
-        b.setPreferredSize(new Dimension(100, 40));
-        return b;
+        JButton boton = new JButton(texto) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // Dibujar botón con esquinas redondeadas
+                Graphics2D g2 = (Graphics2D)g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Determinar color según estado
+                Color baseColor = getModel().isPressed() ? BUTTON_COLOR.darker() : 
+                            (getModel().isRollover() ? BUTTON_COLOR.brighter() : BUTTON_COLOR);
+                
+                // Dibujar fondo con gradiente
+                g2.setPaint(new GradientPaint(
+                    0, 0, baseColor.brighter(),
+                    0, getHeight(), baseColor
+                ));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+                
+                // Dibujar borde
+                g2.setColor(baseColor.darker());
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
+                
+                g2.dispose();
+                
+                // Asegurar que el texto se dibuje encima
+                super.paintComponent(g);
+            }
+        };
+        
+        boton.setFont(new Font("Arial", Font.BOLD, 16));
+        boton.setForeground(Color.WHITE);
+        boton.setFocusPainted(false);
+        boton.setBorderPainted(false);
+        boton.setContentAreaFilled(false);
+        boton.setPreferredSize(new Dimension(150, 45));
+        
+        // Efecto hover con cursor de mano
+        boton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+            
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                boton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+        
+        return boton;
     }
     
     // Componente para una ficha seleccionable

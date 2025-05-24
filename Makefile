@@ -36,7 +36,7 @@ runcode_scrabble:
 	java -cp $(CLASS_OUTPUT_MAIN)/Driver.jar:./FONTS/src/main/Persistencia/json-20231013.jar Presentacion.Drivers.Driver
 
 runcode_main:
-	java -Xmx1024m -cp $(CLASS_OUTPUT_MAIN)/Main.jar:./FONTS/src/main/Persistencia/json-20231013.jar main.Main
+	java -cp $(CLASS_OUTPUT_MAIN)/Main.jar:./FONTS/src/main/Persistencia/json-20231013.jar main.Main
 
 runcode_game:
 	java -cp $(CLASS_OUTPUT_MAIN)/UITablero.jar Presentacion.Vistas.VistaScrabble
