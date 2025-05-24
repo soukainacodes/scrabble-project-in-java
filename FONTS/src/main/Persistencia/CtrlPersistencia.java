@@ -1,43 +1,27 @@
 package Persistencia;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import Dominio.Excepciones.*;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import Persistencia.Gestores.Utilidades.Utils;
 
-import org.json.JSONObject;
-import org.json.JSONArray;
+// Importaciones específicas para los gestores
+import Persistencia.Gestores.GestorDePartidas;
+import Persistencia.Gestores.GestorDeRanking;
+import Persistencia.Gestores.GestorDeRecursos;
+import Persistencia.Gestores.GestorDeUsuarios;
 
 /**
  * Controlador de persistencia de la aplicación. Gestiona:
@@ -51,17 +35,42 @@ import org.json.JSONArray;
 public class CtrlPersistencia {
 
     /**
-     * Ruta de los recursos, partidas y jugadores.
+     * Rutas de los directorios de datos
      */
-    private static final String RECURSOS = "FONTS/src/main/Persistencia/Datos/Recursos/";
-    private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
     private static final String JUGADORES = "FONTS/src/main/Persistencia/Datos/Jugadores/";
+    private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
+    private static final String RECURSOS = "FONTS/src/main/Persistencia/Datos/Recursos/";
+    
+    /**
+     * Gestores para los diferentes subsistemas
+     */
+    private final GestorDeUsuarios gestorUsuarios;
+    private final GestorDeRanking gestorRanking;
+    private final GestorDeRecursos gestorRecursos;
+    private final GestorDePartidas gestorPartidas;
 
     /**
-     * Constructor de la clase CtrlPersistencia.
+     * Constructor del controlador de persistencia.
+     * Inicializa todos los gestores y asegura la existencia de los directorios de datos.
      */
     public CtrlPersistencia() {
-
+        // Crear directorios si no existen
+        crearDirectorios();
+        
+        // Inicializar gestores
+        gestorUsuarios = new GestorDeUsuarios();
+        gestorRanking = new GestorDeRanking();
+        gestorRecursos = new GestorDeRecursos();
+        gestorPartidas = new GestorDePartidas();
+    }
+    
+    /**
+     * Crea los directorios de datos si no existen
+     */
+    private void crearDirectorios() {
+        new File(JUGADORES).mkdirs();
+        new File(PARTIDAS).mkdirs();
+        new File(RECURSOS).mkdirs();
     }
 
     // ─── Jugadores ─────────────────────────────────────────────────────────────
@@ -73,12 +82,8 @@ public class CtrlPersistencia {
      * @return true si el jugador existe, false en caso contrario
      */
     public boolean existeJugador(String username) {
-        // Define la ruta del directorio del jugador
-        File userDir = new File(JUGADORES + username);
-        // Comprueba si la carpeta del jugador existe
-        return userDir.exists() && userDir.isDirectory();
+        return gestorUsuarios.existeJugador(username);
     }
-
 
     /**
      * Añade un nuevo jugador al sistema.
@@ -89,29 +94,7 @@ public class CtrlPersistencia {
      * @throws UsuarioYaRegistradoException Si el jugador ya existe
      */
     public void anadirJugador(String username, String password) throws IOException, UsuarioYaRegistradoException {
-        // Verificar si el jugador ya existe
-        if (existeJugador(username)) {
-            throw new UsuarioYaRegistradoException(username);
-        }
-
-        // Crear el directorio del jugador
-        Path userDir = Paths.get(JUGADORES + username);
-        Files.createDirectories(userDir);
-
-        // Crear el archivo JSON del jugador
-        Path userFile = userDir.resolve(username + ".json");
-
-        // Preparar los datos del jugador en formato JSON
-        JSONObject jugadorJson = new JSONObject();
-        jugadorJson.put("nombre", username); // Usado en la interfaz
-        jugadorJson.put("password", password); // Para autenticación
-        jugadorJson.put("maxpuntos", 0); // Puntuación inicial
-        jugadorJson.put("ultimaPartidaGuardada", JSONObject.NULL); // Sin partida guardada
-
-        // Escribir el archivo JSON
-        try (BufferedWriter writer = Files.newBufferedWriter(userFile, StandardCharsets.UTF_8)) {
-            writer.write(jugadorJson.toString(4)); // 4 espacios para formato legible
-        }
+        gestorUsuarios.anadirJugador(username, password);
     }
 
     /**
@@ -122,60 +105,7 @@ public class CtrlPersistencia {
      * @throws IOException                  Si ocurre un error al acceder a los archivos
      */
     public void eliminarJugador(String username) throws UsuarioNoEncontradoException, IOException {
-        // Usa el método existente para verificar si el jugador existe
-        if (!existeJugador(username)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
-        // Primero eliminar todas las partidas relacionadas con este jugador
-        File partidasDir = new File(PARTIDAS);
-        if (partidasDir.exists() && partidasDir.isDirectory()) {
-            File[] archivosPartidas = partidasDir.listFiles((dir, name) -> name.endsWith(".json"));
-            if (archivosPartidas != null) {
-                for (File archivoPartida : archivosPartidas) {
-                    try {
-                        // Leer el archivo de la partida
-                        String contenidoPartida = Files.readString(archivoPartida.toPath(), StandardCharsets.UTF_8);
-                        JSONObject partidaJson = new JSONObject(contenidoPartida);
-
-                        // Verificar si el jugador es jugador_1 o jugador_2
-                        if ((partidaJson.has("jugador_1") && partidaJson.getString("jugador_1").equals(username)) ||
-                                (partidaJson.has("jugador_2") && partidaJson.getString("jugador_2").equals(username))) {
-
-                            // Eliminar la partida
-                            if (!archivoPartida.delete()) {
-                                System.err.println("No se pudo eliminar la partida: " + archivoPartida.getName());
-                            } else {
-                                System.out.println("Partida eliminada: " + archivoPartida.getName());
-                            }
-                        }
-                    } catch (IOException e) {
-                        System.err.println(
-                                "Error al procesar partida " + archivoPartida.getName() + ": " + e.getMessage());
-                    }
-                }
-            }
-        }
-
-        // Define la ruta de la carpeta del jugador
-        File userDir = new File(JUGADORES + username);
-
-        // Elimina todos los archivos dentro de la carpeta
-        File[] archivos = userDir.listFiles();
-        if (archivos != null) {
-            for (File archivo : archivos) {
-                if (!archivo.delete()) {
-                    throw new IOException("No se pudo eliminar el archivo: " + archivo.getName());
-                }
-            }
-        }
-
-        // Elimina la carpeta del jugador
-        if (!userDir.delete()) {
-            throw new IOException("No se pudo eliminar la carpeta del jugador: " + username);
-        }
-
-        System.out.println("Jugador " + username + " eliminado completamente con todas sus partidas asociadas");
+        gestorUsuarios.eliminarJugador(username);
     }
 
     /**
@@ -187,24 +117,7 @@ public class CtrlPersistencia {
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
     public boolean verificarContrasena(String username, String password) throws UsuarioNoEncontradoException {
-        // Define la ruta del archivo JSON del jugador
-        Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
-        // Verifica si el archivo existe
-        if (!Files.exists(userFile)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
-        try {
-            // Leer el contenido del archivo JSON
-            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
-            JSONObject jugadorJson = new JSONObject(contenido);
-
-            // Verificar la contraseña
-            return jugadorJson.getString("password").equals(password);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
-        }
+        return gestorUsuarios.verificarContrasena(username, password);
     }
 
     /**
@@ -212,123 +125,12 @@ public class CtrlPersistencia {
      * 
      * @param username    Nombre de usuario del jugador
      * @param newUsername Nuevo nombre de usuario
-     * @throws UsuarioNoEncontradoException         Si el jugador no existe
-     * @throws UsuarioYaRegistradoException        Si el nuevo nombre ya está en uso
+     * @throws UsuarioNoEncontradoException  Si el jugador no existe
+     * @throws UsuarioYaRegistradoException  Si el nuevo nombre ya está en uso
      */
     public void actualizarNombre(String username, String newUsername)
             throws UsuarioNoEncontradoException, UsuarioYaRegistradoException {
-        // Verifica si el jugador existe
-        if (!existeJugador(username)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
-        // Verifica si el nuevo nombre ya está en uso
-        if (existeJugador(newUsername)) {
-            throw new UsuarioYaRegistradoException(newUsername);
-        }
-
-        // Define las rutas relevantes
-        Path oldUserDir = Paths.get(JUGADORES + username);
-        Path oldUserFile = oldUserDir.resolve(username + ".json");
-        Path newUserDir = Paths.get(JUGADORES + newUsername);
-        Path newUserFile = newUserDir.resolve(newUsername + ".json");
-
-        try {
-            // Leer el contenido del archivo JSON
-            String contenido = Files.readString(oldUserFile, StandardCharsets.UTF_8);
-            JSONObject jugadorJson = new JSONObject(contenido);
-
-            // Actualizar el nombre de usuario en el JSON
-            jugadorJson.put("nombre", newUsername);
-
-            // Crear el nuevo directorio si no existe
-            Files.createDirectories(newUserDir);
-
-            // Escribir el archivo JSON con el nuevo nombre
-            Files.writeString(newUserFile, jugadorJson.toString(4), StandardCharsets.UTF_8);
-
-            // Comprobar si existe la imagen de perfil y transferirla
-            File oldProfileImage = new File(oldUserDir.toFile(), username + ".png");
-            if (oldProfileImage.exists()) {
-                BufferedImage image = ImageIO.read(oldProfileImage);
-                if (image != null) {
-                    File newProfileImage = new File(newUserDir.toFile(), newUsername + ".png");
-                    ImageIO.write(image, "png", newProfileImage);
-                    oldProfileImage.delete(); // Eliminar la imagen antigua
-                }
-            }
-
-            // Transferir cualquier otro archivo que pueda existir en el directorio
-            File[] oldFiles = oldUserDir.toFile().listFiles();
-            if (oldFiles != null) {
-                for (File oldFile : oldFiles) {
-                    if (!oldFile.getName().equals(username + ".json") &&
-                            !oldFile.getName().equals(username + ".png")) {
-
-                        // Determinar el nuevo nombre para el archivo (si comienza con el username
-                        // antiguo)
-                        String newFileName = oldFile.getName();
-                        if (newFileName.startsWith(username)) {
-                            newFileName = newFileName.replaceFirst(username, newUsername);
-                        }
-
-                        // Copiar el archivo al nuevo directorio
-                        Files.copy(oldFile.toPath(),
-                                newUserDir.resolve(newFileName),
-                                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                        oldFile.delete(); // Eliminar el archivo antiguo
-                    }
-                }
-            }
-
-            // Eliminar el archivo antiguo
-            Files.delete(oldUserFile);
-
-            // Eliminar el directorio antiguo (debe estar vacío)
-            Files.delete(oldUserDir);
-
-        } catch (IOException e) {
-            throw new UncheckedIOException("Error al actualizar el nombre del jugador: " + username, e);
-        }
-        // Actualizar el nombre en todas las partidas guardadas
-        File partidasDir = new File(PARTIDAS);
-        if (partidasDir.exists() && partidasDir.isDirectory()) {
-            File[] archivos = partidasDir.listFiles((dir, name) -> name.endsWith(".json"));
-            if (archivos != null) {
-                for (File archivoPartida : archivos) {
-                    try {
-                        // Leer el archivo de la partida
-                        String contenidoPartida = Files.readString(archivoPartida.toPath(), StandardCharsets.UTF_8);
-                        JSONObject partidaJson = new JSONObject(contenidoPartida);
-
-                        boolean modificado = false;
-
-                        // Actualizar el jugador_1 si es necesario
-                        if (partidaJson.has("jugador_1") &&
-                                partidaJson.getString("jugador_1").equals(username)) {
-                            partidaJson.put("jugador_1", newUsername);
-                            modificado = true;
-                        }
-
-                        // Actualizar el jugador_2 si es necesario
-                        if (partidaJson.has("jugador_2") &&
-                                partidaJson.getString("jugador_2").equals(username)) {
-                            partidaJson.put("jugador_2", newUsername);
-                            modificado = true;
-                        }
-
-                        // Guardar los cambios si se modificó la partida
-                        if (modificado) {
-                            Files.writeString(archivoPartida.toPath(),
-                                    partidaJson.toString(4),
-                                    StandardCharsets.UTF_8);
-                        }
-                    } catch (IOException e) {
-                        System.err.println("Error al actualizar partida: " + archivoPartida.getName());
-                    }
-                }
-            }
-        }
+        gestorUsuarios.actualizarNombre(username, newUsername);
     }
 
     /**
@@ -341,28 +143,7 @@ public class CtrlPersistencia {
      */
     public void actualizarContrasena(String username, String currentPass, String newPass)
             throws UsuarioNoEncontradoException {
-        // Verificar la contraseña actual
-        if (!verificarContrasena(username, currentPass)) {
-            throw new IllegalArgumentException("La contraseña actual es incorrecta");
-        }
-
-        // Define la ruta del archivo JSON del jugador
-        Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
-        try {
-            // Leer el contenido del archivo JSON
-            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
-            JSONObject jugadorJson = new JSONObject(contenido);
-
-            // Actualizar la contraseña
-            jugadorJson.put("password", newPass);
-
-            // Escribir el archivo JSON actualizado
-            Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
-        }
+        gestorUsuarios.actualizarContrasena(username, currentPass, newPass);
     }
 
     /**
@@ -375,34 +156,7 @@ public class CtrlPersistencia {
      */
     public void actualizarPuntuacion(String username, int pts)
             throws UsuarioNoEncontradoException, PuntuacionInvalidaException {
-        // Verificar que la puntuación no sea negativa
-        if (pts < 0) {
-            throw new PuntuacionInvalidaException(pts);
-        }
-
-        // Obtener la puntuación actual
-        int maxpuntosActual = obtenerPuntuacion(username);
-
-        // Actualizar la puntuación solo si el nuevo valor es mayor
-        if (pts > maxpuntosActual) {
-            // Define la ruta del archivo JSON del jugador
-            Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
-            try {
-                // Leer el contenido del archivo JSON
-                String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
-                JSONObject jugadorJson = new JSONObject(contenido);
-
-                // Actualizar la puntuación
-                jugadorJson.put("maxpuntos", pts);
-
-                // Escribir el archivo JSON actualizado
-                Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
-                        StandardOpenOption.TRUNCATE_EXISTING);
-            } catch (IOException e) {
-                throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
-            }
-        }
+        gestorUsuarios.actualizarPuntuacion(username, pts);
     }
 
     /**
@@ -410,33 +164,12 @@ public class CtrlPersistencia {
      * 
      * @param username  Nombre de usuario del jugador
      * @param idPartida ID de la partida a guardar
-     * @throws UsuarioNoEncontradoException         Si el jugador no existe
-     * @throws UltimaPartidaNoExistenteException    Si no hay partida guardada
+     * @throws UsuarioNoEncontradoException      Si el jugador no existe
+     * @throws UltimaPartidaNoExistenteException Si no hay partida guardada
      */
     public void actualizarUltimaPartida(String username, String idPartida)
             throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
-        // Define la ruta del archivo JSON del jugador
-        Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
-        // Verifica si el archivo existe
-        if (!Files.exists(userFile)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
-        try {
-            // Leer el contenido del archivo JSON
-            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
-            JSONObject jugadorJson = new JSONObject(contenido);
-
-            // Actualizar la última partida guardada
-            jugadorJson.put("ultimaPartidaGuardada", idPartida);
-
-            // Escribir el archivo JSON actualizado
-            Files.writeString(userFile, jugadorJson.toString(4), StandardCharsets.UTF_8,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
-        }
+        gestorUsuarios.actualizarUltimaPartida(username, idPartida);
     }
 
     /**
@@ -447,30 +180,7 @@ public class CtrlPersistencia {
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
     public int obtenerPuntuacion(String username) throws UsuarioNoEncontradoException {
-        // Define la ruta del archivo JSON del jugador
-
-        // Verifica si el jugador existe
-        if (!existeJugador(username)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
-        Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
-        // Verifica si el archivo existe
-        if (!Files.exists(userFile)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
-        try {
-            // Leer el contenido del archivo JSON
-            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
-            JSONObject jugadorJson = new JSONObject(contenido);
-
-            // Obtener la puntuación
-            return jugadorJson.getInt("maxpuntos");
-        } catch (IOException e) {
-            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
-        }
+        return gestorUsuarios.obtenerPuntuacion(username);
     }
 
     /**
@@ -478,34 +188,12 @@ public class CtrlPersistencia {
      * 
      * @param username Nombre de usuario del jugador
      * @return ID de la última partida guardada
-     * @throws UsuarioNoEncontradoException         Si el jugador no existe
-     * @throws UltimaPartidaNoExistenteException    Si no hay partida guardada
+     * @throws UsuarioNoEncontradoException      Si el jugador no existe
+     * @throws UltimaPartidaNoExistenteException Si no hay partida guardada
      */
     public String obtenerUltimaPartida(String username)
             throws UsuarioNoEncontradoException, UltimaPartidaNoExistenteException {
-        // Define la ruta del archivo JSON del jugador
-        Path userFile = Paths.get(JUGADORES + username, username + ".json");
-
-        // Verifica si el archivo existe
-        if (!Files.exists(userFile)) {
-            throw new UsuarioNoEncontradoException(username);
-        }
-
-        try {
-            // Leer el contenido del archivo JSON
-            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
-            JSONObject jugadorJson = new JSONObject(contenido);
-
-            // Verificar si existe una última partida guardada y no es nula
-            if (!jugadorJson.has("ultimaPartidaGuardada") || jugadorJson.isNull("ultimaPartidaGuardada")) {
-                throw new UltimaPartidaNoExistenteException();
-            }
-
-            // Obtener la última partida guardada
-            return jugadorJson.getString("ultimaPartidaGuardada");
-        } catch (IOException e) {
-            throw new UncheckedIOException("Error al acceder al archivo del jugador: " + username, e);
-        }
+        return gestorUsuarios.obtenerUltimaPartida(username);
     }
 
     // ------------------------------ RANKING ----------------------------------
@@ -517,49 +205,7 @@ public class CtrlPersistencia {
      * @throws IOException Si ocurre un error al acceder a los archivos
      */
     public List<Map.Entry<String, Integer>> generarRanking() throws IOException {
-        // Ruta base donde están los directorios de los jugadores
-        Path jugadoresDir = Paths.get(JUGADORES);
-
-        // Lista para almacenar los pares (nombre, puntuación)
-        List<Map.Entry<String, Integer>> ranking = new ArrayList<>();
-
-        // Verificar si el directorio de jugadores existe
-        if (Files.exists(jugadoresDir) && Files.isDirectory(jugadoresDir)) {
-            // Recorrer los directorios de los jugadores
-            try (Stream<Path> paths = Files.list(jugadoresDir)) {
-                paths.filter(Files::isDirectory).forEach(dir -> {
-                    // Obtener el archivo JSON del jugador
-                    Path userFile = dir.resolve(dir.getFileName() + ".json");
-                    if (Files.exists(userFile)) {
-                        try {
-                            // Leer el contenido del archivo JSON
-                            String contenido = Files.readString(userFile, StandardCharsets.UTF_8);
-                            JSONObject jugadorJson = new JSONObject(contenido);
-
-                            if (jugadorJson.getInt("maxpuntos") > 0) {
-                                String username = jugadorJson.getString("nombre");
-                                int maxpuntos = jugadorJson.getInt("maxpuntos");
-                                // Añadir al ranking
-                                ranking.add(Map.entry(username, maxpuntos));
-                            }
-                        } catch (IOException e) {
-                            System.err.println("Error al procesar el archivo de jugador: " + userFile);
-                        }
-                    }
-                });
-            }
-        }
-
-        // Ordenar el ranking por puntuación descendente y luego por nombre ascendente
-        ranking.sort((e1, e2) -> {
-            int cmp = Integer.compare(e2.getValue(), e1.getValue()); // Ordenar por puntuación (descendente)
-            if (cmp == 0) {
-                return e1.getKey().compareTo(e2.getKey()); // Si hay empate, ordenar por nombre (ascendente)
-            }
-            return cmp;
-        });
-
-        return ranking;
+        return gestorRanking.generarRanking();
     }
 
     /**
@@ -571,34 +217,20 @@ public class CtrlPersistencia {
      * @throws IOException                  Si ocurre un error al acceder a los archivos
      */
     public int obtenerPosicion(String name) throws UsuarioNoEncontradoException, IOException {
-        // Generar el ranking
-        List<Map.Entry<String, Integer>> ranking = generarRanking();
-
-        // Recorrer el ranking para encontrar la posición del jugador
-        for (int i = 0; i < ranking.size(); i++) {
-            if (ranking.get(i).getKey().equals(name)) {
-                return i + 1; // Las posiciones empiezan en 1
-            }
-        }
-
-        // Si no se encuentra el jugador, lanzar una excepción
-        throw new UsuarioNoEncontradoException("El jugador no fue encontrado en el ranking: " + name);
+        return gestorRanking.obtenerPosicion(name);
     }
 
     // ------------------------------ PARTIDAS ----------------------------------
 
-    
     /**
      * Comprueba si una partida existe en el sistema.
+     * 
      * @param id ID de la partida
-     * @return  true si la partida existe, false en caso contrario
-    */
+     * @return true si la partida existe, false en caso contrario
+     */
     public boolean existePartida(String id) {
-        // Verifica si el archivo de la partida existe
-        File partidaFile = new File(PARTIDAS + "partida_" + id + ".json");
-        return partidaFile.exists();
+        return gestorPartidas.existePartida(id);
     }
-
 
     /**
      * Verifica si una partida está acabada.
@@ -607,25 +239,7 @@ public class CtrlPersistencia {
      * @return true si la partida está acabada, false en caso contrario
      */
     public boolean esPartidaAcabada(String id) {
-        try {
-            // Verifica si la partida existe
-            if (!existePartida(id)) {
-                return false;
-            }
-
-            // Leemos el archivo y parseamos directamente el JSON
-            String content = Files.readString(Paths.get(PARTIDAS + "partida_" + id + ".json"),
-                    StandardCharsets.UTF_8);
-            JSONObject partidaJson = new JSONObject(content);
-
-            // El campo se guarda como un entero (0 o 1)
-            int acabadaValue = partidaJson.getInt("partida_acabada");
-            return acabadaValue == 1;
-
-        } catch (IOException e) {
-            System.err.println("[Persistencia] Error al leer la partida: " + e.getMessage());
-            return false;
-        }
+        return gestorPartidas.esPartidaAcabada(id);
     }
 
     /**
@@ -635,23 +249,7 @@ public class CtrlPersistencia {
      * @return Recurso de la partida
      */
     public String obtenerRecursoPartida(String id) {
-        // Verifica si la partida existe
-        if (!existePartida(id)) {
-            return null;
-        }
-
-        // Carga el archivo de la partida
-        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
-        try {
-            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
-            JSONObject partidaJson = new JSONObject(contenido);
-
-            System.out.println("El recurso de la partida es: " + partidaJson.getString("recurso"));
-            return partidaJson.getString("recurso");
-        } catch (IOException e) {
-            System.err.println("[Persistencia] Error al cargar el recurso de la partida: " + e.getMessage());
-            return null;
-        }
+        return gestorPartidas.obtenerRecursoPartida(id);
     }
 
     /**
@@ -665,20 +263,7 @@ public class CtrlPersistencia {
      */
     public void guardarPartida(String username, String segundoJugador, String id, List<String> partida)
             throws UsuarioNoEncontradoException {
-        String nombreArchivo = "partida_" + id + ".json";
-        String rutaArchivo = PARTIDAS + nombreArchivo;
-
-        // Convertir la lista de datos a JSON
-        String jsonPartida = partidaListToJson(partida);
-
-        // Escribir el JSON en un archivo
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
-            writer.write(jsonPartida);
-            System.out.println("Partida guardada exitosamente en: " + rutaArchivo);
-        } catch (IOException e) {
-            System.err.println("[Persistencia] Error al guardar la partida: " + e.getMessage());
-        }
-
+        gestorPartidas.guardarPartida(username, segundoJugador, id, partida);
     }
 
     /**
@@ -689,19 +274,7 @@ public class CtrlPersistencia {
      * @throws PartidaNoEncontradaException Si la partida no existe
      */
     public List<String> cargarPartida(String id) throws PartidaNoEncontradaException {
-        // Verifica si la partida existe
-        if (!existePartida(id)) {
-            throw new PartidaNoEncontradaException(id);
-        }
-
-        // Carga el archivo de la partida
-        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
-        try {
-            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
-            return jsonToPartidaList(contenido);
-        } catch (IOException e) {
-            throw new PartidaNoEncontradaException(id);
-        }
+        return gestorPartidas.cargarPartida(id);
     }
 
     /**
@@ -711,18 +284,7 @@ public class CtrlPersistencia {
      * @throws PartidaNoEncontradaException Si la partida no existe
      */
     public void eliminarPartida(String id) throws PartidaNoEncontradaException {
-        // Verifica si la partida existe
-        if (!existePartida(id)) {
-            throw new PartidaNoEncontradaException(id);
-        }
-
-        // Elimina el archivo de la partida
-        File partidaFile = new File(PARTIDAS + "partida_" + id + ".json");
-        if (partidaFile.delete()) {
-            System.out.println("Partida eliminada: " + partidaFile.getPath());
-        } else {
-            System.out.println("No se pudo eliminar la partida.");
-        }
+        gestorPartidas.eliminarPartida(id);
     }
 
     /**
@@ -732,45 +294,31 @@ public class CtrlPersistencia {
      * @return Lista de IDs de partidas no acabadas
      */
     public List<String> listarPartidasNoAcabadas(String jugadorActual) {
-        List<String> partidasNoAcabadas = new ArrayList<>();
-        File dir = new File(PARTIDAS);
+        return gestorPartidas.listarPartidasNoAcabadas(jugadorActual);
+    }
 
-        if (dir.isDirectory()) {
-            for (File file : Objects.requireNonNull(dir.listFiles())) {
-                if (file.getName().endsWith(".json")) {
-                    String id = file.getName().replace("partida_", "").replace(".json", "");
+    /**
+     * Obtiene el jugador actual de una partida.
+     * 
+     * @param id ID de la partida
+     * @return Nombre del jugador actual
+     * @throws PartidaNoEncontradaException Si la partida no existe
+     * @throws UsuarioNoEncontradoException Si el jugador no existe
+     */
+    public String obtenerJugadorActual(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
+        return gestorPartidas.obtenerJugadorActual(id);
+    }
 
-                    try {
-                        // Verificamos si la partida no está acabada
-                        if (!esPartidaAcabada(id)) {
-                            // Leer el archivo JSON para verificar si el jugador actual participa
-                            String content = Files.readString(Paths.get(PARTIDAS + file.getName()),
-                                    StandardCharsets.UTF_8);
-                            JSONObject partidaJson = new JSONObject(content);
-
-                            // Extraer el recurso y los jugadores de la partida
-                            String recurso = partidaJson.getString("recurso");
-                            String jugador1 = partidaJson.getString("jugador_1");
-                            String jugador2 = partidaJson.getString("jugador_2");
-
-                            // Verificar si:
-                            // 1. El jugador actual participa (es jugador_1 o jugador_2)
-                            // 2. Ambos jugadores existen en el sistema
-                            // 3. El recurso existe
-                            if ((jugador1.equals(jugadorActual) || jugador2.equals(jugadorActual)) &&
-                                    existeJugador(jugador1) &&
-                                    existeJugador(jugador2) &&
-                                    existeRecurso(recurso)) {
-                                partidasNoAcabadas.add(id);
-                            }
-                        }
-                    } catch (IOException e) {
-                        System.err.println("[Persistencia] Error al procesar partida " + id + ": " + e.getMessage());
-                    }
-                }
-            }
-        }
-        return partidasNoAcabadas; // Retorna la lista de partidas no acabadas
+    /**
+     * Obtiene el segundo jugador de una partida.
+     * 
+     * @param id ID de la partida
+     * @return Nombre del segundo jugador
+     * @throws PartidaNoEncontradaException Si la partida no existe
+     * @throws UsuarioNoEncontradoException  Si el usuario no existe
+     */
+    public String obtenerSegundoJugador(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
+        return gestorPartidas.obtenerSegundoJugador(id);
     }
 
     // ─── Diccionarios y Bolsas ───────────────────────────────────────────────
@@ -782,9 +330,7 @@ public class CtrlPersistencia {
      * @return true si el recurso existe, false en caso contrario
      */
     public boolean existeRecurso(String id) {
-        // Verifica si el directorio del idioma existe
-        File dir = new File(RECURSOS + id);
-        return dir.exists() && dir.isDirectory();
+        return gestorRecursos.existeRecurso(id);
     }
 
     /**
@@ -793,17 +339,9 @@ public class CtrlPersistencia {
      * @return Lista de nombres de recursos
      */
     public List<String> listarRecursos() {
-        List<String> idiomas = new ArrayList<>();
-        File dir = new File(RECURSOS);
-        if (dir.isDirectory()) {
-            for (File file : Objects.requireNonNull(dir.listFiles(File::isDirectory))) {
-                idiomas.add(file.getName());
-            }
-        }
-        return idiomas;
+        return gestorRecursos.listarRecursos();
     }
 
-    
     /**
      * Obtiene el diccionario de un recurso.
      * 
@@ -812,18 +350,9 @@ public class CtrlPersistencia {
      * @throws IOException Si ocurre un error de E/S
      */
     public List<String> obtenerDiccionario(String id) throws IOException {
-        List<String> palabras = new ArrayList<>();
-        File diccionarioFile = new File(RECURSOS + id, id + "_diccionario.txt");
-        if (diccionarioFile.exists() && diccionarioFile.isFile()) {
-            palabras = leerArchivoTexto(diccionarioFile.getPath());
-        } else {
-            throw new IOException("No se encontró el diccionario para el idioma: " + id);
-        }
-        return palabras;
+        return gestorRecursos.obtenerDiccionario(id);
     }
 
-  
-   
     /**
      * Obtiene la bolsa de un recurso.
      * 
@@ -832,14 +361,7 @@ public class CtrlPersistencia {
      * @throws IOException Si ocurre un error de E/S
      */
     public List<String> obtenerBolsa(String id) throws IOException {
-        List<String> bolsa = new ArrayList<>();
-        File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
-        if (bolsaFile.exists() && bolsaFile.isFile()) {
-            bolsa = leerArchivoTexto(bolsaFile.getPath());
-        } else {
-            throw new IOException("No se encontró la bolsa para el idioma: " + id);
-        }
-        return bolsa;
+        return gestorRecursos.obtenerBolsa(id);
     }
 
     /**
@@ -853,22 +375,7 @@ public class CtrlPersistencia {
      */
     public void crearRecurso(String id, List<String> palabras, List<String> bolsa)
             throws IOException, RecursoExistenteException {
-        // Verifica si el recurso ya existe
-        if (existeRecurso(id)) {
-            throw new RecursoExistenteException(id);
-        }
-
-        // Crea el directorio del recurso si no existe
-        File dir = new File(RECURSOS, id);
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException("No se pudo crear el directorio: " + dir.getPath());
-        }
-
-        // Crea el archivo del diccionario
-        crearDiccionario(id, palabras);
-
-        // Crea el archivo de la bolsa directamente con la lista de strings
-        crearBolsa(id, bolsa);
+        gestorRecursos.crearRecurso(id, palabras, bolsa);
     }
 
     /**
@@ -880,21 +387,7 @@ public class CtrlPersistencia {
      * @throws RecursoExistenteException Si el recurso ya existe
      */
     public void crearDiccionario(String id, List<String> palabras) throws IOException, RecursoExistenteException {
-
-        // Crea el directorio del recurso si no existe
-        File dir = new File(RECURSOS, id);
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException("No se pudo crear el directorio: " + dir.getPath());
-        }
-
-        // Crea el archivo del diccionario
-        File diccionarioFile = new File(dir, id + "_diccionario.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(diccionarioFile))) {
-            for (String palabra : palabras) {
-                writer.write(palabra);
-                writer.newLine();
-            }
-        }
+        gestorRecursos.crearDiccionario(id, palabras);
     }
 
     /**
@@ -905,14 +398,7 @@ public class CtrlPersistencia {
      * @throws IOException Si ocurre un error al escribir el archivo
      */
     public void crearBolsa(String id, List<String> bolsa) throws IOException {
-        // Crea el archivo de la bolsa
-        File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(bolsaFile))) {
-            for (String linea : bolsa) {
-                writer.write(linea);
-                writer.newLine();
-            }
-        }
+        gestorRecursos.crearBolsa(id, bolsa);
     }
 
     /**
@@ -926,16 +412,18 @@ public class CtrlPersistencia {
      */
     public void modificarRecurso(String id, List<String> palabras, List<String> bolsaData)
             throws IOException, RecursoNoExistenteException {
-        // Verifica si el recurso existe
-        if (!existeRecurso(id)) {
-            throw new IOException("El recurso no existe: " + id);
-        }
+        gestorRecursos.modificarRecurso(id, palabras, bolsaData);
+    }
 
-        // Modifica el diccionario
-        modificarDiccionario(id, palabras);
-
-        // Modifica la bolsa
-        modificarBolsa(id, bolsaData);
+    /**
+     * Modifica el archivo de diccionario para un recurso.
+     * 
+     * @param id       Identificador del recurso
+     * @param palabras Lista de palabras para el diccionario
+     * @throws IOException Si ocurre un error al escribir el archivo
+     */
+    public void modificarDiccionario(String id, List<String> palabras) throws IOException {
+        gestorRecursos.modificarDiccionario(id, palabras);
     }
 
     /**
@@ -946,32 +434,7 @@ public class CtrlPersistencia {
      * @throws IOException Si ocurre un error al escribir el archivo
      */
     public void modificarBolsa(String id, List<String> bolsa) throws IOException {
-        // Crea el archivo de la bolsa
-        File bolsaFile = new File(RECURSOS + id, id + "_bolsa.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(bolsaFile))) {
-            for (String linea : bolsa) {
-                writer.write(linea);
-                writer.newLine();
-            }
-        }
-    }
-
-    /**
-     * Modifica el archivo de diccionario para un recurso.
-     * 
-     * @param id       Identificador del recurso
-     * @param palabras Lista de palabras para el diccionario
-     * @throws IOException Si ocurre un error al escribir el archivo
-     */
-    public void modificarDiccionario(String id, List<String> palabras)
-            throws IOException {
-        File diccionarioFile = new File(RECURSOS + id, id + "_diccionario.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(diccionarioFile))) {
-            for (String palabra : palabras) {
-                writer.write(palabra);
-                writer.newLine();
-            }
-        }
+        gestorRecursos.modificarBolsa(id, bolsa);
     }
 
     /**
@@ -980,267 +443,15 @@ public class CtrlPersistencia {
      * @param id Identificador del recurso
      * @throws DiccionarioNoEncontradoException Si el diccionario no se encuentra
      * @throws BolsaNoEncontradaException       Si la bolsa no se encuentra
-     * @throws IOException                     Si ocurre un error de E/S
+     * @throws IOException                      Si ocurre un error de E/S
      */
     public void eliminarRecurso(String id)
             throws DiccionarioNoEncontradoException, BolsaNoEncontradaException, IOException {
-        // Define la ruta de la carpeta del recurso
-        File recursoDir = new File(RECURSOS + id);
-
-        // Verifica si la carpeta existe
-        if (!recursoDir.exists() || !recursoDir.isDirectory()) {
-            throw new IOException("El recurso no existe: " + id);
-        }
-
-        // Verifica si el diccionario existe
-        File diccionarioFile = new File(recursoDir, id + "_diccionario.txt");
-        if (!diccionarioFile.exists()) {
-            throw new DiccionarioNoEncontradoException("No se encontró el diccionario para el idioma: " + id);
-        }
-
-        // Verifica si la bolsa existe
-        File bolsaFile = new File(recursoDir, id + "_bolsa.txt");
-        if (!bolsaFile.exists()) {
-            throw new BolsaNoEncontradaException("No se encontró la bolsa para el idioma: " + id);
-        }
-
-        // Elimina los archivos del recurso
-        if (!diccionarioFile.delete()) {
-            throw new IOException("No se pudo eliminar el diccionario: " + diccionarioFile.getName());
-        }
-        if (!bolsaFile.delete()) {
-            throw new IOException("No se pudo eliminar la bolsa: " + bolsaFile.getName());
-        }
-
-        // Elimina la carpeta del recurso
-        if (!recursoDir.delete()) {
-            throw new IOException("No se pudo eliminar la carpeta del recurso: " + id);
-        }
-    }
-
-    // -------------------------------- UTILIDADES ----------------------------------
-
-    /**
-     * Convierte una cadena de fichas a un JSONArray.
-     * 
-     * @param fichas Cadena de fichas
-     * @return JSONArray de fichas
-     */
-    private List<String> leerArchivoTexto(String ruta) throws IOException {
-        List<String> out = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
-            for (String l; (l = br.readLine()) != null;) {
-                l = l.trim();
-                if (!l.isEmpty()) {
-                    out.add(l);
-                }
-            }
-        }
-        return out;
-    }
-
-
-    /**
-     * Convierte una lista de datos de partida a un JSON.
-     * 
-     * @param partidaData Lista de datos de la partida
-     * @return JSON de la partida
-     */
-    public static String partidaListToJson(List<String> partidaData) {
-        // Usamos un JSONObject directamente ya que el orden no importa
-        JSONObject partidaJson = new JSONObject();
-
-        // 0. Partida acabada
-        partidaJson.put("partida_acabada", partidaData.get(0));
-
-        // 1. nombre_partida
-        partidaJson.put("nombre_partida", partidaData.get(1));
-
-        // 2. numero_turnos
-        partidaJson.put("numero_turnos", Integer.parseInt(partidaData.get(2)));
-
-        // 3. turno_jugador
-        partidaJson.put("turno_jugador", Integer.parseInt(partidaData.get(3)));
-
-        // 4. jugador_1
-        partidaJson.put("jugador_1", partidaData.get(4));
-
-        // 5. jugador_2
-        partidaJson.put("jugador_2", partidaData.get(5));
-
-        // 6. puntos_jugador_1
-        partidaJson.put("puntos_jugador_1", Integer.parseInt(partidaData.get(6)));
-
-        // 7. puntos_jugador_2
-        partidaJson.put("puntos_jugador_2", Integer.parseInt(partidaData.get(7)));
-
-        // 8. fichas_jugador_1
-        JSONArray fichasJugador1 = parseFichas(partidaData.get(8));
-        partidaJson.put("fichas_jugador_1", fichasJugador1);
-
-        // 9. fichas_jugador_2
-        JSONArray fichasJugador2 = parseFichas(partidaData.get(9));
-        partidaJson.put("fichas_jugador_2", fichasJugador2);
-
-        // 10. fichas_restantes
-        int numFichasRestantes = Integer.parseInt(partidaData.get(10));
-        JSONArray fichasRestantes = new JSONArray();
-        for (int i = 11; i < 11 + numFichasRestantes; i++) {
-            fichasRestantes.put(partidaData.get(i)); // Añadimos la ficha como una cadena
-        }
-        partidaJson.put("bolsa", fichasRestantes);
-
-        // 11. posiciones_tablero
-        int numFichasUsadas = Integer.parseInt(partidaData.get(11 + numFichasRestantes));
-        JSONArray posicionesTablero = new JSONArray();
-        // Stop 1 element before the end to avoid including the resource
-        for (int i = 11 + numFichasRestantes + 1; i < partidaData.size() - 1; i++) {
-            posicionesTablero.put(partidaData.get(i)); // Añadimos la posición como una cadena
-        }
-        partidaJson.put("posiciones_tablero", posicionesTablero);
-
-        // 12. recurso - always the last element
-        partidaJson.put("recurso", partidaData.get(partidaData.size() - 1));
-        // Retornamos el JSON como una cadena con formato bonito
-        return partidaJson.toString(2); // Formateo bonito del JSON
-    }
-
-    /**
-     * Convierte un JSON de partida a una lista de datos.
-     * 
-     * @param partidaJson JSON de la partida
-     * @return Lista de datos de la partida
-     */
-    public static List<String> jsonToPartidaList(String partidaJson) {
-        // Inicializamos la lista que contendrá los datos de la partida
-        List<String> partidaData = new ArrayList<>();
-
-        // Convertimos el JSON a un JSONObject
-        JSONObject partida = new JSONObject(partidaJson);
-
-        // Extraemos los valores en el orden exacto que hemos establecido
-        partidaData.add(String.valueOf(partida.getInt("partida_acabada"))); // 0. partida_acabada
-        partidaData.add(partida.getString("nombre_partida")); // 1. nombre_partida
-        partidaData.add(String.valueOf(partida.getInt("numero_turnos"))); // 2. numero_turnos
-        partidaData.add(String.valueOf(partida.getInt("turno_jugador"))); // 3. turno_jugador
-        partidaData.add(partida.getString("jugador_1")); // 4. jugador_1
-        partidaData.add(partida.getString("jugador_2")); // 5. jugador_2
-        partidaData.add(String.valueOf(partida.getInt("puntos_jugador_1"))); // 6. puntos_jugador_1
-        partidaData.add(String.valueOf(partida.getInt("puntos_jugador_2"))); // 7. puntos_jugador_2
-
-        // 8. fichas_jugador_1
-        JSONArray fichasJugador1 = partida.getJSONArray("fichas_jugador_1");
-        partidaData.add(parseFichasToString(fichasJugador1));
-
-        // 9. fichas_jugador_2
-        JSONArray fichasJugador2 = partida.getJSONArray("fichas_jugador_2");
-        partidaData.add(parseFichasToString(fichasJugador2));
-
-        // 10. fichas_restantes
-        JSONArray fichasRestantes = partida.getJSONArray("bolsa");
-        partidaData.add(String.valueOf(fichasRestantes.length())); // Añadimos el número de fichas restantes
-        for (int i = 0; i < fichasRestantes.length(); i++) {
-            partidaData.add(fichasRestantes.getString(i)); // Añadimos cada ficha restante
-        }
-
-        // 11. posiciones_tablero
-        JSONArray posicionesTablero = partida.getJSONArray("posiciones_tablero");
-        partidaData.add(String.valueOf(posicionesTablero.length())); // Añadimos el número de fichas restantes
-        for (int i = 0; i < posicionesTablero.length(); i++) {
-            if (posicionesTablero.isNull(i)) {
-                partidaData.add("null"); // Add a string representation of null
-            } else {
-                partidaData.add(posicionesTablero.getString(i)); // Añadimos cada posición del tablero
-            }
-        }
-
-        // 12. recurso
-        partidaData.add(partida.getString("recurso")); // Último elemento es el recurso
-        return partidaData;
-    }
-
-    /**
-     * Convierte una cadena de fichas a un JSONArray.
-     * 
-     * @param fichaData Cadena de fichas
-     * @return JSONArray de fichas
-     */
-    private static JSONArray parseFichas(String fichaData) {
-        JSONArray fichas = new JSONArray();
-        String[] fichaArray = fichaData.split(" ");
-        for (int i = 0; i < fichaArray.length; i += 2) {
-            fichas.put(fichaArray[i] + " " + fichaArray[i + 1]); // Guardamos la ficha como una cadena
-        }
-        return fichas;
-    }
-
-    /**
-     * Convierte un JSONArray de fichas a una cadena.
-     * 
-     * @param fichas JSONArray de fichas
-     * @return Cadena representando las fichas
-     */
-    private static String parseFichasToString(JSONArray fichas) {
-        StringBuilder fichasStr = new StringBuilder();
-        for (int i = 0; i < fichas.length(); i++) {
-            fichasStr.append(fichas.getString(i)).append(" ");
-        }
-        return fichasStr.toString().trim();
-    }
-
-    /**
-     * Obtiene el segundo jugador de una partida.
-     * 
-     * @param id ID de la partida
-     * @return Nombre del segundo jugador
-     * @throws PartidaNoEncontradaException Si la partida no existe
-     * @throws UsuarioNoEncontradoException Si el segundo jugador no existe
-     */
-    public String obtenerJugadorActual(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
-        // Verifica si la partida existe
-        if (!existePartida(id)) {
-            throw new PartidaNoEncontradaException(id);
-        }
-
-        // Carga el archivo de la partida
-        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
-        try {
-            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)), StandardCharsets.UTF_8);
-            JSONObject partidaJson = new JSONObject(contenido);
-
-            return partidaJson.getString("jugador_1");
-        } catch (IOException e) {
-            throw new UsuarioNoEncontradoException();
-        }
-    }
-
-
-    /**
-     * Obtiene el segundo jugador de una partida.
-     * 
-     * @param id ID de la partida
-     * @return Nombre del segundo jugador
-     * @throws PartidaNoEncontradaException Si la partida no existe
-     * @throws UsuarioNoEncontradoException  Si el usuario no existe
-     */
-    public String obtenerSegundoJugador(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
-        // Verifica si la partida existe
-        if (!existePartida(id)) {
-            throw new PartidaNoEncontradaException(id);
-        }
-        // Carga el archivo de la partida
-        String rutaArchivo = PARTIDAS + "partida_" + id + ".json";
-        try {
-            String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)), StandardCharsets.UTF_8);
-            JSONObject partidaJson = new JSONObject(contenido);
-
-            return partidaJson.getString("jugador_2");
-        } catch (IOException e) {
-            throw new UsuarioNoEncontradoException();
-        }
+        gestorRecursos.eliminarRecurso(id);
     }
 
     // ------------------------------ IMAGENES ----------------------------------
+
     /**
      * Guarda la imagen de perfil de un jugador.
      * 
@@ -1248,59 +459,17 @@ public class CtrlPersistencia {
      * @param image    Imagen a guardar
      */
     public void guardarImagenPerfil(String username, BufferedImage image) {
-        // Verificar si el usuario existe
-        if (!existeJugador(username)) {
-            return;
-        }
-
-        // Crear el directorio del jugador si no existe
-        File dir = new File(JUGADORES + username);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                System.err.println("No se pudo crear el directorio para la imagen de perfil de " + username);
-                return;
-            }
-        }
-
-        // Definir la ruta de la imagen de perfil
-        File imagenFile = new File(dir, username + ".png");
-
-        try {
-            // Guardar la imagen en el archivo
-            javax.imageio.ImageIO.write(image, "png", imagenFile);
-            System.out.println("Imagen de perfil guardada para " + username);
-        } catch (IOException e) {
-            System.err.println("Error al guardar la imagen de perfil de " + username + ": " + e.getMessage());
-        }
+        gestorUsuarios.guardarImagenPerfil(username, image);
     }
 
     /**
-     * Verifica si un jugador existe en el sistema.
+     * Obtiene la imagen de perfil de un jugador.
      * 
      * @param username Nombre de usuario del jugador
-     * @return true si el jugador existe, false en caso contrario
+     * @return La imagen de perfil, o null si no existe
      */
     public BufferedImage obtenerImagenPerfil(String username) {
-        // Verificar si el usuario existe
-        if (!existeJugador(username)) {
-            return null;
-        }
-
-        // Definir la ruta de la imagen de perfil
-        File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
-
-        // Verificar si la imagen existe
-        if (!imagenFile.exists()) {
-            return null;
-        }
-
-        try {
-            // Leer y retornar la imagen
-            return javax.imageio.ImageIO.read(imagenFile);
-        } catch (IOException e) {
-            System.err.println("Error al cargar la imagen de perfil de " + username + ": " + e.getMessage());
-            return null;
-        }
+        return gestorUsuarios.obtenerImagenPerfil(username);
     }
 
     /**
@@ -1309,23 +478,8 @@ public class CtrlPersistencia {
      * @param username Nombre de usuario del jugador
      */
     public void eliminarImagenPerfil(String username) {
-        // Verificar si el usuario existe
-        if (!existeJugador(username)) {
-            return;
-        }
-
-        // Definir la ruta de la imagen de perfil
-        File imagenFile = new File(JUGADORES + username + "/" + username + ".png");
-
-        // Verificar si la imagen existe
-        if (imagenFile.exists()) {
-            // Eliminar la imagen
-            if (imagenFile.delete()) {
-                System.out.println("Imagen de perfil eliminada para " + username);
-            } else {
-                System.err.println("No se pudo eliminar la imagen de perfil de " + username);
-            }
-        }
+        gestorUsuarios.eliminarImagenPerfil(username);
     }
 
+   
 }

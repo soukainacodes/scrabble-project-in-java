@@ -26,7 +26,9 @@ code:
 		./FONTS/src/main/Presentacion/*.java \
 		./FONTS/src/main/Presentacion/Vistas/*.java \
 		./FONTS/src/main/Presentacion/Drivers/*.java \
-	    ./FONTS/src/main/Persistencia/*.java
+	    ./FONTS/src/main/Persistencia/*.java \
+		./FONTS/src/main/Persistencia/Gestores/Utilidades/*.java \
+		./FONTS/src/main/Persistencia/Gestores/*.java
 	jar cf $(CLASS_OUTPUT_MAIN)/Driver.jar -C $(CLASS_OUTPUT_MAIN) .
 	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .
 	
