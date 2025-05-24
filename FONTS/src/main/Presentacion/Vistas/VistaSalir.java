@@ -62,7 +62,7 @@ public class VistaSalir extends JFrame {
         add(panelBotones, BorderLayout.SOUTH);
         
         // Configurar tamaño y posición
-        setSize(300,400);
+        setSize(500,300);
         setLocationRelativeTo(null);
         setResizable(false);
     }

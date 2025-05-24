@@ -148,20 +148,17 @@ public class CtrlPartida {
                 }
 
                 int x, y;
-                try {
-                    if (ficha.equals("#") && parts.length == 4) {
-                        ficha = parts[1];
-                        x = Integer.parseInt(parts[2]);
-                        y = Integer.parseInt(parts[3]);
-                    } else {
-                        x = Integer.parseInt(parts[1]);
-                        y = Integer.parseInt(parts[2]);
-                    }
-                } catch (NumberFormatException e) {
-                    throw new ComandoInvalidoException("Coordenadas inválidas: deben ser números.");
+
+                String puntuacion = parts[1];
+                if(puntuacion.equals("0")){
+                    System.out.println("Comodin");
+                    ficha = ficha + " " + puntuacion;
                 }
+                x = Integer.parseInt(parts[2]);
+                y = Integer.parseInt(parts[3]);
 
                 partidaActual.añadirFicha(ficha, x, y);
+
                 break;
             }
 
@@ -288,12 +285,13 @@ public class CtrlPartida {
     private int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
         if (!pasar) {
             System.out.println(partidaActual.getCoordenadasPalabras());
-         int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg,
+            int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg,
                     partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
                 partidaActual.addPuntos(puntos);
             } else {
                 throw new PalabraInvalidaException();
+
             }
 
         }

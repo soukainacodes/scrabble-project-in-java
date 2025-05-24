@@ -44,6 +44,7 @@ public class CtrlPresentacion {
     private VistaExplorador vAddRecurso;
     private VistaLogin vSegundoJugador;
     private VistaFichas vFichas;
+    private VistaLetra vLetra;
     private String nombreSegundoJugador = "";
 
     public CtrlPresentacion() throws IOException {
@@ -242,8 +243,19 @@ public class CtrlPresentacion {
             @Override
             public void onTilePlaced(String letter, int score, int row, int col) {
                 // Handle tile placement in the controller
+                if (letter.equals("#")) {
+                    if (vLetra == null || !vLetra.isDisplayable()) {
+                        vLetra = new VistaLetra();
+                    }
 
-                ponerFicha(letter, score, row, col);
+                    vLetra.setVisible(true);
+                    vLetra.aceptar(e -> ponerComodin(row, col));
+
+                } else {
+                    System.out.println("Aqui no se deberia ejecutar 1");
+                    ponerFicha(letter, score, row, col);
+                }
+
                 if (ctrlDominio.getLetraCelda(row, col) == null) {
                     cola = true;
                     row_cola = row;
@@ -261,7 +273,12 @@ public class CtrlPresentacion {
                 quitarFicha(letter, score, row, col);
                 if (cola && letra_cola.equals(letter)) {
 
-                    ponerFicha(letter, score, row_cola, col_cola);
+                    if (letra_cola.equals("#")) {
+                        ponerFicha(vLetra.getTexto(), score, row_cola, col_cola);
+                    } else {
+                        System.out.println("Aqui no se deberia ejecutar 2");
+                        ponerFicha(letter, score, row_cola, col_cola);
+                    }
                     cola = false;
                 }
             }
@@ -282,11 +299,18 @@ public class CtrlPresentacion {
         // vMenuPrincipal.muestraCard("SCRABBLE");
         vMenuPrincipal.jugarPartida(vScrabble);
     }
-       private  void mostrarTablero() {
+
+    private void ponerComodin(int row, int col) {
+        ponerFicha(vLetra.getTexto(), 0, row, col);
+        vLetra.dispose();
+    }
+
+    private void mostrarTablero() {
         int N = ctrlDominio.getTableroDimension();
         System.out.print("    ");
-        for (int j = 0; j < N; j++)
+        for (int j = 0; j < N; j++) {
             System.out.printf("%4d", j);
+        }
         System.out.println();
         for (int i = 0; i < N; i++) {
             System.out.printf("%2d: ", i);
@@ -297,7 +321,9 @@ public class CtrlPresentacion {
             }
             System.out.println();
         }
+
     }
+
     private void ayuda() {
         try {
             ctrlDominio.jugarScrabble(7, "");
@@ -383,11 +409,15 @@ public class CtrlPresentacion {
     }
 
     private void ponerFicha(String letra, int puntuacion, int fila, int col) {
-        String parametros = letra + " " + Integer.toString(fila) + " " + Integer.toString(col);
+        System.out.println(letra);
+        String parametros = letra + " " + Integer.toString(puntuacion) + " " + Integer.toString(fila) + " " + Integer.toString(col);
 
         try {
             //  String parametros = letra + " " + Integer.toString(fila) + " " + Integer.toString(col);
-            ctrlDominio.jugarScrabble(1, parametros);
+            if(letra != null && !letra.isEmpty() && !letra.equals("")) {
+                 ctrlDominio.jugarScrabble(1, parametros);
+            }
+           
             //actualizarTablero();
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
@@ -396,6 +426,7 @@ public class CtrlPresentacion {
 
     private void quitarFicha(String letra, int puntuacion, int fila, int col) {
         try {
+            System.out.println("Quitar ficha: ");
             String parametros = Integer.toString(fila) + " " + Integer.toString(col);
             ctrlDominio.jugarScrabble(2, parametros);
         } catch (Exception e) {
@@ -417,7 +448,7 @@ public class CtrlPresentacion {
             }
 
         }
-
+        vScrabble.bloquearTodasLasFichas();
         vScrabble.clearRack();
         List<String> fichas = ctrlDominio.obtenerFichas();
         for (String ficha : fichas) {
@@ -442,8 +473,8 @@ public class CtrlPresentacion {
     private void pasarTurno() {
         try {
             int resultado = ctrlDominio.jugarScrabble(3, "");
-            if(resultado != 0){
-                crearVistaFinal(false, resultado);  
+            if (resultado != 0) {
+                crearVistaFinal(false, resultado);
             }
             actualizarTablero();
 

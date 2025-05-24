@@ -390,23 +390,16 @@ public class VistaScrabble extends JPanel {
             }
         });
 
-        // Modify the MouseListener to detect clicks on # tiles
         tile.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                // Check if it's a # tile and handle click vs. drag
-                if (tile.getLetter().equals("#") && e.getButton() == MouseEvent.BUTTON1 && !e.isConsumed()) {
-                    showLetterInputDialog(tile);
-                    e.consume(); // Prevent drag operation
-                } 
-                // Only start drag if not consumed and tile isn't locked
-                else if (!e.isConsumed() && !tile.estaBloqueada()) {
+                // Solo iniciar arrastre si la ficha no está bloqueada
+                if (!tile.estaBloqueada()) {
                     JComponent c = (JComponent) e.getSource();
                     TransferHandler h = c.getTransferHandler();
                     h.exportAsDrag(c, e, TransferHandler.MOVE);
                 }
             }
         });
-        
     }
 
     /**
@@ -680,68 +673,5 @@ public class VistaScrabble extends JPanel {
         wrapper.add(tabla, BorderLayout.NORTH);
         wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         return wrapper;
-    }
-
-    // Add this new method to show the input dialog
-    private void showLetterInputDialog(TileLabel tile) {
-        JFrame dialogFrame = new JFrame("Enter Letter");
-        dialogFrame.setSize(250, 150);
-        dialogFrame.setLocationRelativeTo(this);
-        dialogFrame.setLayout(new BorderLayout(10, 10));
-        
-        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        JLabel label = new JLabel("Enter a letter:");
-        JTextField textField = new JTextField(5);
-        textField.setFont(new Font("Arial", Font.BOLD, 20));
-        
-        JButton confirmButton = new JButton("OK");
-        confirmButton.addActionListener(e -> {
-            String input = textField.getText().trim().toUpperCase();
-            if (input.length() == 1 && Character.isLetter(input.charAt(0))) {
-                // Get parent container to replace the # tile
-                Container parent = tile.getParent();
-                if (parent != null) {
-                    // Create a new tile with the entered letter
-                    TileLabel newTile = new TileLabel(input, tile.getScore(), 
-                                                    tile.getRow(), tile.getCol());
-                    instalarDrag(newTile);
-                    
-                    // Replace the # tile with the new tile
-                    parent.remove(tile);
-                    parent.add(newTile, BorderLayout.CENTER);
-                    parent.revalidate();
-                    parent.repaint();
-                    
-                    // Notify the game about the change
-                    if (tileActionListener != null) {
-                        tileActionListener.onTileRemoved(
-                            tile.getLetter(), tile.getScore(), tile.getRow(), tile.getCol());
-                        tileActionListener.onTilePlaced(
-                            input, tile.getScore(), tile.getRow(), tile.getCol());
-                    }
-                }
-                dialogFrame.dispose();
-            } else {
-                JOptionPane.showMessageDialog(dialogFrame, 
-                    "Please enter a single letter", "Invalid Input", 
-                    JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        
-        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        inputPanel.add(textField);
-        
-        contentPanel.add(label, BorderLayout.NORTH);
-        contentPanel.add(inputPanel, BorderLayout.CENTER);
-        contentPanel.add(confirmButton, BorderLayout.SOUTH);
-        
-        dialogFrame.add(contentPanel);
-        dialogFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        dialogFrame.setVisible(true);
-        
-        // Focus on the text field
-        textField.requestFocusInWindow();
     }
 }

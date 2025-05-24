@@ -42,7 +42,7 @@ public class VistaLetra extends JFrame {
         
         // TextField estilizado
         campoTexto = crearCampoTexto();
-        formPanel.add(crearPanelCampo("Ingrese texto:", campoTexto));
+        formPanel.add(crearPanelCampo("Escoge que letra representa el comodín:", campoTexto));
         
         contentPanel.add(formPanel, BorderLayout.CENTER);
         
