@@ -49,4 +49,4 @@ clean:
 
 # regla para generar la documentación de JavaDoc
 javadoc:
-	javadoc -d DOCS/javadoc -sourcepath FONTS/src/main -classpath "FONTS/src/main/Persistencia/json-20231013.jar" Dominio Dominio.Excepciones Dominio.Modelos Persistencia 
+	javadoc -d DOCS/javadoc -sourcepath FONTS/src/main -classpath "FONTS/src/main/Persistencia/json-20231013.jar" Dominio Dominio.Excepciones Dominio.Modelos Persistencia Persistencia.Gestores Persistencia.Gestores.Utilidades

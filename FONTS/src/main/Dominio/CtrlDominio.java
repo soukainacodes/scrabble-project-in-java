@@ -192,15 +192,18 @@ public class CtrlDominio {
      * @throws UsuarioNoEncontradoException si el jugador no existe.
      * @throws IOException                  si falla la escritura en disco.
      * @throws UsuarioYaRegistradoException si el nuevo nombre ya está en uso.
+     * @throws PasswordInvalidaException      si la contraseña es incorrecta.
      */
     public void cambiarNombre(String nuevoNombre, String password)
-            throws UsuarioNoEncontradoException, IOException, UsuarioYaRegistradoException {
-        if (ctrlJugador.haySesion() && ctrlPersistencia.verificarContrasena(ctrlJugador.getJugadorActual(), password)) {
+            throws UsuarioNoEncontradoException, IOException, UsuarioYaRegistradoException, PasswordInvalidaException {
+        if (ctrlJugador.haySesion()) {
+            if (!ctrlPersistencia.verificarContrasena(ctrlJugador.getJugadorActual(), password)) {
+                throw new PasswordInvalidaException();
+            }
             ctrlPersistencia.actualizarNombre(ctrlJugador.getJugadorActual(), nuevoNombre);
             ctrlJugador.setJugadorActual(nuevoNombre);
         }
     }
-
     /**
      * Elimina el usuario activo del sistema.
      * 
