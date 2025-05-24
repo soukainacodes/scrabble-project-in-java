@@ -290,7 +290,7 @@ public class CtrlPresentacion {
         vScrabble.finTurno(e -> finTurno());
         vScrabble.reset(e -> crearVistaFichas());
         vScrabble.salir(e -> crearVistaSalir());
-        vScrabble.ayuda(e -> mostrarTablero());
+        vScrabble.ayuda(e -> ayuda());
         List<String> fichas = ctrlDominio.obtenerFichas();
         for (String ficha : fichas) {
             vScrabble.modificarRack(ficha);
@@ -339,11 +339,11 @@ public class CtrlPresentacion {
         String perdedor = resultado == 1 ? ctrlDominio.getUsuarioActual() : nombreSegundoJugador;
         String ganador = resultado == 1 ? nombreSegundoJugador : ctrlDominio.getUsuarioActual();
         if (abandonada) {
-            mensaje = perdedor + " ha abandonado la partida. " + ganador + " gana.";
+            mensaje = "Jugador " + perdedor + " ha abandonado la partida. Jugador " + ganador + " gana.";
         } else {
-            mensaje = "Fin de la partida. " + ganador + " ha ganado con " + resultado + " puntos.";
+            mensaje = "Fin de la partida. Jugador " + ganador + " ha ganado con " + resultado + " puntos.";
         }
-        VistaFinal vFinal = new VistaFinal("Fin de la partida");
+        VistaFinal vFinal = new VistaFinal(mensaje);
         vFinal.setDuracion(3);
         vFinal.setLocationRelativeTo(null);
         vFinal.setResizable(false);
