@@ -28,6 +28,9 @@ public class VistaCargarPartida extends JPanel {
     private DefaultListModel<String> model;
     private JList<String> lista;
     private RoundedPanel listaPanel;
+    
+    // Añadir el errorLabel como variable de clase
+    private JLabel errorLabel;
 
     public VistaCargarPartida() {
         setLayout(new BorderLayout());
@@ -170,6 +173,18 @@ public class VistaCargarPartida extends JPanel {
         // Añadir un pequeño margen interno
         listaPanel.add(scrollPane, BorderLayout.CENTER);
 
+        // Crear y configurar el label de error
+        errorLabel = new JLabel("");
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        errorLabel.setForeground(new Color(200, 0, 0));  // Rojo para errores
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel.setVisible(false);
+        
+        // Panel para el mensaje de error
+        JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        errorPanel.setOpaque(false);
+        errorPanel.add(errorLabel);
+        
         // Panel de botones (fuera del panel redondeado)
         JPanel botonesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         botonesPanel.setOpaque(false);
@@ -179,10 +194,16 @@ public class VistaCargarPartida extends JPanel {
 
         botonesPanel.add(botonCargar);
         botonesPanel.add(botonEliminar);
+        
+        // Panel para contener el error y los botones
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(errorPanel, BorderLayout.NORTH);
+        bottomPanel.add(botonesPanel, BorderLayout.SOUTH);
 
         // Añadir componentes al panel principal
         content.add(listaPanel, BorderLayout.CENTER);
-        content.add(botonesPanel, BorderLayout.SOUTH);
+        content.add(bottomPanel, BorderLayout.SOUTH);
 
         return content;
     }
@@ -386,5 +407,23 @@ public class VistaCargarPartida extends JPanel {
 
     public String getSeleccionada() {
         return lista.getSelectedValue();
+    }
+
+    /**
+     * Muestra un mensaje de error en la interfaz
+     * @param mensaje El mensaje de error a mostrar
+     */
+    public void setError(String mensaje) {
+        errorLabel.setText(mensaje);
+        errorLabel.setVisible(true);
+        
+        // Hacer que el mensaje desaparezca después de 10 segundos
+        new Timer(10000, (e) -> {
+            errorLabel.setVisible(false);
+        }).start();
+        
+        // Ajustar el tamaño de la ventana si es necesario
+        revalidate();
+        repaint();
     }
 }

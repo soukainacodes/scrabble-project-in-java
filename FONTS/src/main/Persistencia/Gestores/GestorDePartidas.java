@@ -18,11 +18,10 @@ import Dominio.Excepciones.PartidaNoEncontradaException;
 import Dominio.Excepciones.UsuarioNoEncontradoException;
 import Persistencia.Gestores.Utilidades.Utils;
 
-
 /**
- * Clase GestorDePartidas.
- * Maneja las operaciones relacionadas con las partidas del juego.
- * Permite guardar, cargar, eliminar y verificar el estado de las partidas.
+ * Clase GestorDePartidas. Maneja las operaciones relacionadas con las partidas
+ * del juego. Permite guardar, cargar, eliminar y verificar el estado de las
+ * partidas.
  */
 public class GestorDePartidas {
 
@@ -30,7 +29,6 @@ public class GestorDePartidas {
      * Ruta donde se almacenan las partidas.
      */
     private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
-    
 
     /**
      * Gestor de usuarios para verificar la existencia de jugadores.
@@ -48,36 +46,35 @@ public class GestorDePartidas {
     private final Utils utils = new Utils();
 
     /**
-     * Constructor de la clase GestorDePartidas.
-     * Crea el directorio de partidas si no existe.
+     * Constructor de la clase GestorDePartidas. Crea el directorio de partidas
+     * si no existe.
      */
     public GestorDePartidas() {
         File partidasDir = new File(PARTIDAS);
         if (!partidasDir.exists()) {
             partidasDir.mkdirs();
         }
-        
+
         // Inicializa los gestores
         gestorUsuarios = new GestorDeUsuarios();
         gestorRecursos = new GestorDeRecursos();
     }
 
-
     /**
      * Comprueba si una partida existe en el sistema.
+     *
      * @param id ID de la partida
-     * @return  true si la partida existe, false en caso contrario
-    */
+     * @return true si la partida existe, false en caso contrario
+     */
     public boolean existePartida(String id) {
         // Verifica si el archivo de la partida existe
         File partidaFile = new File(PARTIDAS + "partida_" + id + ".json");
         return partidaFile.exists();
     }
 
-
     /**
      * Verifica si una partida está acabada.
-     * 
+     *
      * @param id ID de la partida
      * @return true si la partida está acabada, false en caso contrario
      */
@@ -105,7 +102,7 @@ public class GestorDePartidas {
 
     /**
      * Obtiene el recurso de una partida.
-     * 
+     *
      * @param id ID de la partida
      * @return Recurso de la partida
      */
@@ -131,18 +128,17 @@ public class GestorDePartidas {
 
     /**
      * Guarda una partida en el sistema.
-     * 
-     * @param username        Nombre de usuario del jugador
-     * @param segundoJugador  Nombre de usuario del segundo jugador
-     * @param id              ID de la partida
-     * @param partida         Lista de datos de la partida
+     *
+     * @param username Nombre de usuario del jugador
+     * @param segundoJugador Nombre de usuario del segundo jugador
+     * @param id ID de la partida
+     * @param partida Lista de datos de la partida
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
     public void guardarPartida(String username, String segundoJugador, String id, List<String> partida)
             throws UsuarioNoEncontradoException {
         String nombreArchivo = "partida_" + id + ".json";
         String rutaArchivo = PARTIDAS + nombreArchivo;
-
 
         // Convertir la lista de datos a JSON
         String jsonPartida = utils.partidaListToJson(partida);
@@ -159,7 +155,7 @@ public class GestorDePartidas {
 
     /**
      * Carga una partida del sistema.
-     * 
+     *
      * @param id ID de la partida a cargar
      * @return Lista de datos de la partida
      * @throws PartidaNoEncontradaException Si la partida no existe
@@ -182,7 +178,7 @@ public class GestorDePartidas {
 
     /**
      * Elimina una partida del sistema.
-     * 
+     *
      * @param id ID de la partida a eliminar
      * @throws PartidaNoEncontradaException Si la partida no existe
      */
@@ -203,7 +199,7 @@ public class GestorDePartidas {
 
     /**
      * Lista todas las partidas no acabadas del jugador actual.
-     * 
+     *
      * @param jugadorActual Nombre de usuario del jugador actual
      * @return Lista de IDs de partidas no acabadas
      */
@@ -227,16 +223,21 @@ public class GestorDePartidas {
                             // Extraer el recurso y los jugadores de la partida
                             String recurso = partidaJson.getString("recurso");
                             String jugador1 = partidaJson.getString("jugador_1");
-                            String jugador2 = partidaJson.getString("jugador_2");
+                            String jugador2;
+                            if (partidaJson.has("jugador_2")) {
+                                jugador2 = partidaJson.getString("jugador_2");
+                            } else {
+                                jugador2 = "propAI"; // Default value for AI opponent
+                            }
 
                             // Verificar si:
                             // 1. El jugador actual participa (es jugador_1 o jugador_2)
                             // 2. Ambos jugadores existen en el sistema
                             // 3. El recurso existe
-                            if ((jugador1.equals(jugadorActual) || jugador2.equals(jugadorActual)) &&
-                                    gestorUsuarios.existeJugador(jugador1) &&
-                                    gestorUsuarios.existeJugador(jugador2) &&
-                                    gestorRecursos.existeRecurso(recurso)) {
+                            if ((jugador1.equals(jugadorActual) || jugador2.equals(jugadorActual))
+                                    && gestorUsuarios.existeJugador(jugador1)
+                                    && (jugador2.equals("propAI") || gestorUsuarios.existeJugador(jugador2))
+                                    && gestorRecursos.existeRecurso(recurso)) {
                                 partidasNoAcabadas.add(id);
                             }
                         }
@@ -251,7 +252,7 @@ public class GestorDePartidas {
 
     /**
      * Obtiene el segundo jugador de una partida.
-     * 
+     *
      * @param id ID de la partida
      * @return Nombre del segundo jugador
      * @throws PartidaNoEncontradaException Si la partida no existe
@@ -275,14 +276,13 @@ public class GestorDePartidas {
         }
     }
 
-
     /**
      * Obtiene el segundo jugador de una partida.
-     * 
+     *
      * @param id ID de la partida
      * @return Nombre del segundo jugador
      * @throws PartidaNoEncontradaException Si la partida no existe
-     * @throws UsuarioNoEncontradoException  Si el usuario no existe
+     * @throws UsuarioNoEncontradoException Si el usuario no existe
      */
     public String obtenerSegundoJugador(String id) throws PartidaNoEncontradaException, UsuarioNoEncontradoException {
         // Verifica si la partida existe
@@ -301,5 +301,4 @@ public class GestorDePartidas {
         }
     }
 
-    
 }

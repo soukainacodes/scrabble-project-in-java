@@ -363,7 +363,7 @@ public class CtrlDominio {
 
         ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getJugadorActual(), ctrlPartida.getPuntosJugador1());
         ctrlPersistencia.actualizarPuntuacion(ctrlJugador.getSegundoJugador(), ctrlPartida.getPuntosJugador2());
-        if (fin != 0) ctrlJugador.setSegundoJugador(null);
+      if(fin != 0)  salirPartida();
     }
         return fin;
     }
@@ -400,27 +400,17 @@ public class CtrlDominio {
      * @param id identificador de la partida.
      * @throws UsuarioNoEncontradoException si el jugador no existe.
      */
-    public void salirPartida(String id) throws UsuarioNoEncontradoException {
-        ctrlPersistencia.guardarPartida(ctrlJugador.getJugadorActual(), ctrlJugador.getSegundoJugador(), id,
+    public void salirPartida() throws UsuarioNoEncontradoException {
+        ctrlPersistencia.guardarPartida(ctrlJugador.getJugadorActual(), ctrlJugador.getSegundoJugador(), ctrlPartida.getId(),
                 dc.partidaToStringList(ctrlPartida.getPartida(), ctrlJugador.getJugadorActual(),
-                        ctrlJugador.getSegundoJugador(), id));
-        ctrlPersistencia.guardarPartida(ctrlJugador.getSegundoJugador(), ctrlJugador.getSegundoJugador(), id,
+                        ctrlJugador.getSegundoJugador(), ctrlPartida.getId()));
+        ctrlPersistencia.guardarPartida(ctrlJugador.getSegundoJugador(), ctrlJugador.getSegundoJugador(), ctrlPartida.getId(),
                 dc.partidaToStringList(ctrlPartida.getPartida(), ctrlJugador.getJugadorActual(),
-                        ctrlJugador.getSegundoJugador(), id));
-
+                        ctrlJugador.getSegundoJugador(), ctrlPartida.getId()));
+        ctrlJugador.setSegundoJugador(null);
     }
 
-    /**
-     * Guarda la partida actual en persistencia.
-     *
-     * @param id identificador de la partida.
-     * @throws UsuarioNoEncontradoException si el jugador no existe.
-     */
-    public void guardarPartida(String id) throws UsuarioNoEncontradoException {
-        ctrlPersistencia.guardarPartida(ctrlJugador.getJugadorActual(), ctrlJugador.getSegundoJugador(), id,
-                dc.partidaToStringList(ctrlPartida.getPartida(), ctrlJugador.getJugadorActual(),
-                        ctrlJugador.getSegundoJugador(), id));
-    }
+
 
     /**
      * Carga una partida guardada desde persistencia.

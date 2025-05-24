@@ -13,6 +13,9 @@ public class VistaScrabble extends JPanel {
     private static final int TILE_SIZE = 32;
     private JPanel grid;
     private CellPanel[][] cells = new CellPanel[15][15];
+    
+    // Añadir el error label como variable de clase
+    private JLabel errorLabel;
 
     public VistaScrabble(String nombre1, String nombre2) {
         setLayout(new BorderLayout(5, 5));
@@ -28,6 +31,21 @@ public class VistaScrabble extends JPanel {
 
         southPanel.add(crearRack());
         southPanel.add(Box.createVerticalStrut(10)); // espacio
+        
+        // Crear y añadir el panel de error
+        JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        errorPanel.setOpaque(false);
+        
+        errorLabel = new JLabel("");
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        errorLabel.setForeground(new Color(200, 0, 0));  // Rojo para errores
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel.setVisible(false);
+        
+        errorPanel.add(errorLabel);
+        southPanel.add(errorPanel);
+        southPanel.add(Box.createVerticalStrut(5)); // espacio después del error
+        
         southPanel.add(crearPanelControles());
 
         add(southPanel, BorderLayout.SOUTH);
@@ -673,5 +691,23 @@ public class VistaScrabble extends JPanel {
         wrapper.add(tabla, BorderLayout.NORTH);
         wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         return wrapper;
+    }
+    
+    /**
+     * Muestra un mensaje de error en la interfaz
+     * @param mensaje El mensaje de error a mostrar
+     */
+    public void setError(String mensaje) {
+        errorLabel.setText(mensaje);
+        errorLabel.setVisible(true);
+        
+        // Hacer que el mensaje desaparezca después de 10 segundos
+        new Timer(10000, (e) -> {
+            errorLabel.setVisible(false);
+        }).start();
+        
+        // Ajustar el tamaño de la ventana si es necesario
+        revalidate();
+        repaint();
     }
 }

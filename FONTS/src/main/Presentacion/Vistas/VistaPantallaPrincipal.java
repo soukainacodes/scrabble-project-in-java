@@ -22,6 +22,9 @@ public class VistaPantallaPrincipal extends JPanel {
     private String nombre = "";
     private JLabel mensajeBienvenida;
     
+    // Añadir el errorLabel como variable de clase
+    private JLabel errorLabel;
+    
     public VistaPantallaPrincipal() {
         setLayout(new BorderLayout());
         setBackground(APP_BG_COLOR);
@@ -164,6 +167,13 @@ public class VistaPantallaPrincipal extends JPanel {
         botonUltimaPartida = createStylishButton("Última Partida", AZUL_CLARO);
         botonCargarPartida = createStylishButton("Cargar Partida", LILA_CLARO);
         
+        // Crear y configurar el label de error
+        errorLabel = new JLabel("");
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        errorLabel.setForeground(new Color(200, 0, 0));  // Rojo para errores
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel.setVisible(false);
+        
         // Configuración para posicionamiento absoluto
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -177,6 +187,10 @@ public class VistaPantallaPrincipal extends JPanel {
         contenidoPanel.add(botonCrearPartida, gbc);
         contenidoPanel.add(botonUltimaPartida, gbc);
         contenidoPanel.add(botonCargarPartida, gbc);
+        
+        // Añadir el errorLabel al final 
+        gbc.insets = new Insets(20, 0, 5, 0);  // Más espacio antes del error
+        contenidoPanel.add(errorLabel, gbc);
         
         // Añadir el panel de contenido al marco
         marcoPanel.add(contenidoPanel, BorderLayout.CENTER);
@@ -266,5 +280,23 @@ public class VistaPantallaPrincipal extends JPanel {
     
     public void cargarUltimaPartida(ActionListener l) {
         botonUltimaPartida.addActionListener(l);
+    }
+    
+    /**
+     * Muestra un mensaje de error en la interfaz
+     * @param mensaje El mensaje de error a mostrar
+     */
+    public void setError(String mensaje) {
+        errorLabel.setText(mensaje);
+        errorLabel.setVisible(true);
+        
+        // Hacer que el mensaje desaparezca después de 10 segundos
+        new Timer(10000, (e) -> {
+            errorLabel.setVisible(false);
+        }).start();
+        
+        // Ajustar el tamaño de la ventana si es necesario
+        revalidate();
+        repaint();
     }
 }

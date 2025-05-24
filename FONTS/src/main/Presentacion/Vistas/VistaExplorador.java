@@ -35,8 +35,8 @@ public class VistaExplorador extends JFrame {
     private JLabel errorLabel;
         
 
-    public VistaExplorador(String label) {
-        setTitle("Explorador de Recursos");
+    public VistaExplorador(String label, String title) {
+        setTitle(title);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
 

@@ -29,6 +29,9 @@ public class VistaCrearPartida extends JPanel {
     private JComboBox<String> comboJugadores;
     private JComboBox<String> comboIdiomas;
     private JTextField id;
+    
+    // Añadir el errorLabel como variable de clase
+    private JLabel errorLabel;
 
     public VistaCrearPartida() {
         setLayout(new BorderLayout());
@@ -224,6 +227,16 @@ public class VistaCrearPartida extends JPanel {
         botonCrearPartida.setPreferredSize(new Dimension(CONTENT_WIDTH, 35)); 
         botonCrearPartida.setMinimumSize(new Dimension(CONTENT_WIDTH, 35));
         content.add(botonCrearPartida);
+        
+        // Añadir el errorLabel después del botón de crear partida
+        content.add(Box.createVerticalStrut(15));
+        errorLabel = new JLabel("");
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        errorLabel.setForeground(new Color(200, 0, 0));  // Rojo para errores
+        errorLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrar horizontalmente
+        errorLabel.setVisible(false);
+        content.add(errorLabel);
         
         // Modificar el ItemListener para manejar mejor la visibilidad
         comboJugadores.addItemListener(new ItemListener() {
@@ -577,5 +590,23 @@ public class VistaCrearPartida extends JPanel {
 
     public void addSegundoJugador(ActionListener l) {
         botonIniciarSesion.addActionListener(l);
+    }
+    
+    /**
+     * Muestra un mensaje de error en la interfaz
+     * @param mensaje El mensaje de error a mostrar
+     */
+    public void setError(String mensaje) {
+        errorLabel.setText(mensaje);
+        errorLabel.setVisible(true);
+        
+        // Hacer que el mensaje desaparezca después de 10 segundos
+        new Timer(10000, (e) -> {
+            errorLabel.setVisible(false);
+        }).start();
+        
+        // Ajustar el tamaño de la ventana si es necesario
+        revalidate();
+        repaint();
     }
 }

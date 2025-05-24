@@ -54,7 +54,10 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaLogin() {
-        vLogin = new VistaLogin();
+        if (vLogin == null || !vLogin.isDisplayable()) {
+            vLogin = new VistaLogin();
+        }
+        
         // Aplicar icono inmediatamente después de crear la ventana de login
         if (aplicarIconoVentana != null) {
             List<Image> iconos = new ArrayList<>();
@@ -154,11 +157,10 @@ public class CtrlPresentacion {
 
         vMenuLateral.addVistaRecursos(e -> vMenuPrincipal.muestraCard("RECURSOS"));
         vMenuLateral.cerrarSesion(e -> cerrarSesion());
-        vPantallaPrincipal.addVistaCrearPartida(e -> crearVistaCrearPartida());
-        vPantallaPrincipal.addVistaCargarPartida(e -> crearVistaCargarPartida());        // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
-        vPantallaPrincipal.cargarUltimaPartida(e -> cargarUltimaPartida());
-        vCargarPartida.jugarPartida(e -> cargarPartida());
 
+        vCargarPartida.jugarPartida(e -> cargarPartida());
+        vPantallaPrincipal.addVistaCrearPartida(e -> crearVistaCrearPartida());
+        vPantallaPrincipal.addVistaCargarPartida(e -> crearVistaCargarPartida());
     }
 
     private void cargarPartida() {
@@ -167,7 +169,7 @@ public class CtrlPresentacion {
             ctrlDominio.cargarPartida(partida);
             jugarPartida();
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+            vCargarPartida.setError(e.getMessage());
         }
 
     }
@@ -177,7 +179,8 @@ public class CtrlPresentacion {
             ctrlDominio.cargarUltimaPartida();
             jugarPartida();
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+
+            vPantallaPrincipal.setError(e.getMessage());
         }
 
     }
@@ -222,7 +225,7 @@ public class CtrlPresentacion {
             System.err.println("Error al crear la vista de Scrabble: " + e.getMessage());
         }
 
-        vLogin.setSize(1280, 720);
+        vLogin.setSize(1280, 800);
         vScrabble.setPuntos(ctrlDominio.getPuntosJugador1(), ctrlDominio.getPuntosJugador2());
 
         int N = ctrlDominio.getTableroDimension();
@@ -329,6 +332,7 @@ public class CtrlPresentacion {
             ctrlDominio.jugarScrabble(7, "");
             actualizarTablero();
         } catch (Exception e) {
+            vScrabble.setError(e.getMessage());
         }
 
     }
@@ -363,6 +367,7 @@ public class CtrlPresentacion {
         vSalir.setAbandonarListener(e -> {
             try {
                 nombreSegundoJugador = ctrlDominio.getSegundoJugador();
+            
                 crearVistaFinal(true, ctrlDominio.jugarScrabble(6, ""));
             } catch (Exception ex) {
                 System.out.println("ERROR: " + ex.getMessage());
@@ -371,6 +376,10 @@ public class CtrlPresentacion {
         });
 
         vSalir.setSalirListener(e -> {
+            try {
+                ctrlDominio.salirPartida();
+            } catch (Exception exe) {
+            }
             vSalir.dispose();
             crearVistaMenuPrincipal();
         });
@@ -405,7 +414,7 @@ public class CtrlPresentacion {
             });
             vFichas.setVisible(true);
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+            vScrabble.setError(e.getMessage());
         }
     }
 
@@ -415,13 +424,13 @@ public class CtrlPresentacion {
 
         try {
             //  String parametros = letra + " " + Integer.toString(fila) + " " + Integer.toString(col);
-            if(letra != null && !letra.isEmpty() && !letra.equals("")) {
-                 ctrlDominio.jugarScrabble(1, parametros);
+            if (letra != null && !letra.isEmpty() && !letra.equals("")) {
+                ctrlDominio.jugarScrabble(1, parametros);
             }
-           
+
             //actualizarTablero();
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+            vScrabble.setError(e.getMessage());
         }
     }
 
@@ -431,7 +440,7 @@ public class CtrlPresentacion {
             String parametros = Integer.toString(fila) + " " + Integer.toString(col);
             ctrlDominio.jugarScrabble(2, parametros);
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+            vScrabble.setError(e.getMessage());
         }
     }
 
@@ -467,7 +476,7 @@ public class CtrlPresentacion {
             }
             actualizarTablero();
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+            vScrabble.setError(e.getMessage());
         }
     }
 
@@ -480,11 +489,14 @@ public class CtrlPresentacion {
             actualizarTablero();
 
         } catch (Exception e) {
+            vScrabble.setError(e.getMessage());
         }
 
     }
 
     private void crearVistaPantallaPrincipal() {
+        // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
+        vPantallaPrincipal.cargarUltimaPartida(e -> cargarUltimaPartida());
         vPantallaPrincipal.setNombre(ctrlDominio.getUsuarioActual());
         vMenuPrincipal.muestraCard("PRINCIPAL");
     }
@@ -687,6 +699,7 @@ public class CtrlPresentacion {
             vCambiar.dispose();
         } catch (Exception e) {
             vCambiar.setError(e.getMessage());
+            vCambiar.setError(e.getMessage());
             System.err.println("Error: " + e.getMessage());
         }
     }
@@ -748,7 +761,7 @@ public class CtrlPresentacion {
 
     private void crearVistaAddRecurso() {
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
-            vAddRecurso = new VistaExplorador("");
+            vAddRecurso = new VistaExplorador("", "Añadir Recurso");
 
             // Listener para el botón de añadir diccionario
             vAddRecurso.addAñadirListener(e -> {
@@ -782,7 +795,7 @@ public class CtrlPresentacion {
     private void crearVistaModificarRecurso() {
         String idRecurso = vRecursos.getSeleccionado();
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
-            vAddRecurso = new VistaExplorador(idRecurso);
+            vAddRecurso = new VistaExplorador(idRecurso, "Modificar Recurso");
 
             try {
                 // Cargar datos existentes...
