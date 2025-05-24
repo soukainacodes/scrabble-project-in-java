@@ -14,15 +14,23 @@ import Persistencia.Gestores.Utilidades.Utils;
 
 import Dominio.Excepciones.UsuarioNoEncontradoException;
 
+/**
+ * Clase GestorDeRanking.
+ * Esta clase se encarga de gestionar el ranking de jugadores basado en sus puntuaciones.
+ * Permite generar un ranking y obtener la posición de un jugador específico.
+ */
 public class GestorDeRanking {
 
 
+    /**
+     * Ruta donde se encuentran los archivos de los jugadores.
+     */
     private static final String JUGADORES = "FONTS/src/main/Persistencia/Datos/Jugadores/";
 
     /**
      * Constructor de la clase GestorDeRanking.
      * Inicializa el gestor de ranking.
-     */
+    */
     public GestorDeRanking() {
         // Constructor vacío
     }

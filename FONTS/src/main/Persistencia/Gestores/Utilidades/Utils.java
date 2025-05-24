@@ -9,14 +9,32 @@ import java.util.List;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+/**
+ * Clase de utilidades para manejar operaciones comunes relacionadas con
+ * partidas.
+ * Incluye la conversión entre listas de datos y JSON, así como la lectura de
+ * archivos de texto.
+ */
 public class Utils {
-        /**
-     * Convierte una cadena de fichas a un JSONArray.
-     * 
-     * @param fichas Cadena de fichas
-     * @return JSONArray de fichas
+
+
+    /**
+     * Constructor de la clase Utils.
+     * Inicializa el gestor de utilidades.
      */
-public List<String> leerArchivoTexto(String ruta) throws IOException {
+    public Utils() {
+        // Constructor vacío    
+    }
+
+
+    /**
+     * Lee un archivo de texto y devuelve una lista de líneas no vacías.
+     * 
+     * @param ruta Ruta del archivo a leer
+     * @return Lista de líneas no vacías del archivo
+     * @throws IOException Si ocurre un error al leer el archivo
+     */
+    public List<String> leerArchivoTexto(String ruta) throws IOException {
         List<String> out = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(ruta))) {
             for (String l; (l = br.readLine()) != null;) {
@@ -28,7 +46,6 @@ public List<String> leerArchivoTexto(String ruta) throws IOException {
         }
         return out;
     }
-
 
     /**
      * Convierte una lista de datos de partida a un JSON.

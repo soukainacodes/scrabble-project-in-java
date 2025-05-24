@@ -15,9 +15,25 @@ import Dominio.Excepciones.RecursoNoExistenteException;
 
 import Persistencia.Gestores.Utilidades.Utils;
 
+/**
+ * Clase GestorDeRecursos.
+ * Esta clase se encarga de gestionar los recursos del sistema, como diccionarios y bolsas de letras.
+ * Permite crear, modificar, eliminar y listar recursos, así como verificar su existencia.
+ */
 public class GestorDeRecursos {
 
+
+    /**
+     * Ruta donde se encuentran los recursos.
+     * Se asume que los recursos están organizados en subdirectorios por idioma.
+     */
     private static final String RECURSOS = "FONTS/src/main/Persistencia/Datos/Recursos/";
+    
+    
+    /**
+     * Instancia de la clase Utils para operaciones comunes.
+     * Se utiliza para leer archivos de texto y otras utilidades.
+     */
     private Utils utils = new Utils();
 
 

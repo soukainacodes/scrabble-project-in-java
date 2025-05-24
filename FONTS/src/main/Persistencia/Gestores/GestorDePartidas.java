@@ -19,14 +19,32 @@ import Dominio.Excepciones.UsuarioNoEncontradoException;
 import Persistencia.Gestores.Utilidades.Utils;
 
 
+/**
+ * Clase GestorDePartidas.
+ * Maneja las operaciones relacionadas con las partidas del juego.
+ * Permite guardar, cargar, eliminar y verificar el estado de las partidas.
+ */
 public class GestorDePartidas {
 
+    /**
+     * Ruta donde se almacenan las partidas.
+     */
     private static final String PARTIDAS = "FONTS/src/main/Persistencia/Datos/Partidas/";
     
 
-    // Añade estas variables miembro a tu clase GestorDePartidas
+    /**
+     * Gestor de usuarios para verificar la existencia de jugadores.
+     */
     private final GestorDeUsuarios gestorUsuarios;
+
+    /**
+     * Gestor de recursos para verificar la existencia de recursos.
+     */
     private final GestorDeRecursos gestorRecursos;
+
+    /**
+     * Utilidades para manejar conversiones de datos.
+     */
     private final Utils utils = new Utils();
 
     /**

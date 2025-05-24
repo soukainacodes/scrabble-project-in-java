@@ -2,3 +2,5 @@ Dominio
 Dominio.Excepciones
 Dominio.Modelos
 Persistencia
+Persistencia.Gestores
+Persistencia.Gestores.Utilidades
