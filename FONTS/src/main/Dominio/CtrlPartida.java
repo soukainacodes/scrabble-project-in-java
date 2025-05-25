@@ -61,7 +61,7 @@ public class CtrlPartida {
      * validador de palabras.
      */
     public CtrlPartida() {
-        System.out.println("CtrlPartida creado sin partida inicial.");
+        System.out.println("CtrlPartida: Constructor");
         this.validador = new Validador();
     }
 
@@ -267,10 +267,8 @@ public class CtrlPartida {
                     partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
                 partidaActual.addPuntos(puntos);
-            } else {
-                throw new PalabraInvalidaException();
-
             }
+            
 
         }
 
@@ -339,7 +337,7 @@ public class CtrlPartida {
         for (Pair<String, Pair<Integer, Integer>> aa : s) {
             String fichaStr = aa.getFirst();
             
-            // Check if the letter is not in player's hand
+           
             boolean fichaInHand = false;
             for (Ficha f : partidaActual.getFichasJugador()) {
                 if (f.getLetra().equals(fichaStr)) {
@@ -348,7 +346,7 @@ public class CtrlPartida {
                 }
             }
             
-            // Check if player has a wildcard
+           
             boolean hasWildcard = false;
             for (Ficha f : partidaActual.getFichasJugador()) {
                 if (f.getLetra().equals("#")) {
@@ -357,7 +355,7 @@ public class CtrlPartida {
                 }
             }
             
-            // If the letter is not in hand but there's a wildcard, use the wildcard
+          
             if (!fichaInHand && hasWildcard) {
                 fichaStr = fichaStr + " 0";
             }
@@ -427,7 +425,6 @@ public class CtrlPartida {
     public void clearPartida() {
         this.partidaActual = null;
         this.dawg = null;
-        this.validador = null;
         this.finTurno = false;
         this.isAlgoritmo = false;
         this.algoritmo = null;

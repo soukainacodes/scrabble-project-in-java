@@ -50,7 +50,7 @@ public class Validador {
         Tablero tablero,
         int contadorTurno
     ) throws PalabraInvalidaException {
-        System.err.println("Validando palabra...");
+        
         this.hayBloqueada = false;
         this.tablero = tablero;
         this.diccionario = diccionario;
@@ -68,6 +68,9 @@ public class Validador {
             Pair<Integer, Integer> coord = coordenadasPalabra.get(0);
             puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false);
             puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true);
+            if (puntosTotales < 0) {
+                throw new PalabraInvalidaException();
+            }
             return puntosTotales;
         }
 
@@ -115,7 +118,9 @@ public class Validador {
         if (coordenadasPalabra.size() == 7) {
             puntosTotales += 50;
         }
-
+       if (puntosTotales == 0) {
+            throw new PalabraInvalidaException();
+        }
         return puntosTotales;
     }
 
@@ -192,7 +197,6 @@ public class Validador {
         }
 
         String palabraFinal = palabra2.toString() + palabra.toString();
-        System.out.println("Palabra: " + palabraFinal);
         List<String> s = diccionario.tokenizarPalabra(palabraFinal);
         if (diccionario.buscarPalabra(palabraFinal)) {
             return puntosLinea;
