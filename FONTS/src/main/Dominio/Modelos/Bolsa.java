@@ -90,10 +90,21 @@ public class Bolsa {
         return this.conjuntoDeFichas.isEmpty();
     }
 
+    /**
+     * Añade una ficha a la bolsa.
+     * @param ficha Ficha a añadir.
+     */
     public void addFichaBolsa(Ficha ficha) {
         this.conjuntoDeFichas.add(ficha);
     }
 
+    /**
+     * Mezcla las fichas de la bolsa aleatoriamente.
+     * <p>
+     * Utiliza el método {@link Collections#shuffle(List)} para barajar las
+     * fichas.
+     * </p>
+     */
     public void mezclarBolsa() {
         Collections.shuffle(this.conjuntoDeFichas);
     }

@@ -94,15 +94,6 @@ public class Partida {
         this.coordenadasPalabra = new ArrayList<>();
     }
     
-    /**
-     * Establece el ID de la partida.
-     *
-     * @param id ID de la partida.
-     */
-    public void setIdPartida(String id){
-        this.idPartida = id;
-    }
-
 
     /**
      * Establece las fichas del jugador 1 a partir de una cadena de texto.
@@ -472,20 +463,21 @@ public class Partida {
         return idPartida;
     }
 
+    /**
+     * Las fichas que se han seleccionadas se devuelven a la bolsa.
+     * Se mezclan las fichas de la bolsa.
+     * @param fichas Lista de fichas a devolver a la bolsa.
+     */
     public void reset(List<String> fichas){
-        // Create a copy to avoid concurrent modification issues
         List<String> fichasCopy = new ArrayList<>(fichas);
         
         for(String ficha : fichasCopy){
-            // Get the ficha object directly by its letter
             Ficha fichaEncontrada = getFichaString(ficha);
             
             if(fichaEncontrada != null){
                 System.out.println("Ficha encontrada: " + ficha);
-                // Add to bag before removing from hand
                 bolsa.addFichaBolsa(fichaEncontrada);
                 System.out.println("Añadiendo ficha a la bolsa: " + ficha);
-                // Remove from player's hand
                 quitarFicha(ficha);
             }
         }
