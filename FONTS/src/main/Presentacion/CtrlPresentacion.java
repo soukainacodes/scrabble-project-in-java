@@ -25,26 +25,26 @@ public class CtrlPresentacion {
     private Image aplicarIconoVentana;
 
     // Vistas
-    private VistaLogin vLogin;
-    private VistaMenuPrincipal vMenuPrincipal;
+    private VistaInicio vLogin;
+    private VistaPrincipal vMenuPrincipal;
     private VistaMenuLateral vMenuLateral;
-    private VistaPantallaPrincipal vPantallaPrincipal;
+    private VistaMenuPartidas vPantallaPrincipal;
     private VistaRanking vRanking;
     private VistaCuenta vCuenta;
     private VistaRecursos vRecursos;
-    private VistaSalir vSalir;
+    private VistaSalirPartida vSalir;
     private VistaManual vManual;
 
     private VistaCargarPartida vCargarPartida;
     private VistaCrearPartida vCrearPartida;
-    private VistaScrabble vScrabble;
+    private VistaJuego vScrabble;
 
-    private VistaPassword vPassword;
-    private VistaCambiar vCambiar;
-    private VistaExplorador vAddRecurso;
-    private VistaLogin vSegundoJugador;
-    private VistaFichas vFichas;
-    private VistaLetra vLetra;
+    private VistaEliminarJugador vPassword;
+    private VistaCambiarDatos vCambiar;
+    private VistaGestionRecursos vAddRecurso;
+    private VistaInicio vSegundoJugador;
+    private VistaResetFichas vFichas;
+    private VistaLetraComodin vLetra;
     private String nombreSegundoJugador = "";
 
     public CtrlPresentacion() throws IOException {
@@ -55,7 +55,7 @@ public class CtrlPresentacion {
 
     private void crearVistaLogin() {
         if (vLogin == null || !vLogin.isDisplayable()) {
-            vLogin = new VistaLogin();
+            vLogin = new VistaInicio();
         }
         
         // Aplicar icono inmediatamente después de crear la ventana de login
@@ -95,7 +95,7 @@ public class CtrlPresentacion {
 
     private void crearVistaMenuPrincipal() {
 
-        vMenuPrincipal = new VistaMenuPrincipal();
+        vMenuPrincipal = new VistaPrincipal();
         crearVistaMenuLateral();
         crearVistaPantallaPrincipal();
         vLogin.revalidate();
@@ -113,7 +113,7 @@ public class CtrlPresentacion {
         vMenuLateral = new VistaMenuLateral();
         vMenuPrincipal.addMenuLateral(vMenuLateral);
 
-        vPantallaPrincipal = new VistaPantallaPrincipal();
+        vPantallaPrincipal = new VistaMenuPartidas();
         vPantallaPrincipal.setNombre(ctrlDominio.getUsuarioActual());
         try {
             vCuenta = new VistaCuenta();
@@ -220,7 +220,7 @@ public class CtrlPresentacion {
 
     private void jugarPartida() {
         try {
-            vScrabble = new VistaScrabble(ctrlDominio.getUsuarioActual(), ctrlDominio.getSegundoJugador());
+            vScrabble = new VistaJuego(ctrlDominio.getUsuarioActual(), ctrlDominio.getSegundoJugador());
         } catch (Exception e) {
             System.err.println("Error al crear la vista de Scrabble: " + e.getMessage());
         }
@@ -237,7 +237,7 @@ public class CtrlPresentacion {
             }
         }
 
-        vScrabble.setTileActionListener(new VistaScrabble.TileActionListener() {
+        vScrabble.setTileActionListener(new VistaJuego.TileActionListener() {
             boolean cola = false;
             int row_cola = -1;
             int col_cola = -1;
@@ -248,7 +248,7 @@ public class CtrlPresentacion {
                 // Handle tile placement in the controller
                 if (letter.equals("#")) {
                     if (vLetra == null || !vLetra.isDisplayable()) {
-                        vLetra = new VistaLetra();
+                        vLetra = new VistaLetraComodin();
                     }
 
                     vLetra.setVisible(true);
@@ -348,7 +348,7 @@ public class CtrlPresentacion {
         } else {
             mensaje = "Fin de la partida. Jugador " + ganador + " ha ganado con " + resultado + " puntos.";
         }
-        VistaFinal vFinal = new VistaFinal(mensaje);
+        VistaFinPartida vFinal = new VistaFinPartida(mensaje);
         vFinal.setDuracion(3);
         vFinal.setLocationRelativeTo(null);
         vFinal.setResizable(false);
@@ -359,7 +359,7 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaSalir() {
-        VistaSalir vSalir = new VistaSalir();
+        VistaSalirPartida vSalir = new VistaSalirPartida();
         vSalir.setVisible(true);
         vSalir.setLocationRelativeTo(null);
         vSalir.setResizable(false);
@@ -389,7 +389,7 @@ public class CtrlPresentacion {
 
     private void crearVistaFichas() {
         try {
-            vFichas = new VistaFichas();
+            vFichas = new VistaResetFichas();
 
             List<String> fichas = ctrlDominio.obtenerFichas();
             vFichas.cargarFichas(fichas);
@@ -558,7 +558,7 @@ public class CtrlPresentacion {
     }
 
     private void crearVistaSegundoJugador() {
-        vSegundoJugador = new VistaLogin();
+        vSegundoJugador = new VistaInicio();
         vSegundoJugador.entrar(e -> addSegundoJugador());
     }
 
@@ -652,7 +652,7 @@ public class CtrlPresentacion {
 
     private void crearVistaCambiarPassword() {
         if (vCambiar == null || !vCambiar.isDisplayable()) {
-            vCambiar = new VistaCambiar("password");
+            vCambiar = new VistaCambiarDatos("password");
             vCambiar.setLocationRelativeTo(null);
         }
 
@@ -663,7 +663,7 @@ public class CtrlPresentacion {
 
     private void crearVistaEliminarJugador() {
         if (vPassword == null || !vPassword.isDisplayable()) {
-            vPassword = new VistaPassword(ctrlDominio.getUsuarioActual());
+            vPassword = new VistaEliminarJugador(ctrlDominio.getUsuarioActual());
             vPassword.setLocationRelativeTo(null);
         }
         vPassword.setVisible(true);
@@ -675,7 +675,7 @@ public class CtrlPresentacion {
 
     private void crearVistaCambiarNombre() {
         if (vCambiar == null || !vCambiar.isDisplayable()) {
-            vCambiar = new VistaCambiar("nombre");
+            vCambiar = new VistaCambiarDatos("nombre");
             vCambiar.setLocationRelativeTo(null);
         }
 
@@ -763,7 +763,7 @@ public class CtrlPresentacion {
 
     private void crearVistaAddRecurso() {
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
-            vAddRecurso = new VistaExplorador("", "Añadir Recurso");
+            vAddRecurso = new VistaGestionRecursos("", "Añadir Recurso");
 
             // Listener para el botón de añadir diccionario
             vAddRecurso.addAñadirListener(e -> {
@@ -797,7 +797,7 @@ public class CtrlPresentacion {
     private void crearVistaModificarRecurso() {
         String idRecurso = vRecursos.getSeleccionado();
         if (vAddRecurso == null || !vAddRecurso.isDisplayable()) {
-            vAddRecurso = new VistaExplorador(idRecurso, "Modificar Recurso");
+            vAddRecurso = new VistaGestionRecursos(idRecurso, "Modificar Recurso");
 
             try {
                 // Cargar datos existentes...
