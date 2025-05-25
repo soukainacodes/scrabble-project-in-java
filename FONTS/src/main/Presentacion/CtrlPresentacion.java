@@ -293,7 +293,7 @@ public class CtrlPresentacion {
         vScrabble.finTurno(e -> finTurno());
         vScrabble.reset(e -> crearVistaFichas());
         vScrabble.salir(e -> crearVistaSalir());
-        vScrabble.ayuda(e -> mostrarTablero());
+        vScrabble.ayuda(e -> ayuda());
         List<String> fichas = ctrlDominio.obtenerFichas();
         for (String ficha : fichas) {
             vScrabble.modificarRack(ficha);
