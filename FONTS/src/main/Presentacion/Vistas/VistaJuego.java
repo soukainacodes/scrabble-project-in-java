@@ -3,8 +3,12 @@ package Presentacion.Vistas;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
@@ -22,6 +26,17 @@ public class VistaJuego extends JPanel {
     
     // Añadir el error label como variable de clase
     private JLabel errorLabel;
+
+    // Añadir estas variables de clase
+    private CircularProfileImage player1Image;
+    private CircularProfileImage player2Image;
+    private JLabel player1Name;
+    private JLabel player1Score;
+    private JLabel player2Name;
+    private JLabel player2Score;
+
+    private int score1 = 0;
+    private int score2 = 0;
 
     public VistaJuego(String nombre1, String nombre2) {
         setLayout(new BorderLayout(5, 5));
@@ -705,8 +720,6 @@ public class VistaJuego extends JPanel {
         }
     }
 
-    private int score1;
-    private int score2;
     public void setPuntos(int score1, int score2) {
         this.score1 = score1;
         this.score2 = score2;
@@ -717,96 +730,130 @@ public class VistaJuego extends JPanel {
     private JComponent tabla;
 
     private JComponent crearTabla(String nombre1, String nombre2) {
-        // Creamos un componente que pinta todo el scoreboard
-        tabla = new JComponent() {
-            private final int WIDTH = 200;
-            private final int HEIGHT = 100;
-            private final int ARC = 20;
-            private final Color BG = Color.WHITE;
-            private final Color HEADER1_COLOR = new Color(100, 150, 255);
-            private final Color HEADER2_COLOR = new Color(255, 100, 100);
-            private final Color DIVIDER_COLOR = new Color(220, 220, 220);
-            private final Font HEADER_FONT = new Font("Arial", Font.BOLD, 14);
-            private final Font SCORE_FONT = new Font("Arial", Font.BOLD, 28);
-
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(WIDTH, HEIGHT);
-            }
-
-            @Override
-            public Dimension getMinimumSize() {
-                return getPreferredSize();
-            }
-
-            @Override
-            public Dimension getMaximumSize() {
-                return getPreferredSize();
-            }
-
+        // Crear panel principal con padding
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setOpaque(false);
+        wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        // Crear panel para contener los jugadores
+        JPanel panelJugadores = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
+                // Pintar fondo redondeado con borde suave
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // 1) Fondo redondeado
-                g2.setColor(BG);
-                g2.fillRoundRect(0, 0, WIDTH, HEIGHT, ARC, ARC);
-
-                // 2) Cabecera Jugador 1
-                int headerH = 24;
-                g2.setColor(HEADER1_COLOR);
-                g2.fillRoundRect(0, 0, WIDTH / 2, headerH, ARC, ARC);
-                g2.fillRect(0, headerH / 2, WIDTH / 2, headerH / 2);
-
-                // 3) Cabecera Jugador 2
-                g2.setColor(HEADER2_COLOR);
-                g2.fillRoundRect(WIDTH / 2, 0, WIDTH / 2, headerH, ARC, ARC);
-                g2.fillRect(WIDTH / 2, headerH / 2, WIDTH / 2, headerH / 2);
-
-                // 4) Texto de headers
-                g2.setFont(HEADER_FONT);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Sombra externa
+                g2.setColor(new Color(0, 0, 0, 15));
+                g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, 20, 20);
+                
+                // Fondo principal
                 g2.setColor(Color.WHITE);
-                FontMetrics fmH = g2.getFontMetrics();
-                String t1 = nombre1, t2 = nombre2;
-                int x1 = (WIDTH / 2 - fmH.stringWidth(t1)) / 2;
-                int x2 = WIDTH / 2 + (WIDTH / 2 - fmH.stringWidth(t2)) / 2;
-                int yH = (headerH + fmH.getAscent() - fmH.getDescent()) / 2;
-                g2.drawString(t1, x1, yH);
-                g2.drawString(t2, x2, yH);
-
-                // 5) Línea divisoria vertical
-                g2.setColor(DIVIDER_COLOR);
-                int y0 = headerH + 8, y1 = HEIGHT - 16, xm = WIDTH / 2;
-                g2.setStroke(new BasicStroke(1));
-                g2.drawLine(xm, y0, xm, y1);
-
-                // 6) Puntuaciones
-                g2.setFont(SCORE_FONT);
-                FontMetrics fmS = g2.getFontMetrics();
-                // Jugador1
-                String s1 = String.valueOf(score1);
-                int sx1 = (WIDTH / 2 - fmS.stringWidth(s1)) / 2;
-                int sy = HEIGHT - (HEIGHT - headerH) / 2 + fmS.getAscent() / 2 - 4;
-                g2.setColor(HEADER1_COLOR);
-                g2.drawString(s1, sx1, sy);
-                // Jugador2
-                String s2 = String.valueOf(score2);
-                int sx2 = WIDTH / 2 + (WIDTH / 2 - fmS.stringWidth(s2)) / 2;
-                g2.setColor(HEADER2_COLOR);
-                g2.drawString(s2, sx2, sy);
-
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                
                 g2.dispose();
             }
         };
-
-        // Añadimos un pequeño margen
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setOpaque(false);
-        wrapper.add(tabla, BorderLayout.NORTH);
-        wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panelJugadores.setLayout(new BoxLayout(panelJugadores, BoxLayout.Y_AXIS));
+        panelJugadores.setOpaque(false);
+        
+        // Tamaño fijo para el panel
+        panelJugadores.setPreferredSize(new Dimension(200, 180));
+        
+        // Crear y añadir cada jugador
+        panelJugadores.add(crearPanelJugador(nombre1, score1, new Color(100, 150, 255), 1));
+        
+        // Separador
+        panelJugadores.add(Box.createVerticalStrut(10));
+        
+        // Segundo jugador
+        panelJugadores.add(crearPanelJugador(nombre2, score2, new Color(255, 100, 100), 2));
+        
+        wrapper.add(panelJugadores, BorderLayout.NORTH);
+        tabla = wrapper;
         return wrapper;
+    }
+
+    // Crear un panel para cada jugador
+    private JPanel crearPanelJugador(String nombre, int puntos, Color color, int jugadorId) {
+        JPanel panel = new JPanel(new BorderLayout(20, 0)); // Aumentado de 10 a 20 para más espacio entre imagen y texto
+        panel.setOpaque(false);
+        
+        // Avatar circular (versión reducida)
+        CircularProfileImage avatarPanel = new CircularProfileImage(50);
+        
+        // Guardar referencias para poder actualizar después
+        if (jugadorId == 1) {
+            player1Image = avatarPanel;
+            player1Name = new JLabel(nombre);
+            player1Score = new JLabel(puntos + " pts");
+        } else {
+            player2Image = avatarPanel;
+            player2Name = new JLabel(nombre);
+            player2Score = new JLabel(puntos + " pts");
+        }
+        
+        // Panel para nombre y puntuación
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setOpaque(false);
+        
+        // Nombre con color destacado
+        JLabel nombreLabel = (jugadorId == 1) ? player1Name : player2Name;
+        nombreLabel.setForeground(color.darker());
+        nombreLabel.setFont(new Font("Arial", Font.BOLD, 15));
+        nombreLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Puntuación
+        JLabel puntosLabel = (jugadorId == 1) ? player1Score : player2Score;
+        puntosLabel.setForeground(FG);
+        puntosLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        puntosLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Añadir al panel de información
+        infoPanel.add(nombreLabel);
+        infoPanel.add(Box.createVerticalStrut(4));
+        infoPanel.add(puntosLabel);
+        
+        // Alinear todo con padding
+        JPanel wrapperPanel = new JPanel(new BorderLayout());
+        wrapperPanel.setOpaque(false);
+        wrapperPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        
+        // Añadir componentes con más espacio entre ellos
+        wrapperPanel.add(avatarPanel, BorderLayout.WEST);
+        wrapperPanel.add(Box.createHorizontalStrut(10), BorderLayout.CENTER); // Espacio adicional
+        wrapperPanel.add(infoPanel, BorderLayout.EAST);
+        
+        // Decoración de fondo con color del jugador
+        JPanel decoratedPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Franja lateral con el color del jugador
+                g2.setColor(color);
+                g2.fillRect(0, 0, 5, getHeight());
+                
+                // Fondo con el color del jugador pero MUY transparente (alpha = 30)
+                Color bgColor = new Color(
+                    color.getRed(),
+                    color.getGreen(),
+                    color.getBlue(),
+                    30 // Mucho más transparente (antes era 50)
+                );
+                g2.setColor(bgColor);
+                g2.fillRect(5, 0, getWidth() - 5, getHeight());
+                
+                g2.dispose();
+            }
+        };
+        
+        decoratedPanel.setOpaque(false);
+        decoratedPanel.add(wrapperPanel);
+        
+        return decoratedPanel;
     }
     
     /**
@@ -825,5 +872,121 @@ public class VistaJuego extends JPanel {
         // Ajustar el tamaño de la ventana si es necesario
         revalidate();
         repaint();
+    }
+
+
+
+    // Métodos para actualizar las imágenes de perfil
+    public void setPlayer1Image(BufferedImage img) {
+        if (player1Image != null) {
+            player1Image.setImage(img);
+        }
+    }
+
+    public void setPlayer2Image(BufferedImage img) {
+        if (player2Image != null) {
+            player2Image.setImage(img);
+        }
+    }
+
+    /**
+     * Imagen circular con sombra y borde.
+     */
+    private static class CircularProfileImage extends JPanel {
+        private final int size;
+        private BufferedImage image;
+        private BufferedImage defaultImage;
+        private final int playerId;
+
+        CircularProfileImage(int size) {
+            this.size = size;
+            this.playerId = 0;
+            setPreferredSize(new Dimension(size, size));
+            setOpaque(false);
+            cargarImagenPorDefecto();
+        }
+        
+        CircularProfileImage(int size, int playerId) {
+            this.size = size;
+            this.playerId = playerId;
+            setPreferredSize(new Dimension(size, size));
+            setOpaque(false);
+            cargarImagenPorDefecto();
+        }
+
+        private void cargarImagenPorDefecto() {
+            try {
+                File f = new File("FONTS/src/main/Recursos/Imagenes/default_profile.png");
+                defaultImage = f.exists() ? ImageIO.read(f) : crearImagenSilhouette();
+            } catch (IOException e) {
+                defaultImage = crearImagenSilhouette();
+            }
+            image = defaultImage;
+        }
+
+        private BufferedImage crearImagenSilhouette() {
+            BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = img.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setPaint(new GradientPaint(0, 0, new Color(190, 190, 190), size, size, new Color(230, 230, 230)));
+            g.fillOval(0, 0, size, size);
+            g.setColor(new Color(240, 240, 240));
+            g.fillOval(size / 4, size / 6, size / 2, size / 2);              // cabeza
+            g.fillOval(size / 4 - size / 8, size / 2, size / 2 + size / 4, size / 2); // torso
+            g.setColor(new Color(0, 0, 0, 30));
+            g.setStroke(new BasicStroke(2));
+            g.drawOval(2, 2, size - 4, size - 4);
+            g.dispose();
+            return img;
+        }
+
+        public void setImage(BufferedImage img) {
+            if (img == null) return;
+            double scale = (double) size / Math.max(img.getWidth(), img.getHeight());
+            int w = (int) (img.getWidth() * scale);
+            int h = (int) (img.getHeight() * scale);
+            BufferedImage scaled = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = scaled.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(img, (size - w) / 2, (size - h) / 2, w, h, null);
+            g.dispose();
+            this.image = scaled;
+            repaint();
+        }
+
+        @Override protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (image == null) return;
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Sombra
+            g2.setColor(new Color(0, 0, 0, 40));
+            g2.fillOval(3, 3, size - 2, size - 2);
+            
+            // Avatar
+            Ellipse2D.Double clip = new Ellipse2D.Double(0, 0, size, size);
+            g2.setClip(clip);
+            g2.drawImage(image, 0, 0, size, size, null);
+            g2.setClip(null);
+            
+            // Borde
+            g2.setColor(new Color(180, 180, 180));
+            g2.setStroke(new BasicStroke(2));
+            g2.draw(clip);
+            
+            // Número de jugador
+            if (playerId > 0) {
+                g2.setFont(new Font("Arial", Font.BOLD, 22));
+                g2.setColor(Color.WHITE);
+                FontMetrics fm = g2.getFontMetrics();
+                String text = String.valueOf(playerId);
+                int textX = (size - fm.stringWidth(text)) / 2;
+                int textY = (size + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(text, textX, textY);
+            }
+            
+            g2.dispose();
+        }
     }
 }

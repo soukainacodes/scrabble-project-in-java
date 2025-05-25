@@ -214,18 +214,17 @@ public class CtrlPartida {
                 }
                 List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
                 for (Pair<Integer, Integer> p : coordenadas) {
-                    System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
                     partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
                 }
+            
                 int puntosAlgoritmo = jugarAlgoritmo();
                 partidaActual.addPuntos(puntosAlgoritmo);
                 if (puntosAlgoritmo == 0 && partidaActual.isBolsaEmpty()
                         && partidaActual.getPuntosJugador2() > partidaActual.getPuntosJugador1()) {
                     return finPartida(false);
                 }
-                // Para habilitar el botón de Ayuda
-                return 0;
-
+                return finTurno(true, true);
+            
             default:
                 throw new ComandoInvalidoException("Opción de jugada desconocida: " + opcion);
         }
@@ -425,6 +424,7 @@ public class CtrlPartida {
     public void clearPartida() {
         this.partidaActual = null;
         this.dawg = null;
+
         this.finTurno = false;
         this.isAlgoritmo = false;
         this.algoritmo = null;

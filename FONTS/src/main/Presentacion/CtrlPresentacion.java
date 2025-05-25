@@ -57,7 +57,7 @@ public class CtrlPresentacion {
         if (vLogin == null || !vLogin.isDisplayable()) {
             vLogin = new VistaInicio();
         }
-        
+
         // Aplicar icono inmediatamente después de crear la ventana de login
         if (aplicarIconoVentana != null) {
             List<Image> iconos = new ArrayList<>();
@@ -231,11 +231,50 @@ public class CtrlPresentacion {
         int N = ctrlDominio.getTableroDimension();
         for (int fila = 0; fila < N; ++fila) {
             for (int col = 0; col < N; col++) {
-
                 String b = ctrlDominio.getBonusCelda(fila, col);
                 vScrabble.configurarTablero(b, fila, col);
             }
         }
+
+        // Cargar imagen del jugador 1 (actual)
+        try {
+            String jugador1 = ctrlDominio.getUsuarioActual();
+            BufferedImage profileImage1 = ctrlDominio.getProfileImage(jugador1);
+            if (profileImage1 != null) {
+                vScrabble.setPlayer1Image(profileImage1);
+            }
+        } catch (Exception ex) {
+            // Ignorar silenciosamente si no hay imagen de perfil
+        }
+
+        // Cargar imagen del jugador 2
+        try {
+            String jugador2 = ctrlDominio.getSegundoJugador();
+            BufferedImage profileImage2 = ctrlDominio.getProfileImage(jugador2);
+            if (profileImage2 != null) {
+                vScrabble.setPlayer2Image(profileImage2);
+            }
+        } catch (Exception ex) {
+            // Ignorar silenciosamente si no hay imagen de perfil
+        }
+
+        // Agregar listener para cambios de imagen de perfil (si se implementa esta funcionalidad)
+        // Este código se puede añadir si quieres permitir cambiar la foto desde el juego
+        /*
+        vScrabble.setProfileChangeListener(e -> {
+            File selectedFile = (File) e.getSource();
+            try {
+                BufferedImage newImage = ImageIO.read(selectedFile);
+                if (newImage != null) {
+                    ctrlDominio.saveProfileImage(newImage);
+                    // Actualizar la imagen en la vista
+                    vScrabble.setPlayer1Image(newImage);
+                }
+            } catch (IOException ex) {
+                System.err.println("Error al guardar la imagen de perfil: " + ex.getMessage());
+            }
+        });
+        */
 
         vScrabble.setTileActionListener(new VistaJuego.TileActionListener() {
             boolean cola = false;
@@ -299,7 +338,7 @@ public class CtrlPresentacion {
             vScrabble.modificarRack(ficha);
         }
         actualizarTablero();
-        // vMenuPrincipal.muestraCard("SCRABBLE");
+        
         vMenuPrincipal.jugarPartida(vScrabble);
     }
 
@@ -308,24 +347,7 @@ public class CtrlPresentacion {
         vLetra.dispose();
     }
 
-    private void mostrarTablero() {
-        int N = ctrlDominio.getTableroDimension();
-        System.out.print("    ");
-        for (int j = 0; j < N; j++) {
-            System.out.printf("%4d", j);
-        }
-        System.out.println();
-        for (int i = 0; i < N; i++) {
-            System.out.printf("%2d: ", i);
-            for (int j = 0; j < N; j++) {
-                String l = ctrlDominio.getLetraCelda(i, j);
-                String b = ctrlDominio.getBonusCelda(i, j);
-                System.out.printf("[%2s]", l != null ? l : b);
-            }
-            System.out.println();
-        }
-    System.out.println("Fichas: " + ctrlDominio.obtenerFichas());
-    }
+
 
     private void ayuda() {
         try {
@@ -352,7 +374,7 @@ public class CtrlPresentacion {
         vFinal.setDuracion(3);
         vFinal.setLocationRelativeTo(null);
         vFinal.setResizable(false);
-        
+
         vFinal.mostrar();
         crearVistaMenuPrincipal();
 
@@ -367,9 +389,9 @@ public class CtrlPresentacion {
         vSalir.setAbandonarListener(e -> {
             try {
                 nombreSegundoJugador = ctrlDominio.getSegundoJugador();
-            
+
                 crearVistaFinal(true, ctrlDominio.jugarScrabble(6, ""));
-                
+
             } catch (Exception ex) {
                 System.out.println("ERROR: " + ex.getMessage());
             }
@@ -430,7 +452,7 @@ public class CtrlPresentacion {
                 ctrlDominio.jugarScrabble(1, parametros);
             }
 
-            //actualizarTablero();
+     
         } catch (Exception e) {
             vScrabble.setError(e.getMessage());
         }
@@ -438,7 +460,7 @@ public class CtrlPresentacion {
 
     private void quitarFicha(String letra, int puntuacion, int fila, int col) {
         try {
-           // System.out.println("Quitar ficha: ");
+            // System.out.println("Quitar ficha: ");
             String parametros = Integer.toString(fila) + " " + Integer.toString(col);
             ctrlDominio.jugarScrabble(2, parametros);
         } catch (Exception e) {
