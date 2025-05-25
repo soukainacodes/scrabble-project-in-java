@@ -61,7 +61,7 @@ public class CtrlPersistencia {
         gestorUsuarios = new GestorDeUsuarios();
         gestorRanking = new GestorDeRanking();
         gestorRecursos = new GestorDeRecursos();
-        gestorPartidas = new GestorDePartidas();
+        gestorPartidas = new GestorDePartidas(gestorUsuarios, gestorRecursos);
     }
     
     /**

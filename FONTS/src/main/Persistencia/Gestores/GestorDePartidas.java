@@ -49,15 +49,15 @@ public class GestorDePartidas {
      * Constructor de la clase GestorDePartidas. Crea el directorio de partidas
      * si no existe.
      */
-    public GestorDePartidas() {
+    public GestorDePartidas(GestorDeUsuarios gu, GestorDeRecursos gr) {
         File partidasDir = new File(PARTIDAS);
         if (!partidasDir.exists()) {
             partidasDir.mkdirs();
         }
 
         // Inicializa los gestores
-        gestorUsuarios = new GestorDeUsuarios();
-        gestorRecursos = new GestorDeRecursos();
+        gestorUsuarios = gu;
+        gestorRecursos = gr;
     }
 
     /**
