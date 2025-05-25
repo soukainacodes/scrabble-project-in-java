@@ -14,13 +14,19 @@ public class VistaJuego extends JPanel {
     private JPanel grid;
     private CellPanel[][] cells = new CellPanel[15][15];
     
+    // Colores temáticos (agregados desde VistaCuenta)
+    private static final Color BG = new Color(242, 226, 177);  // Crema
+    private static final Color LILA_OSCURO = new Color(52, 28, 87);
+    private static final Color LILA_CLARO = new Color(180, 95, 220);
+    private static final Color FG = new Color(20, 40, 80);  // Texto oscuro
+    
     // Añadir el error label como variable de clase
     private JLabel errorLabel;
 
     public VistaJuego(String nombre1, String nombre2) {
         setLayout(new BorderLayout(5, 5));
         setSize(1920, 1080);
-        setBackground(new Color(238, 238, 238, 255));
+        setBackground(BG);  // Cambiado al nuevo color crema
         add(crearTabla(nombre1,nombre2), BorderLayout.WEST);
         // Tablero en el centro
 
@@ -250,16 +256,22 @@ public class VistaJuego extends JPanel {
     private JPanel crearPanelControles() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         p.setBackground(getBackground());
+        
         reset = crearBotonControl("Reset");
         p.add(reset);
+        
         pasar = crearBotonControl("Pasar");
         p.add(pasar);
-        finTurno = crearBotonControl("Fin de turno");
+        
+        finTurno = crearBoton("Fin de turno", LILA_OSCURO); 
+        finTurno.setPreferredSize(new Dimension(160, 40)); // Hacemos este botón aún más ancho
         p.add(finTurno);
-        salir = crearBotonControl("Salir");
-        p.add(salir);
+        
         ayuda = crearBotonControl("Ayuda");
         p.add(ayuda);
+        
+        salir = crearBotonControl("Salir");
+        p.add(salir);
 
         return p;
     }
@@ -284,37 +296,63 @@ public class VistaJuego extends JPanel {
         ayuda.addActionListener(l);
     }
     private JButton crearBotonControl(String texto) {
-        JButton b = new JButton(texto);
-        b.setFont(new Font("Arial", Font.BOLD, 14));
-        b.setForeground(new Color(60, 60, 80));
-        b.setBackground(new Color(255, 255, 255));
-        b.setOpaque(true);
-        b.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
-        b.setPreferredSize(new Dimension(100, 40));
-        return b;
+        return crearBoton(texto, LILA_CLARO);
     }
-
+    
     private JButton crearBotonPrimario(String texto) {
+        return crearBoton(texto, LILA_OSCURO);
+    }
+    
+    private JButton crearBoton(String texto, Color base) {
         JButton b = new JButton(texto) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-                GradientPaint gp = new GradientPaint(
-                        0, 0, new Color(0, 180, 180),
-                        getWidth(), 0, new Color(0, 210, 210)
-                );
-                g2.setPaint(gp);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int radius = 15;
+                boolean over = getModel().isRollover();
+                boolean press = getModel().isPressed();
+                Color bg = press ? base.darker().darker() : (over ? base.darker() : base);
+                
+                if (over && !press) {
+                    g2.setColor(new Color(0, 0, 0, 50));
+                    g2.fillRoundRect(3, 3, getWidth() - 4, getHeight() - 4, radius, radius);
+                }
+                
+                g2.setPaint(new GradientPaint(0, 0,
+                        new Color(Math.min(bg.getRed() + 25, 255), Math.min(bg.getGreen() + 25, 255), Math.min(bg.getBlue() + 25, 255)),
+                        0, getHeight(), bg));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+                
+                if (!press) {
+                    g2.setColor(new Color(255, 255, 255, 70));
+                    g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() / 2 - 2, radius, radius);
+                }
+                
+                g2.dispose();
                 super.paintComponent(g);
             }
         };
+        
         b.setFont(new Font("Arial", Font.BOLD, 14));
         b.setForeground(Color.WHITE);
-        b.setContentAreaFilled(false);
+        b.setFocusPainted(false);
         b.setBorderPainted(false);
+        b.setContentAreaFilled(false);
+        b.setOpaque(false);
         b.setPreferredSize(new Dimension(100, 40));
+        
+        b.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+        
         return b;
     }
 
@@ -337,10 +375,85 @@ public class VistaJuego extends JPanel {
     private JPanel rack;
 
     private JPanel crearRack() {
-        rack = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        rack.setBackground(getBackground());
-
-        // rack acepta devolver fichas
+        // Panel exterior con márgenes para centrar el rack
+        JPanel exterior = new JPanel(new GridBagLayout());
+        exterior.setOpaque(false);
+        
+        // Creamos un panel contenedor con borde y efecto visual
+        JPanel contenedor = new JPanel(new BorderLayout(0, 0));
+        contenedor.setOpaque(false);
+        
+        // Limitar el ancho máximo del contenedor
+        int anchoMaximo = 650; // Puedes ajustar este valor según necesites
+        contenedor.setPreferredSize(new Dimension(anchoMaximo, 80));
+        contenedor.setMaximumSize(new Dimension(anchoMaximo, 80));
+        
+        // El rack en sí mismo
+        rack = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Fondo del rack ligeramente más claro que el fondo general
+                Color bgRack = new Color(250, 240, 210); // Tono crema más claro
+                
+                // Dibujar fondo redondeado
+                int radius = 18;
+                g2.setColor(bgRack);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+                
+                // Borde fino
+                g2.setColor(new Color(220, 190, 150));
+                g2.setStroke(new BasicStroke(1.5f));
+                g2.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radius, radius);
+                
+                // Efecto de iluminación superior
+                g2.setPaint(new GradientPaint(0, 0, 
+                        new Color(255, 255, 255, 100), 
+                        0, getHeight()/2, new Color(255, 255, 255, 0)));
+                g2.fillRoundRect(2, 2, getWidth()-4, getHeight()/2, radius, radius);
+                
+                g2.dispose();
+            }
+        };
+        
+        // Altura mínima para el rack
+        rack.setPreferredSize(new Dimension(100, 70));
+        rack.setMinimumSize(new Dimension(100, 70));
+        
+        // Hacemos que el panel sea transparente para que se vea nuestro fondo personalizado
+        rack.setOpaque(false);
+        
+        // Agregamos un borde invisible para padding
+        rack.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        
+        // Añadir etiqueta de "TUS FICHAS"
+        JLabel titulo = new JLabel("TUS FICHAS");
+        titulo.setFont(new Font("Arial", Font.BOLD, 12));
+        titulo.setForeground(LILA_OSCURO);
+        titulo.setHorizontalAlignment(JLabel.CENTER);
+        
+        // Panel para el título con fondo redondeado
+        JPanel tituloPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(255, 255, 255, 180));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        tituloPanel.setOpaque(false);
+        tituloPanel.add(titulo);
+        
+        // Agregar al contenedor
+        contenedor.add(tituloPanel, BorderLayout.NORTH);
+        contenedor.add(rack, BorderLayout.CENTER);
+        
+        // Configuramos el TransferHandler para el rack
         rack.setTransferHandler(new TransferHandler() {
             @Override
             public boolean canImport(TransferSupport supp) {
@@ -370,7 +483,10 @@ public class VistaJuego extends JPanel {
             }
         });
 
-        return rack;
+        // Añadir el contenedor centrado al panel exterior
+        exterior.add(contenedor);
+        
+        return exterior;
     }
 
     /**

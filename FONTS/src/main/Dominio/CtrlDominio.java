@@ -338,19 +338,19 @@ public class CtrlDominio {
 
         int fin = ctrlPartida.jugarScrabble(modo, id);
     if(modo != 1 && modo != 2 && modo != 7){ 
-        System.out.println("Fin de turno: " + fin);
+      //  System.out.println("Fin de turno: " + fin);
 
         // Actualiza la puntuación del jugador activo y openente
         if (fin != 0) {
 
-            System.out.println("Entrando en el if de fin");
+           // System.out.println("Entrando en el if de fin");
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), null);
-            System.out.println("El jugador actual es: " + ctrlJugador.getJugadorActual());
-            System.out.println("El segundo jugador es: " + ctrlJugador.getSegundoJugador());
+           // System.out.println("El jugador actual es: " + ctrlJugador.getJugadorActual());
+          //  System.out.println("El segundo jugador es: " + ctrlJugador.getSegundoJugador());
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), null);
             
         } else {
-            System.out.println("Entrando en el else de fin");
+          //  System.out.println("Entrando en el else de fin");
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), ctrlPartida.getId());
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), ctrlPartida.getId());
             

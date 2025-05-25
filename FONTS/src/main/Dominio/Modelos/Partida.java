@@ -88,7 +88,8 @@ public class Partida {
             int puntuacion = Integer.parseInt(parts[1]);
             int x = Integer.parseInt(parts[2]);
             int y = Integer.parseInt(parts[3]);
-            tablero.ponerFicha(new Ficha(letra, puntuacion), x, y); 
+            tablero.ponerFicha(new Ficha(letra, puntuacion), x, y);
+            tablero.bloquearCelda(x, y); 
         }
         
         this.coordenadasPalabra = new ArrayList<>();
@@ -203,6 +204,7 @@ public class Partida {
             Ficha ficha = getFichaString(parts[0]);
 
             if(parts.length > 1) {
+                System.out.println("Colocando comodín: " + parts[0] + " en (" + x + ", " + y + ")");
                 tablero.ponerComodin(parts[0], x, y);
                 quitarFicha("#");
                 coordenadasPalabra.add(Pair.createPair(x, y));

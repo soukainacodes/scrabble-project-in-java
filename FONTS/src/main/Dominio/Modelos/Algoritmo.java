@@ -162,14 +162,9 @@ public class Algoritmo {
      * @param pos Posición en la que se colocará la ficha.
      */
     private void ponerFicha(String s, Pair<Integer, Integer> pos) {
-        // Verificar si la letra está en el rack o si se usa un comodín
-        if (!fichass.contains(s) && fichass.contains("#")) {
-            System.out.println("Usando comodín (#) para representar la letra: " + s
-                    + " en posición: " + pos.getFirst() + "," + pos.getSecond());
-            s = s + " 0";
-        } else {
-            resultadoFinal.add(Pair.createPair(s, pos));
-        }
+    
+        resultadoFinal.add(Pair.createPair(s, pos));
+        
 
     }
 

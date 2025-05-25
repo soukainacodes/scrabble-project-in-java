@@ -1,10 +1,10 @@
 package Presentacion.Vistas;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import javax.swing.*;
 
 public class VistaFinPartida extends JFrame {
     
@@ -64,7 +64,7 @@ public class VistaFinPartida extends JFrame {
         
         // Mejorar el mensaje
         mensajeLabel = new JLabel(mensaje);
-        mensajeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        mensajeLabel.setFont(new Font("Arial", Font.BOLD, 14));
         mensajeLabel.setForeground(Color.WHITE);
         mensajeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         

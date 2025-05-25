@@ -337,8 +337,33 @@ public class CtrlPartida {
                 .find_all_words(partidaActual.getFichasJugador(), dawg, partidaActual.getTablero());
         List<Pair<String, Pair<Integer, Integer>>> s = ss.getFirst();
         for (Pair<String, Pair<Integer, Integer>> aa : s) {
-            partidaActual.añadirFicha(aa.getFirst(), aa.getSecond().getFirst(), aa.getSecond().getSecond());
-
+            String fichaStr = aa.getFirst();
+            
+            // Check if the letter is not in player's hand
+            boolean fichaInHand = false;
+            for (Ficha f : partidaActual.getFichasJugador()) {
+                if (f.getLetra().equals(fichaStr)) {
+                    fichaInHand = true;
+                    break;
+                }
+            }
+            
+            // Check if player has a wildcard
+            boolean hasWildcard = false;
+            for (Ficha f : partidaActual.getFichasJugador()) {
+                if (f.getLetra().equals("#")) {
+                    hasWildcard = true;
+                    break;
+                }
+            }
+            
+            // If the letter is not in hand but there's a wildcard, use the wildcard
+            if (!fichaInHand && hasWildcard) {
+                fichaStr = fichaStr + " 0";
+            }
+            
+            partidaActual.añadirFicha(fichaStr, aa.getSecond().getFirst(), aa.getSecond().getSecond());
+            System.out.println("Añadiendo ficha: " + fichaStr);
         }
         if (s.size() == 0) {
             return 0;
