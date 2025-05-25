@@ -471,4 +471,25 @@ public class Partida {
     public String getIdPartida() {
         return idPartida;
     }
+
+    public void reset(List<String> fichas){
+        // Create a copy to avoid concurrent modification issues
+        List<String> fichasCopy = new ArrayList<>(fichas);
+        
+        for(String ficha : fichasCopy){
+            // Get the ficha object directly by its letter
+            Ficha fichaEncontrada = getFichaString(ficha);
+            
+            if(fichaEncontrada != null){
+                System.out.println("Ficha encontrada: " + ficha);
+                // Add to bag before removing from hand
+                bolsa.addFichaBolsa(fichaEncontrada);
+                System.out.println("Añadiendo ficha a la bolsa: " + ficha);
+                // Remove from player's hand
+                quitarFicha(ficha);
+            }
+        }
+        
+        bolsa.mezclarBolsa();
+    } 
 }

@@ -293,7 +293,7 @@ public class CtrlPresentacion {
         vScrabble.finTurno(e -> finTurno());
         vScrabble.reset(e -> crearVistaFichas());
         vScrabble.salir(e -> crearVistaSalir());
-        vScrabble.ayuda(e -> ayuda());
+        vScrabble.ayuda(e -> mostrarTablero());
         List<String> fichas = ctrlDominio.obtenerFichas();
         for (String ficha : fichas) {
             vScrabble.modificarRack(ficha);
@@ -324,7 +324,7 @@ public class CtrlPresentacion {
             }
             System.out.println();
         }
-
+    System.out.println("Fichas: " + ctrlDominio.obtenerFichas());
     }
 
     private void ayuda() {
@@ -342,6 +342,7 @@ public class CtrlPresentacion {
 
         String perdedor = resultado == 1 ? ctrlDominio.getUsuarioActual() : nombreSegundoJugador;
         String ganador = resultado == 1 ? nombreSegundoJugador : ctrlDominio.getUsuarioActual();
+        nombreSegundoJugador = "";
         if (abandonada) {
             mensaje = "Jugador " + perdedor + " ha abandonado la partida. Jugador " + ganador + " gana.";
         } else {
@@ -351,11 +352,10 @@ public class CtrlPresentacion {
         vFinal.setDuracion(3);
         vFinal.setLocationRelativeTo(null);
         vFinal.setResizable(false);
-        // Let the mostrar() method handle the visibility
+        
         vFinal.mostrar();
         crearVistaMenuPrincipal();
-        // Don't hide it immediately - either mostrar() will auto-hide after duration
-        // or you can add a listener to handle closing it after user interaction
+
     }
 
     private void crearVistaSalir() {
@@ -369,6 +369,7 @@ public class CtrlPresentacion {
                 nombreSegundoJugador = ctrlDominio.getSegundoJugador();
             
                 crearVistaFinal(true, ctrlDominio.jugarScrabble(6, ""));
+                
             } catch (Exception ex) {
                 System.out.println("ERROR: " + ex.getMessage());
             }
@@ -382,6 +383,7 @@ public class CtrlPresentacion {
             }
             vSalir.dispose();
             crearVistaMenuPrincipal();
+            nombreSegundoJugador = "";
         });
     }
 
@@ -436,7 +438,7 @@ public class CtrlPresentacion {
 
     private void quitarFicha(String letra, int puntuacion, int fila, int col) {
         try {
-            System.out.println("Quitar ficha: ");
+           // System.out.println("Quitar ficha: ");
             String parametros = Integer.toString(fila) + " " + Integer.toString(col);
             ctrlDominio.jugarScrabble(2, parametros);
         } catch (Exception e) {

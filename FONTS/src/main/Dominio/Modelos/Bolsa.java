@@ -11,8 +11,8 @@ import java.util.Random;
  * Representa una bolsa de fichas para el juego de Scrabble.
  * <p>
  * Permite inicializarse a partir de líneas de configuración (por ejemplo,
- * leídas de un fichero),
- * barajar las fichas aleatoriamente y extraer fichas de forma controlada.
+ * leídas de un fichero), barajar las fichas aleatoriamente y extraer fichas de
+ * forma controlada.
  * </p>
  */
 public class Bolsa {
@@ -23,8 +23,8 @@ public class Bolsa {
     private List<Ficha> conjuntoDeFichas;
 
     /**
-     * Construye una bolsa de fichas a partir de líneas de configuración.
-     * Cada línea debe tener el formato: "Letra Cantidad Puntuacion".
+     * Construye una bolsa de fichas a partir de líneas de configuración. Cada
+     * línea debe tener el formato: "Letra Cantidad Puntuacion".
      *
      * @param lineasArchivo Lista de cadenas con la configuración de fichas.
      */
@@ -45,11 +45,11 @@ public class Bolsa {
     }
 
     /**
-     * Construye una bolsa de fichas usando una semilla para el barajeo.
-     * Útil para reproducibilidad en tests.
+     * Construye una bolsa de fichas usando una semilla para el barajeo. Útil
+     * para reproducibilidad en tests.
      *
      * @param lineasArchivo Lista de cadenas con la configuración de fichas.
-     * @param seed          Semilla para la aleatoriedad.
+     * @param seed Semilla para la aleatoriedad.
      */
     public Bolsa(List<String> lineasArchivo, long seed) {
         this.conjuntoDeFichas = new ArrayList<>();
@@ -84,11 +84,18 @@ public class Bolsa {
      * Indica si la bolsa está vacía (no quedan fichas).
      *
      * @return {@code true} si no hay fichas en la bolsa, {@code false} en caso
-     *         contrario.
+     * contrario.
      */
-
     public boolean isEmpty() {
         return this.conjuntoDeFichas.isEmpty();
+    }
+
+    public void addFichaBolsa(Ficha ficha) {
+        this.conjuntoDeFichas.add(ficha);
+    }
+
+    public void mezclarBolsa() {
+        Collections.shuffle(this.conjuntoDeFichas);
     }
 
     /**

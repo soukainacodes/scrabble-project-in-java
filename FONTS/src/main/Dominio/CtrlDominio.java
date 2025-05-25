@@ -87,7 +87,6 @@ public class CtrlDominio {
             throw new PasswordInvalidaException();
         }
 
-        // If all checks pass, set the active user
         ctrlJugador.setJugadorActual(nombre);
     }
 
@@ -406,12 +405,7 @@ public class CtrlDominio {
      * @throws UsuarioNoEncontradoException si el jugador no existe.
      */
     public void salirPartida() throws UsuarioNoEncontradoException {
-        ctrlPersistencia.guardarPartida(ctrlJugador.getJugadorActual(), ctrlJugador.getSegundoJugador(), ctrlPartida.getId(),
-                dc.partidaToStringList(ctrlPartida.getPartida(), ctrlJugador.getJugadorActual(),
-                        ctrlJugador.getSegundoJugador(), ctrlPartida.getId()));
-        ctrlPersistencia.guardarPartida(ctrlJugador.getSegundoJugador(), ctrlJugador.getSegundoJugador(), ctrlPartida.getId(),
-                dc.partidaToStringList(ctrlPartida.getPartida(), ctrlJugador.getJugadorActual(),
-                        ctrlJugador.getSegundoJugador(), ctrlPartida.getId()));
+
         ctrlJugador.setSegundoJugador(null);
     }
 

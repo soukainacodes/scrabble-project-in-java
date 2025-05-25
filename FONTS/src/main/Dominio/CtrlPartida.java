@@ -61,6 +61,7 @@ public class CtrlPartida {
      * validador de palabras.
      */
     public CtrlPartida() {
+        System.out.println("CtrlPartida creado sin partida inicial.");
         this.validador = new Validador();
     }
 
@@ -132,7 +133,7 @@ public class CtrlPartida {
         String[] parts = input.trim().split(" ");
 
         switch (opcion) {
-            case 1: {
+            case 1: { // Añadir ficha al tablero
                 if (parts.length < 3) {
                     throw new ComandoInvalidoException("Uso esperado: <ficha> <x> <y>.");
                 }
@@ -150,7 +151,7 @@ public class CtrlPartida {
                 int x, y;
 
                 String puntuacion = parts[1];
-                if(puntuacion.equals("0")){
+                if (puntuacion.equals("0")) {
                     System.out.println("Comodin");
                     ficha = ficha + " " + puntuacion;
                 }
@@ -162,7 +163,7 @@ public class CtrlPartida {
                 break;
             }
 
-            case 2: {
+            case 2: { // Quitar ficha del tablero
                 if (parts.length != 2) {
                     throw new ComandoInvalidoException("Uso esperado: <x> <y> para quitar ficha.");
                 }
@@ -176,7 +177,7 @@ public class CtrlPartida {
                 break;
             }
 
-            case 3: {
+            case 3: { // Pasar turno
                 List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
                 for (Pair<Integer, Integer> p : coordenadas) {
                     System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
@@ -186,11 +187,11 @@ public class CtrlPartida {
                 return finTurno(true, true);
             }
 
-            case 4:
+            case 4: // Finalizar turno
 
                 return finTurno(false, true);
 
-            case 5: {
+            case 5: { // Reset de fichas + pasar turno
                 List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
                 for (Pair<Integer, Integer> p : coordenadas) {
                     System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
@@ -198,39 +199,16 @@ public class CtrlPartida {
                 }
 
                 List<String> fichas = new ArrayList<>(Arrays.asList(parts));
-                List<String> letrasJugador = new ArrayList<>();
-                for (Ficha f : partidaActual.getFichasJugador()) {
-                    letrasJugador.add(f.getLetra());
-                }
-
-                for (int i = fichas.size() - 1; i >= 0; --i) {
-                    String s = fichas.get(i);
-                    if (s.matches("[0-7]")) {
-                        int idx = Integer.parseInt(s);
-                        List<Ficha> mano = partidaActual.getFichasJugador();
-                        if (idx < 0 || idx >= mano.size()) {
-                            throw new ComandoInvalidoException("Índice de ficha inválido: " + s);
-                        }
-                        fichas.add(mano.get(idx).getLetra());
-                        fichas.remove(i);
-                    }
-                }
-
-                for (String s : fichas) {
-                    if (!letrasJugador.contains(s)) {
-                        throw new ComandoInvalidoException("No tienes la ficha: '" + s + "'");
-                    }
-                    partidaActual.quitarFicha(s);
-                }
+                partidaActual.reset(fichas);
 
                 partidaActual.recuperarFichas();
                 return finTurno(true, true);
             }
 
-            case 6:
+            case 6: // Abandonar partida
                 return finPartida(true);
 
-            case 7:
+            case 7:   // Jugar IA (Ayuda)
                 if (!jugadorAlgoritmo) {
                     throw new ComandoInvalidoException("No se puede usar la opción 'Ayuda' en este modo de juego (Duo - 2 Jugadores).");
                 }

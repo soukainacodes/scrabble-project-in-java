@@ -7,11 +7,9 @@ import java.util.List;
  * Se encarga de buscar y construir jugadas posibles en el juego de Scrabble.
  * <p>
  * Utiliza las fichas del jugador, el tablero y un diccionario DAWG para formar
- * palabras válidas
- * que respeten las reglas del juego. Calcula la puntuación de cada jugada y
- * selecciona la mejor.
+ * palabras válidas que respeten las reglas del juego. Calcula la puntuación de
+ * cada jugada y selecciona la mejor.
  */
-
 public class Algoritmo {
 
     private int puntosFinal;
@@ -36,9 +34,9 @@ public class Algoritmo {
      *
      * @param pos Par de coordenadas (fila, columna) a verificar.
      * @return {@code true} si la celda existe y no está ocupada, {@code false}
-     *         en caso contrario.
+     * en caso contrario.
      */
-    public boolean isEmpty(Pair<Integer, Integer> pos) {
+    private boolean isEmpty(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
         int y = pos.getSecond();
         return (tablero.getCelda(x, y) != null && !tablero.getCelda(x, y).estaOcupada());
@@ -50,9 +48,9 @@ public class Algoritmo {
      *
      * @param pos Par de coordenadas (fila, columna) a verificar.
      * @return {@code true} si la celda existe y está ocupada, {@code false} en
-     *         caso contrario.
+     * caso contrario.
      */
-    public boolean isFilled(Pair<Integer, Integer> pos) {
+    private boolean isFilled(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
         int y = pos.getSecond();
         return (tablero.getCelda(x, y) != null && tablero.getCelda(x, y).estaOcupada());
@@ -63,9 +61,9 @@ public class Algoritmo {
      *
      * @param pos Par de coordenadas (fila, columna) a comprobar.
      * @return {@code true} si la celda en la posición indicada existe,
-     *         {@code false} en caso contrario.
+     * {@code false} en caso contrario.
      */
-    public boolean isDentroTablero(Pair<Integer, Integer> pos) {
+    private boolean isDentroTablero(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
         int y = pos.getSecond();
         return (tablero.getCelda(x, y) != null);
@@ -76,9 +74,9 @@ public class Algoritmo {
      * decir, celdas vacías adyacentes a al menos una celda ocupada.
      *
      * @return Lista de posiciones (pares fila, columna) que son válidas como
-     *         anclas.
+     * anclas.
      */
-    public ArrayList<Pair<Integer, Integer>> find_anchors() {
+    private ArrayList<Pair<Integer, Integer>> find_anchors() {
         ArrayList<Pair<Integer, Integer>> anchors = new ArrayList<>();
         for (int i = 0; i < 15; ++i) {
             for (int j = 0; j < 15; j++) {
@@ -158,13 +156,21 @@ public class Algoritmo {
 
     /**
      * Añade una ficha representada por una cadena en una posición específica al
-     * resultado final.
+     * resultado final. Verifica si se está usando un comodín.
      *
-     * @param s   Letra o símbolo que representa la ficha.
+     * @param s Letra o símbolo que representa la ficha.
      * @param pos Posición en la que se colocará la ficha.
      */
     private void ponerFicha(String s, Pair<Integer, Integer> pos) {
-        resultadoFinal.add(Pair.createPair(s, pos));
+        // Verificar si la letra está en el rack o si se usa un comodín
+        if (!fichass.contains(s) && fichass.contains("#")) {
+            System.out.println("Usando comodín (#) para representar la letra: " + s
+                    + " en posición: " + pos.getFirst() + "," + pos.getSecond());
+            s = s + " 0";
+        } else {
+            resultadoFinal.add(Pair.createPair(s, pos));
+        }
+
     }
 
     /**
@@ -176,9 +182,9 @@ public class Algoritmo {
      * Si la puntuación total obtenida es mayor que la mejor registrada hasta el
      * momento, actualiza el resultado final.
      *
-     * @param palabra  Palabra a evaluar.
+     * @param palabra Palabra a evaluar.
      * @param last_pos Posición final de la palabra (última letra colocada).
-     * @param puntos   Puntuación acumulada antes de colocar esta palabra.
+     * @param puntos Puntuación acumulada antes de colocar esta palabra.
      */
     private void palabra_parcial(String palabra, Pair<Integer, Integer> last_pos, int puntos) {
 
@@ -251,12 +257,12 @@ public class Algoritmo {
      * Se consideran las bonificaciones de letra y palabra, así como los puntos
      * base de las fichas ya colocadas en el tablero.
      *
-     * @param pos       Posición donde se colocará la nueva ficha.
+     * @param pos Posición donde se colocará la nueva ficha.
      * @param direccion {@code true} para recorrer en dirección horizontal,
-     *                  {@code false} para vertical.
-     * @param s         Letra que se quiere colocar en la posición indicada.
+     * {@code false} para vertical.
+     * @param s Letra que se quiere colocar en la posición indicada.
      * @return Puntuación total de la palabra si es válida, o {@code -1} si la
-     *         palabra no existe en el diccionario.
+     * palabra no existe en el diccionario.
      */
     private int recorrerDireccion(Pair<Integer, Integer> pos, boolean direccion, String s) {
         StringBuilder palabra = new StringBuilder();
@@ -340,7 +346,7 @@ public class Algoritmo {
      *
      * @param pos Posición (fila, columna) de la ficha.
      * @return Puntuación de la ficha si existe, o {@code 0} si no hay ninguna
-     *         ficha en esa celda.
+     * ficha en esa celda.
      */
     private int getFichaPuntuacion(Pair<Integer, Integer> pos) {
         int x = pos.getFirst();
@@ -362,11 +368,11 @@ public class Algoritmo {
      * evalúa la puntuación correspondiente.
      *
      * @param palabraParcial Palabra construida hasta el momento.
-     * @param nodo_actual    Nodo actual en el DAWG que representa el prefijo
-     *                       construido.
-     * @param next_pos       Siguiente posición en el tablero a explorar.
-     * @param anchor_filled  Indica si se ha pasado por una celda ancla válida.
-     * @param puntos         Puntuación acumulada hasta el momento.
+     * @param nodo_actual Nodo actual en el DAWG que representa el prefijo
+     * construido.
+     * @param next_pos Siguiente posición en el tablero a explorar.
+     * @param anchor_filled Indica si se ha pasado por una celda ancla válida.
+     * @param puntos Puntuación acumulada hasta el momento.
      */
     private void extend_after(String palabraParcial, Nodo nodo_actual, Pair<Integer, Integer> next_pos,
             boolean anchor_filled, int puntos) {
@@ -426,11 +432,11 @@ public class Algoritmo {
      * palabra parcial, utilizando un nodo del DAWG y una posición inicial.
      *
      * @param partial_word Palabra parcial construida hasta el momento.
-     * @param nodo_actual  Nodo actual en el DAWG que representa el prefijo
-     *                     construido.
-     * @param pos          Posición inicial en el tablero para la exploración.
-     * @param limit        Límite de profundidad para la exploración.
-     * @param puntos       Puntuación acumulada hasta el momento.
+     * @param nodo_actual Nodo actual en el DAWG que representa el prefijo
+     * construido.
+     * @param pos Posición inicial en el tablero para la exploración.
+     * @param limit Límite de profundidad para la exploración.
+     * @param puntos Puntuación acumulada hasta el momento.
      */
     private void before_part(String partial_word, Nodo nodo_actual, Pair<Integer, Integer> pos, int limit, int puntos) {
 
@@ -461,12 +467,12 @@ public class Algoritmo {
      * horizontal como verticalmente para construir palabras completas, tomando
      * en cuenta las bonificaciones de celda.
      *
-     * @param fichas      Lista de fichas disponibles del jugador.
+     * @param fichas Lista de fichas disponibles del jugador.
      * @param diccionario Estructura DAWG que contiene todas las palabras
-     *                    válidas.
-     * @param tablero     Estado actual del tablero de juego.
+     * válidas.
+     * @param tablero Estado actual del tablero de juego.
      * @return Par compuesto por la lista de jugadas (letra y posición) que
-     *         forman la mejor palabra encontrada y su puntuación total.
+     * forman la mejor palabra encontrada y su puntuación total.
      */
     public Pair<List<Pair<String, Pair<Integer, Integer>>>, Integer> find_all_words(List<Ficha> fichas,
             Dawg diccionario, Tablero tablero) {
