@@ -10,10 +10,8 @@ public class VistaFinPartida extends JFrame {
     
     private JLabel mensajeLabel;
     private JLabel titleLabel;
-    private JProgressBar progressBar;
     private Timer timer;
-    private Timer progressTimer;
-    private final int DURACION_SEGUNDOS = 3;
+    private final int DURACION_SEGUNDOS = 15;
     
     public VistaFinPartida(String mensaje) {
         setTitle("¡Fin de Partida!");
@@ -28,10 +26,10 @@ public class VistaFinPartida extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Fondo con gradiente mejorado
+                // Fondo con gradiente rosa
                 GradientPaint gp = new GradientPaint(
-                    0, 0, new Color(70, 130, 220),
-                    0, getHeight(), new Color(130, 190, 250)
+                    0, 0, new Color(220, 70, 170),     // Rosa más oscuro
+                    0, getHeight(), new Color(250, 130, 190)  // Rosa más claro
                 );
                 g2d.setPaint(gp);
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
@@ -72,16 +70,6 @@ public class VistaFinPartida extends JFrame {
         JLabel iconLabel = new JLabel(new ImageIcon(createTrophyIcon()));
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Barra de progreso para mostrar el tiempo restante
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setValue(100);
-        progressBar.setStringPainted(false);
-        progressBar.setForeground(new Color(255, 255, 255, 180));
-        progressBar.setBackground(new Color(70, 130, 180, 80));
-        progressBar.setBorderPainted(false);
-        progressBar.setMaximumSize(new Dimension(200, 4));
-        progressBar.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
         // Añadir componentes
         mainPanel.add(Box.createVerticalGlue());
         mainPanel.add(titleLabel);
@@ -92,12 +80,11 @@ public class VistaFinPartida extends JFrame {
         mainPanel.add(Box.createVerticalStrut(20));
         mainPanel.add(mensajeLabel);
         mainPanel.add(Box.createVerticalStrut(25));
-        mainPanel.add(progressBar);
         mainPanel.add(Box.createVerticalGlue());
         
         add(mainPanel);
         
-        // Crear timer para cerrar automáticamente
+        // Crear timer para cerrar automáticamente después de exactamente 15 segundos
         timer = new Timer(DURACION_SEGUNDOS * 1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -106,30 +93,8 @@ public class VistaFinPartida extends JFrame {
         });
         timer.setRepeats(false);
         
-        // Timer para actualizar la barra de progreso
-        progressTimer = new Timer(30, new ActionListener() {
-            private long startTime;
-            private long duration = DURACION_SEGUNDOS * 1000;
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                long elapsed = System.currentTimeMillis() - startTime;
-                int value = 100 - (int)(elapsed * 100 / duration);
-                if (value <= 0) {
-                    progressBar.setValue(0);
-                    progressTimer.stop();
-                } else {
-                    progressBar.setValue(value);
-                }
-            }
-            
-            public void reset() {
-                startTime = System.currentTimeMillis();
-            }
-        });
-        
         // Configurar ventana
-        setSize(450, 350);
+        setSize(600, 350);
         setLocationRelativeTo(null);
         
         // Añadir sombra al borde (efecto visual mejorado)
@@ -167,10 +132,7 @@ public class VistaFinPartida extends JFrame {
     
     public void mostrar() {
         setVisible(true);
-        // Iniciar ambos timers
-        timer.start();
-        ((ActionListener)progressTimer.getActionListeners()[0]).actionPerformed(null); // reset
-        progressTimer.start();
+        timer.restart();
     }
     
     public void setMensaje(String mensaje) {

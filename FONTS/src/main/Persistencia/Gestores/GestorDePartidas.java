@@ -46,8 +46,11 @@ public class GestorDePartidas {
     private final Utils utils = new Utils();
 
     /**
-     * Constructor de la clase GestorDePartidas. Crea el directorio de partidas
-     * si no existe.
+     * Constructor del GestorDePartidas. Crea el directorio de partidas si no
+     * existe y inicializa los gestores de usuarios y recursos.
+     *
+     * @param gu Gestor de usuarios
+     * @param gr Gestor de recursos
      */
     public GestorDePartidas(GestorDeUsuarios gu, GestorDeRecursos gr) {
         File partidasDir = new File(PARTIDAS);
