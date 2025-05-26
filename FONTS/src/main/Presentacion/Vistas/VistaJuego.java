@@ -723,6 +723,16 @@ public class VistaJuego extends JPanel {
     public void setPuntos(int score1, int score2) {
         this.score1 = score1;
         this.score2 = score2;
+        
+        // Update the score labels
+        if (player1Score != null) {
+            player1Score.setText(score1 + " pts");
+        }
+        
+        if (player2Score != null) {
+            player2Score.setText(score2 + " pts");
+        }
+
         if (tabla != null) {
             tabla.repaint();
         }
@@ -762,7 +772,7 @@ public class VistaJuego extends JPanel {
         
         // Crear y añadir cada jugador
         panelJugadores.add(crearPanelJugador(nombre1, score1, new Color(100, 150, 255), 1));
-        
+        System.out.println("Jugador 1: " + nombre1 + " con score: " + score1);
         // Separador
         panelJugadores.add(Box.createVerticalStrut(10));
         

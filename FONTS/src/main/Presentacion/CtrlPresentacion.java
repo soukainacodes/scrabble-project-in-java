@@ -351,7 +351,10 @@ public class CtrlPresentacion {
 
     private void ayuda() {
         try {
-            ctrlDominio.jugarScrabble(7, "");
+            int resultado = ctrlDominio.jugarScrabble(7, "");
+            if (resultado != 0) {
+                        crearVistaFinal(false, resultado);
+                    }
             actualizarTablero();
         } catch (Exception e) {
             vScrabble.setError(e.getMessage());
@@ -362,13 +365,18 @@ public class CtrlPresentacion {
     private void crearVistaFinal(boolean abandonada, int resultado) {
         String mensaje;
 
-        String perdedor = resultado == 1 ? ctrlDominio.getUsuarioActual() : nombreSegundoJugador;
-        String ganador = resultado == 1 ? nombreSegundoJugador : ctrlDominio.getUsuarioActual();
+        String ganador = resultado == 1 ? ctrlDominio.getUsuarioActual() : nombreSegundoJugador;
+        String perdedor = resultado == 1 ? nombreSegundoJugador : ctrlDominio.getUsuarioActual();
+        String puntosGanador = resultado == 1
+            ? Integer.toString(ctrlDominio.getPuntosJugador1())
+            : Integer.toString(ctrlDominio.getPuntosJugador2());
+        System.out.println("Ganador: " + ganador);
+        System.out.println("Perdedor: " + perdedor);
         nombreSegundoJugador = "";
         if (abandonada) {
             mensaje = "Jugador " + perdedor + " ha abandonado la partida. Jugador " + ganador + " gana.";
         } else {
-            mensaje = "Fin de la partida. Jugador " + ganador + " ha ganado con " + resultado + " puntos.";
+            mensaje = "Fin de la partida. Jugador " + ganador + " ha ganado con " + puntosGanador + " puntos.";
         }
         VistaFinPartida vFinal = new VistaFinPartida(mensaje);
         vFinal.setDuracion(3);
