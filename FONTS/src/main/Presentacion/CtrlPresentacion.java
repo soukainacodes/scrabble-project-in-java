@@ -51,7 +51,7 @@ public class CtrlPresentacion {
         configuracion();
         crearVistaLogin();
         aplicarIconos();
-    }
+    }// Configuración inicial de la aplicación
 
     private void crearVistaLogin() {
         if (vLogin == null || !vLogin.isDisplayable()) {
