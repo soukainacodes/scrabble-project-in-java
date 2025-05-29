@@ -167,7 +167,15 @@ public class CtrlPresentacion {
         String partida = vCargarPartida.getSeleccionada();
         try {
             ctrlDominio.cargarPartida(partida);
-            jugarPartida();
+            System.out.println(ctrlDominio.getSegundoJugador());
+            System.out.println("nombre " + nombreSegundoJugador);
+            if(ctrlDominio.getSegundoJugador() == "propAI"){
+                 jugarPartida();
+            }
+            else {
+                vSegundoJugador = new VistaInicio();
+                vSegundoJugador.entrar(e -> addSegundoJugador(true));
+            }
         } catch (Exception e) {
             vCargarPartida.setError(e.getMessage());
         }
@@ -175,9 +183,15 @@ public class CtrlPresentacion {
     }
 
     private void cargarUltimaPartida() {
+        
         try {
             ctrlDominio.cargarUltimaPartida();
-            jugarPartida();
+            if (ctrlDominio.getSegundoJugador().equals("propAI")) {
+               jugarPartida();
+            } else {
+                vSegundoJugador = new VistaInicio();
+                vSegundoJugador.entrar(e -> addSegundoJugador(true));
+            }       
         } catch (Exception e) {
 
             vPantallaPrincipal.setError(e.getMessage());
@@ -364,7 +378,7 @@ public class CtrlPresentacion {
 
     private void crearVistaFinal(boolean abandonada, int resultado) {
         String mensaje;
-
+        if(nombreSegundoJugador.equals("")) nombreSegundoJugador = "propAI";
         String ganador = resultado == 1 ? ctrlDominio.getUsuarioActual() : nombreSegundoJugador;
         String perdedor = resultado == 1 ? nombreSegundoJugador : ctrlDominio.getUsuarioActual();
         String puntosGanador = resultado == 1
@@ -372,12 +386,13 @@ public class CtrlPresentacion {
             : Integer.toString(ctrlDominio.getPuntosJugador2());
         System.out.println("Ganador: " + ganador);
         System.out.println("Perdedor: " + perdedor);
-        nombreSegundoJugador = "";
+      
         if (abandonada) {
             mensaje = "Jugador " + perdedor + " ha abandonado la partida. Jugador " + ganador + " gana.";
         } else {
             mensaje = "Fin de la partida. Jugador " + ganador + " ha ganado con " + puntosGanador + " puntos.";
         }
+        nombreSegundoJugador = "";
         VistaFinPartida vFinal = new VistaFinPartida(mensaje);
         vFinal.setDuracion(3);
         vFinal.setLocationRelativeTo(null);
@@ -553,7 +568,7 @@ public class CtrlPresentacion {
         vCargarPartida.setPartidas(partidasGuardadas);
 
         // Configurar los listeners de botones
-        vCargarPartida.jugarPartida(e -> cargarPartidaSeleccionada());
+       // vCargarPartida.jugarPartida(e -> cargarPartidaSeleccionada());
         vCargarPartida.eliminarPartida(e -> eliminarPartidaSeleccionada());
 
         // Mostrar la vista
@@ -589,22 +604,39 @@ public class CtrlPresentacion {
 
     private void crearVistaSegundoJugador() {
         vSegundoJugador = new VistaInicio();
-        vSegundoJugador.entrar(e -> addSegundoJugador());
+        vSegundoJugador.entrar(e -> addSegundoJugador(false));
     }
 
-    private void addSegundoJugador() {
+    private void addSegundoJugador(boolean cargar) {
         nombreSegundoJugador = vSegundoJugador.getNombre();
         String password = new String(vSegundoJugador.getPassword());
         try {
-            if (vSegundoJugador.getSeleccionado()) {
+            if (cargar) {
+                if( ctrlDominio.getSegundoJugador().equals("propAI")) {
+                    jugarPartida();
+                } else {
+
+                    if(nombreSegundoJugador.equals(ctrlDominio.getSegundoJugador())) {
+                     jugarPartida();
+                     vSegundoJugador.dispose();
+                    }
+                    else {
+                        vSegundoJugador.setError("El nombre del segundo jugador no coincide.");
+                    }
+                }
+                
+            }
+            else{
+                if (vSegundoJugador.getSeleccionado()) {
                 ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
             } else {
                 ctrlDominio.registrarJugador(nombreSegundoJugador, password);
                 ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
             }
-            vSegundoJugador.dispose();
+
+            }
         } catch (Exception e) {
-            nombreSegundoJugador = "";
+            
             vSegundoJugador.setError(e.getMessage());
         }
 

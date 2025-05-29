@@ -16,8 +16,7 @@ public class Validador {
 
     /** Tablero del juego. */
     private Tablero tablero;
-    /** Diccionario DAWG utilizado para validar palabras. */
-    private Dawg diccionario;
+
     /** Indica si hay fichas bloqueadas en la jugada. */
     private boolean hayBloqueada;
 
@@ -53,7 +52,7 @@ public class Validador {
         
         this.hayBloqueada = false;
         this.tablero = tablero;
-        this.diccionario = diccionario;
+     
 
         if (coordenadasPalabra.isEmpty()) {
             throw new PalabraInvalidaException();
@@ -66,8 +65,8 @@ public class Validador {
             if (contadorTurno == 0) throw new PalabraInvalidaException();
 
             Pair<Integer, Integer> coord = coordenadasPalabra.get(0);
-            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false);
-            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true);
+            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false , diccionario);
+            puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true, diccionario);
             if (puntosTotales < 0) {
                 throw new PalabraInvalidaException();
             }
@@ -93,8 +92,8 @@ public class Validador {
 
         // Calcula la puntuación de la palabra principal
         int puntosPrincipales = isHorizontalLine
-            ? recorrerDireccion(refX, refY, false)
-            : recorrerDireccion(refX, refY, true);
+            ? recorrerDireccion(refX, refY, false, diccionario)
+            : recorrerDireccion(refX, refY, true, diccionario);
 
         if (puntosPrincipales < 0) throw new PalabraInvalidaException();
         puntosTotales += puntosPrincipales;
@@ -102,8 +101,8 @@ public class Validador {
         // Calcula la puntuación de palabras perpendiculares
         for (Pair<Integer, Integer> p : coordenadasPalabra) {
             int puntos = isHorizontalLine
-                ? recorrerDireccion(p.getFirst(), p.getSecond(), true)
-                : recorrerDireccion(p.getFirst(), p.getSecond(), false);
+                ? recorrerDireccion(p.getFirst(), p.getSecond(), true, diccionario)
+                : recorrerDireccion(p.getFirst(), p.getSecond(), false,diccionario);
 
             if (puntos < 0) throw new PalabraInvalidaException();
             puntosTotales += puntos;
@@ -136,10 +135,11 @@ public class Validador {
      * @param yy columna inicial desde donde comienza el recorrido.
      * @param vertical {@code true} para recorrer verticalmente, {@code false}
      * para horizontalmente.
+     * @param diccionario el diccionario DAWG utilizado para validar palabras.
      * @return Puntuación de la palabra construida si es válida, {@code 0} si
      * solo se trata de una letra, o {@code -1} si la palabra no es válida.
      */
-    private int recorrerDireccion(int xx, int yy, boolean vertical) {
+    private int recorrerDireccion(int xx, int yy, boolean vertical, Dawg diccionario) {
         int puntosLinea = 0;
         StringBuilder palabra = new StringBuilder();
         StringBuilder palabra2 = new StringBuilder();
