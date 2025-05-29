@@ -12,48 +12,121 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.*;
 
+
+/**
+ * Vista que muestra el ranking de jugadores con sus puntuaciones.
+ * Utiliza un diseño atractivo y consistente con otras vistas del sistema.
+ */
 public class VistaRanking extends JPanel {
 
-    // Colores consistentes con VistaCuenta y VistaPantallaPrincipal
+    /**
+     * Color del fondo de la vista.
+     */
     private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Crema
-    private static final Color FG = new Color(20, 40, 80);               // Texto oscuro
-    private static final Color LILA_OSCURO = new Color(52, 28, 87);      // Exactamente igual que VistaCuenta
-    private static final Color LILA_CLARO = new Color(180, 95, 220);     // Exactamente igual que VistaCuenta
+    
+    /**
+     * Color para el borde contenedor.
+     */   
     private static final Color BORDE_COLOR = new Color(220, 200, 150);
     
-    // Colores específicos de ranking
+    /**
+     * Colores para la medalla de Oro.
+     */
     private static final Color GOLD_COLOR = new Color(255, 215, 0);
+
+    /**
+     * Color para la medalla de Plata.
+     */
     private static final Color SILVER_COLOR = new Color(189, 195, 199);
+
+    /**
+     * Color para la medalla de Bronce.
+     */
     private static final Color BRONZE_COLOR = new Color(230, 126, 34);
-    private static final Color HEADER_TEXT = new Color(44, 62, 80);
+
+    /**
+     * Colores personalizados para el scrollbar.
+     */
     private static final Color SCROLLBAR_THUMB = new Color(180, 180, 180);
+
+    /**
+     * Color del track del scrollbar.
+     */
     private static final Color SCROLLBAR_TRACK = new Color(240, 240, 240);
     
-    // Dimensiones
+    /**
+     * Ancho de la tabla para que ocupe todo el espacio disponible.
+     */
     private static final int TABLE_WIDTH = 640;  // Aumentado para llenar todo el ancho
     
-    // Rutas de imágenes
+    /**
+     * Rutas de las imágenes de medallas de oro.
+     */
     private static final String[] GOLD_MEDAL_PATHS = {
         "FONTS/src/main/Recursos/Imagenes/medalla_oro.png"
     };
+
+    /**
+     * Rutas de las imágenes de medallas de plata.
+     */
     private static final String[] SILVER_MEDAL_PATHS = {
         "FONTS/src/main/Recursos/Imagenes/medalla_plata.png"
     };
+
+    /**
+     * Rutas de las imágenes de medallas de bronce.
+     */
     private static final String[] BRONZE_MEDAL_PATHS = {
         "FONTS/src/main/Recursos/Imagenes/medalla_bronce.png"
     };
     
-    // Iconos de medallas
+    /**
+     * Icono de medalla de oro.
+     * Si no se puede cargar la imagen, se creará un icono de respaldo.
+     */
     private ImageIcon goldMedalIcon;
+
+    /**
+     * Icono de medalla de plata.
+     * Si no se puede cargar la imagen, se creará un icono de respaldo.
+     */
     private ImageIcon silverMedalIcon;
+
+    /**
+     * Icono de medalla de bronce.
+     * Si no se puede cargar la imagen, se creará un icono de respaldo.
+     */
     private ImageIcon bronzeMedalIcon;
     
-    // Componentes de la tabla
+    /**
+     * Modelo de tabla para mostrar el ranking.
+     * Contiene las columnas: Posición, Nombre y Puntuación.
+     */
     private DefaultTableModel model;
+
+    /**
+     * Tabla que muestra el ranking de jugadores.
+     * Utiliza un renderizador personalizado para mostrar medallas.
+     */
     private JTable table;
+
+    /**
+     * Panel de contenido que contiene la tabla y otros componentes.
+     * Se utiliza para organizar el layout de la vista.
+     */
     private JPanel contentPanel;
+
+    /**
+     * Panel con esquinas redondeadas que contiene la tabla.
+     * Se utiliza para dar un aspecto más atractivo y consistente.
+     */
     private RoundedPanel tablaPanel;
 
+
+    /**
+     * Constructor de la vista de ranking.
+     * Configura el layout, carga las imágenes de medallas y crea los componentes necesarios.
+     */
     public VistaRanking() {
         setLayout(new BorderLayout());
         setBackground(APP_BG_COLOR);
@@ -71,6 +144,13 @@ public class VistaRanking extends JPanel {
         add(contentPanel, BorderLayout.CENTER);
     }
     
+
+    /**
+     * Crea el panel de título con el texto "TOP JUGADORES" estilizado.
+     * Utiliza fichas de Scrabble con colores personalizados.
+     * 
+     * @return JPanel con el título estilizado.
+     */
     private JPanel crearPanelTitulo() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         p.setBackground(APP_BG_COLOR);
@@ -114,6 +194,15 @@ public class VistaRanking extends JPanel {
         return p;
     }
 
+
+    /**
+     * Crea una ficha de título estilizada con esquinas redondeadas y efecto hover.
+     * Utiliza un JLabel personalizado para mostrar el texto con un fondo de color.
+     * 
+     * @param texto El texto a mostrar en la ficha.
+     * @param color El color de fondo de la ficha.
+     * @return JLabel configurado como ficha de título.
+     */
     private JLabel crearFichaTitulo(String texto, Color color) {
         JLabel l = new JLabel(texto, SwingConstants.CENTER) {
             @Override protected void paintComponent(Graphics g) {
@@ -134,6 +223,13 @@ public class VistaRanking extends JPanel {
         return l;
     }
 
+
+    /**
+     * Crea el panel de contenido que contiene la tabla de ranking.
+     * Configura el modelo de tabla, renderizador y scroll pane.
+     * 
+     * @return JPanel con la tabla de ranking.
+     */
     private JPanel crearPanelContenido() {
         JPanel content = new JPanel(new BorderLayout());
         content.setBackground(APP_BG_COLOR);
@@ -198,7 +294,11 @@ public class VistaRanking extends JPanel {
     }
     
     /**
-     * Establece los datos de la lista de ranking para mostrar en la tabla.
+     * Actualiza la lista de jugadores en el ranking.
+     * Limpia el modelo de tabla y añade las filas correspondientes.
+     * Asegura que haya al menos 15 filas visibles, rellenando con filas vacías si es necesario.
+     * 
+     * @param list Lista de jugadores con sus puntuaciones.
      */
     public void setLista(List<Map.Entry<String, Integer>> list) {
         model.setRowCount(0);
@@ -222,7 +322,10 @@ public class VistaRanking extends JPanel {
         contentPanel.revalidate();
     }
     
-    // Panel con esquinas redondeadas y sombra (igual que en VistaRecursos)
+    /**
+     * Clase personalizada para el panel con esquinas redondeadas y sombra.
+     * Utiliza un Graphics2D para dibujar un borde redondeado y un fondo con gradiente.
+     */
     private class RoundedPanel extends JPanel {
         
         private static final int CORNER_RADIUS = 20;
@@ -258,12 +361,16 @@ public class VistaRanking extends JPanel {
         }
     }
     
+
+    /**
+     * Carga las imágenes de las medallas desde los archivos especificados.
+     * Si no se pueden cargar, crea iconos de respaldo con colores personalizados.
+     */
     private void loadMedalImages() {
         boolean goldLoaded = false;
         boolean silverLoaded = false;
         boolean bronzeLoaded = false;
         
-        // Intentar cargar medalla de oro
         for (String path : GOLD_MEDAL_PATHS) {
             try {
                 ImageIcon icon = loadImageFromFile(path);
@@ -273,11 +380,9 @@ public class VistaRanking extends JPanel {
                     break;
                 }
             } catch (Exception e) {
-                // Continuar con la siguiente ruta
             }
         }
         
-        // Intentar cargar medalla de plata
         for (String path : SILVER_MEDAL_PATHS) {
             try {
                 ImageIcon icon = loadImageFromFile(path);
@@ -287,11 +392,9 @@ public class VistaRanking extends JPanel {
                     break;
                 }
             } catch (Exception e) {
-                // Continuar con la siguiente ruta
             }
         }
         
-        // Intentar cargar medalla de bronce
         for (String path : BRONZE_MEDAL_PATHS) {
             try {
                 ImageIcon icon = loadImageFromFile(path);
@@ -301,7 +404,6 @@ public class VistaRanking extends JPanel {
                     break;
                 }
             } catch (Exception e) {
-                // Continuar con la siguiente ruta
             }
         }
         
@@ -319,7 +421,13 @@ public class VistaRanking extends JPanel {
         }
     }
     
-    // Método para cargar imagen desde archivos
+    /**
+     * Carga una imagen desde un archivo y devuelve un ImageIcon.
+     * Si el archivo no existe o hay un error, devuelve null.
+     * 
+     * @param path Ruta del archivo de imagen.
+     * @return ImageIcon cargado o null si no se pudo cargar.
+     */
     private ImageIcon loadImageFromFile(String path) {
         try {
             File file = new File(path);
@@ -332,6 +440,15 @@ public class VistaRanking extends JPanel {
         }
     }
     
+
+    /**
+     * Crea un icono de medalla de respaldo con un círculo simple y texto.
+     * Utiliza un BufferedImage para dibujar el círculo y el texto.
+     * 
+     * @param color Color del círculo de la medalla.
+     * @param text Texto a mostrar en la medalla.
+     * @return ImageIcon con el diseño de respaldo.
+     */
     private ImageIcon createFallbackMedalIcon(Color color, String text) {
         // Crear un icono circular simple como respaldo
         int size = 30;
@@ -348,8 +465,10 @@ public class VistaRanking extends JPanel {
         return new ImageIcon(image);
     }
     
-    /* === Sub‑clases internas ===================================================== */
-    // Clase UI de ScrollBar minimalista
+    /**
+     * Clase personalizada para el scrollbar con un diseño minimalista.
+     * Utiliza colores personalizados y elimina los botones de incremento/decremento.
+     */
     private class MinimalistScrollBarUI extends BasicScrollBarUI {
         @Override
         protected void configureScrollBarColors() {
@@ -401,7 +520,10 @@ public class VistaRanking extends JPanel {
         }
     }
     
-    // Efecto de hover para las fichas del título
+    /**
+     * Clase para manejar el efecto hover en los textos de las fichas del título.
+     * Cambia el color del texto al pasar el mouse por encima.
+    */
     private static class HoverEfectoTexto extends MouseAdapter {
         private final JLabel label;
         HoverEfectoTexto(JLabel l) { this.label = l; }
@@ -409,7 +531,10 @@ public class VistaRanking extends JPanel {
         @Override public void mouseExited (MouseEvent e) { label.setForeground(Color.WHITE); }
     }
     
-    // Renderizador personalizado con iconos de medallas
+    /**
+     * Clase personalizada para renderizar las celdas de la tabla del ranking.
+     * Muestra medallas para las posiciones 1, 2 y 3, y aplica estilos personalizados
+     */
     private class RankingRenderer extends DefaultTableCellRenderer {
         private final Font boldFont = new Font("Arial", Font.BOLD, 15);
         private final Font regularFont = new Font("Arial", Font.BOLD, 14);

@@ -5,21 +5,73 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 
+
+/**
+ * Vista de inicio de sesión y registro para la aplicación Scrabble.
+ * Permite al usuario iniciar sesión o registrarse con un nombre de usuario y contraseña.
+ * Incluye animaciones y un diseño atractivo con botones personalizados.
+ */
 public class VistaInicio extends JFrame {
 
+
+    /**
+     * Botón para iniciar sesión.
+     */
     private ScrabbleTileButton botonIniciar;
+
+    /**
+     * Botón para registrar un nuevo usuario.
+     */
     private ScrabbleTileButton botonRegistrar;
+
+    /**
+     * Campo de texto para ingresar el nombre de usuario.
+     */
     private JTextField campoUsuario;
+
+    /**
+     * Campo de texto para ingresar la contraseña.
+     * Utiliza JPasswordField para ocultar la entrada.
+     */
     private JPasswordField campoContrasena;
+
+    /**
+     * Botón para entrar o registrarse, cambia su texto según la selección.
+     * Utiliza un botón personalizado con estilo de ficha de Scrabble.
+     */
     private ScrabbleTileButton botonEntrar;
+
+    /**
+     * Indica si el botón "Iniciar Sesión" está seleccionado.
+     * Si es false, se asume que el botón "Registrar" está seleccionado.
+     */
     private boolean iniciarSeleccionado = true;
+
+    /**
+     * Etiqueta para mostrar mensajes de error.
+     * Se utiliza para informar al usuario sobre problemas de inicio de sesión o registro.
+     */
     private JLabel error;
 
+    /**
+     * Colores personalizados para el diseño de la interfaz.
+     * Utilizados para los botones y el fondo de la ventana.
+     */
     private static final Color LILA_CLARO = new Color(180, 95, 220);
+
+    /**
+     * Color más oscuro para el botón de "Entrar" o "Registrarse".
+     * Proporciona un contraste visual con el botón de selección.
+     */
     private static final Color LILA_OSCURO = new Color(52, 28, 87);
 
+
+    /**
+     * Constructor de la vista de inicio.
+     * Configura la ventana, los botones, campos de texto y etiquetas.
+     * Añade animaciones y gestiona la interacción del usuario.
+     */
     public VistaInicio() {
-        // Configuración inicial de la ventana
         setResizable(false);
         setTitle("SCRABBLE");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -27,45 +79,36 @@ public class VistaInicio extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 
-        // Color de fondo crema
         Color fondoColor = new Color(242, 226, 177);
         getContentPane().setBackground(fondoColor);
 
-        // Label de error
         error = new JLabel("");
         error.setForeground(Color.RED);
         error.setFont(new Font("Arial", Font.PLAIN, 12));
         error.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Panel principal (tarjeta)
         JPanel tarjeta = new JPanel();
         tarjeta.setPreferredSize(new Dimension(320, 500));
         tarjeta.setBackground(fondoColor);
         tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
         tarjeta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // --- Panel de selección Iniciar vs Registrar ---
-                // --- Panel de selección Iniciar vs Registrar ---
         JPanel panelBotones = new JPanel(new GridLayout(1, 2, 10, 0)); // Cambiar a GridLayout para garantizar espacio igual
         panelBotones.setBackground(fondoColor);
         panelBotones.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10)); // Añadir margen
         
-        // Creamos ambos botones con estilo de ficha
         botonIniciar = new ScrabbleTileButton("Iniciar Sesión", LILA_CLARO);
         botonRegistrar = new ScrabbleTileButton("Registrar", LILA_CLARO);
         
-        // Tamaño más pequeño para los botones si es necesario
         Dimension tamañoBotones = new Dimension(130, 45);
         botonIniciar.setPreferredSize(tamañoBotones);
         botonIniciar.setMaximumSize(tamañoBotones);
         botonRegistrar.setPreferredSize(tamañoBotones);
         botonRegistrar.setMaximumSize(tamañoBotones);
 
-        // Estado inicial
         botonIniciar.setSelected(true);
         botonRegistrar.setSelected(false);
 
-        // Acción al pulsar "Iniciar Sesión"
         botonIniciar.addActionListener(e -> {
             iniciarSeleccionado = true;
             botonIniciar.setSelected(true);
@@ -73,7 +116,6 @@ public class VistaInicio extends JFrame {
             botonEntrar.setText("Entrar");
         });
 
-        // Acción al pulsar "Registrar"
         botonRegistrar.addActionListener(e -> {
             iniciarSeleccionado = false;
             botonIniciar.setSelected(false);
@@ -84,7 +126,6 @@ public class VistaInicio extends JFrame {
         panelBotones.add(botonIniciar);
         panelBotones.add(botonRegistrar);
 
-        // --- Campos Usuario y Contraseña ---
         JLabel labelUsuario = new JLabel("Nombre de Usuario");
         labelUsuario.setFont(new Font("Arial", Font.BOLD, 14));
         labelUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -106,19 +147,15 @@ public class VistaInicio extends JFrame {
         campoContrasena.setBackground(fondoColor);
         campoContrasena.setHorizontalAlignment(JTextField.CENTER);
         campoContrasena.setFont(new Font("Arial", Font.BOLD, 16));
-        // Añadir el listener para cuando se pulse Enter en el campo de contraseña
         campoContrasena.addActionListener(e -> {
-            // Simular clic en el botón Entrar
             botonEntrar.doClick();
         });
 
-        // --- Botón Entrar/Registrarse ---
         botonEntrar = new ScrabbleTileButton("Entrar", LILA_OSCURO);
         botonEntrar.setAlignmentX(Component.CENTER_ALIGNMENT);
         botonEntrar.setPreferredSize(new Dimension(200, 45));
         botonEntrar.setMaximumSize(new Dimension(200, 45));
 
-        // --- Título SCRABBLE animado ---
         JPanel panelTitulo = new JPanel();
         panelTitulo.setLayout(new BoxLayout(panelTitulo, BoxLayout.X_AXIS));
         panelTitulo.setBackground(fondoColor);
@@ -146,7 +183,6 @@ public class VistaInicio extends JFrame {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                                         RenderingHints.VALUE_ANTIALIAS_ON);
-                    // Ficha con fondo y sombra
                     g2.setColor(colores[idx]);
                     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
                     g2.setColor(new Color(0, 0, 0, 30));
@@ -203,18 +239,55 @@ public class VistaInicio extends JFrame {
         setVisible(true);
     }
 
-    /** Devuelve true si “Iniciar Sesión” está activo, false si “Registrar” */
+    /**
+     * Método para obtener el botón de entrar o registrarse.
+     * @return El botón configurado para iniciar sesión o registrarse.
+     */
     public boolean getSeleccionado() {
         return iniciarSeleccionado;
     }
 
+    /**
+     * Añade un ActionListener al botón de entrar.
+     * Este listener se activa cuando el usuario hace clic en el botón.
+     * @param l El ActionListener a añadir.
+     */
     public void entrar(ActionListener l)     { botonEntrar.addActionListener(l); }
+
+    /**
+     * Añade un ActionListener al campo contrasena.
+     * Este listener se activa cuando el usuario presiona Enter en el campo de contraseña.
+     * Se utiliza para permitir el inicio de sesión o registro al presionar Enter.
+     * Esto es útil para mejorar la usabilidad, permitiendo que el usuario no tenga que hacer clic en el botón.
+     * @param l El ActionListener a añadir.
+     */
     public void pulsarEnter(ActionListener l){ campoContrasena.addActionListener(l); }
+
+    /**
+     * Añade un texto en la etiqueta de error.
+     * Este texto se muestra cuando hay un problema con el inicio de sesión o registro.
+     * @param txt El texto de error a mostrar.
+     */
     public void setError(String txt)         { error.setText(txt); }
+
+    /**
+     * Obtiene el nombre de usuario ingresado por el usuario.
+     * Estos valores se utilizan para iniciar sesión o registrarse.
+     * @return El nombre de usuario ingresado.
+     */
     public String getNombre()                { return campoUsuario.getText(); }
+
+    /**
+     * Obtiene la contraseña ingresada por el usuario.
+     * Utiliza un JPasswordField para ocultar la entrada.
+     * @return La contraseña ingresada como un array de caracteres.
+     */
     public char[] getPassword()              { return campoContrasena.getPassword(); }
 
-    /** Rebote de letra */
+    /**
+     * Limpia los campos de texto de nombre de usuario y contraseña.
+     * Se utiliza para reiniciar el formulario después de un intento fallido.
+     */
     private void animarLetra(JLabel letra) {
         Point pos = letra.getLocation();
         Timer anim = new Timer(20, null);
@@ -232,7 +305,10 @@ public class VistaInicio extends JFrame {
         anim.start();
     }
 
-    /** Borde redondeado para JTextField/JPasswordField */
+    /**
+     * Clase interna para crear bordes redondeados personalizados.
+     * Utilizada para los campos de texto y botones.
+     */
     static class RoundedBorder extends AbstractBorder {
         private int radius; private Color color;
         public RoundedBorder(int r, Color c) { radius = r; color = c; }
@@ -248,7 +324,10 @@ public class VistaInicio extends JFrame {
         }
     }
 
-    /** JButton estilo Scrabble con “rise” y estado seleccionado */
+    /**
+     * Clase interna para crear botones personalizados con estilo de ficha de Scrabble.
+     * Incluye animaciones de hover y selección, con colores personalizados.
+     */
     private class ScrabbleTileButton extends JButton {
         private final Color base, highlight, shadow;
         private final int radius = 15;

@@ -1,7 +1,6 @@
-Aqui tenemos la documentacion de la Entrega 1:
+Aqui tenemos toda la documentacion de la Entrega 2:
 
-    - Diagramas UML y Casos de Usos.
-    - JavaDoc files.
+    - Diagramas UML de les tres capas.
     - Documento_Scrabble.pdf.
 
     

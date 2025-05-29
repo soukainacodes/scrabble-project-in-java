@@ -25,21 +25,16 @@ code:
 	    ./FONTS/src/main/Dominio/Modelos/*.java \
 		./FONTS/src/main/Presentacion/*.java \
 		./FONTS/src/main/Presentacion/Vistas/*.java \
-		./FONTS/src/main/Presentacion/Drivers/*.java \
 	    ./FONTS/src/main/Persistencia/*.java \
 		./FONTS/src/main/Persistencia/Gestores/Utilidades/*.java \
 		./FONTS/src/main/Persistencia/Gestores/*.java
-	jar cf $(CLASS_OUTPUT_MAIN)/Driver.jar -C $(CLASS_OUTPUT_MAIN) .
 	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .
 	
-runcode_scrabble:
-	java -cp $(CLASS_OUTPUT_MAIN)/Driver.jar:./FONTS/src/main/Persistencia/json-20231013.jar Presentacion.Drivers.Driver
 
 runcode_main:
 	java -cp $(CLASS_OUTPUT_MAIN)/Main.jar:./FONTS/src/main/Persistencia/json-20231013.jar main.Main
 
-runcode_game:
-	java -cp $(CLASS_OUTPUT_MAIN)/UITablero.jar Presentacion.Vistas.VistaScrabble
+
 
 
 # Regla para limpiar el directorio EXE (tanto main como test)
@@ -49,4 +44,4 @@ clean:
 
 # regla para generar la documentación de JavaDoc
 javadoc:
-	javadoc -d DOCS/javadoc -sourcepath FONTS/src/main -classpath "FONTS/src/main/Persistencia/json-20231013.jar" Dominio Dominio.Excepciones Dominio.Modelos Persistencia Persistencia.Gestores Persistencia.Gestores.Utilidades
+	javadoc -d DOCS/javadoc -sourcepath FONTS/src/main -classpath "FONTS/src/main/Persistencia/json-20231013.jar" Dominio Dominio.Excepciones Dominio.Modelos Persistencia Persistencia.Gestores Persistencia.Gestores.Utilidades Presentacion.Vistas Presentacion

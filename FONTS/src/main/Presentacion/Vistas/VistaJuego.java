@@ -12,60 +12,185 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
+/**
+ * Vista del juego que muestra el tablero, los racks de fichas y los controles.
+ * Permite a los jugadores interactuar con el juego, colocar fichas y gestionar sus racks.
+ */
 public class VistaJuego extends JPanel {
 
+    /**
+     * Tamaño de cada celda del tablero.
+     * Se utiliza para definir el tamaño de las celdas en el grid del tablero.
+     */
     private static final int TILE_SIZE = 32;
+
+    /**
+     * Panel que contiene el grid del tablero.
+     * Se utiliza para organizar las celdas del tablero en una cuadrícula.
+     */
     private JPanel grid;
+
+    /**
+     * Matriz de celdas que representan el tablero.
+     * Cada celda es un CellPanel que puede contener fichas.
+     */
     private CellPanel[][] cells = new CellPanel[15][15];
     
-    // Colores temáticos (agregados desde VistaCuenta)
-    private static final Color BG = new Color(242, 226, 177);  // Crema
+    /**
+     * Color del fondo de la interfaz.
+     */
+    private static final Color BG = new Color(242, 226, 177); 
+
+
+    /**
+     * Colores personalizados para el juego.
+     * Se utilizan para los botones y otros elementos de la interfaz.
+     */
+    private JComponent tabla;
+
+    /**
+     * Colores personalizados para botón.
+     */
     private static final Color LILA_OSCURO = new Color(52, 28, 87);
+
+    /**
+     * Color lila claro para botones.
+     */
     private static final Color LILA_CLARO = new Color(180, 95, 220);
+
+    /**
+     * Color de primer plano para el texto.
+     * Se utiliza para definir el color del texto en la interfaz.
+     */
     private static final Color FG = new Color(20, 40, 80);  // Texto oscuro
     
-    // Añadir el error label como variable de clase
+    /**
+     * Etiqueta para mostrar mensajes de error.
+     * Se utiliza para informar al usuario sobre errores o acciones inválidas.
+     */
     private JLabel errorLabel;
 
-    // Añadir estas variables de clase
+
+    /**
+     * Atril de fichas del jugador.
+     */
+    private JPanel rack;
+
+
+    /**
+     * Botón de Fin de Turno.
+     * Se utiliza para finalizar el turno del jugador actual y pasar al siguiente.
+     */
+    private JButton finTurno;
+
+    /**
+     * Botón de Reset.
+     * Se utiliza para reiniciar el juego o el tablero a su estado inicial.
+     */
+    private JButton reset;
+
+    /**
+     * Botón para pasar el turno sin realizar ninguna acción.
+     * Permite al jugador pasar su turno sin colocar fichas.
+     */
+    private JButton pasar;
+
+    /**
+     * Botón para salir del juego.
+     * Permite al jugador abandonar el juego y volver al menú principal o cerrar la aplicación.
+     */
+    private JButton salir;
+
+    /**
+     * Botón de Ayuda.
+     * Proporciona una palabra según las fichas del atril y las coloca en el tablero y pasa turno automáticamente.
+     */
+    private JButton ayuda;
+
+
+    /**
+    * Listener para manejar acciones de fichas en el tablero.
+    */
+    private TileActionListener tileActionListener;
+
+
+    /**
+     * Imagen circular para el avatar del jugador 1.
+     * Se utiliza para mostrar la imagen del perfil del primer jugador.
+     */
     private CircularProfileImage player1Image;
+
+    /**
+     * Imagen circular para el avatar del jugador 2.
+     * Se utiliza para mostrar la imagen del perfil del segundo jugador.
+     */
     private CircularProfileImage player2Image;
+
+    /**
+     * Etiquetas para mostrar el nombre y la puntuación de los jugadores.
+     * Se utilizan para mostrar la información del jugador 1 y del jugador 2.
+     */
     private JLabel player1Name;
+
+    /**
+     * Etiqueta para mostrar la puntuación del jugador 1.
+     */
     private JLabel player1Score;
+
+    /**
+     * Etiqueta para mostrar el nombre del jugador 2.
+     */
     private JLabel player2Name;
+
+    /**
+     * Etiqueta para mostrar la puntuación del jugador 2.
+     */
     private JLabel player2Score;
 
+    /**
+     * Puntuación del primer jugador.
+     * Se utiliza para llevar el conteo del primer jugador.
+     */
     private int score1 = 0;
+
+    /**
+     * Puntuación del segundo jugador.
+     * Se utiliza para llevar el conteo de puntos del segundo jugador.
+     */
     private int score2 = 0;
 
+
+    /**
+     * Constructor de la vista del juego.
+     * Configura el layout, el tamaño y los componentes principales de la vista.
+     *
+     * @param nombre1 Nombre del primer jugador.
+     * @param nombre2 Nombre del segundo jugador.
+     */
     public VistaJuego(String nombre1, String nombre2) {
         setLayout(new BorderLayout(5, 5));
         setSize(1920, 1080);
-        setBackground(BG);  // Cambiado al nuevo color crema
+        setBackground(BG); 
         add(crearTabla(nombre1,nombre2), BorderLayout.WEST);
-        // Tablero en el centro
-
-        // Rack + controles al sur
         JPanel southPanel = new JPanel();
         southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS));
         southPanel.setBackground(getBackground());
 
         southPanel.add(crearRack());
-        southPanel.add(Box.createVerticalStrut(10)); // espacio
+        southPanel.add(Box.createVerticalStrut(10)); 
         
-        // Crear y añadir el panel de error
         JPanel errorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         errorPanel.setOpaque(false);
         
         errorLabel = new JLabel("");
         errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        errorLabel.setForeground(new Color(200, 0, 0));  // Rojo para errores
+        errorLabel.setForeground(new Color(200, 0, 0));  
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setVisible(false);
         
         errorPanel.add(errorLabel);
         southPanel.add(errorPanel);
-        southPanel.add(Box.createVerticalStrut(5)); // espacio después del error
+        southPanel.add(Box.createVerticalStrut(5)); 
         
         southPanel.add(crearPanelControles());
 
@@ -86,8 +211,12 @@ public class VistaJuego extends JPanel {
 
     }
 
+
+    /**
+     * Crea el tablero del juego.
+     * Configura el panel que contiene el grid y añade las celdas al tablero.
+     */
     public void crearTablero() {
-        // Panel que contiene el grid, centrado y con tamaño fijo
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setBackground(getBackground());
 
@@ -101,6 +230,14 @@ public class VistaJuego extends JPanel {
 
     }
 
+    /**
+     * Configura una celda del tablero con un tipo de bonificación.
+     * Crea un CellPanel con el color y tipo de bonificación especificados.
+     *
+     * @param b Tipo de bonificación ("DL", "TL", "DP", "TP" o vacío).
+     * @param i Fila de la celda.
+     * @param j Columna de la celda.
+     */
     public void configurarTablero(String b, int i, int j) {
         CellPanel cell;
         if (b.equals("DL")) {
@@ -122,7 +259,6 @@ public class VistaJuego extends JPanel {
 
         cell.addPropertyChangeListener("tile", evt -> {
             TileLabel tile = (TileLabel) evt.getNewValue();
-            // ¡aquí recibes la ficha sin haber definido otra clase!
             System.out.println("Ha caído la ficha " + tile.getLetter() + " en " + tile.getRow() + " " + tile.getCol());
             if (tileActionListener != null) {
                 tileActionListener.onTilePlaced(
@@ -150,19 +286,51 @@ public class VistaJuego extends JPanel {
 
     }
 
-    private TileActionListener tileActionListener;
+   
 
+    /**
+     * Establece el listener para manejar acciones de fichas en el tablero.
+     *
+     * @param listener El listener que manejará las acciones de fichas.
+     */
     public void setTileActionListener(TileActionListener listener) {
         this.tileActionListener = listener;
     }
 
+
+    /**
+     * Interfaz para escuchar eventos de colocación y eliminación de fichas en el tablero.
+     * Permite a los componentes interesados recibir notificaciones cuando se coloca o elimina una ficha.
+     */
     public interface TileActionListener {
 
+        /**
+         * Método llamado cuando se coloca una ficha en el tablero.
+         * Proporciona la letra de la ficha, su puntuación y su posición en el tablero.
+         *
+         * @param letter La letra de la ficha colocada.
+         * @param score La puntuación de la ficha colocada.
+         * @param row Fila donde se coloca la ficha.
+         * @param col Columna donde se coloca la ficha.
+         */
         void onTilePlaced(String letter, int score, int row, int col);
 
+        /**
+         * Método llamado cuando se elimina una ficha del tablero.
+         * Proporciona la letra de la ficha, su puntuación y su posición en el tablero.
+         *
+         * @param letter La letra de la ficha eliminada.
+         * @param score La puntuación de la ficha eliminada.
+         * @param row Fila donde estaba la ficha.
+         * @param col Columna donde estaba la ficha.
+         */
         void onTileRemoved(String letter, int score, int row, int col);
     }
 
+    /**
+     * Clase interna que representa un panel de celda del tablero.
+     * Cada celda puede contener una ficha y tiene un color de fondo específico según el tipo de bonificación.
+     */
     private class CellPanel extends JPanel {
 
         private final Label placeholder;
@@ -262,12 +430,13 @@ public class VistaJuego extends JPanel {
         }
     }
 
-    private JButton finTurno;
-    private JButton reset;
-    private JButton pasar;
-    private JButton salir;
-    private JButton ayuda;
 
+    /**
+     * Crea el panel de controles del juego.
+     * Contiene botones para acciones como reset, pasar turno, fin de turno, ayuda y salir.
+     *
+     * @return El panel de controles configurado.
+     */
     private JPanel crearPanelControles() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         p.setBackground(getBackground());
@@ -291,33 +460,66 @@ public class VistaJuego extends JPanel {
         return p;
     }
 
+    /**
+     * Función para añadir un listener al botón de fin de turno.
+     * @param l Listener que se ejecutará cuando se pulse el botón de fin de turno.
+     */
     public void finTurno(ActionListener l) {
         finTurno.addActionListener(l);
     }
 
+    /**
+     * Función para añadir un listener al botón de reset.
+     * @param l Listener que se ejecutará cuando se pulse el botón de reset.
+     */
     public void reset(ActionListener l) {
         reset.addActionListener(l);
     }
 
+    /**
+     * Función para añadir un listener al botón de pasar turno.
+     * @param l Listener que se ejecutará cuando se pulse el botón de pasar turno.
+     */
     public void pasar(ActionListener l) {
         pasar.addActionListener(l);
     }
 
+    /**
+     * Función para añadir un listener al botón de salir.
+     * @param l Listener que se ejecutará cuando se pulse el botón de salir.
+     */
     public void salir(ActionListener l) {
         salir.addActionListener(l);
     }
 
+    /**
+     * Función para añadir un listener al botón de ayuda.
+     * Este botón proporciona una palabra según las fichas del atril y las coloca en el tablero.
+     * @param l Listener que se ejecutará cuando se pulse el botón de ayuda.
+     */
     public void ayuda(ActionListener l) {
         ayuda.addActionListener(l);
     }
+
+    /**
+     * Crea un botón de control con un texto específico y un color base.
+     * Este botón tiene un diseño personalizado con efectos visuales al pasar el ratón.
+     *
+     * @param texto El texto que se mostrará en el botón.
+     * @return El botón creado con el texto y color especificados.
+     */
     private JButton crearBotonControl(String texto) {
         return crearBoton(texto, LILA_CLARO);
     }
     
-    private JButton crearBotonPrimario(String texto) {
-        return crearBoton(texto, LILA_OSCURO);
-    }
-    
+    /**
+     * Crea un botón con un texto y un color base.
+     * Este botón tiene un diseño personalizado con efectos visuales al pasar el ratón.
+     *
+     * @param texto El texto que se mostrará en el botón.
+     * @param base El color base del botón.
+     * @return El botón creado con el texto y color especificados.
+     */
     private JButton crearBoton(String texto, Color base) {
         JButton b = new JButton(texto) {
             @Override protected void paintComponent(Graphics g) {
@@ -371,12 +573,21 @@ public class VistaJuego extends JPanel {
         return b;
     }
 
+    /**
+     * Limpia el rack de fichas, el atril de fichas del jugador.
+     */
     public void clearRack() {
         rack.removeAll();
         rack.revalidate();
         rack.repaint();
     }
 
+    /**
+     * Modifica el rack añadiendo una ficha.
+     * La ficha se crea a partir de una cadena que contiene la letra y la puntuación.
+     *
+     * @param ficha Cadena con la letra y la puntuación de la ficha, separadas por un espacio.
+     */
     public void modificarRack(String ficha) {
 
         String[] parts = ficha.trim().split(" ");
@@ -387,43 +598,43 @@ public class VistaJuego extends JPanel {
         rack.add(tile);
     }
 
-    private JPanel rack;
 
+    
+
+    /**
+     * Crea el panel que contiene el rack de fichas del jugador.
+     * Este panel tiene un diseño personalizado con un fondo redondeado y un título.
+     *
+     * @return El panel del rack configurado.
+     */
     private JPanel crearRack() {
-        // Panel exterior con márgenes para centrar el rack
         JPanel exterior = new JPanel(new GridBagLayout());
         exterior.setOpaque(false);
         
-        // Creamos un panel contenedor con borde y efecto visual
         JPanel contenedor = new JPanel(new BorderLayout(0, 0));
         contenedor.setOpaque(false);
         
-        // Limitar el ancho máximo del contenedor
-        int anchoMaximo = 650; // Puedes ajustar este valor según necesites
+        int anchoMaximo = 650; 
         contenedor.setPreferredSize(new Dimension(anchoMaximo, 80));
         contenedor.setMaximumSize(new Dimension(anchoMaximo, 80));
         
-        // El rack en sí mismo
         rack = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Fondo del rack ligeramente más claro que el fondo general
-                Color bgRack = new Color(250, 240, 210); // Tono crema más claro
                 
-                // Dibujar fondo redondeado
+                Color bgRack = new Color(250, 240, 210); 
+                
                 int radius = 18;
                 g2.setColor(bgRack);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
                 
-                // Borde fino
                 g2.setColor(new Color(220, 190, 150));
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawRoundRect(1, 1, getWidth()-3, getHeight()-3, radius, radius);
                 
-                // Efecto de iluminación superior
                 g2.setPaint(new GradientPaint(0, 0, 
                         new Color(255, 255, 255, 100), 
                         0, getHeight()/2, new Color(255, 255, 255, 0)));
@@ -505,14 +716,15 @@ public class VistaJuego extends JPanel {
     }
 
     /**
-     * Hace draggable un TileLabel, eliminándolo en MOVE desde su contenedor
-     * original.
+     * Instala el soporte de arrastre en una ficha del juego.
+     * Permite que la ficha sea arrastrada y soltada en el tablero.
+     *
+     * @param tile La ficha a la que se le instalará el soporte de arrastre.
      */
     private void instalarDrag(TileLabel tile) {
         tile.setTransferHandler(new TransferHandler() {
             @Override
             protected Transferable createTransferable(JComponent c) {
-                // No permitir arrastre si está bloqueada
                 if (tile.estaBloqueada()) {
                     return null;
                 }
@@ -521,7 +733,6 @@ public class VistaJuego extends JPanel {
 
             @Override
             public int getSourceActions(JComponent c) {
-                // No permitir arrastre si está bloqueada
                 if (tile.estaBloqueada()) {
                     return NONE;
                 }
@@ -541,7 +752,6 @@ public class VistaJuego extends JPanel {
 
         tile.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                // Solo iniciar arrastre si la ficha no está bloqueada
                 if (!tile.estaBloqueada()) {
                     JComponent c = (JComponent) e.getSource();
                     TransferHandler h = c.getTransferHandler();
@@ -552,7 +762,9 @@ public class VistaJuego extends JPanel {
     }
 
     /**
-     * Componente que pinta la ficha estilo Scrabble
+     * Clase interna que representa una etiqueta de ficha del juego.
+     * Cada ficha tiene una letra, puntuación, fila y columna asociadas.
+     * Permite arrastrar y soltar fichas en el tablero.
      */
     private static class TileLabel extends JComponent {
 
@@ -561,7 +773,7 @@ public class VistaJuego extends JPanel {
         private final int row;
         private final int col;
         private final Dimension size = new Dimension(TILE_SIZE, TILE_SIZE);
-        private boolean bloqueada = false;  // Nueva propiedad para bloqueo
+        private boolean bloqueada = false;  
 
         public String getLetter() {
             return this.letter;
@@ -585,7 +797,7 @@ public class VistaJuego extends JPanel {
 
         public void setBloqueada(boolean bloqueada) {
             this.bloqueada = bloqueada;
-            repaint(); // Para actualizar la visualización
+            repaint(); 
         }
 
         TileLabel(String letter, int score, int row, int col) {
@@ -604,14 +816,11 @@ public class VistaJuego extends JPanel {
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // fondo redondeado
             RoundRectangle2D bg = new RoundRectangle2D.Float(
                     0, 0, getWidth(), getHeight(), 12, 12
             );
 
-            // Color según bloqueo (opcional)
             if (bloqueada) {
-                // Color más oscuro para fichas bloqueadas
                 g2.setColor(new Color(230, 198, 144));
             } else {
                 g2.setColor(new Color(255, 223, 169));
@@ -622,9 +831,6 @@ public class VistaJuego extends JPanel {
             g2.setStroke(new BasicStroke(2));
             g2.draw(bg);
 
-         
-
-            // letra grande
             Font f1 = getFont().deriveFont(Font.BOLD, getHeight() * 0.5f);
             g2.setFont(f1);
             FontMetrics fm = g2.getFontMetrics();
@@ -634,7 +840,6 @@ public class VistaJuego extends JPanel {
             g2.setColor(new Color(40, 40, 40));
             g2.drawString(s, x, y);
 
-            // puntuación pequeña
             Font f2 = getFont().deriveFont(Font.PLAIN, getHeight() * 0.2f);
             g2.setFont(f2);
             fm = g2.getFontMetrics();
@@ -647,6 +852,16 @@ public class VistaJuego extends JPanel {
         }
     }
 
+
+    /**
+     * Coloca una ficha en el tablero en la posición especificada.
+     * Si la letra es nula o vacía, se elimina cualquier ficha existente en esa celda.
+     *
+     * @param letra La letra de la ficha a colocar.
+     * @param puntos Los puntos asociados a la ficha.
+     * @param i Fila donde se colocará la ficha.
+     * @param j Columna donde se colocará la ficha.
+     */
     public void ponerFichaTablero(String letra, int puntos, int i, int j) {
         if (letra != null && !letra.isEmpty()) {
 
@@ -668,7 +883,6 @@ public class VistaJuego extends JPanel {
             instalarDrag(tile);
             cells[i][j].add(tile, BorderLayout.CENTER);
 
-            // Asegurarse que todas las actualizaciones visuales se realizan
             cells[i][j].revalidate();
             cells[i][j].repaint();
             grid.revalidate();
@@ -710,7 +924,8 @@ public class VistaJuego extends JPanel {
     }
 
     /**
-     * Bloquea todas las fichas en el tablero
+     * Bloquea todas las fichas del tablero.
+     * Recorre todas las celdas y bloquea cada ficha que encuentre.
      */
     public void bloquearTodasLasFichas() {
         for (int i = 0; i < cells.length; i++) {
@@ -720,6 +935,14 @@ public class VistaJuego extends JPanel {
         }
     }
 
+
+    /**
+     * Establece los puntos de los jugadores y actualiza las etiquetas correspondientes.
+     * También repinta la tabla si es necesario.
+     *
+     * @param score1 Puntuación del jugador 1.
+     * @param score2 Puntuación del jugador 2.
+     */
     public void setPuntos(int score1, int score2) {
         this.score1 = score1;
         this.score2 = score2;
@@ -737,27 +960,31 @@ public class VistaJuego extends JPanel {
             tabla.repaint();
         }
     }
-    private JComponent tabla;
-
+    
+    
+    
+    /**
+     * Crea la tabla de jugadores con sus nombres y puntuaciones.
+     * Configura un panel que muestra los avatares, nombres y puntuaciones de los jugadores.
+     *
+     * @param nombre1 Nombre del jugador 1.
+     * @param nombre2 Nombre del jugador 2.
+     * @return El componente JComponent que contiene la tabla de jugadores.
+     */
     private JComponent crearTabla(String nombre1, String nombre2) {
-        // Crear panel principal con padding
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
         wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Crear panel para contener los jugadores
         JPanel panelJugadores = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
-                // Pintar fondo redondeado con borde suave
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Sombra externa
                 g2.setColor(new Color(0, 0, 0, 15));
                 g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, 20, 20);
                 
-                // Fondo principal
                 g2.setColor(Color.WHITE);
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
                 
@@ -767,16 +994,12 @@ public class VistaJuego extends JPanel {
         panelJugadores.setLayout(new BoxLayout(panelJugadores, BoxLayout.Y_AXIS));
         panelJugadores.setOpaque(false);
         
-        // Tamaño fijo para el panel
         panelJugadores.setPreferredSize(new Dimension(200, 180));
         
-        // Crear y añadir cada jugador
         panelJugadores.add(crearPanelJugador(nombre1, score1, new Color(100, 150, 255), 1));
         System.out.println("Jugador 1: " + nombre1 + " con score: " + score1);
-        // Separador
         panelJugadores.add(Box.createVerticalStrut(10));
         
-        // Segundo jugador
         panelJugadores.add(crearPanelJugador(nombre2, score2, new Color(255, 100, 100), 2));
         
         wrapper.add(panelJugadores, BorderLayout.NORTH);
@@ -784,15 +1007,22 @@ public class VistaJuego extends JPanel {
         return wrapper;
     }
 
-    // Crear un panel para cada jugador
+    /**
+     * Crea un panel para mostrar la información de un jugador.
+     * Incluye un avatar circular, nombre y puntuación del jugador.
+     *
+     * @param nombre Nombre del jugador.
+     * @param puntos Puntuación del jugador.
+     * @param color Color del panel del jugador.
+     * @param jugadorId Identificador del jugador (1 o 2).
+     * @return El panel configurado con la información del jugador.
+     */
     private JPanel crearPanelJugador(String nombre, int puntos, Color color, int jugadorId) {
-        JPanel panel = new JPanel(new BorderLayout(20, 0)); // Aumentado de 10 a 20 para más espacio entre imagen y texto
+        JPanel panel = new JPanel(new BorderLayout(20, 0)); 
         panel.setOpaque(false);
         
-        // Avatar circular (versión reducida)
         CircularProfileImage avatarPanel = new CircularProfileImage(50);
         
-        // Guardar referencias para poder actualizar después
         if (jugadorId == 1) {
             player1Image = avatarPanel;
             player1Name = new JLabel(nombre);
@@ -803,55 +1033,46 @@ public class VistaJuego extends JPanel {
             player2Score = new JLabel(puntos + " pts");
         }
         
-        // Panel para nombre y puntuación
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
         
-        // Nombre con color destacado
         JLabel nombreLabel = (jugadorId == 1) ? player1Name : player2Name;
         nombreLabel.setForeground(color.darker());
         nombreLabel.setFont(new Font("Arial", Font.BOLD, 15));
         nombreLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        // Puntuación
         JLabel puntosLabel = (jugadorId == 1) ? player1Score : player2Score;
         puntosLabel.setForeground(FG);
         puntosLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         puntosLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        // Añadir al panel de información
         infoPanel.add(nombreLabel);
         infoPanel.add(Box.createVerticalStrut(4));
         infoPanel.add(puntosLabel);
         
-        // Alinear todo con padding
         JPanel wrapperPanel = new JPanel(new BorderLayout());
         wrapperPanel.setOpaque(false);
         wrapperPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         
-        // Añadir componentes con más espacio entre ellos
         wrapperPanel.add(avatarPanel, BorderLayout.WEST);
         wrapperPanel.add(Box.createHorizontalStrut(10), BorderLayout.CENTER); // Espacio adicional
         wrapperPanel.add(infoPanel, BorderLayout.EAST);
         
-        // Decoración de fondo con color del jugador
         JPanel decoratedPanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Franja lateral con el color del jugador
                 g2.setColor(color);
                 g2.fillRect(0, 0, 5, getHeight());
                 
-                // Fondo con el color del jugador pero MUY transparente (alpha = 30)
                 Color bgColor = new Color(
                     color.getRed(),
                     color.getGreen(),
                     color.getBlue(),
-                    30 // Mucho más transparente (antes era 50)
+                    30 
                 );
                 g2.setColor(bgColor);
                 g2.fillRect(5, 0, getWidth() - 5, getHeight());
@@ -874,25 +1095,34 @@ public class VistaJuego extends JPanel {
         errorLabel.setText(mensaje);
         errorLabel.setVisible(true);
         
-        // Hacer que el mensaje desaparezca después de 10 segundos
         new Timer(10000, (e) -> {
             errorLabel.setVisible(false);
         }).start();
         
-        // Ajustar el tamaño de la ventana si es necesario
         revalidate();
         repaint();
     }
 
 
 
-    // Métodos para actualizar las imágenes de perfil
+    /**
+     * Establece la imagen del jugador 1 en el perfil circular.
+     * Si la imagen es nula, se usa una imagen por defecto.
+     *
+     * @param img La imagen del jugador 1.
+     */
     public void setPlayer1Image(BufferedImage img) {
         if (player1Image != null) {
             player1Image.setImage(img);
         }
     }
 
+    /**
+     * Establece la imagen del jugador 2 en el perfil circular.
+     * Si la imagen es nula, se usa una imagen por defecto.
+     *
+     * @param img La imagen del jugador 2.
+     */
     public void setPlayer2Image(BufferedImage img) {
         if (player2Image != null) {
             player2Image.setImage(img);
@@ -900,7 +1130,8 @@ public class VistaJuego extends JPanel {
     }
 
     /**
-     * Imagen circular con sombra y borde.
+     * Clase interna que representa una imagen de perfil circular.
+     * Esta clase se encarga de mostrar una imagen circular con un borde y un número opcional.
      */
     private static class CircularProfileImage extends JPanel {
         private final int size;
@@ -916,13 +1147,6 @@ public class VistaJuego extends JPanel {
             cargarImagenPorDefecto();
         }
         
-        CircularProfileImage(int size, int playerId) {
-            this.size = size;
-            this.playerId = playerId;
-            setPreferredSize(new Dimension(size, size));
-            setOpaque(false);
-            cargarImagenPorDefecto();
-        }
 
         private void cargarImagenPorDefecto() {
             try {
@@ -934,6 +1158,7 @@ public class VistaJuego extends JPanel {
             image = defaultImage;
         }
 
+        
         private BufferedImage crearImagenSilhouette() {
             BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = img.createGraphics();
@@ -950,6 +1175,7 @@ public class VistaJuego extends JPanel {
             return img;
         }
 
+        
         public void setImage(BufferedImage img) {
             if (img == null) return;
             double scale = (double) size / Math.max(img.getWidth(), img.getHeight());
@@ -964,28 +1190,25 @@ public class VistaJuego extends JPanel {
             repaint();
         }
 
+        
         @Override protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             if (image == null) return;
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
-            // Sombra
             g2.setColor(new Color(0, 0, 0, 40));
             g2.fillOval(3, 3, size - 2, size - 2);
             
-            // Avatar
             Ellipse2D.Double clip = new Ellipse2D.Double(0, 0, size, size);
             g2.setClip(clip);
             g2.drawImage(image, 0, 0, size, size, null);
             g2.setClip(null);
             
-            // Borde
             g2.setColor(new Color(180, 180, 180));
             g2.setStroke(new BasicStroke(2));
             g2.draw(clip);
             
-            // Número de jugador
             if (playerId > 0) {
                 g2.setFont(new Font("Arial", Font.BOLD, 22));
                 g2.setColor(Color.WHITE);

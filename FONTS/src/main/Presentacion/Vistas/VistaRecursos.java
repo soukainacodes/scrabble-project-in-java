@@ -9,27 +9,96 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
+
+/**
+ * Vista que muestra los recursos disponibles en el juego.
+ * Permite añadir, eliminar y modificar recursos.
+ */
 public class VistaRecursos extends JPanel {
 
-    // Colores (consistentes con VistaRanking)
+    /**
+     * Colores personalizados para la interfaz.
+     * Estos colores son consistentes con el estilo del juego.
+     */
     private static final Color APP_BG_COLOR = new Color(242, 226, 177);
+
+    /**
+     * Colores para el scrollbar.
+     * Estos colores son utilizados para personalizar la apariencia del scrollbar.
+     */
     private static final Color SCROLLBAR_THUMB = new Color(180, 180, 180);
+
+    /**
+     * Color del track del scrollbar.
+     * Este color se utiliza para el fondo del scrollbar.
+     */
     private static final Color SCROLLBAR_TRACK = new Color(240, 240, 240);
+
+    /**
+     * Color para los botones.
+     * Estos colores son utilizados para los botones de la interfaz.
+     */
     private static final Color LILA_CLARO = new Color(180, 95, 220);
+
+    /**
+     * Color oscuro para los botones.
+     * Este color se utiliza para el estado presionado de los botones.
+     */
     private static final Color LILA_OSCURO = new Color(52, 28, 87);
+
+    /**
+     * Color del borde contenedor.
+     * Este color se utiliza para el borde contendor.
+     */
     private static final Color BORDE_COLOR = new Color(220, 200, 150);
 
-    // Dimensiones
+    /**
+     * Dimensiones del contenido de la vista.
+     */
     private static final int CONTENT_WIDTH = 600;
+
+    /**
+     * Altura del contenido de la vista.
+     */
     private static final int CONTENT_HEIGHT = 330;
 
+    /**
+     * Botón para añadir un nuevo recurso.
+     */
     private JButton botonAdd;
+
+    /**
+     * Modelo de lista para gestionar los recursos.
+     */
     private DefaultListModel<String> model;
+
+    /**
+     * Lista que muestra los recursos disponibles.
+     * Permite seleccionar un recurso para eliminar o modificar.
+     */
     private JList<String> lista;
+
+    /**
+     * Botones para eliminar un recursos.
+     */
     private JButton botonEliminar;
+
+    /**
+     * Botón para modificar un recurso seleccionado.
+     */
     private JButton botonModificar;
+
+    /**
+     * Panel que contiene la lista de recursos con esquinas redondeadas.
+     * Este panel mejora la estética de la vista.
+     */
     private RoundedPanel listaPanel;
 
+
+    /**
+     * Constructor de la vista de recursos.
+     * Configura el layout, colores y componentes de la vista.
+     */
     public VistaRecursos() {
         setLayout(new BorderLayout());
         setBackground(APP_BG_COLOR);
@@ -44,6 +113,12 @@ public class VistaRecursos extends JPanel {
         add(mainPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Crea el panel de título con el logo Scrabble.
+     * Este panel contiene un título estilizado con fichas de Scrabble.
+     *
+     * @return JPanel con el título estilizado
+     */
     private JPanel createTitlePanel() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         p.setBackground(APP_BG_COLOR);
@@ -80,6 +155,15 @@ public class VistaRecursos extends JPanel {
         return p;
     }
 
+
+    /**
+     * Crea una etiqueta estilizada que representa una ficha de Scrabble.
+     * Esta etiqueta tiene un fondo redondeado y un efecto de hover.
+     *
+     * @param texto El texto de la ficha
+     * @param color El color de fondo de la ficha
+     * @return JLabel con el estilo de ficha
+     */
     private JLabel crearFichaTitulo(String texto, Color color) {
         JLabel l = new JLabel(texto, SwingConstants.CENTER) {
             @Override
@@ -101,6 +185,13 @@ public class VistaRecursos extends JPanel {
         return l;
     }
 
+
+    /**
+     * Crea el panel principal que contiene la lista de recursos y los botones.
+     * Este panel tiene un diseño mejorado con esquinas redondeadas y scroll personalizado.
+     *
+     * @return JPanel con la lista de recursos y botones
+     */
     private JPanel createMainPanel() {
         JPanel content = new JPanel(new BorderLayout(0, 15));
         content.setBackground(APP_BG_COLOR);
@@ -176,7 +267,10 @@ public class VistaRecursos extends JPanel {
         return content;
     }
 
-    // Panel con esquinas redondeadas y sombra
+    /**
+     * Clase interna que representa un panel con esquinas redondeadas.
+     * Este panel se utiliza para mejorar la estética de la lista de recursos.
+     */
     private class RoundedPanel extends JPanel {
 
         private static final int CORNER_RADIUS = 20;
@@ -212,6 +306,14 @@ public class VistaRecursos extends JPanel {
         }
     }
 
+
+    /**
+     * Crea un botón estilizado con esquinas redondeadas y efectos de hover.
+     * Este botón se utiliza para añadir, eliminar o modificar recursos.
+     *
+     * @param text El texto del botón
+     * @return JButton estilizado
+     */
     private JButton createStylishButton(String text) {
         JButton button = new JButton(text) {
             @Override
@@ -278,7 +380,10 @@ public class VistaRecursos extends JPanel {
         return button;
     }
 
-    // Clase UI de ScrollBar minimalista
+    /**
+     * Clase interna que personaliza el comportamiento del scrollbar.
+     * Utiliza un diseño minimalista y esquinas redondeadas.
+     */
     private class MinimalistScrollBarUI extends BasicScrollBarUI {
 
         @Override
@@ -331,7 +436,10 @@ public class VistaRecursos extends JPanel {
         }
     }
 
-    // Efecto de hover para las fichas del título - consistente con otras vistas
+    /**
+     * Clase interna que maneja el efecto de hover en las etiquetas de texto.
+     * Cambia el color del texto al pasar el ratón por encima.
+     */
     private static class HoverEfectoTexto extends MouseAdapter {
 
         private final JLabel label;
@@ -351,23 +459,55 @@ public class VistaRecursos extends JPanel {
         }
     }
 
-    // Métodos públicos para la funcionalidad
+    /**
+     * Añade un ActionListener al botón de añadir recurso.
+     * Este listener se activa cuando el usuario hace clic en el botón.
+     *
+     * @param l ActionListener a añadir
+     */
     public void addRecurso(ActionListener l) {
         botonAdd.addActionListener(l);
     }
 
+    /**
+     * Añade un ActionListener al botón de eliminar recurso.
+     * Este listener se activa cuando el usuario hace clic en el botón.
+     *
+     * @param l ActionListener a añadir
+     */
     public void eliminarRecurso(ActionListener l) {
         botonEliminar.addActionListener(l);
     }
 
+
+    /**
+     * Añade un ActionListener al botón de modificar recurso.
+     * Este listener se activa cuando el usuario hace clic en el botón.
+     *
+     * @param l ActionListener a añadir
+     */
     public void modificarRecurso(ActionListener l) {
         botonModificar.addActionListener(l);
     }
 
+
+    /**
+     * Añade un recurso a la lista.
+     * Este método se utiliza para actualizar la lista de recursos disponibles.
+     *
+     * @param s El recurso a añadir
+     */
     public void removeLista(String s) {
         model.removeElement(s);
     }
 
+
+    /**
+     * Establece la lista de recursos disponibles.
+     * Este método actualiza la lista con los recursos proporcionados.
+     *
+     * @param lista Lista de recursos a establecer
+     */
     public void setLista(List<String> lista) {
         model.removeAllElements();
         for (String recurso : lista) {
@@ -375,6 +515,13 @@ public class VistaRecursos extends JPanel {
         }
     }
 
+
+    /**
+     * Obtiene el modelo de la lista de recursos.
+     * Este modelo se utiliza para gestionar los recursos en la lista.
+     *
+     * @return DefaultListModel con los recursos
+     */
     public String getSeleccionado() {
         return lista.getSelectedValue();
     }

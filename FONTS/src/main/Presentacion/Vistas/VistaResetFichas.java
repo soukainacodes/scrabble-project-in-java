@@ -8,19 +8,75 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+
+/**
+ * Vista para cambiar fichas en un juego de Scrabble.
+ * Permite al usuario seleccionar fichas y aceptarlas para su cambio.
+ */
 public class VistaResetFichas extends JFrame {
 
+
+    /**
+     * Tamaño de las fichas en el rack.
+     */
     private static final int TILE_SIZE = 32;
+
+    /**
+     * Colores personalizados para la interfaz.
+     * Estos colores se utilizan para el fondo, bordes y texto de la ventana.
+     */
     private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Color crema de fondo
+
+    /**
+     * Color para paneles internos y bordes.
+     * Este color se utiliza para los paneles que contienen las fichas y otros elementos.
+     */
     private static final Color BORDER_COLOR = new Color(200, 180, 120);  // Color de bordes
+
+    /**
+     * Color del texto.
+     * Este color se utiliza para el texto instructivo y otros elementos de texto en la ventana.
+     */
     private static final Color TEXT_COLOR = new Color(60, 60, 80);       // Color del texto
-        private static final Color BUTTON_COLOR = new Color(128, 64, 200);  // Morado para el botón
+
+
+
+    /**
+     * Color del botón de aceptar.
+     * Este color se utiliza para el botón que permite al usuario aceptar las fichas seleccionadas.
+     */
+    private static final Color BUTTON_COLOR = new Color(128, 64, 200);  // Morado para el botón
     
+
+    /**
+     * Panel que contiene las fichas seleccionables.
+     * Este panel se utiliza para mostrar las fichas que el usuario puede seleccionar para cambiar.
+     */
     private JPanel rack;
+
+    /**
+     * Botón para aceptar las fichas seleccionadas.
+     * Este botón se utiliza para confirmar la selección de fichas y proceder con el cambio.
+     */
     private JButton botonAceptar;
+
+    /**
+     * Lista de fichas seleccionadas por el usuario.
+     * Esta lista almacena las fichas que el usuario ha seleccionado para cambiar.
+     */
     private List<SelectableTileLabel> selectedTiles = new ArrayList<>();
+
+    /**
+     * Listener para el botón de aceptar.
+     * Este listener se ejecuta cuando el usuario hace clic en el botón de aceptar.
+     */
     private ActionListener acceptListener;
 
+
+    /**
+     * Constructor de la vista.
+     * Configura la ventana, los paneles y los botones con un diseño atractivo y funcional.
+     */
     public VistaResetFichas() {
         setTitle("Cambiar Fichas");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -76,12 +132,27 @@ public class VistaResetFichas extends JFrame {
         setLocationRelativeTo(null);
     }
     
+
+    /**
+     * Crea un panel para el rack de fichas.
+     * Este panel utiliza un diseño de flujo centrado y tiene un fondo personalizado.
+     * 
+     * @return JPanel configurado para el rack de fichas.
+     */
     private JPanel crearRack() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         panel.setBackground(APP_BG_COLOR);
         return panel;
     }
     
+
+    /**
+     * Añade una ficha al rack.
+     * Esta ficha es representada por un objeto SelectableTileLabel que permite la selección.
+     * 
+     * @param letter Letra de la ficha.
+     * @param score Puntuación de la ficha.
+     */
     public void addTile(String letter, int score) {
         SelectableTileLabel tile = new SelectableTileLabel(letter, score);
         rack.add(tile);
@@ -89,6 +160,11 @@ public class VistaResetFichas extends JFrame {
         rack.repaint();
     }
     
+
+    /**
+     * Elimina todas las fichas del rack.
+     * Este método limpia el rack y resetea la lista de fichas seleccionadas.
+     */
     public void clearRack() {
         rack.removeAll();
         selectedTiles.clear();
@@ -96,10 +172,24 @@ public class VistaResetFichas extends JFrame {
         rack.repaint();
     }
     
+
+    /**
+     * Establece el listener para el botón de aceptar.
+     * Este listener se ejecuta cuando el usuario hace clic en el botón de aceptar.
+     * 
+     * @param listener ActionListener que maneja el evento de aceptación.
+     */
     public void setAcceptListener(ActionListener listener) {
         this.acceptListener = listener;
     }
     
+
+    /**
+     * Obtiene las letras de las fichas seleccionadas.
+     * Este método devuelve una cadena con las letras de las fichas que el usuario ha seleccionado.
+     * 
+     * @return String con las letras de las fichas seleccionadas.
+     */
     public String getSelectedTiles() {
         StringBuilder result = new StringBuilder();
         for (SelectableTileLabel tile : selectedTiles) {
@@ -109,6 +199,14 @@ public class VistaResetFichas extends JFrame {
         return result.toString();
     }
     
+
+    /**
+     * Crea un botón con estilo personalizado.
+     * Este botón tiene esquinas redondeadas, un fondo con gradiente y un efecto hover.
+     * 
+     * @param texto Texto que se mostrará en el botón.
+     * @return JButton configurado con estilo personalizado.
+     */
     private JButton crearBotonControl(String texto) {
         JButton boton = new JButton(texto) {
             @Override
@@ -160,7 +258,10 @@ public class VistaResetFichas extends JFrame {
         return boton;
     }
     
-    // Componente para una ficha seleccionable
+    /**
+     * Clase interna que representa una ficha seleccionable.
+     * Esta clase extiende JComponent y permite la selección de fichas con un diseño personalizado.
+     */
     private class SelectableTileLabel extends JComponent {
         private final String letter;
         private final int score;
@@ -247,7 +348,12 @@ public class VistaResetFichas extends JFrame {
         }
     }
     
-    // Método para cargar fichas desde un formato similar al de VistaScrabble
+    /**
+     * Carga fichas en el rack desde una lista de cadenas.
+     * Cada cadena debe contener la letra y la puntuación separadas por un espacio.
+     * 
+     * @param fichas Lista de cadenas con las fichas a cargar.
+     */
     public void cargarFichas(List<String> fichas) {
         clearRack();
         for (String ficha : fichas) {

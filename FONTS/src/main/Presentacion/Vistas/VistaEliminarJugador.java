@@ -7,50 +7,86 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * Vista para eliminar un jugador, solicitando confirmación mediante la contraseña actual.
+ * Permite al usuario eliminar su cuenta de forma segura.
+ */
 public class VistaEliminarJugador extends JFrame {
 
-    // Colores consistentes con las otras vistas
+    /**
+     * Colores personalizados para la interfaz.
+     * Utilizados para el fondo, texto, bordes y mensajes de error.
+     */
     private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Crema
+
+    /**
+     * Color para el texto oscuro.
+     */
     private static final Color FG = new Color(20, 40, 80);               // Texto oscuro
-    private static final Color LILA_OSCURO = new Color(52, 28, 87);      // Lila oscuro
-    private static final Color LILA_CLARO = new Color(180, 95, 220);     // Lila claro
+
+    /**
+     * Color para los bordes de los paneles.
+     * Utilizado para dar un aspecto elegante a los campos de entrada y botones.
+     */
     private static final Color BORDE_COLOR = new Color(220, 200, 150);   // Borde de paneles
+
+    /**
+     * Color para mensajes de error.
+     * Utilizado para resaltar mensajes de error en la interfaz.
+     */
     private static final Color ROJO_ERROR = new Color(200, 0, 0);        // Color para mensajes de error
     
+
+    /**
+     * Botón para verificar la contraseña y proceder con la eliminación de la cuenta.
+     * Se activa al hacer clic y valida la contraseña ingresada.
+     */
     private JButton botonVerificar;
+
+    /**
+     * Campo de entrada para la contraseña actual del usuario.
+     * Se utiliza para verificar la identidad antes de eliminar la cuenta.
+     */
     private JPasswordField campoPassword;
+
+    /**
+     * Etiqueta para mostrar mensajes de error.
+     * Se utiliza para informar al usuario sobre problemas con la contraseña ingresada.
+     */
     private JLabel errorLabel;
 
+
+    /**
+     * Constructor de la vista de eliminación de jugador.
+     * Configura la ventana, los paneles y los componentes necesarios para solicitar la contraseña.
+     *
+     * @param username Nombre de usuario del jugador que se va a eliminar.
+     */
     public VistaEliminarJugador(String username) {
         super("Confirmar contraseña");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
         
-        // Panel principal con fondo nuevo
         JPanel panelPrincipal = new JPanel(new BorderLayout());
         panelPrincipal.setBackground(APP_BG_COLOR);
         panelPrincipal.setBorder(new EmptyBorder(15, 15, 15, 15));
         
-        // Panel del título con fichas de colores
         JPanel titlePanel = crearPanelTitulo("ELIMINAR CUENTA");
         
-        // Panel de contenido con bordes redondeados
         RoundedPanel contentPanel = new RoundedPanel();
         contentPanel.setLayout(new BorderLayout(0, 15));
         contentPanel.setBorder(new EmptyBorder(25, 25, 25, 25));
         
-        // Panel de información y usuario
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
         
-        // Nombre de usuario con estilo
         JLabel userLabel = new JLabel(username);
         userLabel.setFont(new Font("Arial Black", Font.BOLD, 18));
         userLabel.setForeground(FG);
         userLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-               // Mensaje de advertencia
+        // Mensaje de advertencia
         JLabel warningLabel = new JLabel("<html><div style='text-align:center; padding-left:15px;'>" +
                 "<span style='color:rgb(200,0,0); font-weight:bold; display:block; margin:5px;'>¡Atención! Estás a punto de eliminar tu cuenta.<br>" +
                 "Esta acción no se puede deshacer.</span><br><br>" +
@@ -64,12 +100,10 @@ public class VistaEliminarJugador extends JFrame {
         infoPanel.add(warningLabel);
         infoPanel.add(Box.createVerticalStrut(15));
         
-        // Panel de formulario
         JPanel formPanel = new JPanel(new GridLayout(0, 1, 0, 15));
         formPanel.setOpaque(false);
         formPanel.add(crearPanelCampo("Contraseña actual:", campoPassword = crearCampoPassword()));
         
-        // Combinar paneles de información y formulario
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setOpaque(false);
@@ -78,14 +112,12 @@ public class VistaEliminarJugador extends JFrame {
         
         contentPanel.add(centerPanel, BorderLayout.CENTER);
         
-        // Crear y configurar el label de error
         errorLabel = new JLabel("");
         errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
         errorLabel.setForeground(ROJO_ERROR);
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
         errorLabel.setVisible(false);
         
-        // Panel de botón con estilo mejorado
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
         
@@ -97,20 +129,18 @@ public class VistaEliminarJugador extends JFrame {
         JPanel botonContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
         botonContainer.setOpaque(false);
         botonVerificar = createStylishButton("Eliminar Cuenta");
-        botonVerificar.setBackground(new Color(220, 60, 60)); // Rojo para indicar acción destructiva
+        botonVerificar.setBackground(new Color(220, 60, 60));
         botonContainer.add(botonVerificar);
         buttonPanel.add(botonContainer, BorderLayout.CENTER);
         
         contentPanel.add(buttonPanel, BorderLayout.SOUTH);
         
-        // Agregar los componentes al panel principal
         panelPrincipal.add(titlePanel, BorderLayout.NORTH);
         panelPrincipal.add(contentPanel, BorderLayout.CENTER);
         
         setContentPane(panelPrincipal);
         pack();
         
-        // Fijar tamaño después de pack() para prevenir cualquier cambio
         Dimension size = getSize();
         setMinimumSize(size);
         setMaximumSize(size);
@@ -119,6 +149,12 @@ public class VistaEliminarJugador extends JFrame {
         setLocationRelativeTo(null);
     }
     
+
+    /**
+     * Crea un panel con el título de la ventana, mostrando cada letra en fichas de colores.
+     * @param titulo El título a mostrar en el panel.
+     * @return Un JPanel con el título estilizado.
+     */
     private JPanel crearPanelTitulo(String titulo) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setBackground(APP_BG_COLOR);
@@ -166,6 +202,14 @@ public class VistaEliminarJugador extends JFrame {
         return panel;
     }
     
+
+    /**
+     * Crea una etiqueta estilizada para las fichas del título.
+     * Cada ficha tiene un fondo redondeado y un efecto de hover.
+     * @param texto El texto a mostrar en la ficha.
+     * @param color El color de fondo de la ficha.
+     * @return Una JLabel con el texto estilizado.
+     */
     private JLabel crearFichaTitulo(String texto, Color color) {
         JLabel l = new JLabel(texto, SwingConstants.CENTER) {
             @Override protected void paintComponent(Graphics g) {
@@ -186,6 +230,14 @@ public class VistaEliminarJugador extends JFrame {
         return l;
     }
     
+
+    /**
+     * Crea un panel con un campo de entrada y su etiqueta asociada.
+     * Utiliza un diseño de BorderLayout para organizar el campo y la etiqueta.
+     * @param labelText El texto de la etiqueta del campo.
+     * @param field El componente de entrada (JTextField, JPasswordField, etc.).
+     * @return Un JPanel con el campo y su etiqueta.
+     */
     private JPanel crearPanelCampo(String labelText, JComponent field) {
         JPanel panel = new JPanel(new BorderLayout(10, 0));
         panel.setOpaque(false);
@@ -204,6 +256,12 @@ public class VistaEliminarJugador extends JFrame {
         return panel;
     }
     
+
+    /**
+     * Crea un campo de contraseña estilizado con esquinas redondeadas y fondo personalizado.
+     * Utiliza un JPasswordField con un renderizado personalizado para el fondo.
+     * @return Un JPasswordField estilizado.
+     */
     private JPasswordField crearCampoPassword() {
         JPasswordField field = new JPasswordField(20) {
             @Override protected void paintComponent(Graphics g) {
@@ -225,6 +283,13 @@ public class VistaEliminarJugador extends JFrame {
         return field;
     }
     
+
+    /**
+     * Crea un botón estilizado con esquinas redondeadas y efectos de hover.
+     * Utiliza un renderizado personalizado para el fondo y los efectos visuales.
+     * @param text El texto del botón.
+     * @return Un JButton estilizado.
+     */
     private JButton createStylishButton(String text) {
         JButton button = new JButton(text) {
             @Override
@@ -232,23 +297,18 @@ public class VistaEliminarJugador extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Radio de las esquinas redondeadas
                 int radius = 15;
                 
-                // Determinar si el botón está en estado hover o presionado
                 boolean isHovered = getModel().isRollover();
                 boolean isPressed = getModel().isPressed();
                 
-                // Color base según estado - ROJO para eliminar cuenta
                 Color bg = isPressed ? new Color(180, 40, 40) : (isHovered ? new Color(200, 50, 50) : new Color(220, 60, 60));
                 
-                // Efecto de sombra si está en hover
                 if (isHovered && !isPressed) {
                     g2.setColor(new Color(0, 0, 0, 50));
                     g2.fillRoundRect(3, 3, getWidth() - 4, getHeight() - 4, radius, radius);
                 }
                 
-                // Dibujar el fondo del botón con gradiente
                 g2.setPaint(new GradientPaint(0, 0,
                     new Color(Math.min(bg.getRed() + 25, 255), 
                               Math.min(bg.getGreen() + 25, 255), 
@@ -256,7 +316,6 @@ public class VistaEliminarJugador extends JFrame {
                     0, getHeight(), bg));
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
                 
-                // Efecto de brillo en la parte superior
                 if (!isPressed) {
                     g2.setColor(new Color(255, 255, 255, 70));
                     g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() / 2 - 2, radius, radius);
@@ -291,14 +350,18 @@ public class VistaEliminarJugador extends JFrame {
         return button;
     }
     
-    // Panel con esquinas redondeadas y sombra
+
+    /**
+     * Panel personalizado con esquinas redondeadas y sombra.
+     * Utiliza un renderizado personalizado para el fondo y los bordes.
+     */
     private class RoundedPanel extends JPanel {
         
         private static final int CORNER_RADIUS = 20;
         
         public RoundedPanel() {
             setOpaque(false);
-            setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2)); // Pequeño margen para la sombra
+            setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2)); 
         }
         
         @Override
@@ -306,15 +369,13 @@ public class VistaEliminarJugador extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
-            // Dibujar sombra
+
             g2.setColor(new Color(0, 0, 0, 15));
             g2.fillRoundRect(3, 3, getWidth() - 3, getHeight() - 3, CORNER_RADIUS, CORNER_RADIUS);
-            
-            // Dibujar borde
+
             g2.setColor(BORDE_COLOR);
             g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, CORNER_RADIUS, CORNER_RADIUS);
             
-            // Dibujar fondo con gradiente
             GradientPaint gp = new GradientPaint(
                 0, 0, APP_BG_COLOR.brighter(), 
                 0, getHeight(), APP_BG_COLOR
@@ -327,7 +388,10 @@ public class VistaEliminarJugador extends JFrame {
         }
     }
     
-    // Efecto de hover para las fichas del título
+    /**
+     * Clase para manejar el efecto de hover en las etiquetas del título.
+     * Cambia el color del texto al pasar el ratón por encima.
+     */
     private static class HoverEfectoTexto extends MouseAdapter {
         private final JLabel label;
         HoverEfectoTexto(JLabel l) { this.label = l; }
@@ -335,29 +399,39 @@ public class VistaEliminarJugador extends JFrame {
         @Override public void mouseExited (MouseEvent e) { label.setForeground(Color.WHITE); }
     }
     
-    // Métodos públicos
+    /**
+     * Método para registrar un ActionListener en el botón de verificación.
+     * Permite que la vista notifique al controlador cuando se hace clic en el botón.
+     * @param l El ActionListener a registrar.
+     */
     public void verificar(ActionListener l) {
         botonVerificar.addActionListener(l);
     }
     
+
+    /**
+     * Método para obtener la contraseña ingresada en el campo de contraseña.
+     * Se utiliza para verificar la identidad del usuario antes de eliminar la cuenta.
+     * @return La contraseña ingresada como un array de caracteres.
+     */
     public char[] getPassword() {
         return campoPassword.getPassword();
     }
     
-    // Método para mostrar mensajes de error
+    /**
+     * Método para establecer un mensaje de error en la interfaz.
+     * Muestra un mensaje de error en la etiqueta correspondiente y lo oculta después de 5 segundos.
+     * @param mensaje El mensaje de error a mostrar.
+     */
     public void setError(String mensaje) {
         errorLabel.setText(mensaje);
         errorLabel.setVisible(true);
         
-        // Hacer que el mensaje desaparezca después de 5 segundos
         new Timer(5000, (e) -> {
             errorLabel.setVisible(false);
         }).start();
         
-        // Ajustar el tamaño de la ventana si es necesario
         revalidate();
         pack();
-
-        
     }
 }

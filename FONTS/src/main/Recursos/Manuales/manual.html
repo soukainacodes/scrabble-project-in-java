@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Manual de Usuario – Scrabble® Versión 1.2</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; line-height: 1.6; padding: 20px; }
+    h1, h2, h3 { color: #2c3e50; }
+    nav#toc { background: #ecf0f1; padding: 15px; border-radius: 6px; margin-bottom: 30px; }
+    nav#toc ul { list-style: none; padding-left: 0; }
+    nav#toc li { margin: 5px 0; }
+    nav#toc a { text-decoration: none; color: #2980b9; }
+    nav#toc a:hover { text-decoration: underline; }
+    section { margin-top: 40px; }
+    ul { margin-left: 20px; }
+    .note { background: #f9e79f; padding: 10px; border-left: 4px solid #f1c40f; margin: 15px 0; }
+  </style>
+</head>
+<body>
+
+  <h1>Manual de Usuario – Scrabble® Versión 1.2</h1>
+
+  <nav id="toc">
+    <strong>Índice</strong>
+    <ul>
+      <li><a href="#introduccion">1. Introducción</a></li>
+      <li><a href="#comenzar">2. Comenzar</a></li>
+      <li><a href="#autenticacion">3. Autenticación</a></li>
+      <li><a href="#cuenta">4. Gestión de Cuenta</a></li>
+      <li><a href="#partidas">5. Gestión de Partidas</a></li>
+      <li><a href="#juego">6. Jugar</a></li>
+      <li>
+        <a href="#reglas">7. Reglas del Juego de Scrabble</a>
+        <ul>
+          <li><a href="#objetivo">7.1 Objetivo</a></li>
+          <li><a href="#preparacion">7.2 Preparación</a></li>
+          <li><a href="#fichas">7.3 Distribución de Fichas</a></li>
+          <li><a href="#turno">7.4 Desarrollo de un Turno</a></li>
+          <li><a href="#puntuacion">7.5 Puntuación</a></li>
+          <li><a href="#casillas">7.6 Casillas Especiales</a></li>
+          <li><a href="#desafios">7.7 Desafíos</a></li>
+          <li><a href="#fin">7.8 Fin de la Partida</a></li>
+          <li><a href="#tie">7.9 Empates</a></li>
+        </ul>
+      </li>
+      <li><a href="#recursos">8. Gestión de Recursos</a></li>
+      <li><a href="#ranking">9. Ranking de Jugadores</a></li>
+      <li><a href="#guardado">10. Guardado y Salida</a></li>
+      <li><a href="#ayuda">11. Ayuda & Tips</a></li>
+      <li><a href="#soporte">12. Soporte</a></li>
+    </ul>
+  </nav>
+
+  <section id="introduccion">
+    <h2>1. Introducción</h2>
+    <p>
+      Bienvenido a <strong>Scrabble® Versión 1.2</strong>, la adaptación digital del clásico juego de mesa. Nuestra aplicación te permite disfrutar de partidas de Scrabble en tu ordenador, conservando todas sus reglas oficiales y añadiendo comodidades como guardado automático, sugerencias de palabras y un diseño accesible para jugadores de todas las edades.
+    </p>
+  </section>
+
+  <section id="comenzar">
+    <h2>2. Comenzar</h2>
+    <p>
+      Al iniciar el programa encontrarás la pantalla principal con el menú lateral desplegable. Desde allí podrás:
+    </p>
+    <ul>
+      <li>Crear una nueva partida.</li>
+      <li>Cargar la última partida jugada.</li>
+      <li>Explorar y reanudar o eliminar partidas anteriores.</li>
+      <li>Acceder a tu perfil, al ranking, al manual o gestionar recursos.</li>
+    </ul>
+  </section>
+
+  <section id="autenticacion">
+    <h2>3. Autenticación</h2>
+    <p>
+      Antes de jugar, debes iniciar sesión con tu usuario y contraseña o registrarte como nuevo jugador. Estos datos se guardan de forma segura para que puedas recuperar tu progreso en futuras sesiones.
+    </p>
+  </section>
+
+  <section id="cuenta">
+    <h2>4. Gestión de Cuenta</h2>
+    <p>
+      En tu panel de cuenta puedes:
+    </p>
+    <ul>
+      <li>Cambiar tu nombre de usuario o contraseña.</li>
+      <li>Subir o cambiar tu foto de perfil.</li>
+      <li>Eliminar tu cuenta y todos tus datos.</li>
+    </ul>
+  </section>
+
+  <section id="partidas">
+    <h2>5. Gestión de Partidas</h2>
+    <p>
+      Al crear una partida eliges el modo (SOLO o DOS JUGADORES), seleccionas el recurso (diccionario + bolsa de fichas) y asignas un nombre. Para dos jugadores, se pedirá el inicio de sesión del segundo participante.  
+      También puedes:
+    </p>
+    <ul>
+      <li>Cargar al instante la última partida.</li>
+      <li>Ver todas tus partidas guardadas y eliminarlas si lo deseas.</li>
+    </ul>
+  </section>
+
+  <section id="juego">
+    <h2>6. Jugar</h2>
+    <p>
+      Una vez en la partida, verás:
+    </p>
+    <ul>
+      <li>El <strong>tablero 15×15</strong> con sus casillas de bonificación.</li>
+      <li>Tu <strong>atril</strong> con las 7 fichas disponibles.</li>
+      <li>Botones para pasar turno, <strong>RESET</strong> (cambiar fichas) y terminar tu jugada.</li>
+      <li>En modo SOLO, un botón de <strong>Ayuda</strong> que sugiere palabras basadas en tus fichas.</li>
+    </ul>
+  </section>
+
+  <section id="reglas">
+    <h2>7. Reglas del Juego de Scrabble</h2>
+
+    <h3 id="objetivo">7.1 Objetivo</h3>
+    <p>
+      Formar palabras válidas para conseguir la máxima puntuación combinando letras en el tablero.
+    </p>
+
+    <h3 id="preparacion">7.2 Preparación</h3>
+    <p>
+      <ul>
+        <li>Cada jugador toma 7 fichas al azar.</li>
+        <li>La casilla central (7,7) es Doble Palabra.</li>
+      </ul>
+    </p>
+
+    <h3 id="fichas">7.3 Distribución de Fichas</h3>
+    <p>
+      El juego contiene 100 fichas: 98 con letra y puntos, y 2 comodines (sin valor). Cada letra tiene una frecuencia y puntaje establecido.
+    </p>
+
+    <h3 id="turno">7.4 Desarrollo de un Turno</h3>
+    <ul>
+      <li>Colocas letras en línea horizontal o vertical.</li>
+      <li>La nueva palabra debe conectar con las existentes.</li>
+      <li>Repón fichas hasta tener 7, si hay en la bolsa.</li>
+    </ul>
+
+    <h3 id="puntuacion">7.5 Puntuación</h3>
+    <p>
+      Suma el valor de cada letra y aplica multiplicadores de casillas especiales. Todas las palabras formadas en un mismo turno se cuentan.
+    </p>
+
+    <h3 id="casillas">7.6 Casillas Especiales</h3>
+    <ul>
+      <li><strong>Doble Letra / Triple Letra:</strong> multiplican el valor de la letra.</li>
+      <li><strong>Doble Palabra / Triple Palabra:</strong> multiplican la puntuación de la palabra.</li>
+      <li>Solo funcionan la primera vez que se cubren.</li>
+    </ul>
+
+    <h3 id="desafios">7.7 Desafíos</h3>
+    <p>
+      Si tu oponente impugna una palabra, se valida en el diccionario. Si es inválida, pierdes tu turno y devuelves letras; si es válida, el desafiante pierde el turno.
+    </p>
+
+    <h3 id="fin">7.8 Fin de la Partida</h3>
+    <ul>
+      <li>Se termina cuando se agotan las fichas y un jugador las usa todas, o cuando ambos pasan seguidos.</li>
+      <li>Se restan de tu total los puntos de fichas que te quedan; si vacías el atril, añades esos puntos al total del rival.</li>
+    </ul>
+
+    <h3 id="tie">7.9 Empates</h3>
+    <p>
+      Si empatan en puntos, gana quien haya obtenido más puntos por bonificaciones de palabra; si sigue el empate, se considera empate compartido.
+    </p>
+  </section>
+
+  <section id="recursos">
+    <h2>8. Gestión de Recursos</h2>
+    <p>
+      Crea, edita o elimina diccionarios y bolsas de fichas. Los diccionarios deben estar en mayúsculas y ordenados; las bolsas especifican letra, cantidad y puntaje.
+    </p>
+  </section>
+
+  <section id="ranking">
+    <h2>9. Ranking de Jugadores</h2>
+    <p>
+      Consulta la clasificación global, ordenada por puntuación máxima. Solo aparecen jugadores activos con al menos 1 punto.
+    </p>
+  </section>
+
+  <section id="guardado">
+    <h2>10. Guardado y Salida</h2>
+    <ul>
+      <li>El progreso se guarda automáticamente tras cada turno.</li>
+      <li>Al salir, puedes abandonar sin guardar o guardar para continuar más tarde.</li>
+    </ul>
+  </section>
+
+  <section id="ayuda">
+    <h2>11. Ayuda & Tips</h2>
+    <p class="note">
+      Usa el botón <strong>Ayuda</strong> en modo SOLO para recibir sugerencias de palabras óptimas basadas en tus fichas.
+    </p>
+    <p>
+      Explora el menú lateral en cualquier momento para acceder rápidamente a cualquier función.
+    </p>
+  </section>
+
+  <section id="soporte">
+    <h2>12. Soporte</h2>
+    <p>
+      Para dudas o mejoras, revisa nuestro <em>readme</em> o contacta al equipo de desarrollo. ¡Disfruta de tu partida!
+    </p>
+  </section>
+
+</body>
+</html>

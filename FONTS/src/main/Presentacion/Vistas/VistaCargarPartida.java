@@ -9,49 +9,126 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
+
+/**
+ * VistaCargarPartida es una clase que representa la interfaz gráfica para cargar partidas guardadas.
+ * Permite al usuario seleccionar una partida de una lista, cargarla o eliminarla.
+ * La interfaz incluye un título estilizado, una lista de partidas y botones para interactuar con ellas.
+ */
 public class VistaCargarPartida extends JPanel {
 
-    // Colores (consistentes con VistaRecursos)
+    /**
+     * Color de fondo de la aplicación.
+     * Este color se utiliza como fondo principal de la interfaz.
+     */
     private static final Color APP_BG_COLOR = new Color(242, 226, 177);
+    
+    
+    /**
+     * Color utilizado para el thumb del scrollbar.
+     * Este color se utiliza para la parte deslizante del scrollbar.
+     */
     private static final Color SCROLLBAR_THUMB = new Color(180, 180, 180);
+    
+    /**
+     * Color utilizado para el track del scrollbar.
+     * Este color se utiliza para el fondo del scrollbar.
+     */
     private static final Color SCROLLBAR_TRACK = new Color(240, 240, 240);
+    
+    
+    /**
+     * Color lila claro utilizado para el fondo de los botones.
+     * Este color se utiliza para el fondo de los botones de la interfaz.
+     */
     private static final Color LILA_CLARO = new Color(180, 95, 220);
+    
+    
+    /**
+     * Color lila oscuro utilizado para el fondo de los botones.
+     * Este color se utiliza para el fondo de los botones de la interfaz.
+     */
     private static final Color LILA_OSCURO = new Color(52, 28, 87);
+    
+    
+    /**
+     * Color del borde del panel de lista.
+     * Este color se utiliza para el borde del panel que contiene la lista de partidas guardadas.
+     */
     private static final Color BORDE_COLOR = new Color(220, 200, 150);
-
-    // Dimensiones
-    private static final int CONTENT_WIDTH = 600;
-    private static final int CONTENT_HEIGHT = 330;
-
+    
+    
+    /**
+     * Botón para cargar una partida guardada.
+     * Este botón permite al usuario cargar la partida seleccionada de la lista.
+     */
     private JButton botonCargar;
+    
+    /**
+     * Botón para eliminar una partida guardada.
+     * Este botón permite al usuario eliminar la partida seleccionada de la lista.
+     */
     private JButton botonEliminar;
+    
+    
+    /**
+     * Modelo de lista que contiene los nombres de las partidas guardadas.
+     * Utilizado por la JList para mostrar las partidas.
+     */
     private DefaultListModel<String> model;
+    
+    /**
+     * Lista que muestra las partidas guardadas.
+     * Utiliza un modelo de lista para gestionar los elementos.
+     */
     private JList<String> lista;
+    
+    /**
+     * Panel redondeado que contiene la lista de partidas.
+     * Este panel tiene un fondo con gradiente y bordes redondeados.
+     */
     private RoundedPanel listaPanel;
     
-    // Añadir el errorLabel como variable de clase
+    
+    /**
+     * Label para mostrar mensajes de error.
+     */
     private JLabel errorLabel;
 
+    /**
+     * Constructor de la vista Cargar Partida.
+     * Configura el layout, colores y componentes de la interfaz.
+     */
     public VistaCargarPartida() {
+        // Configuración del panel principal
         setLayout(new BorderLayout());
+        // Establecer colores y bordes consistentes con otras vistas
         setBackground(APP_BG_COLOR);
-        setBorder(new EmptyBorder(5, 20, 5, 20)); // Consistente con otras vistas
-        setPreferredSize(new Dimension(700, 520)); // Consistente con otras vistas
-
-        // Crear y añadir componentes
+        // Borde para el panel principal
+        setBorder(new EmptyBorder(5, 20, 5, 20)); 
+        // Tamaño preferido del panel, consistente con otras vistas
+        setPreferredSize(new Dimension(700, 520)); 
+        // Crear paneles para el título y el contenido principal
         JPanel titlePanel = createTitlePanel();
+        // Panel principal que contendrá la lista y los botones
         JPanel mainPanel = createMainPanel();
 
+
+        // Añadir los paneles al panel principal
         add(titlePanel, BorderLayout.NORTH);
+        // Añadir el panel principal al centro del layout
         add(mainPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Crea el panel del título con un diseño estilizado.
+     * Incluye un título con fichas al estilo Scrabble.
+     * @return JPanel con el título estilizado.
+     */
     private JPanel createTitlePanel() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         p.setBackground(APP_BG_COLOR);
-        p.setBorder(new EmptyBorder(15, 0, 5, 0)); // Exactamente igual que en VistaRecursos
-
-        // Crear título estilo Scrabble con fichas
+        p.setBorder(new EmptyBorder(15, 0, 5, 0)); 
         String[] letras = {"P", "A", "R", "T", "I", "D", "A", "S", " ", "G", "U", "A", "R", "D", "A", "D", "A", "S"};
         Color[] colores = {
             new Color(220, 130, 95), // Naranja rojizo
@@ -96,6 +173,10 @@ public class VistaCargarPartida extends JPanel {
         return p;
     }
 
+    /**
+     * Crea el panel principal que contiene la lista de partidas y los botones.
+     * @return JPanel con la lista de partidas y botones.
+     */
     private JLabel crearFichaTitulo(String texto, Color color) {
         JLabel l = new JLabel(texto, SwingConstants.CENTER) {
             @Override
@@ -117,6 +198,12 @@ public class VistaCargarPartida extends JPanel {
         return l;
     }
 
+    /**
+     * Crea el panel principal que contiene la lista de partidas y los botones.
+     * Este panel incluye una lista estilizada con scroll, botones para cargar y eliminar partidas,
+     * y un label para mostrar mensajes de error.
+     * @return JPanel con la lista de partidas y botones.
+     */
     private JPanel createMainPanel() {
         JPanel content = new JPanel(new BorderLayout(0, 15));
         content.setBackground(APP_BG_COLOR);
@@ -208,7 +295,10 @@ public class VistaCargarPartida extends JPanel {
         return content;
     }
 
-    // Panel con esquinas redondeadas y sombra
+    /**
+     * Clase interna que define un panel con esquinas redondeadas y sombra.
+     * Utiliza un gradiente para el fondo y un borde estilizado.
+     */
     private class RoundedPanel extends JPanel {
 
         private static final int CORNER_RADIUS = 20;
@@ -244,6 +334,12 @@ public class VistaCargarPartida extends JPanel {
         }
     }
 
+    /**
+     * Crea un botón estilizado con esquinas redondeadas y efectos de hover.
+     * Utiliza un gradiente de color y un efecto de sombra al pasar el ratón.
+     * @param text El texto del botón.
+     * @return JButton estilizado.
+     */
     private JButton createStylishButton(String text) {
         JButton button = new JButton(text) {
             @Override
@@ -267,7 +363,6 @@ public class VistaCargarPartida extends JPanel {
                     g2.fillRoundRect(3, 3, getWidth() - 4, getHeight() - 4, radius, radius);
                 }
 
-                // Dibujar el fondo del botón con gradiente
                 g2.setPaint(new GradientPaint(0, 0,
                         new Color(Math.min(bg.getRed() + 25, 255),
                                 Math.min(bg.getGreen() + 25, 255),
@@ -275,7 +370,6 @@ public class VistaCargarPartida extends JPanel {
                         0, getHeight(), bg));
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
 
-                // Efecto de brillo en la parte superior
                 if (!isPressed) {
                     g2.setColor(new Color(255, 255, 255, 70));
                     g2.fillRoundRect(2, 2, getWidth() - 5, getHeight() / 2 - 2, radius, radius);
@@ -310,7 +404,12 @@ public class VistaCargarPartida extends JPanel {
         return button;
     }
 
-    // Clase UI de ScrollBar minimalista
+
+
+    /**
+     * Clase interna que define un ScrollBar UI minimalista y estilizado.
+     * Utiliza colores personalizados para el thumb y el track, y elimina los botones de incremento/decremento.
+     */
     private class MinimalistScrollBarUI extends BasicScrollBarUI {
 
         @Override
@@ -365,7 +464,11 @@ public class VistaCargarPartida extends JPanel {
         }
     }
 
-    // Efecto de hover para las fichas del título - consistente con otras vistas
+
+    /**
+     * Clase interna que define un efecto de hover para el texto de las fichas del título.
+     * Cambia el color del texto al pasar el ratón por encima.
+     */
     private static class HoverEfectoTexto extends MouseAdapter {
 
         private final JLabel label;
@@ -385,19 +488,36 @@ public class VistaCargarPartida extends JPanel {
         }
     }
 
-    // Métodos públicos para la funcionalidad
+
+    /**
+     * Método para añadir un ActionListener al botón de cargar partida.
+     * @param l ActionListener que se ejecutará al hacer clic en el botón.
+     */
     public void jugarPartida(ActionListener l) {
         botonCargar.addActionListener(l);
     }
 
+    /**
+     * Método para añadir un ActionListener al botón de eliminar partida.
+     * @param l ActionListener que se ejecutará al hacer clic en el botón.
+     */
     public void eliminarPartida(ActionListener l) {
         botonEliminar.addActionListener(l);
     }
 
+    /**
+     * Añade una partida a la lista de partidas guardadas.
+     * @param nombre El nombre de la partida a añadir.
+     */
     public void removePartida(String nombre) {
         model.removeElement(nombre);
     }
 
+    /**
+     * Establece la lista de partidas guardadas en la vista.
+     * Limpia la lista actual y añade las partidas proporcionadas.
+     * @param partidas Lista de nombres de partidas a mostrar.
+     */
     public void setPartidas(List<String> partidas) {
         model.removeAllElements();
         for (String partida : partidas) {
@@ -405,6 +525,11 @@ public class VistaCargarPartida extends JPanel {
         }
     }
 
+
+    /**
+     * Obtiene el nombre de la partida seleccionada en la lista.
+     * @return El nombre de la partida seleccionada, o null si no hay ninguna seleccionada.
+     */
     public String getSeleccionada() {
         return lista.getSelectedValue();
     }

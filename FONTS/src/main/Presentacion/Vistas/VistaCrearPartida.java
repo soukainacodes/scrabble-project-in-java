@@ -13,48 +13,116 @@ import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
+
+/**
+ * Vista para crear una nueva partida en el juego.
+ * Permite seleccionar el número de jugadores, idioma y un ID de partida.
+ * Incluye un botón para iniciar sesión como segundo jugador si se selecciona esa opción.
+ */
 public class VistaCrearPartida extends JPanel {
 
-    // Colores consistentes con otras vistas
+    /**
+     * Color de fondo de la aplicación.
+     */
     private static final Color APP_BG_COLOR = new Color(242, 226, 177); // Color crema
+
+    /**
+     * Color de primer plano para el texto y elementos destacados.
+     */
     private static final Color FG = new Color(20, 40, 80);
+
+    /**
+     * Color lila claro para botones.
+     */
     private static final Color LILA_CLARO = new Color(180, 95, 220);
+
+
+    /**
+     * Color lila oscuro para botones.
+     */
     private static final Color LILA_OSCURO = new Color(52, 28, 87);
-    
+
+
+    /**
+     * Ancho del panel de contenido principal.
+     * Se utiliza para establecer el tamaño máximo de los componentes dentro del panel.
+     */
     private static final int CONTENT_WIDTH = 450;
     
+    /**
+     * Botón para crear la partida.
+     * Este botón se utiliza para iniciar el proceso de creación de una nueva partida.
+     */
     private JButton botonCrearPartida;
+
+
+    /**
+     * Botón para iniciar sesión como segundo jugador.
+     * Este botón solo es visible si se selecciona la opción de 2 jugadores.
+     */
     private JButton botonIniciarSesion;
-    private String[] idiomas = new String[0];
+
+
+    /**
+     * ComboBox para seleccionar el número de jugadores.
+     * Permite elegir entre 1 o 2 jugadores para la partida.
+     */
     private JComboBox<String> comboJugadores;
+
+    /**
+     * ComboBox para seleccionar el recurso de la partida.
+     * Muestra una lista de recursos disponibles para la partida.
+     */
     private JComboBox<String> comboIdiomas;
+
+    /**
+     * Campo de texto para ingresar el ID de la partida.
+     * Este campo es obligatorio para identificar la partida creada.
+     */
     private JTextField id;
-    
-    // Añadir el errorLabel como variable de clase
+
+
+    /**
+     * Etiqueta para mostrar mensajes de error.
+     * Se utiliza para informar al usuario sobre problemas al crear la partida.
+     */
     private JLabel errorLabel;
 
+    /**
+     * Array de idiomas disponibles para la partida.
+     * Este array se utiliza para poblar el JComboBox de idiomas.
+     */
+    private String[] idiomas;
+
+    /**
+     * Constructor de la vista de creación de partida.
+     * Configura el diseño, los componentes y su estilo.
+     */
     public VistaCrearPartida() {
         setLayout(new BorderLayout());
         setBackground(APP_BG_COLOR);
-        setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20)); // Reducido para más espacio vertical
+        setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20)); 
 
-        // Crear y añadir componentes
         JPanel titlePanel = createTitlePanel();
         JPanel contentPanel = createContentPanel();
         
         add(titlePanel, BorderLayout.NORTH);
         add(contentPanel, BorderLayout.CENTER);
         
-        // Aumentado para evitar cortes
         setPreferredSize(new Dimension(700, 520));
     }
     
+    /**
+     * Crea el panel del título con un diseño estilizado que simula fichas de Scrabble.
+     * Cada letra del título se muestra como una ficha con un color diferente.
+     * 
+     * @return JPanel con el título estilizado
+     */
     private JPanel createTitlePanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setBackground(APP_BG_COLOR);
-        panel.setBorder(BorderFactory.createEmptyBorder(15, 0, 5, 0)); // Reducido para más espacio
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 0, 5, 0)); 
         
-        // Crear título estilo Scrabble con fichas
         String[] letras = { "N", "U", "E", "V", "A", " ", "P", "A", "R", "T", "I", "D", "A" };
         Color[] colores = {
             new Color(220, 130, 95),   // Naranja rojizo
@@ -80,7 +148,6 @@ public class VistaCrearPartida extends JPanel {
         for (int i = 0; i < letras.length; i++) {
             final int idx = i;
             
-            // Si es un espacio, agregar espacio en blanco
             if (letras[i].equals(" ")) {
                 fichasPanel.add(Box.createHorizontalStrut(10));
                 continue;
@@ -94,10 +161,8 @@ public class VistaCrearPartida extends JPanel {
                         RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON
                     );
-                    // Dibuja ficha
                     g2.setColor(colores[idx]);
                     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-                    // Sombra
                     g2.setColor(new Color(0, 0, 0, 30));
                     g2.fillRoundRect(3, 3, getWidth(), getHeight(), 10, 10);
                     g2.dispose();
@@ -111,7 +176,6 @@ public class VistaCrearPartida extends JPanel {
             letra.setPreferredSize(new Dimension(40, 40));
             letra.setMaximumSize(new Dimension(40, 40));
             
-            // Efecto hover al pasar el ratón
             letra.addMouseListener(new MouseAdapter() {
                 @Override 
                 public void mouseEntered(MouseEvent e) {
@@ -126,7 +190,6 @@ public class VistaCrearPartida extends JPanel {
             
             fichasPanel.add(letra);
             
-            // Añadir espacio entre letras
             if (i < letras.length - 1 && !letras[i+1].equals(" ")) 
                 fichasPanel.add(Box.createHorizontalStrut(5));
         }
@@ -137,22 +200,25 @@ public class VistaCrearPartida extends JPanel {
         return panel;
     }
     
+    /**
+     * Crea el panel de contenido principal con campos para ID de partida, número de jugadores,
+     * recurso y botones para crear la partida o añadir un segundo jugador.
+     * 
+     * @return JPanel con el contenido principal
+     */
     private JPanel createContentPanel() {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(APP_BG_COLOR);
         
-        // Panel con borde redondeado para el contenido
         JPanel roundedPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Borde más oscuro
                 g2.setColor(new Color(220, 200, 150));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 
-                // Fondo interior
                 g2.setColor(APP_BG_COLOR);
                 g2.fillRoundRect(2, 2, getWidth()-4, getHeight()-4, 18, 18);
                 
@@ -163,43 +229,38 @@ public class VistaCrearPartida extends JPanel {
         roundedPanel.setLayout(new GridBagLayout());
         roundedPanel.setOpaque(false);
         
-        // Panel de contenido centrado
         JPanel content = new JPanel();
         content.setBackground(APP_BG_COLOR);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBorder(new EmptyBorder(10, 30, 10, 30)); // Márgenes reducidos
+        content.setBorder(new EmptyBorder(10, 30, 10, 30)); 
         
-        // --- ID de Partida ---
         JLabel lblID = createStylishLabel("ID de Partida");
         lblID.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(lblID);
-        content.add(Box.createVerticalStrut(5)); // Reducido
+        content.add(Box.createVerticalStrut(5)); 
         
         id = createStylishTextField();
         id.setMaximumSize(new Dimension(CONTENT_WIDTH, 40));
         id.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(id);
-        content.add(Box.createVerticalStrut(15)); // Reducido
+        content.add(Box.createVerticalStrut(15)); 
         
-        // --- Número de Jugadores ---
         JLabel lblJugadores = createStylishLabel("Número de jugadores");
         lblJugadores.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(lblJugadores);
-        content.add(Box.createVerticalStrut(5)); // Reducido
+        content.add(Box.createVerticalStrut(5)); 
         
         String[] opcionesJug = {"1 Jugador", "2 Jugadores"};
         comboJugadores = createStylishComboBox(opcionesJug);
         comboJugadores.setMaximumSize(new Dimension(CONTENT_WIDTH, 40));
         comboJugadores.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(comboJugadores);
-        content.add(Box.createVerticalStrut(10)); // Reducido
+        content.add(Box.createVerticalStrut(10));
         
-        // Botón para añadir segundo jugador
         botonIniciarSesion = createStylishButton("Añadir Segundo Jugador", LILA_CLARO);
         botonIniciarSesion.setVisible(false);
         botonIniciarSesion.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        // Hacer el botón del mismo ancho que los otros componentes
         botonIniciarSesion.setMaximumSize(new Dimension(CONTENT_WIDTH, 35));
         botonIniciarSesion.setPreferredSize(new Dimension(CONTENT_WIDTH, 35));
         botonIniciarSesion.setMinimumSize(new Dimension(CONTENT_WIDTH, 35));
@@ -207,38 +268,33 @@ public class VistaCrearPartida extends JPanel {
         content.add(botonIniciarSesion);
         content.add(Box.createVerticalStrut(15));
         
-        // --- Idioma ---
         JLabel lblIdioma = createStylishLabel("Idioma");
         lblIdioma.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(lblIdioma);
-        content.add(Box.createVerticalStrut(5)); // Reducido
+        content.add(Box.createVerticalStrut(5)); 
         
         comboIdiomas = createStylishComboBox(new String[0]);
         comboIdiomas.setMaximumSize(new Dimension(CONTENT_WIDTH, 40));
         comboIdiomas.setAlignmentX(Component.CENTER_ALIGNMENT);
         content.add(comboIdiomas);
-        content.add(Box.createVerticalStrut(20)); // Reducido
+        content.add(Box.createVerticalStrut(20)); 
         
-        // Modificar la creación del botón "Crear Partida" para que también use CONTENT_WIDTH
         botonCrearPartida = createStylishButton("Crear Partida", LILA_OSCURO);
         botonCrearPartida.setAlignmentX(Component.CENTER_ALIGNMENT);
-        // Usar mismo ancho que el resto de componentes
         botonCrearPartida.setMaximumSize(new Dimension(CONTENT_WIDTH, 35));
         botonCrearPartida.setPreferredSize(new Dimension(CONTENT_WIDTH, 35)); 
         botonCrearPartida.setMinimumSize(new Dimension(CONTENT_WIDTH, 35));
         content.add(botonCrearPartida);
         
-        // Añadir el errorLabel después del botón de crear partida
         content.add(Box.createVerticalStrut(15));
         errorLabel = new JLabel("");
         errorLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        errorLabel.setForeground(new Color(200, 0, 0));  // Rojo para errores
+        errorLabel.setForeground(new Color(200, 0, 0));
         errorLabel.setHorizontalAlignment(JLabel.CENTER);
-        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Centrar horizontalmente
+        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT); 
         errorLabel.setVisible(false);
         content.add(errorLabel);
         
-        // Modificar el ItemListener para manejar mejor la visibilidad
         comboJugadores.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -247,14 +303,10 @@ public class VistaCrearPartida extends JPanel {
                     boolean mostrarBoton = "2 Jugadores".equals(sel);
                     botonIniciarSesion.setVisible(mostrarBoton);
                     
-                    // Esto es importante para mantener el layout estable
-                    // Primero validar el panel que contiene el botón
                     content.validate();
                     
-                    // Luego validar todo el contenedor padre
                     roundedPanel.validate();
                     
-                    // Asegurar que el tamaño no cambie
                     botonIniciarSesion.setMaximumSize(new Dimension(CONTENT_WIDTH, 35));
                     botonIniciarSesion.setPreferredSize(new Dimension(CONTENT_WIDTH, 35));
                     botonIniciarSesion.setMinimumSize(new Dimension(CONTENT_WIDTH, 35));
@@ -268,6 +320,12 @@ public class VistaCrearPartida extends JPanel {
         return mainPanel;
     }
     
+    /**
+     * Crea una etiqueta estilizada con un diseño atractivo.
+     * 
+     * @param text El texto de la etiqueta
+     * @return JLabel estilizado
+     */
     private JLabel createStylishLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Arial", Font.BOLD, 16));
@@ -277,7 +335,12 @@ public class VistaCrearPartida extends JPanel {
         return label;
     }
     
-    // TextField mejorado con efectos y centrado
+    
+    /**
+     * Crea un campo de texto estilizado con un fondo sutil y bordes redondeados.
+     * 
+     * @return JTextField estilizado
+     */
     private JTextField createStylishTextField() {
         JTextField textField = new JTextField() {
             @Override
@@ -286,7 +349,6 @@ public class VistaCrearPartida extends JPanel {
                     Graphics2D g2 = (Graphics2D) g.create();
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     
-                    // Fondo con gradiente sutil
                     GradientPaint gp = new GradientPaint(
                         0, 0, new Color(255, 255, 255, 240),
                         0, getHeight(), new Color(255, 255, 255, 200)
@@ -294,11 +356,9 @@ public class VistaCrearPartida extends JPanel {
                     g2.setPaint(gp);
                     g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
                     
-                    // Borde
                     g2.setColor(hasFocus() ? LILA_CLARO : new Color(200, 200, 200));
                     g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 15, 15);
                     
-                    // Efecto de sombra sutil
                     if (hasFocus()) {
                         g2.setColor(new Color(LILA_CLARO.getRed(), LILA_CLARO.getGreen(), LILA_CLARO.getBlue(), 60));
                         g2.setStroke(new BasicStroke(2f));
@@ -320,9 +380,14 @@ public class VistaCrearPartida extends JPanel {
         return textField;
     }
     
-    // ComboBox mejorado con animaciones y efectos
+    /**
+     * Crea un JComboBox estilizado con un renderizador personalizado para las celdas.
+     * Incluye un efecto hover y un botón de flecha elegante.
+     * 
+     * @param options Opciones del JComboBox
+     * @return JComboBox estilizado
+     */
     private JComboBox<String> createStylishComboBox(String[] options) {
-        // Crear un renderizador personalizado para las celdas del dropdown
         BasicComboBoxRenderer renderer = new BasicComboBoxRenderer() {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, 
@@ -330,17 +395,13 @@ public class VistaCrearPartida extends JPanel {
                 JLabel label = (JLabel) super.getListCellRendererComponent(
                     list, value, index, isSelected, cellHasFocus);
                 
-                // Personalizar la apariencia de las celdas
                 label.setOpaque(true);
                 label.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                 
-                // Colores de fondo y primer plano
                 if (isSelected) {
-                    // El elemento seleccionado tiene fondo lila
                     label.setBackground(LILA_CLARO);
                     label.setForeground(Color.WHITE);
                 } else {
-                    // Los elementos no seleccionados tienen fondo blanco
                     label.setBackground(Color.WHITE);
                     label.setForeground(FG);
                 }
@@ -355,7 +416,6 @@ public class VistaCrearPartida extends JPanel {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Dibujar fondo con brillo
                 GradientPaint gp = new GradientPaint(
                     0, 0, new Color(255, 255, 255, 240),
                     0, getHeight(), new Color(255, 255, 255, 200)
@@ -363,7 +423,6 @@ public class VistaCrearPartida extends JPanel {
                 g2d.setPaint(gp);
                 g2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
                 
-                // Borde con un sutil degradado
                 g2d.setColor(new Color(200, 200, 200));
                 g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 15, 15);
                 
@@ -378,7 +437,6 @@ public class VistaCrearPartida extends JPanel {
         comboBox.setOpaque(false);
         comboBox.setRenderer(renderer);
         
-        // Personalizar UI del combobox para bordes redondeados
         comboBox.setUI(new BasicComboBoxUI() {
             @Override
             protected JButton createArrowButton() {
@@ -393,16 +451,13 @@ public class VistaCrearPartida extends JPanel {
                         Graphics2D g2 = (Graphics2D) g.create();
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         
-                        // Botón de flecha elegante
                         boolean isHovered = getModel().isRollover();
                         g2.setColor(isHovered ? LILA_OSCURO : LILA_CLARO);
                         
-                        // Crear un icono de flecha más elegante
                         int[] xPoints = {getWidth()/2-5, getWidth()/2+5, getWidth()/2};
                         int[] yPoints = {getHeight()/2-2, getHeight()/2-2, getHeight()/2+4};
                         g2.fillPolygon(xPoints, yPoints, 3);
                         
-                        // Efecto 3D sutil
                         if (isHovered) {
                             g2.setColor(new Color(255, 255, 255, 60));
                             g2.drawLine(xPoints[0], yPoints[0]+1, xPoints[1], yPoints[1]+1);
@@ -434,7 +489,6 @@ public class VistaCrearPartida extends JPanel {
             
             @Override
             public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
-                // No dibujar fondo (ya se hace en el paintComponent del combobox)
             }
             
             @Override
@@ -457,7 +511,6 @@ public class VistaCrearPartida extends JPanel {
                         list.setOpaque(true);
                         list.setBackground(Color.WHITE);
                         
-                        // Añadir efecto hover mediante selección en mouseover
                         list.addMouseMotionListener(new MouseAdapter() {
                             @Override
                             public void mouseMoved(MouseEvent e) {
@@ -473,14 +526,12 @@ public class VistaCrearPartida extends JPanel {
                     @Override
                     public void show() {
                         super.show();
-                        // Asegurar que el popup tenga el ancho correcto
-                        list.setFixedCellHeight(30); // Altura consistente para las celdas
+                        list.setFixedCellHeight(30); 
                     }
                 };
             }
         });
         
-        // Añadir efecto hover general
         comboBox.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -496,9 +547,16 @@ public class VistaCrearPartida extends JPanel {
             }
         });
         
-        return comboBox;  // Esta línea es crucial - devuelve el combobox creado
+        return comboBox;  
     }
     
+    /**
+     * Crea un botón estilizado con esquinas redondeadas y un efecto hover.
+     * 
+     * @param text El texto del botón
+     * @param baseColor El color base del botón
+     * @return JButton estilizado
+     */
     private JButton createStylishButton(String text, Color baseColor) {
         JButton button = new JButton(text) {
             @Override
@@ -506,22 +564,18 @@ public class VistaCrearPartida extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Radio de las esquinas redondeadas
                 int radius = 15;
                 boolean isHovered = getModel().isRollover();
                 Color bgColor = isHovered ? baseColor.darker() : baseColor;
                 
-                // Dibujar sombra si está en hover
                 if (isHovered) {
                     g2.setColor(new Color(0, 0, 0, 50));
                     g2.fillRoundRect(5, 5, getWidth() - 8, getHeight() - 8, radius, radius);
                 }
                 
-                // Dibujar fondo del botón
                 g2.setColor(bgColor);
                 g2.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, radius, radius);
                 
-                // Dibujar texto
                 g2.setColor(getForeground());
                 g2.setFont(getFont());
                 
@@ -542,12 +596,10 @@ public class VistaCrearPartida extends JPanel {
         button.setContentAreaFilled(false);
         button.setOpaque(false);
         
-        // Tamaño del botón
         button.setPreferredSize(new Dimension(180, 35)); // Altura reducida
         button.setMinimumSize(new Dimension(180, 35));
         button.setMaximumSize(new Dimension(180, 35));
         
-        // Efecto al pasar el ratón
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -564,7 +616,12 @@ public class VistaCrearPartida extends JPanel {
         return button;
     }
     
-    // Métodos públicos para la funcionalidad
+    /**
+     * Establece los idiomas disponibles para el JComboBox de idiomas.
+     * Actualiza el modelo del JComboBox y lo repinta para reflejar los cambios.    
+     * @param idiomas Array de idiomas a establecer
+     * 
+     */
     public void setIdiomas(String[] idiomas) {
         this.idiomas = idiomas;
         comboIdiomas.setModel(new DefaultComboBoxModel<>(idiomas));
@@ -572,22 +629,48 @@ public class VistaCrearPartida extends JPanel {
         comboIdiomas.repaint();
     }
 
+    /**
+     * Obtiene el número de jugadores seleccionado en el JComboBox.
+     * 
+     * @return El índice del número de jugadores seleccionado (0 para 1 jugador, 1 para 2 jugadores)
+     */
     public int getModo() {
         return comboJugadores.getSelectedIndex();
     }
 
+    /**
+     * Obtiene el idioma seleccionado en el JComboBox.
+     * 
+     * @return El idioma seleccionado como String
+     */
     public String getIdioma() {
         return (String) comboIdiomas.getSelectedItem();
     }
 
+    /**
+     * Obtiene el ID de la partida ingresado en el campo de texto.
+     * 
+     * @return El ID de la partida como String
+     */
     public String getID() {
         return id.getText();
     }
 
+    /**
+     * Añade un ActionListener al botón de crear partida.
+     * 
+     * @param l ActionListener a añadir al botón
+     */
     public void jugarPartida(ActionListener l) {
         botonCrearPartida.addActionListener(l);
     }
 
+    /**
+     * Añade un ActionListener al botón de iniciar sesión como segundo jugador.
+     * Este botón solo es visible si se selecciona la opción de 2 jugadores.
+     * 
+     * @param l ActionListener a añadir al botón
+     */
     public void addSegundoJugador(ActionListener l) {
         botonIniciarSesion.addActionListener(l);
     }
@@ -600,12 +683,10 @@ public class VistaCrearPartida extends JPanel {
         errorLabel.setText(mensaje);
         errorLabel.setVisible(true);
         
-        // Hacer que el mensaje desaparezca después de 10 segundos
         new Timer(10000, (e) -> {
             errorLabel.setVisible(false);
         }).start();
         
-        // Ajustar el tamaño de la ventana si es necesario
         revalidate();
         repaint();
     }

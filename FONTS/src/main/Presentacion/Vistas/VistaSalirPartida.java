@@ -11,16 +11,49 @@ import javax.swing.border.EmptyBorder;
  */
 public class VistaSalirPartida extends JFrame {
     
-    // Colores
+    /**
+     * Colores personalizados para la interfaz.
+     */
     private static final Color APP_BG_COLOR = new Color(242, 226, 177);  // Color crema de fondo 
+
+    /**
+     * Color para paneles internos y bordes.
+     */
     private static final Color PANEL_COLOR = new Color(244, 236, 217);   // Color para paneles internos
+
+    /**
+     * Color para los bordes del conteniso.
+     */
     private static final Color BORDER_COLOR = new Color(200, 180, 120);  // Color de bordes
     
+
+    /**
+     * Botón para abandonar la partida.
+     */
     private JButton botonAbandonar;
+
+    /**
+     * Botón para salir de la partida.
+     */
     private JButton botonSalir;
+
+    /**
+     * Listener para el botón Abandonar.
+     * Se ejecuta cuando el usuario decide abandonar la partida.
+     */
     private ActionListener abandonarListener;
+
+    /**
+     * Listener para el botón Salir.
+     * Se ejecuta cuando el usuario decide salir de la partida sin abandonarla.
+     */
     private ActionListener salirListener;
     
+
+    /**
+     * Constructor de la vista.
+     * Configura la ventana, los paneles y los botones con un diseño atractivo y funcional.
+     */
     public VistaSalirPartida() {
         // Configuración básica de la ventana
         setTitle("¿Desea salir?");
