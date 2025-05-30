@@ -27,7 +27,7 @@ public class InicioSesionIncorrectoException extends Exception {
      *                de sesión. Este mensaje debe proporcionar información específica
      *                sobre qué aspecto de la autenticación ha fallado.
      */
-    public InicioSesionIncorrectoException(String mensaje) {
+    public InicioSesionIncorrectoException(String mensaje) { 
         super(mensaje);
     }
     
