@@ -67,7 +67,7 @@ public class Validador {
             Pair<Integer, Integer> coord = coordenadasPalabra.get(0);
             puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), false , diccionario);
             puntosTotales += recorrerDireccion(coord.getFirst(), coord.getSecond(), true, diccionario);
-            if (puntosTotales < 0) {
+            if (puntosTotales <= 0) {
                 throw new PalabraInvalidaException();
             }
             return puntosTotales;
@@ -95,7 +95,7 @@ public class Validador {
             ? recorrerDireccion(refX, refY, false, diccionario)
             : recorrerDireccion(refX, refY, true, diccionario);
 
-        if (puntosPrincipales < 0) throw new PalabraInvalidaException();
+        if (puntosPrincipales <= 0) throw new PalabraInvalidaException();
         puntosTotales += puntosPrincipales;
 
         // Calcula la puntuación de palabras perpendiculares
@@ -104,7 +104,7 @@ public class Validador {
                 ? recorrerDireccion(p.getFirst(), p.getSecond(), true, diccionario)
                 : recorrerDireccion(p.getFirst(), p.getSecond(), false,diccionario);
 
-            if (puntos < 0) throw new PalabraInvalidaException();
+            if (puntos <= 0) throw new PalabraInvalidaException();
             puntosTotales += puntos;
         }
 
@@ -120,6 +120,7 @@ public class Validador {
        if (puntosTotales <= 0) {
             throw new PalabraInvalidaException();
         }
+        System.out.println("Puntos totales: " + puntosTotales);
         return puntosTotales;
     }
 
