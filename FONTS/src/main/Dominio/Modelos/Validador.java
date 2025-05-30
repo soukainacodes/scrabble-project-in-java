@@ -117,7 +117,7 @@ public class Validador {
         if (coordenadasPalabra.size() == 7) {
             puntosTotales += 50;
         }
-       if (puntosTotales == 0) {
+       if (puntosTotales <= 0) {
             throw new PalabraInvalidaException();
         }
         return puntosTotales;
