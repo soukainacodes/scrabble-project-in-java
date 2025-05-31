@@ -19,7 +19,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 /**
- * Controlador de presentación que gestiona la interacción entre la vista y el dominio.
+ * Controlador de presentación que gestiona la interacción entre la vista y el
+ * dominio.
  * Se encarga de crear y mostrar las diferentes vistas de la aplicación.
  */
 public class CtrlPresentacion {
@@ -28,7 +29,7 @@ public class CtrlPresentacion {
      * Controlador de dominio que gestiona la lógica del negocio.
      */
     private CtrlDominio ctrlDominio = new CtrlDominio();
-    
+
     /**
      * Icono que se aplica a las ventanas de la aplicación.
      * Se carga desde un archivo de imagen.
@@ -56,30 +57,30 @@ public class CtrlPresentacion {
      * Crear nueva partida, cargar partida.
      */
     private VistaMenuPartidas vPantallaPrincipal;
-    
+
     /**
      * Vista del ranking de jugadores.
      */
     private VistaRanking vRanking;
-    
-    
+
     /**
      * Vista de la cuenta del jugador.
      * Permite ver los datos del jugador actual y opciones para modificarlos.
      */
     private VistaCuenta vCuenta;
-    
+
     /**
-     * Vista donde se listan todos los recursos y opciones para gestionar los recursos del juego.
+     * Vista donde se listan todos los recursos y opciones para gestionar los
+     * recursos del juego.
      */
     private VistaRecursos vRecursos;
-    
+
     /**
      * Vista para salir de una partida en curso.
      * Permite al usuario abandonar la partida o salir sin abandonarla.
      */
     private VistaSalirPartida vSalir;
-    
+
     /**
      * Vista del manual del juego.
      * Se utiliza para mostrar las reglas y guías del juego Scrabble.
@@ -91,13 +92,13 @@ public class CtrlPresentacion {
      * Se utiliza para seleccionar y cargar partidas previamente guardadas.
      */
     private VistaCargarPartida vCargarPartida;
-    
+
     /**
      * Vista para crear una nueva partida.
      * Se utiliza para configurar los parámetros de la partida antes de iniciarla.
      */
     private VistaCrearPartida vCrearPartida;
-    
+
     /**
      * Vista del juego Scrabble.
      * Se utiliza para gestionar la partida de Scrabble en curso.
@@ -109,37 +110,39 @@ public class CtrlPresentacion {
      * Se utiliza para gestionar la eliminación de jugadores del sistema.
      */
     private VistaEliminarJugador vPassword;
-    
+
     /**
      * Vista con para cambiar los datos del jugador.
-     * Se utiliza para modificar el nombre, contraseña o imagen de perfil del jugador.
+     * Se utiliza para modificar el nombre, contraseña o imagen de perfil del
+     * jugador.
      */
     private VistaCambiarDatos vCambiar;
-    
+
     /**
-     * Vista con opciones para añadir un nuevo recurso, modificarlo o eliminarlo al juego.
+     * Vista con opciones para añadir un nuevo recurso, modificarlo o eliminarlo al
+     * juego.
      * Se utiliza para gestionar los recursos del juego.
      */
     private VistaGestionRecursos vAddRecurso;
-    
+
     /**
      * Vista para el segundo jugador.
      * Se utiliza cuando se inicia una partida con dos jugadores.
      */
     private VistaInicio vSegundoJugador;
-    
+
     /**
      * Vista para cambiar las fichas del jugador.
      * Se utiliza cuando el jugador quiere cambiar sus fichas actuales.
      */
     private VistaResetFichas vFichas;
-    
+
     /**
      * Vista para seleccionar una letra comodín.
      * Se utiliza cuando el jugador coloca un comodín en el tablero.
      */
     private VistaLetraComodin vLetra;
-    
+
     /**
      * Incializa el nombre del segundo jugador con un valor vacío.
      */
@@ -147,15 +150,17 @@ public class CtrlPresentacion {
 
     /**
      * Constructor de CtrlPresentacion.
-     * Inicializa la configuración de la aplicación, crea la vista de Login y aplica los iconos.
-     * @throws IOException Si ocurre un error al cargar los iconos o configuraciones.
+     * Inicializa la configuración de la aplicación, crea la vista de Login y aplica
+     * los iconos.
+     * 
+     * @throws IOException Si ocurre un error al cargar los iconos o
+     *                     configuraciones.
      */
     public CtrlPresentacion() throws IOException {
         configuracion();
         crearVistaLogin();
         aplicarIconos();
     }
-
 
     /**
      * Crea la primera vista de la aplicación, que es la de Login.
@@ -167,7 +172,7 @@ public class CtrlPresentacion {
 
         if (aplicarIconoVentana != null) {
             List<Image> iconos = new ArrayList<>();
-            int[] tamaños = {16, 24, 32, 48, 64, 128};
+            int[] tamaños = { 16, 24, 32, 48, 64, 128 };
 
             for (int tamaño : tamaños) {
                 Image imagenEscalada = aplicarIconoVentana.getScaledInstance(
@@ -202,13 +207,12 @@ public class CtrlPresentacion {
         }
     }
 
-
-
-    
     /**
      * Crear vista del menú principal de la aplicación.
-     * Esta vista es la pantalla principal que se muestra al usuario después de iniciar sesión.
-     * Se ven las opciones de Crear nueva partida, cargar útlima partida y cargar partida guardada.
+     * Esta vista es la pantalla principal que se muestra al usuario después de
+     * iniciar sesión.
+     * Se ven las opciones de Crear nueva partida, cargar útlima partida y cargar
+     * partida guardada.
      * 
      * Es la misma vista que se muestra al darle clic a "Jugar" en el menú lateral.
      */
@@ -228,9 +232,11 @@ public class CtrlPresentacion {
 
     /**
      * Crea la vista del menú lateral de la aplicación.
-     * Esta vista contiene opciones para acceder a diferentes secciones de la aplicación,
+     * Esta vista contiene opciones para acceder a diferentes secciones de la
+     * aplicación,
      * como la cuenta del usuario, el ranking, los recursos,
-     * Además, permite al usuario cerrar sesión y acceder a la pantalla principal del juego.
+     * Además, permite al usuario cerrar sesión y acceder a la pantalla principal
+     * del juego.
      */
     private void crearVistaMenuLateral() {
         vMenuLateral = new VistaMenuLateral();
@@ -293,12 +299,16 @@ public class CtrlPresentacion {
             ctrlDominio.cargarPartida(partida);
             System.out.println(ctrlDominio.getSegundoJugador());
             System.out.println("nombre " + nombreSegundoJugador);
-            if(ctrlDominio.getSegundoJugador() == "propAI"){
-                 jugarPartida();
-            }
-            else {
-                vSegundoJugador = new VistaInicio();
-                vSegundoJugador.entrar(e -> addSegundoJugador(true));
+            if (ctrlDominio.getSegundoJugador() == "propAI") {
+                jugarPartida();
+            } else {
+                if (vCambiar == null || !vCambiar.isDisplayable()) {
+                    vCambiar = new VistaCambiarDatos("segundoJugador");
+                    vCambiar.setVisible(true);
+                    vCambiar.setLocationRelativeTo(null);
+                    vCambiar.cambiar(e -> addSegundoJugador(true));
+                }
+
             }
         } catch (Exception e) {
             vCargarPartida.setError(e.getMessage());
@@ -310,15 +320,20 @@ public class CtrlPresentacion {
      * Método para cargar la última partida guardada del juagador actual.
      */
     private void cargarUltimaPartida() {
-        
+
         try {
             ctrlDominio.cargarUltimaPartida();
             if (ctrlDominio.getSegundoJugador().equals("propAI")) {
-               jugarPartida();
+                jugarPartida();
             } else {
-                vSegundoJugador = new VistaInicio();
-                vSegundoJugador.entrar(e -> addSegundoJugador(true));
-            }       
+                if (vCambiar == null || !vCambiar.isDisplayable()) {
+                    vCambiar = new VistaCambiarDatos("segundoJugador");
+                    vCambiar.setVisible(true);
+                    vCambiar.setLocationRelativeTo(null);
+                    vCambiar.cambiar(e -> addSegundoJugador(true));
+                }
+
+            }
         } catch (Exception e) {
 
             vPantallaPrincipal.setError(e.getMessage());
@@ -339,7 +354,8 @@ public class CtrlPresentacion {
 
     /**
      * Crear una nueva partida de Scrabble.
-     * Este método se llama cuando el usuario ha configurado los parámetros de la partida
+     * Este método se llama cuando el usuario ha configurado los parámetros de la
+     * partida
      */
     private void crearPartida() {
         String id = vCrearPartida.getID();
@@ -370,7 +386,8 @@ public class CtrlPresentacion {
      * Inicializa una partida de Scrabble.
      * Crea la vista del juego y configura el tablero y las fichas.
      * * Si el segundo jugador es una IA, se inicia la partida directamente.
-     * * Si el segundo jugador es un jugador humano, se solicita su nombre a través de una vista de inicio.
+     * * Si el segundo jugador es un jugador humano, se solicita su nombre a través
+     * de una vista de inicio.
      */
     private void jugarPartida() {
         try {
@@ -390,7 +407,6 @@ public class CtrlPresentacion {
             }
         }
 
-        
         try {
             String jugador1 = ctrlDominio.getUsuarioActual();
             BufferedImage profileImage1 = ctrlDominio.getProfileImage(jugador1);
@@ -401,7 +417,6 @@ public class CtrlPresentacion {
             // Ignorar silenciosamente si no hay imagen de perfil
         }
 
-    
         try {
             String jugador2 = ctrlDominio.getSegundoJugador();
             BufferedImage profileImage2 = ctrlDominio.getProfileImage(jugador2);
@@ -410,8 +425,6 @@ public class CtrlPresentacion {
             }
         } catch (Exception ex) {
         }
-
-       
 
         vScrabble.setTileActionListener(new VistaJuego.TileActionListener() {
             boolean cola = false;
@@ -472,13 +485,13 @@ public class CtrlPresentacion {
             vScrabble.modificarRack(ficha);
         }
         actualizarTablero();
-        
+
         vMenuPrincipal.jugarPartida(vScrabble);
     }
 
-
     /**
      * Metodo para colocar un comodín en el tablero.
+     * 
      * @param row Fila donde se colocará el comodín.
      * @param col Columna donde se colocará el comodín.
      */
@@ -487,18 +500,17 @@ public class CtrlPresentacion {
         vLetra.dispose();
     }
 
-
-
     /**
      * Opción de ayuda en el juego.
-     * Permite al jugador obtener ayuda durante la partida, colocando una palabra  en el tablero. Se pasa tuno automaticamente al siguiente jugador.
+     * Permite al jugador obtener ayuda durante la partida, colocando una palabra en
+     * el tablero. Se pasa tuno automaticamente al siguiente jugador.
      */
     private void ayuda() {
         try {
             int resultado = ctrlDominio.jugarScrabble(7, "");
             if (resultado != 0) {
-                        crearVistaFinal(false, resultado);
-                    }
+                crearVistaFinal(false, resultado);
+            }
             actualizarTablero();
         } catch (Exception e) {
             vScrabble.setError(e.getMessage());
@@ -509,20 +521,23 @@ public class CtrlPresentacion {
     /**
      * Crea la vista de fin de partida.
      * Muestra un mensaje indicando el ganador y su puntuación.
+     * 
      * @param abandonada Indica si la partida fue abandonada por un jugador.
-     * @param resultado El resultado de la partida, donde 1 indica que el jugador actual ganó y 2 que el segundo jugador ganó.
+     * @param resultado  El resultado de la partida, donde 1 indica que el jugador
+     *                   actual ganó y 2 que el segundo jugador ganó.
      */
     private void crearVistaFinal(boolean abandonada, int resultado) {
         String mensaje;
-        if(nombreSegundoJugador.equals("")) nombreSegundoJugador = "propAI";
+        if (nombreSegundoJugador.equals(""))
+            nombreSegundoJugador = "propAI";
         String ganador = resultado == 1 ? ctrlDominio.getUsuarioActual() : nombreSegundoJugador;
         String perdedor = resultado == 1 ? nombreSegundoJugador : ctrlDominio.getUsuarioActual();
         String puntosGanador = resultado == 1
-            ? Integer.toString(ctrlDominio.getPuntosJugador1())
-            : Integer.toString(ctrlDominio.getPuntosJugador2());
+                ? Integer.toString(ctrlDominio.getPuntosJugador1())
+                : Integer.toString(ctrlDominio.getPuntosJugador2());
         System.out.println("Ganador: " + ganador);
         System.out.println("Perdedor: " + perdedor);
-      
+
         if (abandonada) {
             mensaje = "Jugador " + perdedor + " ha abandonado la partida. Jugador " + ganador + " gana.";
         } else {
@@ -538,7 +553,6 @@ public class CtrlPresentacion {
         crearVistaMenuPrincipal();
 
     }
-
 
     /**
      * Crea la vista de salir de una partida en curso.
@@ -576,7 +590,8 @@ public class CtrlPresentacion {
     /**
      * Crea la vista de Fichas para cambiarlas.
      * Permite al usuario seleccionar fichas para cambiar por otras.
-     * Esta vista se muestra cuando el usuario decide cambiar sus fichas actuales con el boton "Reset" en el juego.
+     * Esta vista se muestra cuando el usuario decide cambiar sus fichas actuales
+     * con el boton "Reset" en el juego.
      */
     private void crearVistaFichas() {
         try {
@@ -612,21 +627,22 @@ public class CtrlPresentacion {
 
     /**
      * Pone una ficha en el tablero de Scrabble.
-     * @param letra La letra de la ficha a poner.
+     * 
+     * @param letra      La letra de la ficha a poner.
      * @param puntuacion La puntuación asociada a la ficha.
-     * @param fila Fila donde se colocará la ficha en el tablero.
-     * @param col Columna donde se colocará la ficha en el tablero.
+     * @param fila       Fila donde se colocará la ficha en el tablero.
+     * @param col        Columna donde se colocará la ficha en el tablero.
      */
     private void ponerFicha(String letra, int puntuacion, int fila, int col) {
         System.out.println(letra);
-        String parametros = letra + " " + Integer.toString(puntuacion) + " " + Integer.toString(fila) + " " + Integer.toString(col);
+        String parametros = letra + " " + Integer.toString(puntuacion) + " " + Integer.toString(fila) + " "
+                + Integer.toString(col);
 
         try {
             if (letra != null && !letra.isEmpty() && !letra.equals("")) {
                 ctrlDominio.jugarScrabble(1, parametros);
             }
 
-     
         } catch (Exception e) {
             vScrabble.setError(e.getMessage());
         }
@@ -634,10 +650,11 @@ public class CtrlPresentacion {
 
     /**
      * Quita una ficha del tablero de Scrabble.
-     * @param letra La letra de la ficha a quitar.
+     * 
+     * @param letra      La letra de la ficha a quitar.
      * @param puntuacion La puntuación asociada a la ficha.
-     * @param fila Fila donde se encuentra la ficha en el tablero.
-     * @param col Columna donde se encuentra la ficha en el tablero.
+     * @param fila       Fila donde se encuentra la ficha en el tablero.
+     * @param col        Columna donde se encuentra la ficha en el tablero.
      */
     private void quitarFicha(String letra, int puntuacion, int fila, int col) {
         try {
@@ -676,7 +693,8 @@ public class CtrlPresentacion {
     }
 
     /**
-     * Método que se llama al finalizar el turno del jugador, después de colocar una palabra.
+     * Método que se llama al finalizar el turno del jugador, después de colocar una
+     * palabra.
      * Actualiza el tablero y puntuación.
      */
     private void finTurno() {
@@ -693,7 +711,8 @@ public class CtrlPresentacion {
 
     /**
      * Método para pasar el turno al siguiente jugador.
-     * Este método se llama cuando el jugador actual ha terminado su turno y quiere pasar al siguiente.
+     * Este método se llama cuando el jugador actual ha terminado su turno y quiere
+     * pasar al siguiente.
      */
     private void pasarTurno() {
         try {
@@ -709,9 +728,9 @@ public class CtrlPresentacion {
 
     }
 
-
     /**
-     * Crea la vista de Pantalla Principal tras hacer login, misma vista al darle clic a "Jugar" en el menu lateral.
+     * Crea la vista de Pantalla Principal tras hacer login, misma vista al darle
+     * clic a "Jugar" en el menu lateral.
      */
     private void crearVistaPantallaPrincipal() {
         // vPantallaPrincipal.jugarScrabble(e -> jugarPartida());
@@ -719,11 +738,11 @@ public class CtrlPresentacion {
         vPantallaPrincipal.setNombre(ctrlDominio.getUsuarioActual());
         vMenuPrincipal.muestraCard("PRINCIPAL");
     }
-    
-    
+
     /**
      * Crea la vista de crear partida.
-     * Esta vista permite al usuario crear una nueva partida, seleccionar el identificador, recurso y el modo de juego.
+     * Esta vista permite al usuario crear una nueva partida, seleccionar el
+     * identificador, recurso y el modo de juego.
      */
     private void crearVistaCrearPartida() {
 
@@ -752,7 +771,8 @@ public class CtrlPresentacion {
 
     /**
      * Metodo para cargar la partida seleccionada.
-     * Este método se llama cuando el usuario selecciona una partida guardada y quiere cargarla.
+     * Este método se llama cuando el usuario selecciona una partida guardada y
+     * quiere cargarla.
      * Carga la partida seleccionada y muestra la vista del juego.
      */
     private void cargarPartidaSeleccionada() {
@@ -760,7 +780,7 @@ public class CtrlPresentacion {
         if (partidaSeleccionada != null) {
             try {
                 ctrlDominio.cargarPartida(partidaSeleccionada);
-                jugarPartida(); 
+                jugarPartida();
             } catch (Exception e) {
                 System.err.println("Error al cargar la partida: " + e.getMessage());
             }
@@ -786,48 +806,52 @@ public class CtrlPresentacion {
      * Crea la vista de Login o Registro para el segundo jugador.
      */
     private void crearVistaSegundoJugador() {
-        vSegundoJugador = new VistaInicio();
-        vSegundoJugador.entrar(e -> addSegundoJugador(false));
-    }
+        if (vSegundoJugador == null || !vSegundoJugador.isDisplayable()) {
+            vSegundoJugador = new VistaInicio();
+            vSegundoJugador.entrar(e -> addSegundoJugador(false));
+        }
 
+    }
 
     /**
      * Metodo para añadir un segundo jugador a la partida.
      * Este método se llama cuando se inicia una partida con dos jugadores.
-     * Si se está cargando una partida, verifica que el nombre del segundo jugador coincida con el guardado.
-     * Si no se está cargando una partida, registra al segundo jugador o inicia sesión si ya existe.
+     * Si se está cargando una partida, verifica que el nombre del segundo jugador
+     * coincida con el guardado.
+     * Si no se está cargando una partida, registra al segundo jugador o inicia
+     * sesión si ya existe.
+     * 
      * @param cargar Indica si se está cargando una partida o no.
      */
     private void addSegundoJugador(boolean cargar) {
-        nombreSegundoJugador = vSegundoJugador.getNombre();
-        String password = new String(vSegundoJugador.getPassword());
+        nombreSegundoJugador = vCambiar.getNombre();
+        String password = new String(vCambiar.getPassword());
+
         try {
             if (cargar) {
-                if( ctrlDominio.getSegundoJugador().equals("propAI")) {
+                if (ctrlDominio.getSegundoJugador().equals("propAI")) {
                     jugarPartida();
                 } else {
-
-                    if(nombreSegundoJugador.equals(ctrlDominio.getSegundoJugador())) {
-                     jugarPartida();
-                     vSegundoJugador.dispose();
-                    }
-                    else {
-                        vSegundoJugador.setError("El nombre del segundo jugador no coincide.");
+                    if (nombreSegundoJugador.equals(ctrlDominio.getSegundoJugador())) {
+                        jugarPartida();
+                        vCambiar.dispose();
+                        vCambiar = null;
+                    } else {
+                        vCambiar.setError("El nombre del segundo jugador no coincide.");
                     }
                 }
-                
-            }
-            else{
-                if (vSegundoJugador.getSeleccionado()) {
-                ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
-            } else {
-                ctrlDominio.registrarJugador(nombreSegundoJugador, password);
-                ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
-            }
 
+            } else {
+                if (vSegundoJugador.getSeleccionado()) {
+                    ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
+                } else {
+                    ctrlDominio.registrarJugador(nombreSegundoJugador, password);
+                    ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
+                }
+                vSegundoJugador.dispose();
             }
         } catch (Exception e) {
-            
+
             vSegundoJugador.setError(e.getMessage());
         }
 
@@ -835,8 +859,10 @@ public class CtrlPresentacion {
 
     /**
      * Crea la vista de cuenta del jugador actual.
-     * Esta vista muestra el nombre del jugador, sus puntos, su posición en el ranking y su imagen de perfil.
-     * También mustra las opciones de cambiar el nombre, avatar, la contraseña y eliminar el jugador.
+     * Esta vista muestra el nombre del jugador, sus puntos, su posición en el
+     * ranking y su imagen de perfil.
+     * También mustra las opciones de cambiar el nombre, avatar, la contraseña y
+     * eliminar el jugador.
      */
     private void crearVistaCuenta() {
 
@@ -859,7 +885,7 @@ public class CtrlPresentacion {
                     System.out.println("Posición cargada: " + posicion);
                 } else {
                     System.out.println("Posición recibida inválida: " + posicion);
-                    vCuenta.setPosicion(1); 
+                    vCuenta.setPosicion(1);
                 }
             } catch (UsuarioNoEncontradoException | IOException e) {
                 vCuenta.setPosicion(0);
@@ -914,13 +940,15 @@ public class CtrlPresentacion {
 
     /**
      * Crea una vista para eliminar un jugador.
-     * Esta vista solicita la contraseña del jugador actual para confirmar la eliminación.
+     * Esta vista solicita la contraseña del jugador actual para confirmar la
+     * eliminación.
      */
     private void crearVistaEliminarJugador() {
         if (vPassword == null || !vPassword.isDisplayable()) {
             vPassword = new VistaEliminarJugador(ctrlDominio.getUsuarioActual());
             vPassword.setLocationRelativeTo(null);
         }
+        vPassword.setSize(400, 200);
         vPassword.setVisible(true);
         vPassword.setLocationRelativeTo(null);
         vPassword.setResizable(false);
@@ -930,7 +958,8 @@ public class CtrlPresentacion {
 
     /**
      * Crea una vista para cambiar el nombre del jugador actual.
-     * Esta vista permite al usuario ingresar un nuevo nombre y la contraseña actual para confirmar el cambio.
+     * Esta vista permite al usuario ingresar un nuevo nombre y la contraseña actual
+     * para confirmar el cambio.
      */
     private void crearVistaCambiarNombre() {
         if (vCambiar == null || !vCambiar.isDisplayable()) {
@@ -944,11 +973,12 @@ public class CtrlPresentacion {
 
     }
 
-
     /**
      * Cambia la contraseña del jugador actual.
-     * Verifica que la contraseña actual sea correcta y que las nuevas contraseñas coincidan.
-     * Si todo es correcto, actualiza la contraseña del jugador y cierra la vista de cambio de datos.
+     * Verifica que la contraseña actual sea correcta y que las nuevas contraseñas
+     * coincidan.
+     * Si todo es correcto, actualiza la contraseña del jugador y cierra la vista de
+     * cambio de datos.
      * Si hay un error, muestra un mensaje de error en la vista de cambio de datos.
      */
     private void cambiarPassword() {
@@ -964,6 +994,7 @@ public class CtrlPresentacion {
         try {
             ctrlDominio.cambiarPassword(passwordActual, passwordNueva);
             vCambiar.dispose();
+            vCambiar = null; // Limpiar la referencia para permitir una nueva instancia
         } catch (Exception e) {
             vCambiar.setError(e.getMessage());
             vCambiar.setError(e.getMessage());
@@ -973,8 +1004,10 @@ public class CtrlPresentacion {
 
     /**
      * Cambia el nombre del jugador actual.
-     * Verifica que el nuevo nombre no esté vacío y que la contraseña actual sea correcta.
-     * Si todo es correcto, actualiza el nombre del jugador y cierra la vista de cambio de datos.
+     * Verifica que el nuevo nombre no esté vacío y que la contraseña actual sea
+     * correcta.
+     * Si todo es correcto, actualiza el nombre del jugador y cierra la vista de
+     * cambio de datos.
      * Si hay un error, muestra un mensaje de error en la vista de cambio de datos.
      */
     private void cambiarNombre() {
@@ -984,6 +1017,7 @@ public class CtrlPresentacion {
             ctrlDominio.cambiarNombre(nombre, password);
             vCuenta.setNombre(ctrlDominio.getUsuarioActual());
             vCambiar.dispose();
+            vCambiar = null; // Limpiar la referencia para permitir una nueva instancia
         } catch (Exception e) {
             vCambiar.setError(e.getMessage());
             System.err.println("Error: " + e.getMessage()); // Opcional: mantener también el log en consola
@@ -1010,8 +1044,9 @@ public class CtrlPresentacion {
 
     /**
      * Crea una vista para mostrar el ranking de jugadores.
+     * 
      * @IOException se lanza si hay un error al obtener el ranking.
-    */
+     */
     private void crearVistaRanking() throws IOException {
 
         try {
@@ -1128,8 +1163,10 @@ public class CtrlPresentacion {
 
     /**
      * Añade un nuevo recurso a la lista de recursos.
-     * Muestra mensajes de error si el ID está vacío o si el diccionario o la bolsa están vacíos.
-     * También maneja excepciones específicas relacionadas con el formato del diccionario y la bolsa.
+     * Muestra mensajes de error si el ID está vacío o si el diccionario o la bolsa
+     * están vacíos.
+     * También maneja excepciones específicas relacionadas con el formato del
+     * diccionario y la bolsa.
      */
     private void addRecurso() {
         String id = vAddRecurso.getID();
@@ -1154,12 +1191,13 @@ public class CtrlPresentacion {
 
         try {
             ctrlDominio.crearRecurso(id, diccionario, bolsa);
-            vAddRecurso.dispose();  
-            crearVistaRecursos(); 
+            vAddRecurso.dispose();
+            crearVistaRecursos();
         } catch (RecursoExistenteException e) {
             vAddRecurso.setError("Ya existe un recurso con ID '" + id + "'");
         } catch (FormatoDiccionarioInvalidoException e) {
-            vAddRecurso.setError("Formato de diccionario inválido. Verifica que las palabras estén en mayúsculas y ordenadas");
+            vAddRecurso.setError(
+                    "Formato de diccionario inválido. Verifica que las palabras estén en mayúsculas y ordenadas");
         } catch (FormatoBolsaInvalidoException e) {
             vAddRecurso.setError("Formato de bolsa inválido. Formato correcto: 'LETRA FRECUENCIA PUNTOS'");
         } catch (Exception e) {
@@ -1190,9 +1228,10 @@ public class CtrlPresentacion {
         try {
             ctrlDominio.modificarRecurso(id, diccionario, bolsa);
             vAddRecurso.dispose();
-            crearVistaRecursos(); 
+            crearVistaRecursos();
         } catch (FormatoDiccionarioInvalidoException e) {
-            vAddRecurso.setError("Formato de diccionario inválido. Verifica que las palabras estén en mayúsculas y ordenadas");
+            vAddRecurso.setError(
+                    "Formato de diccionario inválido. Verifica que las palabras estén en mayúsculas y ordenadas");
         } catch (FormatoBolsaInvalidoException e) {
             vAddRecurso.setError("Formato de bolsa inválido. Formato correcto: 'LETRA FRECUENCIA PUNTOS'");
         } catch (Exception e) {
@@ -1218,9 +1257,9 @@ public class CtrlPresentacion {
 
     }
 
-
     /**
      * Lee un archivo de texto y devuelve una lista de líneas no vacías.
+     * 
      * @param ruta Ruta del archivo a leer.
      * @return Lista de líneas no vacías del archivo.
      * @throws IOException Si ocurre un error al leer el archivo.
@@ -1240,7 +1279,8 @@ public class CtrlPresentacion {
 
     /**
      * Configura la fuente global de la aplicación y carga el icono de la ventana.
-     * Este método se llama al inicio de la aplicación para establecer una apariencia consistente.
+     * Este método se llama al inicio de la aplicación para establecer una
+     * apariencia consistente.
      */
     private void configuracion() {
         Font fuenteGlobal = new Font("Arial", Font.PLAIN, 24);
@@ -1253,8 +1293,7 @@ public class CtrlPresentacion {
         UIManager.put("RadioButton.font", fuenteGlobal);
         UIManager.put("Menu.font", fuenteGlobal);
         UIManager.put("MenuItem.font", fuenteGlobal);
-        
-        
+
         try {
             ImageIcon icon = new ImageIcon("FONTS/src/main/Recursos/Imagenes/scrabble_logo.png");
 
@@ -1267,7 +1306,7 @@ public class CtrlPresentacion {
 
             if (icon.getIconWidth() > 0) {
                 List<Image> iconos = new ArrayList<>();
-                int[] tamaños = {16, 24, 32, 48, 64, 128};
+                int[] tamaños = { 16, 24, 32, 48, 64, 128 };
 
                 for (int tamaño : tamaños) {
                     Image imagenEscalada = icon.getImage().getScaledInstance(
@@ -1292,7 +1331,7 @@ public class CtrlPresentacion {
             try {
                 ImageIcon icon = new ImageIcon(aplicarIconoVentana);
                 List<Image> iconos = new ArrayList<>();
-                int[] tamaños = {16, 24, 32, 48, 64, 128};
+                int[] tamaños = { 16, 24, 32, 48, 64, 128 };
 
                 for (int tamaño : tamaños) {
                     Image imagenEscalada = icon.getImage().getScaledInstance(

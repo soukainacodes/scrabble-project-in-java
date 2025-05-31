@@ -2,7 +2,7 @@
   "puntos_jugador_1": 0,
   "recurso": "Catalan",
   "puntos_jugador_2": 0,
-  "partida_acabada": "0",
+  "partida_acabada": "1",
   "jugador_1": "a",
   "jugador_2": "propAI",
   "fichas_jugador_1": [
@@ -25,8 +25,8 @@
     "D 2 2",
     "E 11 1",
     "F 1 4",
-    "Ç 1 10",
     "G 2 3",
+    "Ç 1 10",
     "H 1 8",
     "I 7 1",
     "J 1 8",

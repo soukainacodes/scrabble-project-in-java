@@ -82,9 +82,10 @@ public class VistaCambiarDatos extends JFrame {
      * @param asunto El tipo de dato a cambiar: "nombre" o "password".
      */
     public VistaCambiarDatos(String asunto) {
-        super(
-                "nombre".equals(asunto) ? "Cambiar Nombre"
-                        : "password".equals(asunto) ? "Cambiar Contraseña"
+      super(
+        "nombre".equals(asunto) ? "Cambiar Nombre"
+                : "password".equals(asunto) ? "Cambiar Contraseña"
+                        : "segundoJugador".equals(asunto) ? "Segundo Jugador"
                                 : "Aplicación");
 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -111,10 +112,13 @@ public class VistaCambiarDatos extends JFrame {
         if ("nombre".equals(asunto)) {
             formPanel.add(crearPanelCampo("Nombre nuevo:", campoNombre = crearCampoTexto()));
             formPanel.add(crearPanelCampo("Contraseña actual:", campoPasswordActual = crearCampoPassword()));
-        } else {
+        } else if ("password".equals(asunto)) {
             formPanel.add(crearPanelCampo("Contraseña actual:", campoPasswordActual = crearCampoPassword()));
             formPanel.add(crearPanelCampo("Contraseña nueva:", campoPassword = crearCampoPassword()));
             formPanel.add(crearPanelCampo("Confirmar contraseña:", campoConfirmPassword = crearCampoPassword()));
+        } else{
+            formPanel.add(crearPanelCampo("Nombre:", campoNombre = crearCampoTexto()));
+            formPanel.add(crearPanelCampo("Contraseña:", campoPasswordActual = crearCampoPassword()));
         }
 
         contentPanel.add(formPanel, BorderLayout.CENTER);
@@ -137,7 +141,11 @@ public class VistaCambiarDatos extends JFrame {
 
         JPanel botonContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
         botonContainer.setOpaque(false);
-        botonCambiar = createStylishButton("Guardar Cambios");
+        String botonText = "nombre".equals(asunto) ? "Guardar Cambios" 
+                : "password".equals(asunto) ? "Guardar Cambios" 
+                : "segundoJugador".equals(asunto) ? "Añadir Segundo Jugador" 
+                : "Guardar Cambios";
+        botonCambiar = createStylishButton("Guardar Cambios" );
         botonContainer.add(botonCambiar);
         buttonPanel.add(botonContainer, BorderLayout.CENTER);
 
@@ -162,7 +170,7 @@ public class VistaCambiarDatos extends JFrame {
         panel.setBackground(APP_BG_COLOR);
         panel.setBorder(new EmptyBorder(5, 0, 15, 0));
 
-        String titulo = "nombre".equals(asunto) ? "CAMBIAR NOMBRE" : "CAMBIAR PASSWORD";
+        String titulo = "nombre".equals(asunto) ? "CAMBIAR NOMBRE"  : "password".equals(asunto) ? "CAMBIAR PASSWORD" : "SEGUNDO JUGADOR";
         String[] letras = titulo.split("");
         Color[] colores = new Color[letras.length];
 

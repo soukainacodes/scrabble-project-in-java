@@ -117,6 +117,9 @@ public class CtrlPersistencia {
      * @throws UsuarioNoEncontradoException Si el jugador no existe
      */
     public boolean verificarContrasena(String username, String password) throws UsuarioNoEncontradoException {
+        if (!gestorUsuarios.verificarContrasena(username, password)){
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+        }
         return gestorUsuarios.verificarContrasena(username, password);
     }
 

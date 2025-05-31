@@ -337,7 +337,7 @@ public class CtrlDominio {
             UsuarioNoEncontradoException, PartidaYaExistenteException, UltimaPartidaNoExistenteException {
 
         int fin = ctrlPartida.jugarScrabble(modo, id);
-    if(modo != 1 && modo != 2 && modo != 7){ 
+    if(modo != 1 && modo != 2){ 
       //  System.out.println("Fin de turno: " + fin);
 
         // Actualiza la puntuación del jugador activo y openente
