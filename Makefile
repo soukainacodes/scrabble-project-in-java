@@ -18,7 +18,7 @@ JSON_JAR = ./FONTS/src/main/Persistencia/json-20231013.jar
 # Compilar el código principal y empaquetar en un JAR
 code:
 	make clean
-	javac -Xlint:deprecation -cp ./FONTS/src/main/Persistencia/json-20231013.jar -d ./EXE/main \
+	javac -cp ./FONTS/src/main/Persistencia/json-20231013.jar -d ./EXE/main \
 	    ./FONTS/src/main/Dominio/Excepciones/*.java \
 	    ./FONTS/src/main/Dominio/*.java \
 		./FONTS/src/main/*.java \
@@ -30,10 +30,14 @@ code:
 		./FONTS/src/main/Persistencia/Gestores/*.java
 	jar cf $(CLASS_OUTPUT_MAIN)/Main.jar -C $(CLASS_OUTPUT_MAIN) .
 	
+ifeq ($(OS),Windows_NT)
+    CPSEP := ;
+else
+    CPSEP := :
+endif
 
 runcode_main:
-	java -cp $(CLASS_OUTPUT_MAIN)/Main.jar:./FONTS/src/main/Persistencia/json-20231013.jar main.Main
-
+	@java -cp "$(CLASS_OUTPUT_MAIN)/Main.jar$(CPSEP)$(JSON_JAR)" main.Main
 
 
 

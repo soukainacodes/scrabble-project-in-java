@@ -143,7 +143,7 @@ public class VistaCambiarDatos extends JFrame {
         botonContainer.setOpaque(false);
         String botonText = "nombre".equals(asunto) ? "Guardar Cambios" 
                 : "password".equals(asunto) ? "Guardar Cambios" 
-                : "segundoJugador".equals(asunto) ? "Añadir Segundo Jugador" 
+                : "segundoJugador".equals(asunto) ? "Segundo Jugador"
                 : "Guardar Cambios";
         botonCambiar = createStylishButton("Guardar Cambios" );
         botonContainer.add(botonCambiar);

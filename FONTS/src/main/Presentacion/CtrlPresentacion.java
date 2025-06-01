@@ -365,10 +365,10 @@ public class CtrlPresentacion {
         try {
             if (id != null && id != "") {
                 if (modo == 1 && nombreSegundoJugador.equals("")) {
-                    System.out.println("ERROR: ");
+                    vCrearPartida.setError("Debes iniciar sesión del segundo jugador primero.");
                 } else {
                     long seed = new Random().nextLong();
-
+                    System.out.println("Seed: " + seed);
                     ctrlDominio.iniciarPartida(id, nombreSegundoJugador, idioma, seed, true);
 
                     jugarPartida();
@@ -378,6 +378,7 @@ public class CtrlPresentacion {
 
         } catch (Exception e) {
             System.out.println("ERRORRRR: " + e.getMessage());
+            vCrearPartida.setError(e.getMessage());
         }
 
     }
@@ -824,11 +825,12 @@ public class CtrlPresentacion {
      * @param cargar Indica si se está cargando una partida o no.
      */
     private void addSegundoJugador(boolean cargar) {
-        nombreSegundoJugador = vCambiar.getNombre();
-        String password = new String(vCambiar.getPassword());
+      
 
         try {
             if (cargar) {
+                  nombreSegundoJugador = vCambiar.getNombre();
+                String password = new String(vCambiar.getPassword());
                 if (ctrlDominio.getSegundoJugador().equals("propAI")) {
                     jugarPartida();
                 } else {
@@ -842,6 +844,8 @@ public class CtrlPresentacion {
                 }
 
             } else {
+                   nombreSegundoJugador = vSegundoJugador.getNombre();
+                String password = new String(vSegundoJugador.getPassword());
                 if (vSegundoJugador.getSeleccionado()) {
                     ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
                 } else {
@@ -849,6 +853,7 @@ public class CtrlPresentacion {
                     ctrlDominio.iniciarSesionSegundoJugador(nombreSegundoJugador, password);
                 }
                 vSegundoJugador.dispose();
+                vSegundoJugador = null; // Limpiar la referencia para permitir una nueva instancia
             }
         } catch (Exception e) {
 
