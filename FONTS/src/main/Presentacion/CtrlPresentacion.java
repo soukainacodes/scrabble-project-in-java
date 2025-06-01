@@ -299,7 +299,7 @@ public class CtrlPresentacion {
             ctrlDominio.cargarPartida(partida);
             System.out.println(ctrlDominio.getSegundoJugador());
             System.out.println("nombre " + nombreSegundoJugador);
-            if (ctrlDominio.getSegundoJugador() == "propAI") {
+            if (ctrlDominio.getSegundoJugador().equals("propAI")) {
                 jugarPartida();
             } else {
                 if (vCambiar == null || !vCambiar.isDisplayable()) {

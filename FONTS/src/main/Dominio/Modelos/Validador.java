@@ -94,7 +94,7 @@ public class Validador {
         int puntosPrincipales = isHorizontalLine
             ? recorrerDireccion(refX, refY, false, diccionario)
             : recorrerDireccion(refX, refY, true, diccionario);
-
+        System.out.println("Puntos principales: " + puntosPrincipales);
         if (puntosPrincipales <= 0) throw new PalabraInvalidaException();
         puntosTotales += puntosPrincipales;
 
@@ -104,7 +104,7 @@ public class Validador {
                 ? recorrerDireccion(p.getFirst(), p.getSecond(), true, diccionario)
                 : recorrerDireccion(p.getFirst(), p.getSecond(), false,diccionario);
 
-            if (puntos <= 0) throw new PalabraInvalidaException();
+            if (puntos < 0) throw new PalabraInvalidaException();
             puntosTotales += puntos;
         }
 

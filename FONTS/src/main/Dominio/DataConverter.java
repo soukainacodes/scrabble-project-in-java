@@ -1,9 +1,9 @@
 package Dominio;
 
-import java.util.ArrayList;
-import java.util.List;
 import Dominio.Modelos.Ficha;
 import Dominio.Modelos.Partida;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Clase encargada de convertir una partida a una lista de Strings y viceversa.
@@ -101,18 +101,18 @@ class DataConverter {
                 tablero.add(position);
             }
         }
-        System.out.println("llega a index 0");
+       
         Partida partida = new Partida(strings.get(1), bolsa, tablero);
-        System.out.println("llega a index 1");
+      
 
         partida.setContadorTurno(Integer.parseInt(strings.get(2)));
-        System.out.println("llega a index 2");
+       
         partida.setTurnoJugador(strings.get(3).equals("1"));
 
         partida.setPuntosJugador1(Integer.parseInt(strings.get(6)));
         partida.setPuntosJugador2(Integer.parseInt(strings.get(7)));
 
-        System.out.println("llega a index 6 y 7");
+       
 
         partida.setTurnoJugador(true); 
         String[] fichasString = strings.get(8).trim().split(" ");
@@ -121,7 +121,7 @@ class DataConverter {
             Ficha ficha = new Ficha(fichasString[contadorFicha], Integer.parseInt(fichasString[contadorFicha + 1]));
             fichas.add(ficha);
         }
-        System.out.println("llega a index 8");
+        
         partida.setFichas(fichas);
 
         partida.setTurnoJugador(false); 
@@ -131,14 +131,14 @@ class DataConverter {
             Ficha ficha = new Ficha(fichasString[contadorFicha], Integer.parseInt(fichasString[contadorFicha + 1]));
             fichas.add(ficha);
         }
-        System.out.println("llega a index 9");
+        
         partida.setFichas(fichas);
 
         partida.setTurnoJugador(strings.get(3).equals("1"));
-        System.out.println("llega a index 3");
+       
 
         partida.setRecursoPartida(strings.get(strings.size() - 1));
-        System.out.println("llega a index recurso");
+       
 
         return partida;
     }

@@ -41,7 +41,7 @@ public class Bolsa {
                 }
             }
         }
-        Collections.shuffle(this.conjuntoDeFichas);
+        
     }
 
     /**

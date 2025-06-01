@@ -339,10 +339,8 @@ public class CtrlDominio {
         int fin = ctrlPartida.jugarScrabble(modo, id);
     if(modo != 1 && modo != 2){ 
       //  System.out.println("Fin de turno: " + fin);
-
         // Actualiza la puntuación del jugador activo y openente
         if (fin != 0) {
-
            // System.out.println("Entrando en el if de fin");
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), null);
            // System.out.println("El jugador actual es: " + ctrlJugador.getJugadorActual());
@@ -352,8 +350,7 @@ public class CtrlDominio {
         } else {
           //  System.out.println("Entrando en el else de fin");
             ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getJugadorActual(), ctrlPartida.getId());
-            ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), ctrlPartida.getId());
-            
+            ctrlPersistencia.actualizarUltimaPartida(ctrlJugador.getSegundoJugador(), ctrlPartida.getId());   
         }
 
         ctrlPersistencia.guardarPartida(
@@ -431,6 +428,7 @@ public class CtrlDominio {
         ctrlJugador.setJugadorActual(ctrlPersistencia.obtenerJugadorActual(id));
         ctrlJugador.setSegundoJugador(ctrlPersistencia.obtenerSegundoJugador(id));
         if ("propAI".equals(ctrlJugador.getSegundoJugador())) {
+            System.out.println("Cargando partida con IA");
             ctrlPartida.activarAlgoritmo();
         }
     }
@@ -462,6 +460,9 @@ public class CtrlDominio {
                 ctrlPersistencia.obtenerDiccionario(ctrlPersistencia.obtenerRecursoPartida(ultimaPartida)),
                 ctrlPersistencia.obtenerBolsa(ctrlPersistencia.obtenerRecursoPartida(ultimaPartida)));
         ctrlJugador.setSegundoJugador(datosUltimaPartida.get(5));
+        if ("propAI".equals(ctrlJugador.getSegundoJugador())) {
+            ctrlPartida.activarAlgoritmo();
+        }
     }
 
     /**
