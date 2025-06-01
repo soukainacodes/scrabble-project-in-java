@@ -43,7 +43,8 @@ runcode_main:
 
 # Regla para limpiar el directorio EXE (tanto main como test)
 clean:
-	rm -rf $(CLASS_OUTPUT_MAIN)/* $(CLASS_OUTPUT_TEST)/*
+	rm -rf "$(CLASS_OUTPUT_MAIN)"/* "$(CLASS_OUTPUT_TEST)"/*
+
 
 
 # regla para generar la documentación de JavaDoc

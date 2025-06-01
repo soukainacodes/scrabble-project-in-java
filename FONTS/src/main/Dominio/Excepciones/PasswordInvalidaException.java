@@ -17,7 +17,7 @@ public class PasswordInvalidaException extends Exception {
      * El mensaje predeterminado indica que la contraseña es incorrecta.
      */
     public PasswordInvalidaException() {
-        super("Contraseña incorrecta. Operación cancelada.");
+        super("Contraseña incorrecta.");
     }
     
     /**

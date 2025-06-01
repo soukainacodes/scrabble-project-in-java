@@ -1,6 +1,11 @@
-Aqui tenemos toda la documentacion de la Entrega 2:
+Aqui tenemos la documentacion de la Entrega 3:
 
-    - Diagramas UML de les tres capas.
-    - Documento_Scrabble.pdf.
+    - Carpeta Documentacion: Docuemntacion de la segunda entrega, los 3 diagramas UML (de las tres capas), 
+    - Documento_Scrabble.pdf (De la Tercera entrega).
+    - Manual_de_Usuario.pdf.
+    - Juegos_de_Prueba.pdf
+    - Carpeta: Archivos_Juegos_de_Prueba, con los objetos de prueba como se describen en Juegos_de_Prueba.pdf.
+    - Carpeta de Javadoc (todos los ficheros se generan a dentro con el comando "make javadoc").
+
 
     

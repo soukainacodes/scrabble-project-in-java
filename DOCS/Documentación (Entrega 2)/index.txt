@@ -1,0 +1,6 @@
+Aqui tenemos toda la documentacion del sistema, que son los mismos de la Entrega 2:
+
+    - Diagramas UML de las tres capas.
+    - Documento_Scrabble.pdf (de la Entrega 2).
+
+    

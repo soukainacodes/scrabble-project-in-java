@@ -204,7 +204,6 @@ public class Partida {
             Ficha ficha = getFichaString(parts[0]);
 
             if(parts.length > 1) {
-                System.out.println("Colocando comodín: " + parts[0] + " en (" + x + ", " + y + ")");
                 tablero.ponerComodin(parts[0], x, y);
                 quitarFicha("#");
                 coordenadasPalabra.add(Pair.createPair(x, y));
@@ -477,9 +476,7 @@ public class Partida {
             Ficha fichaEncontrada = getFichaString(ficha);
             
             if(fichaEncontrada != null){
-                System.out.println("Ficha encontrada: " + ficha);
                 bolsa.addFichaBolsa(fichaEncontrada);
-                System.out.println("Añadiendo ficha a la bolsa: " + ficha);
                 quitarFicha(ficha);
             }
         }

@@ -61,7 +61,6 @@ public class CtrlPartida {
      * validador de palabras.
      */
     public CtrlPartida() {
-        System.out.println("CtrlPartida: Constructor");
         this.validador = new Validador();
     }
 
@@ -152,7 +151,6 @@ public class CtrlPartida {
 
                 String puntuacion = parts[1];
                 if (puntuacion.equals("0")) {
-                    System.out.println("Comodin");
                     ficha = ficha + " " + puntuacion;
                 }
                 x = Integer.parseInt(parts[2]);
@@ -180,7 +178,6 @@ public class CtrlPartida {
             case 3: { // Pasar turno
                 List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
                 for (Pair<Integer, Integer> p : coordenadas) {
-                    System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
                     partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
                 }
 
@@ -194,7 +191,6 @@ public class CtrlPartida {
             case 5: { // Reset de fichas + pasar turno
                 List<Pair<Integer, Integer>> coordenadas = new ArrayList<>(partidaActual.getCoordenadasPalabras());
                 for (Pair<Integer, Integer> p : coordenadas) {
-                    System.out.println("Coordenadas: " + p.getFirst() + ", " + p.getSecond());
                     partidaActual.quitarFichaTablero(p.getFirst(), p.getSecond());
                 }
 
@@ -261,7 +257,6 @@ public class CtrlPartida {
      */
     private int finTurno(boolean pasar, boolean algoritmo) throws PalabraInvalidaException {
         if (!pasar) {
-            System.out.println(partidaActual.getCoordenadasPalabras());
             int puntos = validador.validarPalabra(partidaActual.getCoordenadasPalabras(), dawg,
                     partidaActual.getTablero(), partidaActual.getContadorTurno());
             if (puntos > 0) {
@@ -360,7 +355,6 @@ public class CtrlPartida {
             }
             
             partidaActual.añadirFicha(fichaStr, aa.getSecond().getFirst(), aa.getSecond().getSecond());
-            System.out.println("Añadiendo ficha: " + fichaStr);
         }
         if (s.size() == 0) {
             return 0;

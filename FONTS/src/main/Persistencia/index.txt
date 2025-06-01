@@ -1,7 +1,5 @@
-Persistencia  
 Carpeta de la capa de persistencia, responsable de almacenar y recuperar datos. Contiene:
 
-- CtrlPersistencia  
-  Clase encargada de gestionar la lectura y escritura de informacion en los ficheros de almacenamiento.  
-- Datos  
-  Carpeta con archivos de texto (`.txt`) que guardan la informacion necesaria (usuarios, diccionarios, partidas, etc.) para asegurar la persistencia del sistema.
+- CtrlPersistencia.java
+- Carpeta de los Gestores de disco 
+- Carpeta Datos, donde persisten los datos del sistema (Partidas, Jugadores, Recursos, etc).

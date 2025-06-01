@@ -1,10 +1,14 @@
 Esta carpeta contiene los ficheros fuente del proyecto Scrabble.
 
-En main:
+Main.java: La clase Main de la Aplicación Scrabble.
+
+Hay 4 carpetas:
 
     Dominio: lógica y modelo de negocio.
 
-    Presentación: clases de interfaz y controladores de usuario.
+    Presentación: vistas/clases de interfaz y controladores de usuario.
 
-    Persistencia: gestión de almacenamiento y acceso a datos.
+    Persistencia: gestión de disco y acceso a datos.
+
+    Recursos: carpeta con recursos que puede usar el sistema: Mnauales, imagenes, etc.
 

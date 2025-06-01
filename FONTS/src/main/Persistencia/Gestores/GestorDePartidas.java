@@ -121,10 +121,8 @@ public class GestorDePartidas {
             String contenido = new String(Files.readAllBytes(Paths.get(rutaArchivo)));
             JSONObject partidaJson = new JSONObject(contenido);
 
-            System.out.println("El recurso de la partida es: " + partidaJson.getString("recurso"));
             return partidaJson.getString("recurso");
         } catch (IOException e) {
-            System.err.println("[Persistencia] Error al cargar el recurso de la partida: " + e.getMessage());
             return null;
         }
     }
@@ -149,7 +147,6 @@ public class GestorDePartidas {
         // Escribir el JSON en un archivo
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
             writer.write(jsonPartida);
-            System.out.println("Partida guardada exitosamente en: " + rutaArchivo);
         } catch (IOException e) {
             System.err.println("[Persistencia] Error al guardar la partida: " + e.getMessage());
         }

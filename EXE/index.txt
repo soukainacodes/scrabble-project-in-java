@@ -1,6 +1,0 @@
-Carpeta donde se almacenan los ejecutables .jar y .class.
-
-- Aqui se almacenan los drivers ejecutables. 
-
-- Para ejecutarlos, hay que estar en el directorio raiz del proyecto y usar los 
-comandos make descritos en comandos_make_guia.txt

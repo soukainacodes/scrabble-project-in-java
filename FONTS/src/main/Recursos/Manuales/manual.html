@@ -1,215 +1,401 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Manual de Usuario – Scrabble® Versión 1.2</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; line-height: 1.6; padding: 20px; }
-    h1, h2, h3 { color: #2c3e50; }
-    nav#toc { background: #ecf0f1; padding: 15px; border-radius: 6px; margin-bottom: 30px; }
-    nav#toc ul { list-style: none; padding-left: 0; }
-    nav#toc li { margin: 5px 0; }
-    nav#toc a { text-decoration: none; color: #2980b9; }
-    nav#toc a:hover { text-decoration: underline; }
-    section { margin-top: 40px; }
-    ul { margin-left: 20px; }
-    .note { background: #f9e79f; padding: 10px; border-left: 4px solid #f1c40f; margin: 15px 0; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Manual de Usuario – Scrabble</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+ :root {
+  --primary:#2E86AB;
+  --secondary:#F6C85F;
+  --bg:#f5f7fa;
+  --text:#333;
+  --warning:#C62828;
+  --note:#2E7D32;
+ }
+ *{box-sizing:border-box;scroll-behavior:smooth;}
+ body{margin:0;padding:0 1.5rem 4rem;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);line-height:1.6;}
+ header{padding:2rem 0 1rem;text-align:center;}
+ header h1{margin:0;font-size:2.25rem;color:var(--primary);} 
+ nav{background:#fff;border:1px solid #ddd;border-radius:.5rem;padding:1rem;margin-bottom:2rem;box-shadow:0 2px 4px rgba(0,0,0,.05);} 
+ nav ol{list-style:decimal;margin-left:1.25rem;padding-left:.25rem;}
+ nav li{margin:.25rem 0;}
+ nav a{color:var(--primary);text-decoration:none;font-weight:600;}
+ nav a:hover{text-decoration:underline;}
+ h2{margin-top:3rem;font-size:1.75rem;color:var(--primary);}
+ h3{margin-top:2rem;font-size:1.3rem;color:#0d5c7d;}
+ ul{margin-left:1.25rem;padding-left:.25rem;}
+ ul ul{list-style:square;}
+ .note{border-left:4px solid var(--note);background:#e8f5e9;padding:.75rem 1rem;margin:.75rem 0;border-radius:.25rem;}
+ .warning{border-left:4px solid var(--warning);background:#ffebee;padding:.75rem 1rem;margin:.75rem 0;border-radius:.25rem;color:var(--warning);font-weight:700;}
+ code{background:#eee;border-radius:3px;padding:0 .25rem;}
+ mark{background:var(--secondary);padding:0 .15rem;border-radius:2px;}
+</style>
 </head>
 <body>
+<header>
+  <h1>Manual de Usuario – Scrabble App</h1>
+</header>
 
-  <h1>Manual de Usuario – Scrabble® Versión 1.2</h1>
+<nav>
+<ol>
+  <li><a href="#primeros-pasos">Primeros pasos: Login y Registro</a>
+    <ol>
+      <li><a href="#crear-cuenta">Crear una cuenta nueva</a></li>
+      <li><a href="#iniciar-sesion">Iniciar sesión (login)</a></li>
+    </ol>
+  </li>
+  <li><a href="#gestion-cuenta">Gestión de Cuenta</a>
+    <ol>
+      <li><a href="#cambiar-nombre">Cambiar nombre de usuario</a></li>
+      <li><a href="#cambiar-contrasena">Cambiar contraseña</a></li>
+      <li><a href="#cambiar-foto">Cambiar foto de perfil</a></li>
+      <li><a href="#eliminar-perfil">Eliminar perfil</a></li>
+    </ol>
+  </li>
+  <li><a href="#gestion-recursos">Gestión de Recursos</a>
+    <ol>
+      <li><a href="#visualizar-recursos">Visualizar recursos</a></li>
+      <li><a href="#anadir-recurso-manual">Añadir recurso manualmente</a></li>
+      <li><a href="#anadir-recurso-archivo">Añadir recurso desde archivo</a></li>
+      <li><a href="#editar-recurso">Editar recurso</a></li>
+      <li><a href="#eliminar-recurso">Eliminar recurso</a></li>
+    </ol>
+  </li>
+  <li><a href="#ranking">Ranking</a></li>
+  <li><a href="#crear-cargar-partidas">Crear y Cargar Partidas</a>
+    <ol>
+      <li><a href="#crear-partida">Crear nueva partida</a></li>
+      <li><a href="#cargar-partida">Cargar partida</a></li>
+    </ol>
+  </li>
+  <li><a href="#desarrollo-partida">Desarrollo de la Partida</a></li>
+  <li><a href="#cerrar-sesion">Cerrar Sesión</a></li>
+  <li><a href="#reglas-scrabble">Reglas del juego de Scrabble</a></li>
+</ol>
+</nav>
 
-  <nav id="toc">
-    <strong>Índice</strong>
+<!-- 1 -->
+<h2 id="primeros-pasos">1. Primeros pasos: Login y Registro</h2>
+
+<!-- 1.1 -->
+<h3 id="crear-cuenta">1.1 Crear una cuenta nueva</h3>
+<ul>
+  <li>En la pantalla de inicio, haz clic en <mark>Registrar</mark>.</li>
+  <li>Rellena los datos obligatorios:
     <ul>
-      <li><a href="#introduccion">1. Introducción</a></li>
-      <li><a href="#comenzar">2. Comenzar</a></li>
-      <li><a href="#autenticacion">3. Autenticación</a></li>
-      <li><a href="#cuenta">4. Gestión de Cuenta</a></li>
-      <li><a href="#partidas">5. Gestión de Partidas</a></li>
-      <li><a href="#juego">6. Jugar</a></li>
-      <li>
-        <a href="#reglas">7. Reglas del Juego de Scrabble</a>
+      <li>Nombre de usuario (no puede coincidir con uno existente).</li>
+      <li>Contraseña.</li>
+    </ul>
+  </li>
+  <li>Pulsa <mark>Registrarse</mark>.</li>
+  <li class="warning">Si el nombre ya existe, recibirás un mensaje de error: «El nombre de usuario ya está en uso».</li>
+</ul>
+
+<!-- 1.2 -->
+<h3 id="iniciar-sesion">1.2 Iniciar sesión (login)</h3>
+<ul>
+  <li>En la pantalla de inicio, completa:
+    <ul>
+      <li>Usuario</li>
+      <li>Contraseña</li>
+    </ul>
+  </li>
+  <li>Pulsa <mark>Entrar</mark> o dale a la tecla <kbd>Enter</kbd>.</li>
+  <li class="warning">Si los datos son incorrectos, verás «Usuario o contraseña inválidos».</li>
+</ul>
+
+<!-- 2 -->
+<h2 id="gestion-cuenta">2. Gestión de Cuenta</h2>
+<p>Accede a <mark>Ver Cuenta</mark> desde el menú lateral para ver y modificar tu perfil.</p>
+
+<!-- 2.1 -->
+<h3 id="cambiar-nombre">2.1 Cambiar nombre de usuario</h3>
+<ul>
+  <li>Haz clic en <mark>Cambiar Nombre</mark>.</li>
+  <li>En el campo <em>Nuevo nombre</em>, escribe un nombre que no exista en el sistema.</li>
+  <li>Confirma tu identidad introduciendo tu contraseña actual.</li>
+  <li>Pulsa <mark>Guardar cambios</mark>.</li>
+  <li class="warning">Si el nombre está ocupado o la contraseña es errónea, recibirás un mensaje de error.</li>
+</ul>
+
+<!-- 2.2 -->
+<h3 id="cambiar-contrasena">2.2 Cambiar contraseña</h3>
+<ul>
+  <li>Desde tu perfil, haz clic en <mark>Cambiar Contraseña</mark>.</li>
+  <li>Introduce tu contraseña actual.</li>
+  <li>Escribe la nueva contraseña dos veces.</li>
+  <li>Pulsa <mark>Confirmar</mark>.</li>
+  <li class="warning">Si las contraseñas no coinciden o la actual es incorrecta, recibirás un aviso.</li>
+</ul>
+
+<!-- 2.3 -->
+<h3 id="cambiar-foto">2.3 Cambiar foto de perfil</h3>
+<ul>
+  <li>Haz clic en tu avatar dentro de tu perfil.</li>
+  <li>Selecciona una imagen desde tu equipo (png, jpg, etc.).</li>
+  <li class="warning">Si el archivo no es válido, aparecerá un mensaje de error.</li>
+</ul>
+
+<!-- 2.4 -->
+<h3 id="eliminar-perfil">2.4 Eliminar perfil</h3>
+<ul>
+  <li>Dentro de tu perfil, selecciona <mark>Eliminar perfil</mark>.</li>
+  <li>Se te pedirá tu contraseña actual para confirmar.</li>
+  <li>Pulsa <mark>Eliminar cuenta</mark>.</li>
+  <li class="warning">Esta acción es irreversible: perderás todos tus datos.</li>
+</ul>
+
+<!-- 3 -->
+<h2 id="gestion-recursos">3. Gestión de Recursos</h2>
+<p>Desde el menú o botón <mark>Recursos</mark> podrás ver, añadir, editar y eliminar conjuntos de fichas (bolsa) y diccionarios.</p>
+
+<!-- 3.1 -->
+<h3 id="visualizar-recursos">3.1 Visualizar recursos</h3>
+<ul>
+  <li>Al darle clic a <mark>Recursos</mark>, aparecerá una lista con los nombres de tus recursos disponibles.</li>
+  <li>Cada recurso incluye:
+    <ul>
+      <li><strong>Diccionario</strong>: lista de palabras válidas para jugar.</li>
+      <li><strong>Bolsa de fichas</strong>: letras y cantidades.</li>
+    </ul>
+  </li>
+</ul>
+
+<!-- 3.2 -->
+<h3 id="anadir-recurso-manual">3.2 Añadir recurso manualmente</h3>
+<ul>
+  <li>Haz clic en <mark>Añadir recurso</mark> y te aparecerá el siguiente pop‑up.</li>
+  <li>Introduce un nombre único para este recurso.</li>
+  <li>En el área de <strong>Diccionario</strong>, escribe una palabra por línea, en MAYÚSCULAS y sin acentos.</li>
+  <li>En el área de <strong>Bolsa de fichas</strong>, escribe una ficha por línea, en MAYÚSCULAS, seguida inmediatamente de la cantidad y la puntuación de esta ficha.</li>
+  <li>Pulsa <mark>Aceptar</mark>.</li>
+  <li class="warning">Si el formato es incorrecto (letra minúscula, acento, número fuera de lugar…), recibirás un mensaje de error y tendrás que corregirlo.</li>
+</ul>
+
+<!-- 3.3 -->
+<h3 id="anadir-recurso-archivo">3.3 Añadir recurso desde archivo</h3>
+<ul>
+  <li>Haz clic en <mark>Añadir Diccionario a partir de archivo</mark> para el diccionario.</li>
+  <li>Selecciona un archivo de tu equipo.</li>
+  <li>Lo mismo para la bolsa pulsando el botón <mark>Añadir Bolsa a partir de archivo</mark>.</li>
+  <li>Confirma el formato:
+    <ul>
+      <li><strong>Diccionario</strong>: palabra por línea, MAYÚSCULAS, sin acentos.</li>
+      <li><strong>Bolsa</strong>: línea por ficha con letra y cantidad y puntuación.</li>
+    </ul>
+  </li>
+  <li>Pulsa <mark>Aceptar</mark>.</li>
+  <li class="warning">Si hay errores de formato, se mostrará el error correspondiente.</li>
+</ul>
+
+<!-- 3.4 -->
+<h3 id="editar-recurso">3.4 Editar recurso</h3>
+<ul>
+  <li>Selecciona el recurso en la lista.</li>
+  <li>Elige <mark>Editar</mark>.</li>
+  <li>Modifica manualmente o reimporta desde un archivo.</li>
+  <li>Guarda los cambios (se validará de nuevo el formato) dándole al botón <mark>Aceptar</mark>.</li>
+  <li class="warning">Si el formato es inválido, se reportará el error.</li>
+</ul>
+
+<!-- 3.5 -->
+<h3 id="eliminar-recurso">3.5 Eliminar recurso</h3>
+<ul>
+  <li>Selecciona el recurso en la lista.</li>
+  <li>Haz clic en <mark>Eliminar</mark>.</li>
+  <li>El recurso se borra definitivamente.</li>
+</ul>
+
+<!-- 4 -->
+<h2 id="ranking">4. Ranking</h2>
+<ul>
+  <li>Desde el menú lateral, pulsa <mark>Ranking</mark>.</li>
+  <li>La aplicación mostrará la lista de jugadores activos con puntuación &gt; 0 de manera descendente.</li>
+  <li>Consulta quiénes tienen las mejores puntuaciones.</li>
+</ul>
+
+<!-- 5 -->
+<h2 id="crear-cargar-partidas">5. Crear y Cargar Partidas</h2>
+<ul>
+  <li>Desde el menú lateral, haz clic a <mark>Jugar</mark>.</li>
+</ul>
+
+<!-- 5.1 -->
+<h3 id="crear-partida">5.1 Crear nueva partida</h3>
+<ul>
+  <li>Dentro de la pestaña <mark>Jugar</mark>, haz clic en el botón <mark>Nueva Partida</mark>.</li>
+  <li>Introduce un identificador único para tu partida (p.ej. Mesa1).</li>
+  <li>Elige 1 jugador (contra IA) o 2 jugadores:</li>
+  <div class="note">NOTA: Si son 2, el segundo jugador debe registrarse o iniciar sesión, y no podrá usar el mismo usuario que el primero.</div>
+  <li>Selecciona el recurso (bolsa + diccionario) que desees usar.</li>
+  <li>Pulsa <mark>Crear Partida</mark>.</li>
+</ul>
+
+<!-- 5.2 -->
+<h3 id="cargar-partida">5.2 Cargar partida</h3>
+<ul>
+  <li>Desde el menú principal de <mark>Jugar</mark>:</li>
+  <li>Última partida: hay un botón rápido (AZUL) que carga automáticamente la última sesión guardada, si no hay ninguna partida guardada.</li>
+  <li>Otra partida:</li>
+  <ul>
+    <li>Haz clic en <mark>Cargar Partida</mark>.</li>
+    <li>Elige de la lista la partida que quieras reanudar y selecciona.</li>
+    <li>Pulsa <mark>Cargar Partida</mark> para reanudar.</li>
+  </ul>
+</ul>
+
+<!-- 6 -->
+<h2 id="desarrollo-partida">6. Desarrollo de la Partida</h2>
+<p>Durante tu turno dispones de varios botones:</p>
+<ul>
+  <li><strong>Intercambiar fichas (Reset)</strong>
+    <ul>
+      <li>Cambia las fichas de tu atril con otras de la bolsa.</li>
+    </ul>
+  </li>
+  <li><strong>Pasar turno</strong>
+    <ul>
+      <li>Cede el turno al siguiente jugador sin jugar palabra.</li>
+    </ul>
+  </li>
+  <li><strong>Ayuda</strong>
+    <ul>
+      <li>Sugiere la mejor palabra posible con tus fichas: se coloca automáticamente y pasa el turno.</li>
+    </ul>
+  </li>
+  <li><strong>Usar comodín</strong>
+    <ul>
+      <li>Si juegas con ficha comodín, el sistema pide que elijas una letra válida. Debes seleccionar una de las permitidas en tu bolsa.</li>
+    </ul>
+  </li>
+  <li><strong>Fin de turno</strong>
+    <ul>
+      <li>Al pulsar, la palabra que has colocado se valida.</li>
+      <li class="warning">Si la palabra no existe o el posicionamiento es inválido, recibirás un mensaje: «Palabra no válida».</li>
+    </ul>
+  </li>
+  <li><strong>Salir de partida</strong>
+    <ul>
+      <li>Te da dos opciones:
         <ul>
-          <li><a href="#objetivo">7.1 Objetivo</a></li>
-          <li><a href="#preparacion">7.2 Preparación</a></li>
-          <li><a href="#fichas">7.3 Distribución de Fichas</a></li>
-          <li><a href="#turno">7.4 Desarrollo de un Turno</a></li>
-          <li><a href="#puntuacion">7.5 Puntuación</a></li>
-          <li><a href="#casillas">7.6 Casillas Especiales</a></li>
-          <li><a href="#desafios">7.7 Desafíos</a></li>
-          <li><a href="#fin">7.8 Fin de la Partida</a></li>
-          <li><a href="#tie">7.9 Empates</a></li>
+          <li>Abandonar (termina la partida y pierde).</li>
+          <li>Salir (se guarda la partida y se podrá reanudarla luego).</li>
         </ul>
       </li>
-      <li><a href="#recursos">8. Gestión de Recursos</a></li>
-      <li><a href="#ranking">9. Ranking de Jugadores</a></li>
-      <li><a href="#guardado">10. Guardado y Salida</a></li>
-      <li><a href="#ayuda">11. Ayuda & Tips</a></li>
-      <li><a href="#soporte">12. Soporte</a></li>
     </ul>
-  </nav>
+  </li>
+</ul>
 
-  <section id="introduccion">
-    <h2>1. Introducción</h2>
-    <p>
-      Bienvenido a <strong>Scrabble® Versión 1.2</strong>, la adaptación digital del clásico juego de mesa. Nuestra aplicación te permite disfrutar de partidas de Scrabble en tu ordenador, conservando todas sus reglas oficiales y añadiendo comodidades como guardado automático, sugerencias de palabras y un diseño accesible para jugadores de todas las edades.
-    </p>
-  </section>
+<p>Información visible en pantalla</p>
+<ul>
+  <li>Nombres y avatares de ambos jugadores.</li>
+  <li>Puntuaciones actualizadas en tiempo real.</li>
+  <li>Fichas disponibles en tu atril.</li>
+</ul>
 
-  <section id="comenzar">
-    <h2>2. Comenzar</h2>
-    <p>
-      Al iniciar el programa encontrarás la pantalla principal con el menú lateral desplegable. Desde allí podrás:
-    </p>
-    <ul>
-      <li>Crear una nueva partida.</li>
-      <li>Cargar la última partida jugada.</li>
-      <li>Explorar y reanudar o eliminar partidas anteriores.</li>
-      <li>Acceder a tu perfil, al ranking, al manual o gestionar recursos.</li>
-    </ul>
-  </section>
+<!-- 7 -->
+<h2 id="cerrar-sesion">7. Cerrar Sesión</h2>
+<ul>
+  <li>En el menú lateral, pulsa <mark>Cerrar sesión</mark>.</li>
+  <li>Volverás a la pantalla de inicio de sesión/registro.</li>
+</ul>
 
-  <section id="autenticacion">
-    <h2>3. Autenticación</h2>
-    <p>
-      Antes de jugar, debes iniciar sesión con tu usuario y contraseña o registrarte como nuevo jugador. Estos datos se guardan de forma segura para que puedas recuperar tu progreso en futuras sesiones.
-    </p>
-  </section>
+<!-- 8 -->
+<h2 id="reglas-scrabble">8. Reglas del juego de Scrabble</h2>
 
-  <section id="cuenta">
-    <h2>4. Gestión de Cuenta</h2>
-    <p>
-      En tu panel de cuenta puedes:
-    </p>
-    <ul>
-      <li>Cambiar tu nombre de usuario o contraseña.</li>
-      <li>Subir o cambiar tu foto de perfil.</li>
-      <li>Eliminar tu cuenta y todos tus datos.</li>
-    </ul>
-  </section>
+<!-- 8.1 -->
+<h3 id="objetivo-juego">8.1 Objetivo del juego</h3>
+<p>El objetivo de Scrabble es obtener la mayor cantidad de puntos formando palabras cruzadas sobre el tablero. Al final de la partida, gana el jugador con más puntos acumulados. Para lograrlo, los jugadores colocan sus fichas de letras en el tablero formando palabras válidas (según el diccionario del juego) y aprovechando las casillas de bonificación para sumar más puntos que sus oponentes.</p>
 
-  <section id="partidas">
-    <h2>5. Gestión de Partidas</h2>
-    <p>
-      Al crear una partida eliges el modo (SOLO o DOS JUGADORES), seleccionas el recurso (diccionario + bolsa de fichas) y asignas un nombre. Para dos jugadores, se pedirá el inicio de sesión del segundo participante.  
-      También puedes:
-    </p>
-    <ul>
-      <li>Cargar al instante la última partida.</li>
-      <li>Ver todas tus partidas guardadas y eliminarlas si lo deseas.</li>
-    </ul>
-  </section>
+<!-- 8.2 -->
+<h3 id="tablero-fichas">8.2 Composición del tablero y fichas</h3>
+<p>Scrabble se juega en un tablero cuadrado de 15 × 15 casillas. Cada casilla puede estar vacía o contener una ficha con letra. El tablero incluye casillas especiales que multiplican el valor de las letras o de las palabras colocadas en ellas, aumentando la puntuación:</p>
+<ul>
+  <li>Doble Letra (DL): multiplica x2 el valor de la letra colocada en esa casilla.</li>
+  <li>Triple Letra (TL): multiplica x3 el valor de la letra de esa casilla.</li>
+  <li>Doble Palabra (DP): multiplica x2 el valor total de la palabra formada que pase por esa casilla.</li>
+  <li>Triple Palabra (TP): multiplica x3 el valor total de la palabra que pase por esa casilla.</li>
+</ul>
+<p>La casilla central del tablero cuenta como Doble Palabra y debe ser utilizada por la primera palabra que se coloque en la partida.</p>
+<p>En total el juego cuenta con 100 fichas: 98 fichas muestran letras (con un número indicando su valor en puntos) y 2 fichas comodín (#) sin letra ni valor.</p>
+<p>Cada letra aparece en cierta cantidad dependiendo de su frecuencia en el recurso elegido:</p>
+<ul>
+  <li>En general, las letras más comunes (por ejemplo, A o E) valen 1 punto, mientras que letras menos frecuentes como la Z valen 10 puntos.</li>
+  <li>En algunos recursos, como el español, el juego incluye fichas especiales para dígrafos como CH, LL y RR, y no contiene las letras K ni W.</li>
+</ul>
+<p>Los comodines pueden usarse para representar cualquier letra (no suman puntos). Todos los jugadores comienzan con un atril donde colocarán sus fichas; al iniciar la partida, cada jugador recibe 7 fichas al azar de la bolsa.</p>
 
-  <section id="juego">
-    <h2>6. Jugar</h2>
-    <p>
-      Una vez en la partida, verás:
-    </p>
-    <ul>
-      <li>El <strong>tablero 15×15</strong> con sus casillas de bonificación.</li>
-      <li>Tu <strong>atril</strong> con las 7 fichas disponibles.</li>
-      <li>Botones para pasar turno, <strong>RESET</strong> (cambiar fichas) y terminar tu jugada.</li>
-      <li>En modo SOLO, un botón de <strong>Ayuda</strong> que sugiere palabras basadas en tus fichas.</li>
-    </ul>
-  </section>
+<!-- 8.3 -->
+<h3 id="formar-palabras">8.3 Cómo se forman palabras</h3>
+<ul>
+  <li>En su turno, cada jugador forma palabras colocando de <strong>1 a 7</strong> letras de su atril en el tablero.
+      Las palabras se colocan como en un crucigrama: horizontalmente (izquierda → derecha) o verticalmente (arriba → abajo).
+      No se permiten palabras en diagonal ni letras sueltas que no formen palabra.</li>
+  <li><strong>Primera palabra:</strong> debe pasar por la casilla central del tablero (bonus Doble Palabra) y puede orientarse en cualquiera de las dos direcciones.</li>
+  <li><strong>Palabras subsecuentes:</strong> cada nueva palabra debe conectar con fichas ya colocadas.
+      Al menos una letra jugada debe quedar adyacente (en horizontal o vertical) a alguna ficha existente, creando así una red de palabras cruzadas.</li>
+  <li>Todas las fichas jugadas en un turno han de colocarse en una sola fila o columna continua, sin huecos entre ellas.</li>
+  <li>Al añadir letras nuevas se pueden formar palabras perpendiculares de forma incidental.
+      <em>Todas</em> las palabras generadas en el turno (principal y cruzadas) deben ser válidas según el diccionario.</li>
+  <li>Las fichas colocadas permanecen fijas el resto de la partida; no pueden moverse ni sustituirse.</li>
+</ul>
 
-  <section id="reglas">
-    <h2>7. Reglas del Juego de Scrabble</h2>
+<!-- 8.4 -->
+<h3 id="puntuar-jugadas">8.4 Cómo se puntúan las jugadas</h3>
+<p>Cada turno se puntúa automáticamente sumando el valor de las letras jugadas y aplicando los multiplicadores del tablero:</p>
+<ul>
+  <li><strong>1.</strong> Suma el valor base de cada letra, multiplicando las que caigan en DL (×2) o TL (×3).</li>
+  <li><strong>2.</strong> Aplica los bonus de palabra (DP ×2, TP ×3) sobre el total obtenido para cada palabra principal.</li>
+  <li><strong>3.</strong> Si se crean varias palabras, puntúalas individualmente y suma los resultados.</li>
+  <li><strong>4.</strong> Si empleas <em>las 7 fichas</em> en un mismo turno obtienes <mark>+50 puntos</mark> adicionales.</li>
+</ul>
+<p class="note">Las casillas DL/TL/DP/TP solo otorgan bonus la <strong>primera</strong> vez que se coloca una ficha sobre ellas.</p>
+<p class="warning">Los comodines (#) valen 0 puntos y no se benefician de DL/TL, aunque sí cuentan en DP/TP.</p>
 
-    <h3 id="objetivo">7.1 Objetivo</h3>
-    <p>
-      Formar palabras válidas para conseguir la máxima puntuación combinando letras en el tablero.
-    </p>
+<!-- 8.5 -->
+<h3 id="turnos-jugadores">8.5 Turnos de los jugadores</h3>
+<ul>
+  <li><strong>Jugar palabra:</strong> coloca fichas, pulsa <mark>Fin turno</mark>; la app valida y puntúa.</li>
+  <li><strong>Pasar turno:</strong> si no puedes (o quieres) jugar, pulsa <mark>Pasar</mark> → el turno pasa sin puntos.</li>
+  <li><strong>Ayuda:</strong> la app sugiere y coloca automáticamente una palabra válida (opcional).</li>
+  <li>No hay límite de tiempo por defecto.</li>
+</ul>
 
-    <h3 id="preparacion">7.2 Preparación</h3>
-    <p>
-      <ul>
-        <li>Cada jugador toma 7 fichas al azar.</li>
-        <li>La casilla central (7,7) es Doble Palabra.</li>
-      </ul>
-    </p>
+<!-- 8.6 -->
+<h3 id="uso-comodin">8.6 Uso del comodín (#)</h3>
+<ul>
+  <li>Al colocar un # aparece un diálogo para escoger qué letra representará.</li>
+  <li>El comodín mantiene valor 0 pero cuenta en palabras y bonus de palabra.</li>
+  <li>No puede cambiarse la letra asignada una vez jugado.</li>
+</ul>
 
-    <h3 id="fichas">7.3 Distribución de Fichas</h3>
-    <p>
-      El juego contiene 100 fichas: 98 con letra y puntos, y 2 comodines (sin valor). Cada letra tiene una frecuencia y puntaje establecido.
-    </p>
+<!-- 8.7 -->
+<h3 id="funciones-especiales">8.7 Funciones especiales de la aplicación</h3>
+<ul>
+  <li><strong>Ayuda:</strong> sugiere y coloca la mejor palabra posible con tus fichas.</li>
+  <li><strong>Reset:</strong> devuelve al atril todas las fichas colocadas en el turno actual.</li>
+  <li><strong>Pasar turno</strong> y <strong>Salir/Guardar</strong> para pausar o abandonar la partida.</li>
+</ul>
 
-    <h3 id="turno">7.4 Desarrollo de un Turno</h3>
-    <ul>
-      <li>Colocas letras en línea horizontal o vertical.</li>
-      <li>La nueva palabra debe conectar con las existentes.</li>
-      <li>Repón fichas hasta tener 7, si hay en la bolsa.</li>
-    </ul>
+<!-- 8.8 -->
+<h3 id="fin-juego">8.8 Condiciones para terminar el juego</h3>
+<ul>
+  <li><strong>Bolsa vacía + un jugador sin fichas:</strong> la partida termina inmediatamente.</li>
+  <li>Si un jugador <em>abandona</em>, pierde la partida sea cual sea la puntuación.</li>
+</ul>
 
-    <h3 id="puntuacion">7.5 Puntuación</h3>
-    <p>
-      Suma el valor de cada letra y aplica multiplicadores de casillas especiales. Todas las palabras formadas en un mismo turno se cuentan.
-    </p>
-
-    <h3 id="casillas">7.6 Casillas Especiales</h3>
-    <ul>
-      <li><strong>Doble Letra / Triple Letra:</strong> multiplican el valor de la letra.</li>
-      <li><strong>Doble Palabra / Triple Palabra:</strong> multiplican la puntuación de la palabra.</li>
-      <li>Solo funcionan la primera vez que se cubren.</li>
-    </ul>
-
-    <h3 id="desafios">7.7 Desafíos</h3>
-    <p>
-      Si tu oponente impugna una palabra, se valida en el diccionario. Si es inválida, pierdes tu turno y devuelves letras; si es válida, el desafiante pierde el turno.
-    </p>
-
-    <h3 id="fin">7.8 Fin de la Partida</h3>
-    <ul>
-      <li>Se termina cuando se agotan las fichas y un jugador las usa todas, o cuando ambos pasan seguidos.</li>
-      <li>Se restan de tu total los puntos de fichas que te quedan; si vacías el atril, añades esos puntos al total del rival.</li>
-    </ul>
-
-    <h3 id="tie">7.9 Empates</h3>
-    <p>
-      Si empatan en puntos, gana quien haya obtenido más puntos por bonificaciones de palabra; si sigue el empate, se considera empate compartido.
-    </p>
-  </section>
-
-  <section id="recursos">
-    <h2>8. Gestión de Recursos</h2>
-    <p>
-      Crea, edita o elimina diccionarios y bolsas de fichas. Los diccionarios deben estar en mayúsculas y ordenados; las bolsas especifican letra, cantidad y puntaje.
-    </p>
-  </section>
-
-  <section id="ranking">
-    <h2>9. Ranking de Jugadores</h2>
-    <p>
-      Consulta la clasificación global, ordenada por puntuación máxima. Solo aparecen jugadores activos con al menos 1 punto.
-    </p>
-  </section>
-
-  <section id="guardado">
-    <h2>10. Guardado y Salida</h2>
-    <ul>
-      <li>El progreso se guarda automáticamente tras cada turno.</li>
-      <li>Al salir, puedes abandonar sin guardar o guardar para continuar más tarde.</li>
-    </ul>
-  </section>
-
-  <section id="ayuda">
-    <h2>11. Ayuda & Tips</h2>
-    <p class="note">
-      Usa el botón <strong>Ayuda</strong> en modo SOLO para recibir sugerencias de palabras óptimas basadas en tus fichas.
-    </p>
-    <p>
-      Explora el menú lateral en cualquier momento para acceder rápidamente a cualquier función.
-    </p>
-  </section>
-
-  <section id="soporte">
-    <h2>12. Soporte</h2>
-    <p>
-      Para dudas o mejoras, revisa nuestro <em>readme</em> o contacta al equipo de desarrollo. ¡Disfruta de tu partida!
-    </p>
-  </section>
-
+<!-- 8.9 -->
+<h3 id="jugadas-invalidas">8.9 Jugadas no válidas y notificaciones de error</h3>
+<ul>
+  <li>Palabra inexistente en el diccionario.</li>
+  <li>Letras separadas/no continuas en un turno.</li>
+  <li>No conecta con el tablero (salvo primera jugada).</li>
+  <li>Primera palabra que no ocupa la casilla central.</li>
+  <li>Intentar sobreescribir fichas ya colocadas.</li>
+  <li>Colocar # sin seleccionar letra válida.</li>
+</ul>
+<p class="warning">Ante cualquier error la app muestra un aviso («Palabra no válida», etc.) y devuelve las fichas al atril; el turno no se consume.</p>
 </body>
 </html>

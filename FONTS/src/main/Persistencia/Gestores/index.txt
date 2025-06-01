@@ -1,0 +1,7 @@
+Gestores
+- Carpeta Utils: Clases auxiliares para la gestion de disco
+- Gestores de disco, hay 4:
+        - Gestor de usuarios
+        - Gestor de Ranking
+        - Gestor de Recursos
+        - Gestor de Partidas
