@@ -1,4 +1,4 @@
-### Scrabble® - Java Edition
+# Scrabble® - Java Edition
 
 ## 📚 Overview
 
