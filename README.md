@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/50136039-8402-49f0-8c6d-6bb2e6106446)# Scrabble® - Java Edition
+### Scrabble® - Java Edition
 
 ## 📚 Overview
 
