@@ -114,24 +114,30 @@ View the global leaderboard. It displays all players with scores above zero in d
 
 
 ### Login Screen
+![screenshot1](https://github.com/user-attachments/assets/087227f1-ec63-4dea-b66a-c5ada2060f23)
 
-[Login Screen](capturas/screenshot1.png) 
+### Player's account and settings
+![screenshot2](https://github.com/user-attachments/assets/00806246-712c-422e-afaf-64b34f47ada6)
+
 
 ### Resource Management
+![screenshot3](https://github.com/user-attachments/assets/b7e1e199-3f07-4344-af56-bd0a212d1c87)
+![screenshot5](https://github.com/user-attachments/assets/33b5b26e-070b-4fe8-93aa-970df9d94bf7)
 
-[Resource Management](capturas/screenshot3.png)
 
 ### In-Game Play
+![screenshot7](https://github.com/user-attachments/assets/b2c912e0-f789-47c7-8377-46f0ffecd50f)
 
-[In-Game Play](capturas/screenshot8.png) 
+![screenshot8](https://github.com/user-attachments/assets/5f3383af-7214-4e3a-b147-9818a0cd4ea3)
 
 ### Ranking Screen
 
-[Ranking Screen](capturas/screenshot6.png) 
+![screenshot6](https://github.com/user-attachments/assets/ea9d0067-c7a7-4c3c-8632-3c4ee7584758)
+
 
 ### End of game
 
-[End of Game](capturas/screenshot9.png)
+![screenshot9](https://github.com/user-attachments/assets/2f46516b-2b70-41e2-96ca-b6a31e4e3c83)
 
 ---
 
@@ -145,8 +151,9 @@ View the global leaderboard. It displays all players with scores above zero in d
 
 ## 🏁 Authors
 
-* Alexandre Vinent Padrol (`alexandre.vinent`)
 * Soukaïna Mahboub Mehboub (`soukaina.mahboub`)
+* Alexandre Vinent Padrol (`alexandre.vinent`)
+
 
 ---
 
